@@ -3,30 +3,36 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  ******************************************************************************/
-package org.caleydo.view.template;
+package org.caleydo.view.template.internal.serial;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.caleydo.core.serialize.ASerializedSingleTablePerspectiveBasedView;
+import org.caleydo.core.serialize.ASerializedMultiTablePerspectiveBasedView;
+import org.caleydo.core.view.IMultiTablePerspectiveBasedView;
+import org.caleydo.view.template.internal.GLTemplateSingleView;
 
 /**
- * Serialized <INSERT VIEW NAME> view.
  *
- * @author <INSERT_YOUR_NAME>
+ * @author AUTHOR
+ *
  */
 @XmlRootElement
 @XmlType
-public class SerializedTemplateView extends ASerializedSingleTablePerspectiveBasedView {
+public class SerializedTemplateMultiView extends ASerializedMultiTablePerspectiveBasedView {
 
 	/**
 	 * Default constructor with default initialization
 	 */
-	public SerializedTemplateView() {
+	public SerializedTemplateMultiView() {
+	}
+
+	public SerializedTemplateMultiView(IMultiTablePerspectiveBasedView view) {
+		super(view);
 	}
 
 	@Override
 	public String getViewType() {
-		return GLTemplateView.VIEW_TYPE;
+		return GLTemplateSingleView.VIEW_TYPE;
 	}
 }

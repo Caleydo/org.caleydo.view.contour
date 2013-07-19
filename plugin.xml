@@ -6,7 +6,7 @@
       <view
             allowMultiple="true"
             category="org.caleydo.core.views"
-            class="org.caleydo.view.template.RcpGLTemplateView"
+            class="org.caleydo.view.template.internal.RcpGLTemplateView"
             icon="resources/icons/icon.png"
             id="org.caleydo.view.template"
             name="Template">
@@ -23,7 +23,7 @@
                   id="org.caleydo.menu.view.experimental"
                   label="Experimental">
                <command
-                     commandId="org.caleydo.view.template.command.opentemplate"
+                     commandId="org.caleydo.view.template.command.open"
                      icon="resources/icons/icon.png"
                      style="push">
                   <visibleWhen
@@ -43,8 +43,8 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.caleydo.view.template.OpenViewHandler"
-            id="org.caleydo.view.template.command.opentemplate"
+            defaultHandler="org.caleydo.view.template.internal.OpenViewHandler"
+            id="org.caleydo.view.template.command.open"
             name="Template">
       </command>
    </extension>

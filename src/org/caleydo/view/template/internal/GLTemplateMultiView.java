@@ -16,13 +16,11 @@ import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.serialize.ASerializedView;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
-import org.caleydo.core.view.opengl.layout2.AGLElementDecorator;
+import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
 import org.caleydo.view.template.internal.serial.SerializedTemplateMultiView;
 import org.caleydo.view.template.ui.TemplateElement;
 import org.caleydo.view.template.ui.TemplateMultiElement;
-
-import com.google.common.collect.Iterators;
 
 /**
  *
@@ -61,15 +59,15 @@ public class GLTemplateMultiView extends AMultiTablePerspectiveElementView {
 	}
 
 	@Override
-	protected void applyTablePerspectives(AGLElementDecorator root, List<TablePerspective> all,
+	protected void applyTablePerspectives(GLElementDecorator root, List<TablePerspective> all,
 			List<TablePerspective> added, List<TablePerspective> removed) {
 		TemplateMultiElement content = getContent();
 		for (TablePerspective add : added) {
 			content.add(new TemplateElement(add));
 		}
 		for(TablePerspective rem : removed) {
-			for(Iterator<TemplateElement> it = Iterators.filter(content.iterator(),TemplateElement.class); it.hasNext(); ) {
-				if (it.next().getTablePerspective().equals(rem)) {
+			for (Iterator<TablePerspective> it = content.getTablePerspectives().iterator(); it.hasNext();) {
+				if (rem.equals(it.next())) {
 					it.remove();
 					break;
 				}

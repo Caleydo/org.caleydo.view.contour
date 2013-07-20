@@ -11,7 +11,7 @@ import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.serialize.ASerializedView;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
-import org.caleydo.core.view.opengl.layout2.AGLElementDecorator;
+import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
 import org.caleydo.core.view.opengl.layout2.view.ASingleTablePerspectiveElementView;
 import org.caleydo.view.template.internal.serial.SerializedTemplateSingleView;
 import org.caleydo.view.template.ui.TemplateElement;
@@ -42,7 +42,7 @@ public class GLTemplateSingleView extends ASingleTablePerspectiveElementView {
 	}
 
 	@Override
-	protected void applyTablePerspective(AGLElementDecorator root, TablePerspective tablePerspective) {
+	protected void applyTablePerspective(GLElementDecorator root, TablePerspective tablePerspective) {
 		if (tablePerspective == null)
 			root.setContent(null);
 		else

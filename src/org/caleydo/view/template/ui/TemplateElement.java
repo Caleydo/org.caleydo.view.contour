@@ -31,6 +31,13 @@ public class TemplateElement extends GLElement implements TablePerspectiveSelect
 		this.selection = new TablePerspectiveSelectionMixin(tablePerspective, this);
 	}
 
+	@Override
+	public <T> T getLayoutDataAs(Class<T> clazz, T default_) {
+		if (clazz.isInstance(tablePerspective))
+			return clazz.cast(tablePerspective);
+		return super.getLayoutDataAs(clazz, default_);
+	}
+
 	/**
 	 * @return the tablePerspective, see {@link #tablePerspective}
 	 */

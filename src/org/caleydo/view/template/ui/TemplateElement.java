@@ -11,6 +11,7 @@ import org.caleydo.core.data.selection.TablePerspectiveSelectionMixin;
 import org.caleydo.core.event.EventListenerManager.DeepScan;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.template.internal.Activator;
 
 /**
@@ -29,6 +30,7 @@ public class TemplateElement extends GLElement implements TablePerspectiveSelect
 	public TemplateElement(TablePerspective tablePerspective) {
 		this.tablePerspective = tablePerspective;
 		this.selection = new TablePerspectiveSelectionMixin(tablePerspective, this);
+		setRenderer(GLRenderers.fillRect(tablePerspective.getDataDomain().getColor()));
 	}
 
 	@Override

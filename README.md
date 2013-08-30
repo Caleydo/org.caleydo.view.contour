@@ -12,14 +12,11 @@ Caleydo View Template
    ~~~
 3. run ant: ```ant -f configure.bat``` either via Eclipse or direct from the command line
 4. follow the instruction
-<<<<<<< HEAD
 5. push the code to a new remote develop branch: ```git push origin develop:develop```
 
 Alternative
 1. fork this repository
 2. go to step 3
-=======
-
 
 Conventions
 ========================
@@ -35,4 +32,3 @@ Icon Resolutions
 =======================
 The eclipse icons should have a resolution of 16x16 in the PNG format. 
 In constrast to that the Java / OpenGL icons should have a resolution of 32x32 allowing zooming without generating artifacts.
->>>>>>> develop

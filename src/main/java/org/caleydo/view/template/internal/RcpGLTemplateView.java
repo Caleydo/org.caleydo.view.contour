@@ -25,11 +25,4 @@ public class RcpGLTemplateView extends ARcpGLElementViewPart {
 	protected AGLElementView createView(IGLCanvas canvas) {
 		return new GLTemplateSingleView(glCanvas);
 	}
-
-
-	@Override
-	public String getViewGUIID() {
-		return GLTemplateSingleView.VIEW_TYPE;
-	}
-
 }

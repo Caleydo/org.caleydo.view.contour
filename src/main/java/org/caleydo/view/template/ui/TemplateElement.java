@@ -5,13 +5,12 @@
  ******************************************************************************/
 package org.caleydo.view.template.ui;
 
+import gleem.linalg.Vec2f;
+
 import org.caleydo.core.data.perspective.table.TablePerspective;
-import org.caleydo.core.data.selection.SelectionManager;
-import org.caleydo.core.data.selection.TablePerspectiveSelectionMixin;
-import org.caleydo.core.event.EventListenerManager.DeepScan;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.layout2.view.ASingleTablePerspectiveElement;
 import org.caleydo.view.template.internal.Activator;
 
 /**
@@ -20,41 +19,10 @@ import org.caleydo.view.template.internal.Activator;
  * @author AUTHOR
  *
  */
-public class TemplateElement extends GLElement implements TablePerspectiveSelectionMixin.ITablePerspectiveMixinCallback {
-
-	private final TablePerspective tablePerspective;
-
-	@DeepScan
-	private final TablePerspectiveSelectionMixin selection;
-
+public class TemplateElement extends ASingleTablePerspectiveElement {
 	public TemplateElement(TablePerspective tablePerspective) {
-		this.tablePerspective = tablePerspective;
-		this.selection = new TablePerspectiveSelectionMixin(tablePerspective, this);
+		super(tablePerspective);
 		setRenderer(GLRenderers.fillRect(tablePerspective.getDataDomain().getColor()));
-	}
-
-	@Override
-	public <T> T getLayoutDataAs(Class<T> clazz, T default_) {
-		if (clazz.isInstance(tablePerspective))
-			return clazz.cast(tablePerspective);
-		return super.getLayoutDataAs(clazz, default_);
-	}
-
-	/**
-	 * @return the tablePerspective, see {@link #tablePerspective}
-	 */
-	public TablePerspective getTablePerspective() {
-		return tablePerspective;
-	}
-
-	@Override
-	public void onSelectionUpdate(SelectionManager manager) {
-		repaintAll();
-	}
-
-	@Override
-	public void onVAUpdate(TablePerspective tablePerspective) {
-		relayout();
 	}
 
 	@Override
@@ -69,6 +37,11 @@ public class TemplateElement extends GLElement implements TablePerspectiveSelect
 		g.pushResourceLocator(Activator.getResourceLocator());
 		super.renderPickImpl(g, w, h);
 		g.popResourceLocator();
+	}
+
+	@Override
+	public Vec2f getMinSize() {
+		return new Vec2f(100, 100);
 	}
 
 }

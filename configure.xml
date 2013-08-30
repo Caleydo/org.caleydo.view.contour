@@ -62,18 +62,18 @@ Multiple Allowed: ${multiple}</echo>
           target: moving                      
          - - - - - - - - - - - - - - - - - -->
 	<target name="moving">
-		<move todir="src/org/caleydo/view/${id}">
-			<fileset dir="src/org/caleydo/view/template" excludes="**/*Template*" />
+		<move todir="src/main/java/org/caleydo/view/${id}">
+			<fileset dir="src/main/java/org/caleydo/view/template" excludes="**/*Template*" />
 		</move>
-		<move todir="src/org/caleydo/view/${id}">
-			<fileset dir="src/org/caleydo/view/template" includes="**/*TemplateV*,**/*TemplateE*" />
+		<move todir="src/main/java/org/caleydo/view/${id}">
+			<fileset dir="src/main/java/org/caleydo/view/template" includes="**/*TemplateV*,**/*TemplateE*" />
 			<regexpmapper from="^(.*)Template(.*)$$" to="\1${name}\2" />
 		</move>
-		<move todir="src/org/caleydo/view/${id}">
-			<fileset dir="src/org/caleydo/view/template" includes="**/*Template${type.camel}*" />
+		<move todir="src/main/java/org/caleydo/view/${id}">
+			<fileset dir="src/main/java/org/caleydo/view/template" includes="**/*Template${type.camel}*" />
 			<regexpmapper from="^(.*)Template${type.camel}(.*)$$" to="\1${name}\2" />
 		</move>
-		<delete dir="src/org/caleydo/view/template" />
+		<delete dir="src/main/java/org/caleydo/view/template" />
 	</target>
 
 	<target name="movingnogit" unless="git.avail">

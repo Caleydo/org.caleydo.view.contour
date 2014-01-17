@@ -4,12 +4,12 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            allowMultiple="true"
+            allowMultiple="false"
             category="org.caleydo.core.views"
-            class="org.caleydo.view.template.internal.RcpGLTemplateView"
+            class="org.caleydo.view.relationshipexplorer.internal.RcpGLRelationshipExplorerView"
             icon="resources/icons/icon.png"
-            id="org.caleydo.view.template"
-            name="Template">
+            id="org.caleydo.view.relationshipexplorer"
+            name="RelationshipExplorer">
       </view>
    </extension>
    <extension
@@ -17,7 +17,7 @@
       <menuContribution
             locationURI="menu:org.caleydo.menu.view.visualization">
          <command
-               commandId="org.caleydo.view.template.command.open"
+               commandId="org.caleydo.view.relationshipexplorer.command.open"
                icon="resources/icons/icon.png"
                style="push">
          </command>
@@ -26,15 +26,15 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.caleydo.view.template.internal.OpenViewHandler"
-            id="org.caleydo.view.template.command.open"
-            name="Template">
+            defaultHandler="org.caleydo.view.relationshipexplorer.internal.OpenViewHandler"
+            id="org.caleydo.view.relationshipexplorer.command.open"
+            name="RelationshipExplorer">
       </command>
    </extension>
    <extension
          point="org.caleydo.core.data.datadomain.ViewDataDomainAssociation">
       <association
-            view="org.caleydo.view.template">
+            view="org.caleydo.view.relationshipexplorer">
          <dataDomain
                type="org.caleydo.datadomain.genetic">
          </dataDomain>

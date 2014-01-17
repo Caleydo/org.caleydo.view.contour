@@ -3,36 +3,36 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  ******************************************************************************/
-package org.caleydo.view.template.internal.serial;
+package org.caleydo.view.relationshipexplorer.internal.serial;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.caleydo.core.serialize.ASerializedMultiTablePerspectiveBasedView;
 import org.caleydo.core.view.IMultiTablePerspectiveBasedView;
-import org.caleydo.view.template.internal.GLTemplateSingleView;
+import org.caleydo.view.relationshipexplorer.internal.GLRelationshipExplorerView;
 
 /**
  *
- * @author AUTHOR
+ * @author Christian
  *
  */
 @XmlRootElement
 @XmlType
-public class SerializedTemplateMultiView extends ASerializedMultiTablePerspectiveBasedView {
+public class SerializedRelationshipExplorerView extends ASerializedMultiTablePerspectiveBasedView {
 
 	/**
 	 * Default constructor with default initialization
 	 */
-	public SerializedTemplateMultiView() {
+	public SerializedRelationshipExplorerView() {
 	}
 
-	public SerializedTemplateMultiView(IMultiTablePerspectiveBasedView view) {
+	public SerializedRelationshipExplorerView(IMultiTablePerspectiveBasedView view) {
 		super(view);
 	}
 
 	@Override
 	public String getViewType() {
-		return GLTemplateSingleView.VIEW_TYPE;
+		return GLRelationshipExplorerView.VIEW_TYPE;
 	}
 }

@@ -3,26 +3,33 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  ******************************************************************************/
-package org.caleydo.view.template.ui;
-
-import gleem.linalg.Vec2f;
+package org.caleydo.view.relationshipexplorer.ui;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.core.view.opengl.layout2.view.ASingleTablePerspectiveElement;
-import org.caleydo.view.template.internal.Activator;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.view.relationshipexplorer.internal.Activator;
+
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
 
 /**
- * element of this view holding a {@link TablePerspective}
  *
- * @author AUTHOR
+ *
+ * @author Christian
  *
  */
-public class TemplateElement extends ASingleTablePerspectiveElement {
-	public TemplateElement(TablePerspective tablePerspective) {
-		super(tablePerspective);
-		setRenderer(GLRenderers.fillRect(tablePerspective.getDataDomain().getColor()));
+public class RelationshipExplorerElement extends GLElementContainer {
+
+	public RelationshipExplorerElement() {
+		super(GLLayouts.flowHorizontal(5));
+	}
+
+	public Iterable<TablePerspective> getTablePerspectives() {
+		return Iterables.filter(Iterables.transform(this, GLLayoutDatas.toLayoutData(TablePerspective.class, null)),
+				Predicates.notNull());
 	}
 
 	@Override
@@ -37,11 +44,6 @@ public class TemplateElement extends ASingleTablePerspectiveElement {
 		g.pushResourceLocator(Activator.getResourceLocator());
 		super.renderPickImpl(g, w, h);
 		g.popResourceLocator();
-	}
-
-	@Override
-	public Vec2f getMinSize() {
-		return new Vec2f(100, 100);
 	}
 
 }

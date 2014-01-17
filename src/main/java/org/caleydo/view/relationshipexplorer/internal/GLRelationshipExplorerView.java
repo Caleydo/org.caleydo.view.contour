@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  ******************************************************************************/
-package org.caleydo.view.template.internal;
+package org.caleydo.view.relationshipexplorer.internal;
 
 import java.util.Iterator;
 import java.util.List;
@@ -18,34 +18,33 @@ import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
-import org.caleydo.view.template.internal.serial.SerializedTemplateMultiView;
-import org.caleydo.view.template.ui.TemplateElement;
-import org.caleydo.view.template.ui.TemplateMultiElement;
+import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 
 /**
  *
- * @author AUTHOR
+ * @author Christian
  *
  */
-public class GLTemplateMultiView extends AMultiTablePerspectiveElementView {
-	public static final String VIEW_TYPE = "org.caleydo.view.template";
-	public static final String VIEW_NAME = "Template";
+public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementView {
+	public static final String VIEW_TYPE = "org.caleydo.view.relationshipexplorer";
+	public static final String VIEW_NAME = "RelationshipExplorer";
 
-	private static final Logger log = Logger.create(GLTemplateMultiView.class);
+	private static final Logger log = Logger.create(GLRelationshipExplorerView.class);
 
-	public GLTemplateMultiView(IGLCanvas glCanvas) {
+	public GLRelationshipExplorerView(IGLCanvas glCanvas) {
 		super(glCanvas, VIEW_TYPE, VIEW_NAME);
 	}
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
-		getRootDecorator().setContent(new TemplateMultiElement());
+		getRootDecorator().setContent(new RelationshipExplorerElement());
 	}
 
 	@Override
 	public ASerializedView getSerializableRepresentation() {
-		return new SerializedTemplateMultiView(this);
+		return new SerializedRelationshipExplorerView(this);
 	}
 
 	@Override
@@ -54,16 +53,16 @@ public class GLTemplateMultiView extends AMultiTablePerspectiveElementView {
 	}
 
 	@Override
-	protected TemplateMultiElement getContent() {
-		return (TemplateMultiElement) super.getContent();
+	protected RelationshipExplorerElement getContent() {
+		return (RelationshipExplorerElement) super.getContent();
 	}
 
 	@Override
 	protected void applyTablePerspectives(GLElementDecorator root, List<TablePerspective> all,
 			List<TablePerspective> added, List<TablePerspective> removed) {
-		TemplateMultiElement content = getContent();
+		RelationshipExplorerElement content = getContent();
 		for (TablePerspective add : added) {
-			content.add(new TemplateElement(add));
+
 		}
 		for(TablePerspective rem : removed) {
 			for (Iterator<TablePerspective> it = content.getTablePerspectives().iterator(); it.hasNext();) {

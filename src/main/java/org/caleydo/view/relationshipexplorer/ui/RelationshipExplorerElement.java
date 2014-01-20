@@ -6,10 +6,12 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 
 import com.google.common.base.Predicates;
@@ -25,6 +27,12 @@ public class RelationshipExplorerElement extends GLElementContainer {
 
 	public RelationshipExplorerElement() {
 		super(GLLayouts.flowHorizontal(5));
+		GLElement header = new GLElement(GLRenderers.drawText("Pathways"));
+		header.setSize(200, 20);
+		add(new EntityColumn(header, new PathwayContentProvider()));
+		header = new GLElement(GLRenderers.drawText("Genes"));
+		header.setSize(200, 20);
+		add(new EntityColumn(header, new GeneContentProvider()));
 	}
 
 	public Iterable<TablePerspective> getTablePerspectives() {

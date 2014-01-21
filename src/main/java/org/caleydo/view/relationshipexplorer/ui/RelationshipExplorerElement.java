@@ -30,9 +30,18 @@ public class RelationshipExplorerElement extends GLElementContainer {
 		GLElement header = new GLElement(GLRenderers.drawText("Pathways"));
 		header.setSize(200, 20);
 		add(new EntityColumn(header, new PathwayContentProvider()));
+
 		header = new GLElement(GLRenderers.drawText("Genes"));
 		header.setSize(200, 20);
 		add(new EntityColumn(header, new GeneContentProvider()));
+
+		header = new GLElement(GLRenderers.drawText("Compounds"));
+		header.setSize(200, 20);
+		add(new EntityColumn(header, new CompoundContentProvider()));
+
+		header = new GLElement(GLRenderers.drawText("Clusters"));
+		header.setSize(200, 20);
+		add(new EntityColumn(header, new ClusterContentProvider()));
 	}
 
 	public Iterable<TablePerspective> getTablePerspectives() {

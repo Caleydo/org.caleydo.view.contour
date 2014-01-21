@@ -5,6 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
+import gleem.linalg.Vec2f;
+
 import org.caleydo.core.data.collection.table.Table;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
@@ -12,13 +14,17 @@ import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 
 /**
  * @author Christian
  *
  */
-public class BarChartRenderer extends GLElement {
+public class BarChartRenderer extends GLElement implements IHasMinSize {
+
+	protected static final int MIN_BAR_WIDTH = 2;
+	protected static final int MIN_HEIGHT = 30;
 
 	protected final ATableBasedDataDomain dataDomain;
 	protected final int recordID;
@@ -54,5 +60,10 @@ public class BarChartRenderer extends GLElement {
 			currentBarPos += barWidth;
 		}
 
+	}
+
+	@Override
+	public Vec2f getMinSize() {
+		return new Vec2f(dimensionPerspective.getVirtualArray().size() * MIN_BAR_WIDTH, MIN_HEIGHT);
 	}
 }

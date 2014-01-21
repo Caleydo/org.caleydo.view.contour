@@ -5,26 +5,21 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import gleem.linalg.Vec2f;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
-import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnContentProvider;
 
 /**
  * @author Christian
  *
  */
-public class PathwayContentProvider implements IEntityColumnContentProvider {
+public class PathwayContentProvider extends TextualContentProvider {
 
 	protected List<PathwayGraph> pathways = new ArrayList<>();
-	protected List<GLElement> items = new ArrayList<>();
 
 	public PathwayContentProvider() {
 		pathways.addAll(PathwayManager.get().getAllItems());
@@ -39,20 +34,9 @@ public class PathwayContentProvider implements IEntityColumnContentProvider {
 		items.clear();
 		for(PathwayGraph pathway : pathways) {
 			PathwayTitleRenderer renderer = new PathwayTitleRenderer(pathway);
-			renderer.setSize(200, 16);
+			renderer.setSize(Float.NaN, ITEM_HEIGHT);
 			items.add(renderer);
 		}
-	}
-
-	@Override
-	public Vec2f getMinSize() {
-		return new Vec2f(200, items.size() * 16 + (items.size() - 1) * 2);
-	}
-
-	@Override
-	public List<GLElement> getContent() {
-
-		return items;
 	}
 
 }

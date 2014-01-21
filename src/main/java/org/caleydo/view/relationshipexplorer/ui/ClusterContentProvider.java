@@ -5,10 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import gleem.linalg.Vec2f;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
@@ -20,15 +16,12 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.DataSetDescription;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnContentProvider;
 
 /**
  * @author Christian
  *
  */
-public class ClusterContentProvider implements IEntityColumnContentProvider {
-
-	protected List<GLElement> items = new ArrayList<>();
+public class ClusterContentProvider extends TextualContentProvider {
 
 	public ClusterContentProvider() {
 		for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
@@ -48,7 +41,7 @@ public class ClusterContentProvider implements IEntityColumnContentProvider {
 								GroupList groupList = dd.getDimensionVA(perspectiveID).getGroupList();
 								for (Group group : groupList) {
 									GLElement el = new GLElement(GLRenderers.drawText(group.getLabel()));
-									el.setSize(200, 16);
+									el.setSize(Float.NaN, ITEM_HEIGHT);
 									items.add(el);
 								}
 								return;
@@ -64,7 +57,7 @@ public class ClusterContentProvider implements IEntityColumnContentProvider {
 								GroupList groupList = dd.getRecordVA(perspectiveID).getGroupList();
 								for (Group group : groupList) {
 									GLElement el = new GLElement(GLRenderers.drawText(group.getLabel()));
-									el.setSize(200, 16);
+									el.setSize(Float.NaN, ITEM_HEIGHT);
 									items.add(el);
 								}
 								return;
@@ -76,16 +69,6 @@ public class ClusterContentProvider implements IEntityColumnContentProvider {
 			}
 
 		}
-	}
-
-	@Override
-	public Vec2f getMinSize() {
-		return new Vec2f(200, items.size() * 16 + (items.size() - 1) * 2);
-	}
-
-	@Override
-	public List<GLElement> getContent() {
-		return items;
 	}
 
 }

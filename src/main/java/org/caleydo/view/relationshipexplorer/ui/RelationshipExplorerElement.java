@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
@@ -27,20 +28,20 @@ public class RelationshipExplorerElement extends GLElementContainer {
 
 	public RelationshipExplorerElement() {
 		super(GLLayouts.flowHorizontal(5));
-		GLElement header = new GLElement(GLRenderers.drawText("Pathways"));
-		header.setSize(200, 20);
+		GLElement header = new GLElement(GLRenderers.drawText("Pathways", VAlign.CENTER));
+		header.setSize(Float.NaN, 20);
 		add(new EntityColumn(header, new PathwayContentProvider()));
 
-		header = new GLElement(GLRenderers.drawText("Genes"));
-		header.setSize(200, 20);
+		header = new GLElement(GLRenderers.drawText("Genes", VAlign.CENTER));
+		header.setSize(Float.NaN, 20);
 		add(new EntityColumn(header, new GeneContentProvider()));
 
-		header = new GLElement(GLRenderers.drawText("Compounds"));
-		header.setSize(200, 20);
+		header = new GLElement(GLRenderers.drawText("Compounds", VAlign.CENTER));
+		header.setSize(Float.NaN, 20);
 		add(new EntityColumn(header, new CompoundContentProvider()));
 
-		header = new GLElement(GLRenderers.drawText("Clusters"));
-		header.setSize(200, 20);
+		header = new GLElement(GLRenderers.drawText("Clusters", VAlign.CENTER));
+		header.setSize(Float.NaN, 20);
 		add(new EntityColumn(header, new ClusterContentProvider()));
 	}
 

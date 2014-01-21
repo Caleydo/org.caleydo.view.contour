@@ -17,6 +17,7 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.DataSetDescription;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.EntityColumn.ColumnBody;
 import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnContentProvider;
 
 /**
@@ -25,7 +26,7 @@ import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnConten
  */
 public class CompoundContentProvider implements IEntityColumnContentProvider {
 
-	protected List<GLElement> content = new ArrayList<>();
+	protected List<BarChartRenderer> items = new ArrayList<>();
 
 	public CompoundContentProvider() {
 		for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
@@ -57,18 +58,32 @@ public class CompoundContentProvider implements IEntityColumnContentProvider {
 	protected void addBarChartRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
 			Perspective dimensionPerspective) {
 		BarChartRenderer renderer = new BarChartRenderer(dd, recordIDType, recordID, dimensionPerspective);
-		renderer.setSize(200, 30);
-		content.add(renderer);
+		renderer.setSize(Float.NaN, BarChartRenderer.MIN_HEIGHT);
+		items.add(renderer);
 	}
 
-	@Override
-	public Vec2f getMinSize() {
-		return new Vec2f(200, content.size() * 30 + (content.size() - 1) * 2);
+	protected Vec2f getMinSize() {
+		float maxWidth = Float.MIN_VALUE;
+		float sumHeight = 0;
+		for (BarChartRenderer renderer : items) {
+			Vec2f minSize = renderer.getMinSize();
+			sumHeight += minSize.y();
+			if (maxWidth < minSize.x())
+				maxWidth = minSize.x();
+		}
+		return new Vec2f(maxWidth, sumHeight + (items.size() - 1) * EntityColumn.ROW_GAP);
 	}
 
 	@Override
 	public List<GLElement> getContent() {
+		List<GLElement> content = new ArrayList<>();
+		content.addAll(items);
 		return content;
+	}
+
+	@Override
+	public void setColumnBody(ColumnBody body) {
+		body.setMinSize(getMinSize());
 	}
 
 }

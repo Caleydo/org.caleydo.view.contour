@@ -108,4 +108,9 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		return items;
 	}
 
+	@Override
+	public String getLabel() {
+		return dataDomain.getLabel();
+	}
+
 }

@@ -18,9 +18,9 @@ import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnConten
  * @author Christian
  *
  */
-public class TextualContentProvider implements IEntityColumnContentProvider {
+public abstract class TextualContentProvider implements IEntityColumnContentProvider {
 
-	protected static final int MIN_TEXT_WIDTH = 200;
+	protected static final int MIN_TEXT_WIDTH = 150;
 	protected static final int ITEM_HEIGHT = 16;
 
 	protected List<GLElement> items = new ArrayList<>();

@@ -7,31 +7,31 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.Set;
 
-import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.datadomain.genetic.EGeneIDTypes;
 
 /**
  * @author Christian
  *
  */
-public class GeneContentProvider extends TextualContentProvider {
+public class IDContentProvider extends TextualContentProvider {
 
-	public GeneContentProvider() {
-		IDCategory geneCategory = IDCategory.getIDCategory(EGeneIDTypes.GENE.name());
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(geneCategory);
-		IIDTypeMapper<Integer, String> mapper = mappingManager.getIDTypeMapper(
-				IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), geneCategory.getHumanReadableIDType());
+	protected final IDType idType;
 
-		for (Object id : mappingManager.getAllMappedIDs(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()))) {
-			Set<String> geneNames = mapper.apply((Integer) id);
-			if (geneNames != null) {
-				for (String geneName : geneNames) {
+	public IDContentProvider(IDType idType) {
+		this.idType = idType;
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
+		IIDTypeMapper<Object, String> mapper = mappingManager.getIDTypeMapper(idType, idType.getIDCategory()
+				.getHumanReadableIDType());
+
+		for (Object id : mappingManager.getAllMappedIDs(idType)) {
+			Set<String> humanReadableNames = mapper.apply(id);
+			if (humanReadableNames != null) {
+				for (String geneName : humanReadableNames) {
 					GLElement el = new GLElement(GLRenderers.drawText(geneName));
 					el.setSize(Float.NaN, ITEM_HEIGHT);
 					// el.setVisibility(EVisibility.HIDDEN);
@@ -39,6 +39,11 @@ public class GeneContentProvider extends TextualContentProvider {
 				}
 			}
 		}
+	}
+
+	@Override
+	public String getLabel() {
+		return idType.getIDCategory().getDenominationPlural(true);
 	}
 
 }

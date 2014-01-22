@@ -5,19 +5,11 @@
  ******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
-import org.caleydo.core.data.datadomain.DataDomainManager;
-import org.caleydo.core.data.datadomain.IDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
-import org.caleydo.core.id.IDCategory;
-import org.caleydo.core.view.opengl.layout.Column.VAlign;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 
 import com.google.common.base.Predicates;
@@ -33,32 +25,6 @@ public class RelationshipExplorerElement extends GLElementContainer {
 
 	public RelationshipExplorerElement() {
 		super(GLLayouts.flowHorizontal(5));
-		GLElement header = new GLElement(GLRenderers.drawText("Pathways", VAlign.CENTER));
-		header.setSize(Float.NaN, 20);
-		add(new EntityColumn(header, new PathwayContentProvider()));
-
-		header = new GLElement(GLRenderers.drawText("Genes", VAlign.CENTER));
-		header.setSize(Float.NaN, 20);
-		add(new EntityColumn(header, new GeneContentProvider()));
-
-		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
-			if (dd instanceof ATableBasedDataDomain) {
-				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
-				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
-					// if (dataDomain.getTable().isDataHomogeneous()) {
-					header = new GLElement(GLRenderers.drawText(dataDomain.getLabel(), VAlign.CENTER));
-					header.setSize(Float.NaN, 20);
-					add(new EntityColumn(header,
-							new TabularDatasetContentProvider(dataDomain.getDefaultTablePerspective(),
-									IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))));
-					// }
-				}
-			}
-		}
-
-		// header = new GLElement(GLRenderers.drawText("Clusters", VAlign.CENTER));
-		// header.setSize(Float.NaN, 20);
-		// add(new EntityColumn(header, new ClusterContentProvider()));
 	}
 
 	public Iterable<TablePerspective> getTablePerspectives() {

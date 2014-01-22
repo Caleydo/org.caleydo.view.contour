@@ -39,4 +39,9 @@ public class PathwayContentProvider extends TextualContentProvider {
 		}
 	}
 
+	@Override
+	public String getLabel() {
+		return "Pathways";
+	}
+
 }

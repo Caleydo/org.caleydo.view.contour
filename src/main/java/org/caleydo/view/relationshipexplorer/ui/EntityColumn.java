@@ -10,6 +10,8 @@ import gleem.linalg.Vec2f;
 import java.util.List;
 
 import org.caleydo.core.data.collection.EDimension;
+import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
@@ -18,6 +20,7 @@ import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.IGLLayout2;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 
 /**
  * @author Christian
@@ -27,12 +30,13 @@ public class EntityColumn extends GLElementContainer {
 
 	public static final int ROW_GAP = 2;
 
+	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 	protected static final int SCROLLBAR_WIDTH = 8;
 
 	private final ColumnBody body;
 
-	public static interface IEntityColumnContentProvider {
+	public static interface IEntityColumnContentProvider extends ILabeled {
 		public void setColumnBody(ColumnBody body);
 
 		public List<GLElement> getContent();
@@ -72,6 +76,8 @@ public class EntityColumn extends GLElementContainer {
 
 		@Override
 		public Vec2f getMinSize() {
+			if (minSize.x() < 100)
+				return new Vec2f(100, minSize.y());
 			return minSize;
 		}
 
@@ -85,9 +91,11 @@ public class EntityColumn extends GLElementContainer {
 
 	}
 
-	public EntityColumn(GLElement header, IEntityColumnContentProvider contentProvider) {
+	public EntityColumn(IEntityColumnContentProvider contentProvider) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.body = new ColumnBody(GLLayouts.flowVertical(ROW_GAP));
+		GLElement header = new GLElement(GLRenderers.drawText(contentProvider.getLabel(), VAlign.CENTER));
+		header.setSize(Float.NaN, HEADER_HEIGHT);
 		add(header);
 		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(body, new ScrollBar(true), new ScrollBar(false),
 				SCROLLBAR_WIDTH, EDimension.RECORD);
@@ -98,5 +106,12 @@ public class EntityColumn extends GLElementContainer {
 		for (GLElement el : contentProvider.getContent()) {
 			body.add(el);
 		}
+	}
+
+	/**
+	 * @return the body, see {@link #body}
+	 */
+	public ColumnBody getBody() {
+		return body;
 	}
 }

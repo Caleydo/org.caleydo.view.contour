@@ -44,19 +44,21 @@ public class RelationshipExplorerElement extends GLElementContainer {
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
 			if (dd instanceof ATableBasedDataDomain) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
-				// if (dataDomain.getTable().isDataHomogeneous()) {
+				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
+					// if (dataDomain.getTable().isDataHomogeneous()) {
 					header = new GLElement(GLRenderers.drawText(dataDomain.getLabel(), VAlign.CENTER));
 					header.setSize(Float.NaN, 20);
 					add(new EntityColumn(header,
 							new TabularDatasetContentProvider(dataDomain.getDefaultTablePerspective(),
 									IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))));
-				// }
+					// }
+				}
 			}
 		}
 
-		header = new GLElement(GLRenderers.drawText("Clusters", VAlign.CENTER));
-		header.setSize(Float.NaN, 20);
-		add(new EntityColumn(header, new ClusterContentProvider()));
+		// header = new GLElement(GLRenderers.drawText("Clusters", VAlign.CENTER));
+		// header.setSize(Float.NaN, 20);
+		// add(new EntityColumn(header, new ClusterContentProvider()));
 	}
 
 	public Iterable<TablePerspective> getTablePerspectives() {

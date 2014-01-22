@@ -13,6 +13,7 @@ import java.util.List;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
+import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -37,45 +38,51 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		this.itemIDCategory = itemIDCategory;
 		this.tablePerspective = tablePerspective;
 
-		if (dataDomain.getTable().isDataHomogeneous()) {
-			if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
-				for (int id : tablePerspective.getDimensionPerspective().getVirtualArray()) {
-					addBarChartRenderer(dataDomain, tablePerspective.getDimensionPerspective().getIdType(), id,
-							tablePerspective.getRecordPerspective());
-				}
-			} else {
-				for (int id : tablePerspective.getRecordPerspective().getVirtualArray()) {
-					addBarChartRenderer(dataDomain, tablePerspective.getRecordPerspective().getIdType(), id,
-							tablePerspective.getDimensionPerspective());
-				}
-			}
+		// if (dataDomain.getTable().isDataHomogeneous()) {
+		VirtualArray recordVA;
+		IDType recordIDType;
+		Perspective dimensionPerspective;
+
+		if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
+			recordVA = tablePerspective.getDimensionPerspective().getVirtualArray();
+			recordIDType = tablePerspective.getDimensionPerspective().getIdType();
+			dimensionPerspective = tablePerspective.getRecordPerspective();
+
 		} else {
-			if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
-				for (int id : tablePerspective.getDimensionPerspective().getVirtualArray()) {
-					addInhomogeneousRenderer(dataDomain, tablePerspective.getDimensionPerspective().getIdType(), id,
-							tablePerspective.getRecordPerspective());
-				}
-			} else {
-				for (int id : tablePerspective.getRecordPerspective().getVirtualArray()) {
-					addInhomogeneousRenderer(dataDomain, tablePerspective.getRecordPerspective().getIdType(), id,
-							tablePerspective.getDimensionPerspective());
-				}
-			}
+			recordVA = tablePerspective.getRecordPerspective().getVirtualArray();
+			recordIDType = tablePerspective.getRecordPerspective().getIdType();
+			dimensionPerspective = tablePerspective.getDimensionPerspective();
 		}
+
+		for (int id : recordVA) {
+			addItemRenderer(dataDomain, recordIDType, id, dimensionPerspective);
+		}
+		// } else {
+		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
+		// for (int id : tablePerspective.getDimensionPerspective().getVirtualArray()) {
+		// addInhomogeneousRenderer(dataDomain, tablePerspective.getDimensionPerspective().getIdType(), id,
+		// tablePerspective.getRecordPerspective());
+		// }
+		// } else {
+		// for (int id : tablePerspective.getRecordPerspective().getVirtualArray()) {
+		// addInhomogeneousRenderer(dataDomain, tablePerspective.getRecordPerspective().getIdType(), id,
+		// tablePerspective.getDimensionPerspective());
+		// }
+		// }
+		// }
 	}
 
-	protected void addBarChartRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
-			Perspective dimensionPerspective) {
-		BarChartRenderer renderer = new BarChartRenderer(dd, recordIDType, recordID, dimensionPerspective);
-		renderer.setSize(Float.NaN, BarChartRenderer.MIN_HEIGHT);
-		items.add(renderer);
-	}
+	// protected void addBarChartRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
+	// Perspective dimensionPerspective) {
+	// BarChartRenderer renderer = new BarChartRenderer(dd, recordIDType, recordID, dimensionPerspective);
+	// renderer.setSize(Float.NaN, BarChartRenderer.MIN_HEIGHT);
+	// items.add(renderer);
+	// }
 
-	protected void addInhomogeneousRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
+	protected void addItemRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
 			Perspective dimensionPerspective) {
-		InhomogeneousDataRenderer renderer = new InhomogeneousDataRenderer(dd, recordIDType, recordID,
-				dimensionPerspective);
-		renderer.setSize(Float.NaN, BarChartRenderer.MIN_HEIGHT);
+		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
+		renderer.setSize(Float.NaN, SimpleDataRenderer.MIN_HEIGHT);
 		items.add(renderer);
 	}
 

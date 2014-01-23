@@ -5,33 +5,52 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import gleem.linalg.Vec2f;
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
+import org.caleydo.core.data.selection.EventBasedSelectionManager;
+import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
+import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.data.virtualarray.VirtualArray;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
+import org.caleydo.core.id.IDMappingManager;
+import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
+import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.EntityColumn.ColumnBody;
 import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnContentProvider;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
  *
  */
-public class TabularDatasetContentProvider implements IEntityColumnContentProvider {
+public class TabularDatasetContentProvider implements IEntityColumnContentProvider, IEventBasedSelectionManagerUser {
 
 	protected final ATableBasedDataDomain dataDomain;
 	protected final IDCategory itemIDCategory;
 	protected final TablePerspective tablePerspective;
+	protected final IDType itemIDType;
 
-	protected List<GLElement> items = new ArrayList<>();
+	protected EventBasedSelectionManager selectionManager;
+
+	protected Map<Object, EntityColumnItem<?>> itemMap = new HashMap<>();
+	protected List<EntityColumnItem<?>> items = new ArrayList<>();
+	protected ColumnBody columnBody;
 
 	public TabularDatasetContentProvider(TablePerspective tablePerspective, IDCategory itemIDCategory) {
 		dataDomain = tablePerspective.getDataDomain();
@@ -40,23 +59,25 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 
 		// if (dataDomain.getTable().isDataHomogeneous()) {
 		VirtualArray recordVA;
-		IDType recordIDType;
 		Perspective dimensionPerspective;
 
 		if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
 			recordVA = tablePerspective.getDimensionPerspective().getVirtualArray();
-			recordIDType = tablePerspective.getDimensionPerspective().getIdType();
+			itemIDType = tablePerspective.getDimensionPerspective().getIdType();
 			dimensionPerspective = tablePerspective.getRecordPerspective();
 
 		} else {
 			recordVA = tablePerspective.getRecordPerspective().getVirtualArray();
-			recordIDType = tablePerspective.getRecordPerspective().getIdType();
+			itemIDType = tablePerspective.getRecordPerspective().getIdType();
 			dimensionPerspective = tablePerspective.getDimensionPerspective();
 		}
 
 		for (int id : recordVA) {
-			addItemRenderer(dataDomain, recordIDType, id, dimensionPerspective);
+			addItem(dataDomain, itemIDType, id, dimensionPerspective);
 		}
+
+		selectionManager = new EventBasedSelectionManager(this, itemIDType);
+		selectionManager.registerEventListeners();
 		// } else {
 		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
 		// for (int id : tablePerspective.getDimensionPerspective().getVirtualArray()) {
@@ -79,32 +100,44 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 	// items.add(renderer);
 	// }
 
-	protected void addItemRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
+	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
 			Perspective dimensionPerspective) {
 		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
-		renderer.setSize(Float.NaN, SimpleDataRenderer.MIN_HEIGHT);
-		items.add(renderer);
-	}
+		EntityColumnItem<SimpleDataRenderer> item = new EntityColumnItem<>();
+		item.setContent(renderer);
+		item.setSize(Float.NaN, SimpleDataRenderer.MIN_HEIGHT);
+		items.add(item);
+		itemMap.put(recordID, item);
 
-	protected Vec2f getMinSize() {
-		float maxWidth = Float.MIN_VALUE;
-		float sumHeight = 0;
-		for (GLElement renderer : items) {
-			Vec2f minSize = ((IHasMinSize) renderer).getMinSize();
-			sumHeight += minSize.y();
-			if (maxWidth < minSize.x())
-				maxWidth = minSize.x();
-		}
-		return new Vec2f(maxWidth, sumHeight + (items.size() - 1) * EntityColumn.ROW_GAP);
+		item.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+				if (pick.getPickingMode() == PickingMode.CLICKED) {
+					// SelectionCommands.clearSelections();
+					// selectionManager.clearSelection(SelectionType.SELECTION);
+					// selectionManager.addToType(SelectionType.SELECTION, recordID);
+					//
+					// selectionManager.triggerSelectionUpdateEvent();
+					// updateHighlights();
+
+					IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(recordID), recordIDType);
+					event.setSender(TabularDatasetContentProvider.this);
+					EventPublisher.trigger(event);
+				}
+			}
+		});
+
 	}
 
 	@Override
 	public void setColumnBody(ColumnBody body) {
-		body.setMinSize(getMinSize());
+		// body.setMinSize(getMinSize());
+		columnBody = body;
 	}
 
 	@Override
-	public List<GLElement> getContent() {
+	public List<EntityColumnItem<?>> getContent() {
 		return items;
 	}
 
@@ -113,4 +146,85 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		return dataDomain.getLabel();
 	}
 
+	@Override
+	public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
+		if (selectionManager == this.selectionManager) {
+			updateHighlights();
+		}
+
+	}
+
+	@ListenTo
+	public void onApplyIDFilter(IDFilterEvent event) {
+		Set<?> foreignIDs = event.getIds();
+		IDType foreignIDType = event.getIdType();
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(itemIDType);
+		Set<Object> mappedIDs = new HashSet<>();
+		for (Object id : foreignIDs) {
+			Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, itemIDType, id);
+			if (ids != null) {
+				mappedIDs.addAll(ids);
+			}
+		}
+
+		setFilteredItems(mappedIDs);
+	}
+
+	protected void setFilteredItems(Set<Object> ids) {
+		for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+
+			EntityColumnItem<?> item = entry.getValue();
+			item.setHighlight(false);
+
+			if (ids.contains(entry.getKey())) {
+				item.setHighlight(true);
+				item.setHighlightColor(SelectionType.SELECTION.getColor());
+				item.setVisibility(EVisibility.PICKABLE);
+				columnBody.getParent().relayout();
+			}
+
+			if (!item.isHighlight()) {
+				item.setVisibility(EVisibility.NONE);
+				columnBody.getParent().relayout();
+			}
+
+		}
+	}
+
+	protected void updateHighlights() {
+		for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+
+			EntityColumnItem<?> item = entry.getValue();
+			item.setHighlight(false);
+
+			Set<Integer> selectionIDs = selectionManager.getElements(SelectionType.MOUSE_OVER);
+			if (selectionIDs.contains(entry.getKey())) {
+				item.setHighlight(true);
+				item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
+				item.setVisibility(EVisibility.PICKABLE);
+				columnBody.getParent().relayout();
+			}
+
+			selectionIDs = selectionManager.getElements(SelectionType.SELECTION);
+			if (selectionIDs.contains(entry.getKey())) {
+				item.setHighlight(true);
+				item.setHighlightColor(SelectionType.SELECTION.getColor());
+				item.setVisibility(EVisibility.PICKABLE);
+				columnBody.getParent().relayout();
+			}
+
+			if (!item.isHighlight()) {
+				item.setVisibility(EVisibility.NONE);
+				columnBody.getParent().relayout();
+			}
+
+		}
+
+	}
+
+	@Override
+	public void takeDown() {
+		selectionManager.unregisterEventListeners();
+		selectionManager = null;
+	}
 }

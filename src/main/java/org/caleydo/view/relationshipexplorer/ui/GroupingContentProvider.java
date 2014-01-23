@@ -5,22 +5,34 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
+import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
-import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.id.IDMappingManager;
+import org.caleydo.core.id.IDMappingManagerRegistry;
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 
 /**
  * @author Christian
  *
  */
-public class GroupingContentProvider extends TextualContentProvider {
+public class GroupingContentProvider extends ATextualContentProvider {
 
 	protected final ATableBasedDataDomain dataDomain;
 	protected final Perspective perspective;
 	protected final GroupList groupList;
+
+	protected Map<Group, EntityColumnItem<?>> itemMap = new HashMap<>();
 
 	public GroupingContentProvider(Perspective perspective) {
 
@@ -29,9 +41,9 @@ public class GroupingContentProvider extends TextualContentProvider {
 		this.groupList = perspective.getVirtualArray().getGroupList();
 
 		for (Group group : groupList) {
-			GLElement el = new GLElement(GLRenderers.drawText(group.getLabel()));
-			el.setSize(Float.NaN, ITEM_HEIGHT);
-			items.add(el);
+			EntityColumnItem<?> item = addItem(group.getLabel());
+			itemMap.put(group, item);
+
 		}
 
 		// for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
@@ -79,6 +91,72 @@ public class GroupingContentProvider extends TextualContentProvider {
 		// }
 		// }
 
+	}
+
+	@ListenTo
+	public void onApplyIDFilter(IDFilterEvent event) {
+		Set<?> foreignIDs = event.getIds();
+		IDType foreignIDType = event.getIdType();
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(perspective.getIdType());
+		Set<Object> mappedIDs = new HashSet<>();
+		for (Object id : foreignIDs) {
+			Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, perspective.getIdType(), id);
+			if (ids != null) {
+				mappedIDs.addAll(ids);
+			}
+		}
+
+		setFilteredItems(mappedIDs);
+		//
+		// Set<Group> filteredGroups = new HashSet<>();
+		// for (Object id : mappedIDs) {
+		// filteredGroups.addAll(perspective.getVirtualArray().getGroupOf((Integer) id));
+		// }
+		// for (Entry<Group, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+		// Group group = entry.getKey();
+		// EntityColumnItem<?> item = entry.getValue();
+		//
+		// if (filteredGroups.contains(group)) {
+		// item.setHighlight(true);
+		// item.setHighlightColor(SelectionType.SELECTION.getColor());
+		// if (item.getVisibility() == EVisibility.NONE) {
+		// item.setVisibility(EVisibility.PICKABLE);
+		// columnBody.getParent().relayout();
+		// }
+		// } else {
+		// item.setHighlight(false);
+		// if (item.getVisibility() != EVisibility.NONE) {
+		// item.setVisibility(EVisibility.NONE);
+		// columnBody.getParent().relayout();
+		// }
+		// }
+		// }
+	}
+
+	protected void setFilteredItems(Set<Object> ids) {
+		for (Entry<Group, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+
+			EntityColumnItem<?> item = entry.getValue();
+			Group group = entry.getKey();
+
+			item.setHighlight(false);
+
+			for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
+				if (ids.contains(perspective.getVirtualArray().get(index))) {
+					item.setHighlight(true);
+					item.setHighlightColor(SelectionType.SELECTION.getColor());
+					item.setVisibility(EVisibility.PICKABLE);
+					columnBody.getParent().relayout();
+					break;
+				}
+			}
+
+			if (!item.isHighlight()) {
+				item.setVisibility(EVisibility.NONE);
+				columnBody.getParent().relayout();
+			}
+
+		}
 	}
 
 	@Override

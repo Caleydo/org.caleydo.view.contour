@@ -17,7 +17,7 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
  * @author Christian
  *
  */
-public class PathwayContentProvider extends TextualContentProvider {
+public class PathwayContentProvider extends ATextualContentProvider {
 
 	protected List<PathwayGraph> pathways = new ArrayList<>();
 
@@ -33,9 +33,7 @@ public class PathwayContentProvider extends TextualContentProvider {
 
 		items.clear();
 		for(PathwayGraph pathway : pathways) {
-			PathwayTitleRenderer renderer = new PathwayTitleRenderer(pathway);
-			renderer.setSize(Float.NaN, ITEM_HEIGHT);
-			items.add(renderer);
+			addItem(pathway.getLabel());
 		}
 	}
 

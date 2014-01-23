@@ -10,6 +10,8 @@ import gleem.linalg.Vec2f;
 import java.util.List;
 
 import org.caleydo.core.data.collection.EDimension;
+import org.caleydo.core.event.EventListenerManager.DeepScan;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -35,17 +37,20 @@ public class EntityColumn extends GLElementContainer {
 	protected static final int SCROLLBAR_WIDTH = 8;
 
 	private final ColumnBody body;
+	@DeepScan
+	private final IEntityColumnContentProvider contentProvider;
 
 	public static interface IEntityColumnContentProvider extends ILabeled {
 		public void setColumnBody(ColumnBody body);
 
-		public List<GLElement> getContent();
+		public List<EntityColumnItem<?>> getContent();
+
+		public void takeDown();
 	}
 
 	public class ColumnBody extends GLElementContainer implements IHasMinSize {
 
 		protected ScrollingDecorator scrollingDecorator;
-		protected Vec2f minSize = new Vec2f();
 
 		public ColumnBody(IGLLayout2 layout) {
 			super(layout);
@@ -58,10 +63,18 @@ public class EntityColumn extends GLElementContainer {
 			Rect clippingArea = scrollingDecorator.getClipingArea();
 			for (GLElement child : this) {
 				Rect bounds = child.getRectBounds();
-				if (clippingArea.asRectangle2D().intersects(bounds.asRectangle2D())) {
-					child.setVisibility(EVisibility.PICKABLE);
-				} else {
-					child.setVisibility(EVisibility.HIDDEN);
+				if (child.getVisibility() != EVisibility.NONE) {
+					if (clippingArea.asRectangle2D().intersects(bounds.asRectangle2D())) {
+						if (child.getVisibility() != EVisibility.PICKABLE) {
+							child.setVisibility(EVisibility.PICKABLE);
+							repaintAll();
+						}
+					} else {
+						if (child.getVisibility() != EVisibility.HIDDEN) {
+							child.setVisibility(EVisibility.HIDDEN);
+							repaintAll();
+						}
+					}
 				}
 			}
 		}
@@ -76,17 +89,22 @@ public class EntityColumn extends GLElementContainer {
 
 		@Override
 		public Vec2f getMinSize() {
-			if (minSize.x() < 100)
-				return new Vec2f(100, minSize.y());
-			return minSize;
-		}
+			float maxWidth = Float.MIN_VALUE;
+			float sumHeight = 0;
+			int numItems = 0;
+			for (GLElement el : this) {
+				if (el.getVisibility() != EVisibility.NONE) {
+					@SuppressWarnings("unchecked")
+					EntityColumnItem<? extends IHasMinSize> item = (EntityColumnItem<? extends IHasMinSize>) el;
+					Vec2f minSize = item.getContent().getMinSize();
+					sumHeight += minSize.y();
+					if (maxWidth < minSize.x())
+						maxWidth = minSize.x();
 
-		/**
-		 * @param minSize
-		 *            setter, see {@link minSize}
-		 */
-		public void setMinSize(Vec2f minSize) {
-			this.minSize = minSize;
+					numItems++;
+				}
+			}
+			return new Vec2f(Math.max(maxWidth, 100), sumHeight + (numItems - 1) * EntityColumn.ROW_GAP);
 		}
 
 	}
@@ -94,6 +112,7 @@ public class EntityColumn extends GLElementContainer {
 	public EntityColumn(IEntityColumnContentProvider contentProvider) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.body = new ColumnBody(GLLayouts.flowVertical(ROW_GAP));
+		this.contentProvider = contentProvider;
 		GLElement header = new GLElement(GLRenderers.drawText(contentProvider.getLabel(), VAlign.CENTER));
 		header.setSize(Float.NaN, HEADER_HEIGHT);
 		add(header);
@@ -108,10 +127,21 @@ public class EntityColumn extends GLElementContainer {
 		}
 	}
 
+	@ListenTo
+	public void onIDFilter(IDFilterEvent e) {
+		// System.out.println("got it");
+	}
+
 	/**
 	 * @return the body, see {@link #body}
 	 */
 	public ColumnBody getBody() {
 		return body;
+	}
+
+	@Override
+	protected void takeDown() {
+		contentProvider.takeDown();
+		super.takeDown();
 	}
 }

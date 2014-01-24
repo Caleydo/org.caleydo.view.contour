@@ -34,26 +34,26 @@ import com.google.common.collect.Sets;
 public class IDContentProvider extends ATextualContentProvider implements IEventBasedSelectionManagerUser {
 
 	protected final IDType idType;
+	protected final IDType displayedIDType;
 	protected EventBasedSelectionManager selectionManager;
 
 	protected Map<Object, EntityColumnItem<?>> itemMap = new HashMap<>();
 
-
-	public IDContentProvider(IDType idType) {
+	public IDContentProvider(IDType idType, IDType displayedIDType) {
 		this.idType = idType;
+		this.displayedIDType = displayedIDType;
 
 		selectionManager = new EventBasedSelectionManager(this, idType);
 		selectionManager.registerEventListeners();
 
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
-		IIDTypeMapper<Object, String> mapper = mappingManager.getIDTypeMapper(idType, idType.getIDCategory()
-				.getHumanReadableIDType());
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
 
 		for (final Object id : mappingManager.getAllMappedIDs(idType)) {
-			Set<String> humanReadableNames = mapper.apply(id);
-			if (humanReadableNames != null) {
-				for (String name : humanReadableNames) {
-					final EntityColumnItem<?> item = addItem(name);
+			Set<Object> idsToDisplay = mapper.apply(id);
+			if (idsToDisplay != null) {
+				for (Object name : idsToDisplay) {
+					final EntityColumnItem<?> item = addItem(name.toString());
 					item.onPick(new IPickingListener() {
 
 						@Override

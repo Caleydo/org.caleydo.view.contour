@@ -7,9 +7,11 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import javax.media.opengl.GL2;
 
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
@@ -37,6 +39,7 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 
 	protected HighlightRenderer highlightRenderer;
 	protected T content;
+	protected String tooltip;
 
 	/**
 	 *
@@ -91,6 +94,28 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	 */
 	public boolean isHighlight() {
 		return highlight;
+	}
+
+	@Override
+	protected void init(IGLElementContext context) {
+		super.init(context);
+		this.onPick(context.getSWTLayer().createTooltip(new ILabeled() {
+			@Override
+			public String getLabel() {
+				return getTooltip();
+			}
+		}));
+	}
+
+	public void setToolTip(String tooltip) {
+		this.tooltip = tooltip;
+	}
+
+	/**
+	 * @return the tooltip, see {@link #tooltip}
+	 */
+	public String getTooltip() {
+		return tooltip;
 	}
 
 }

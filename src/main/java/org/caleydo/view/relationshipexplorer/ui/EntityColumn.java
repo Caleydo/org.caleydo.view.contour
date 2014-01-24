@@ -37,6 +37,7 @@ public class EntityColumn extends GLElementContainer {
 	protected static final int SCROLLBAR_WIDTH = 8;
 
 	private final ColumnBody body;
+	private GLElement header;
 	@DeepScan
 	private final IEntityColumnContentProvider contentProvider;
 
@@ -113,7 +114,7 @@ public class EntityColumn extends GLElementContainer {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.body = new ColumnBody(GLLayouts.flowVertical(ROW_GAP));
 		this.contentProvider = contentProvider;
-		GLElement header = new GLElement(GLRenderers.drawText(contentProvider.getLabel(), VAlign.CENTER));
+		header = new GLElement(GLRenderers.drawText(contentProvider.getLabel(), VAlign.CENTER));
 		header.setSize(Float.NaN, HEADER_HEIGHT);
 		add(header);
 		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(body, new ScrollBar(true), new ScrollBar(false),
@@ -143,5 +144,9 @@ public class EntityColumn extends GLElementContainer {
 	protected void takeDown() {
 		contentProvider.takeDown();
 		super.takeDown();
+	}
+
+	public void setCaption(String caption) {
+		header.setRenderer(GLRenderers.drawText(caption, VAlign.CENTER));
 	}
 }

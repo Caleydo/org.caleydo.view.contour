@@ -26,6 +26,7 @@ import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.io.IDSpecification;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -107,6 +108,17 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		item.setContent(renderer);
 		item.setSize(Float.NaN, SimpleDataRenderer.MIN_HEIGHT);
 		items.add(item);
+		IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
+		IDType origIDType;
+		IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
+		 if(spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
+			 origIDType = IDType.getIDType(spec.getIdType());
+		 } else {
+			 origIDType = IDType.getIDType( dd.getDataSetDescription().getRowIDSpecification().getIdType());
+		 }
+
+		Object origID = m.getID(recordIDType, origIDType, recordID);
+		item.setToolTip(origID.toString());
 		itemMap.put(recordID, item);
 
 		item.onPick(new IPickingListener() {

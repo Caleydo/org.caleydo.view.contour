@@ -46,19 +46,34 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 
 		List<EntityColumn> columns = new ArrayList<>();
 
-
 		columns.add(new EntityColumn(new PathwayContentProvider()));
 
-		columns.add(new EntityColumn(new IDContentProvider(IDType
-				.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()))));
+		columns.add(new EntityColumn(new IDContentProvider(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()),
+				IDCategory.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType())));
 
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
-			if (dd instanceof ATableBasedDataDomain) {
+			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Activity")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					columns.add(new EntityColumn(new TabularDatasetContentProvider(dataDomain
 							.getDefaultTablePerspective(), IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))));
 				}
+				break;
+			}
+		}
+		EntityColumn compoundColumn = new EntityColumn(new IDContentProvider(IDType.getIDType("COMPOUND_ID"),
+				IDType.getIDType("COMPOUND_ID")));
+		compoundColumn.setCaption("Compounds");
+		columns.add(compoundColumn);
+
+		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
+			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Finger")) {
+				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
+				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
+					columns.add(new EntityColumn(new TabularDatasetContentProvider(dataDomain
+							.getDefaultTablePerspective(), IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))));
+				}
+				break;
 			}
 		}
 
@@ -84,10 +99,10 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 			if (dataDomain instanceof ATableBasedDataDomain) {
 				ATableBasedDataDomain dd = (ATableBasedDataDomain) dataDomain;
 				DataSetDescription desc = dd.getDataSetDescription();
-				if (desc.getColumnIDSpecification().getIdType().equals("COMPOUND_ID")
-						|| desc.getRowIDSpecification().getIdType().equals("COMPOUND_ID")) {
+				if (desc.getColumnIDSpecification().getIdType().equals("FINGERPRINT_ID")
+						|| desc.getRowIDSpecification().getIdType().equals("FINGERPRINT_ID")) {
 
-					IDType compoundIDType = IDType.getIDType("COMPOUND_ID");
+					IDType compoundIDType = IDType.getIDType("FINGERPRINT_ID");
 					if (dd.getDimensionIDCategory() == compoundIDType.getIDCategory()) {
 						Set<String> perspectiveIDs = dd.getDimensionPerspectiveIDs();
 						String defaultPerspectiveID = dd.getDefaultTablePerspective().getDimensionPerspective()
@@ -95,8 +110,7 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getDimensionPerspective(perspectiveID);
-								columns.add(new EntityColumn(new GroupingContentProvider(
-										perspective)));
+								columns.add(new EntityColumn(new GroupingContentProvider(perspective)));
 								return;
 							}
 						}
@@ -108,8 +122,7 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getRecordPerspective(perspectiveID);
-								columns.add(new EntityColumn(new GroupingContentProvider(
-										perspective)));
+								columns.add(new EntityColumn(new GroupingContentProvider(perspective)));
 								return;
 							}
 						}

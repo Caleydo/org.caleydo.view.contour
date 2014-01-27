@@ -17,10 +17,16 @@ import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -40,9 +46,27 @@ public class GroupingContentProvider extends ATextualContentProvider {
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
 
-		for (Group group : groupList) {
+		for (final Group group : groupList) {
 			EntityColumnItem<?> item = addItem(group.getLabel());
 			itemMap.put(group, item);
+			item.onPick(new IPickingListener() {
+
+				@Override
+				public void pick(Pick pick) {
+
+					if (pick.getPickingMode() == PickingMode.CLICKED) {
+						Perspective p = GroupingContentProvider.this.perspective;
+						IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(p.getVirtualArray().getIDsOfGroup(
+								group.getGroupIndex())), p.getIdType());
+						event.setSender(GroupingContentProvider.this);
+						EventPublisher.trigger(event);
+						// selectionManager.clearSelection(SelectionType.SELECTION);
+						// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
+						// selectionManager.triggerSelectionUpdateEvent();
+						// updateHighlights();
+					}
+				}
+			});
 
 		}
 

@@ -70,7 +70,7 @@ public class PathwayContentProvider extends ATextualContentProvider {
 				@Override
 				public void run() {
 					IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
-					IDFilterEvent event = new IDFilterEvent(PathwayManager.getPathwayGeneIDs(pathway,
+					IDFilterEvent event = new IDFilterEvent(PathwayManager.get().getPathwayGeneIDs(pathway,
 							IDType.getIDType(EGeneIDTypes.DAVID.name())), davidIDType);
 					event.setSender(PathwayContentProvider.this);
 					EventPublisher.trigger(event);

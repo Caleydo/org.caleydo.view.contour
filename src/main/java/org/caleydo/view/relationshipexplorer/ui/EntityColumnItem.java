@@ -9,12 +9,17 @@ import javax.media.opengl.GL2;
 
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
+import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
 
 /**
  * @author Christian
@@ -40,6 +45,8 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	protected HighlightRenderer highlightRenderer;
 	protected T content;
 	protected String tooltip;
+
+	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 	/**
 	 *
@@ -105,6 +112,16 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 				return getTooltip();
 			}
 		}));
+		this.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
+					EntityColumnItem.this.context.getSWTLayer().showContextMenu(contextMenuCreator);
+				}
+
+			}
+		});
 	}
 
 	public void setToolTip(String tooltip) {
@@ -116,6 +133,10 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	 */
 	public String getTooltip() {
 		return tooltip;
+	}
+
+	public void addContextMenuItem(AContextMenuItem item) {
+		contextMenuCreator.add(item);
 	}
 
 }

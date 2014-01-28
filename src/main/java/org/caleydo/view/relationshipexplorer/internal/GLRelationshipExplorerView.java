@@ -65,7 +65,7 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 		for (TablePerspective add : added) {
 
 		}
-		for(TablePerspective rem : removed) {
+		for (TablePerspective rem : removed) {
 			for (Iterator<TablePerspective> it = content.getTablePerspectives().iterator(); it.hasNext();) {
 				if (rem.equals(it.next())) {
 					it.remove();
@@ -74,6 +74,5 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 			}
 		}
 	}
-
 
 }

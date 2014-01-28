@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -55,17 +55,31 @@ public class PathwayContentProvider extends ATextualContentProvider {
 				@Override
 				public void pick(Pick pick) {
 					if (pick.getPickingMode() == PickingMode.CLICKED) {
-						IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
-						IDFilterEvent event = new IDFilterEvent(PathwayManager.getPathwayGeneIDs(pathway,
-								IDType.getIDType(EGeneIDTypes.DAVID.name())), davidIDType);
-						event.setSender(PathwayContentProvider.this);
-						EventPublisher.trigger(event);
-
-						setFilteredItems(Sets.newHashSet(pathway));
+						// IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
+						// IDFilterEvent event = new IDFilterEvent(PathwayManager.getPathwayGeneIDs(pathway,
+						// IDType.getIDType(EGeneIDTypes.DAVID.name())), davidIDType);
+						// event.setSender(PathwayContentProvider.this);
+						// EventPublisher.trigger(event);
+						//
+						// setFilteredItems(Sets.newHashSet(pathway));
 					}
 
 				}
 			});
+			ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
+				@Override
+				public void run() {
+					IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
+					IDFilterEvent event = new IDFilterEvent(PathwayManager.getPathwayGeneIDs(pathway,
+							IDType.getIDType(EGeneIDTypes.DAVID.name())), davidIDType);
+					event.setSender(PathwayContentProvider.this);
+					EventPublisher.trigger(event);
+
+					setFilteredItems(Sets.newHashSet(pathway));
+
+				}
+			});
+			item.addContextMenuItem(contextMenuItem);
 		}
 	}
 
@@ -91,16 +105,18 @@ public class PathwayContentProvider extends ATextualContentProvider {
 		for (Entry<PathwayGraph, EntityColumnItem<?>> entry : itemMap.entrySet()) {
 
 			EntityColumnItem<?> item = entry.getValue();
-			item.setHighlight(false);
+			// item.setHighlight(false);
+			boolean visible = false;
 
 			if (pathways.contains(entry.getKey())) {
-				item.setHighlight(true);
-				item.setHighlightColor(SelectionType.SELECTION.getColor());
+				visible = true;
+				// item.setHighlight(true);
+				// item.setHighlightColor(SelectionType.SELECTION.getColor());
 				item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
-			if (!item.isHighlight()) {
+			if (!visible) {
 				item.setVisibility(EVisibility.NONE);
 				columnBody.getParent().relayout();
 			}

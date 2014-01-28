@@ -15,11 +15,11 @@ import org.caleydo.core.data.selection.EventBasedSelectionManager;
 import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
+import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -59,17 +59,18 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 						@Override
 						public void pick(Pick pick) {
 							if (pick.getPickingMode() == PickingMode.CLICKED) {
-								IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(id),
-										IDContentProvider.this.idType);
-								event.setSender(IDContentProvider.this);
-								EventPublisher.trigger(event);
-								// selectionManager.clearSelection(SelectionType.SELECTION);
+								// SelectionCommands.clearSelections();
+								// // selectionManager.triggerSelectionUpdateEvent();
 								// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
+								//
 								// selectionManager.triggerSelectionUpdateEvent();
 								// updateHighlights();
 							}
 						}
 					});
+					IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(id), this.idType);
+					event.setSender(this);
+					item.addContextMenuItem(new GenericContextMenuItem("Apply Filter", event));
 
 					itemMap.put(id, item);
 					// Only add first one
@@ -112,16 +113,18 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 		for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
 
 			EntityColumnItem<?> item = entry.getValue();
-			item.setHighlight(false);
+			// item.setHighlight(false);
+			boolean visible = false;
 
 			if (ids.contains(entry.getKey())) {
-				item.setHighlight(true);
-				item.setHighlightColor(SelectionType.SELECTION.getColor());
+				visible = true;
+				// item.setHighlight(true);
+				// item.setHighlightColor(SelectionType.SELECTION.getColor());
 				item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
-			if (!item.isHighlight()) {
+			if (!visible) {
 				item.setVisibility(EVisibility.NONE);
 				columnBody.getParent().relayout();
 			}
@@ -139,7 +142,7 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 			if (selectionIDs.contains(entry.getKey())) {
 				item.setHighlight(true);
 				item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
-				item.setVisibility(EVisibility.PICKABLE);
+				// item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
@@ -147,14 +150,15 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 			if (selectionIDs.contains(entry.getKey())) {
 				item.setHighlight(true);
 				item.setHighlightColor(SelectionType.SELECTION.getColor());
-				item.setVisibility(EVisibility.PICKABLE);
+				// item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
-			if (!item.isHighlight()) {
-				item.setVisibility(EVisibility.NONE);
-				columnBody.getParent().relayout();
-			}
+			// if (!item.isHighlight()) {
+			// item.setVisibility(EVisibility.NONE);
+			// columnBody.getParent().relayout();
+			// }
+
 		}
 
 	}

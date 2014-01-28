@@ -7,15 +7,22 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.caleydo.core.data.collection.EDimension;
+import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.DeepScan;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.view.opengl.canvas.IGLCanvas;
+import org.caleydo.core.view.opengl.canvas.IGLKeyListener;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
+import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
@@ -23,6 +30,9 @@ import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.IGLLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
 
 /**
  * @author Christian
@@ -40,6 +50,14 @@ public class EntityColumn extends GLElementContainer {
 	private GLElement header;
 	@DeepScan
 	private final IEntityColumnContentProvider contentProvider;
+
+	private boolean isCtrlPressed = false;
+	private boolean isShiftPressed = false;
+	private IGLCanvas canvas;
+
+	private IGLKeyListener keyListener;
+
+	private Set<EntityColumnItem<?>> selectedItems = new HashSet<>();
 
 	public static interface IEntityColumnContentProvider extends ILabeled {
 		public void setColumnBody(ColumnBody body);
@@ -123,14 +141,90 @@ public class EntityColumn extends GLElementContainer {
 		contentProvider.setColumnBody(body);
 		scrollingDecorator.setMinSizeProvider(body);
 		add(scrollingDecorator);
-		for (GLElement el : contentProvider.getContent()) {
-			body.add(el);
+		for (final EntityColumnItem<?> item : contentProvider.getContent()) {
+			body.add(item);
+			item.onPick(new IPickingListener() {
+
+				@Override
+				public void pick(Pick pick) {
+					if (pick.getPickingMode() == PickingMode.CLICKED) {
+						if (isCtrlPressed) {
+							addToSelection(item);
+						} else {
+							setSelection(item);
+						}
+					} else if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
+						if (isCtrlPressed) {
+							addToSelection(item);
+						} else if (!selectedItems.contains(item)) {
+							setSelection(item);
+						}
+					}
+				}
+			});
+		}
+
+	}
+
+	public void clearSelection() {
+		for (EntityColumnItem<?> item : selectedItems) {
+			item.setHighlight(false);
+		}
+		selectedItems.clear();
+	}
+
+	public void setSelection(EntityColumnItem<?> item) {
+		clearSelection();
+		addToSelection(item);
+	}
+
+	public void setSelection(int index) {
+		EntityColumnItem<?> item = (EntityColumnItem<?>) body.get(index);
+		setSelection(item);
+	}
+
+	public void addToSelection(EntityColumnItem<?> item) {
+		selectedItems.add(item);
+		item.setHighlight(true);
+		item.setHighlightColor(SelectionType.SELECTION.getColor());
+	}
+
+	public void addToSelection(Collection<EntityColumnItem<?>> items) {
+		for (EntityColumnItem<?> item : items) {
+			addToSelection(item);
 		}
 	}
 
-	@ListenTo
-	public void onIDFilter(IDFilterEvent e) {
-		// System.out.println("got it");
+	/**
+	 * @return the selectedItems, see {@link #selectedItems}
+	 */
+	public Set<EntityColumnItem<?>> getSelectedItems() {
+		return selectedItems;
+	}
+
+	@Override
+	protected void init(IGLElementContext context) {
+		super.init(context);
+		AGLElementView view = findParent(AGLElementView.class);
+		canvas = view.getParentGLCanvas();
+		keyListener = new IGLKeyListener() {
+
+			@Override
+			public void keyReleased(IKeyEvent e) {
+				update(e);
+			}
+
+			@Override
+			public void keyPressed(IKeyEvent e) {
+				update(e);
+			}
+
+			protected void update(IKeyEvent e) {
+				isCtrlPressed = e.isControlDown();
+				isShiftPressed = e.isShiftDown();
+			}
+		};
+		canvas.addKeyListener(keyListener);
 	}
 
 	/**
@@ -143,6 +237,7 @@ public class EntityColumn extends GLElementContainer {
 	@Override
 	protected void takeDown() {
 		contentProvider.takeDown();
+		canvas.removeKeyListener(keyListener);
 		super.takeDown();
 	}
 

@@ -18,15 +18,16 @@ import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.selection.EventBasedSelectionManager;
 import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
+import org.caleydo.core.data.selection.SelectionCommands;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.IDSpecification;
+import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -111,14 +112,17 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
 		IDType origIDType;
 		IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
-		 if(spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
-			 origIDType = IDType.getIDType(spec.getIdType());
-		 } else {
-			 origIDType = IDType.getIDType( dd.getDataSetDescription().getRowIDSpecification().getIdType());
-		 }
+		if (spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
+			origIDType = IDType.getIDType(spec.getIdType());
+		} else {
+			origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
+		}
 
 		Object origID = m.getID(recordIDType, origIDType, recordID);
 		item.setToolTip(origID.toString());
+		IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(recordID), recordIDType);
+		event.setSender(this);
+		item.addContextMenuItem(new GenericContextMenuItem("Apply Filter", event));
 		itemMap.put(recordID, item);
 
 		item.onPick(new IPickingListener() {
@@ -126,16 +130,13 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 			@Override
 			public void pick(Pick pick) {
 				if (pick.getPickingMode() == PickingMode.CLICKED) {
-					// SelectionCommands.clearSelections();
-					// selectionManager.clearSelection(SelectionType.SELECTION);
-					// selectionManager.addToType(SelectionType.SELECTION, recordID);
-					//
-					// selectionManager.triggerSelectionUpdateEvent();
-					// updateHighlights();
-
-					IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(recordID), recordIDType);
-					event.setSender(TabularDatasetContentProvider.this);
-					EventPublisher.trigger(event);
+//					SelectionCommands.clearSelections();
+//					// selectionManager.clearSelection(SelectionType.SELECTION);
+//					selectionManager.triggerSelectionUpdateEvent();
+//					selectionManager.addToType(SelectionType.SELECTION, recordID);
+//
+//					selectionManager.triggerSelectionUpdateEvent();
+//					updateHighlights();
 				}
 			}
 		});
@@ -186,16 +187,18 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
 
 			EntityColumnItem<?> item = entry.getValue();
-			item.setHighlight(false);
+			// item.setHighlight(false);
+			boolean visible = false;
 
 			if (ids.contains(entry.getKey())) {
-				item.setHighlight(true);
-				item.setHighlightColor(SelectionType.SELECTION.getColor());
+				visible = true;
+				// item.setHighlight(true);
+				// item.setHighlightColor(SelectionType.SELECTION.getColor());
 				item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
-			if (!item.isHighlight()) {
+			if (!visible) {
 				item.setVisibility(EVisibility.NONE);
 				columnBody.getParent().relayout();
 			}
@@ -213,7 +216,7 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 			if (selectionIDs.contains(entry.getKey())) {
 				item.setHighlight(true);
 				item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
-				item.setVisibility(EVisibility.PICKABLE);
+				// item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
@@ -221,14 +224,14 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 			if (selectionIDs.contains(entry.getKey())) {
 				item.setHighlight(true);
 				item.setHighlightColor(SelectionType.SELECTION.getColor());
-				item.setVisibility(EVisibility.PICKABLE);
+				// item.setVisibility(EVisibility.PICKABLE);
 				columnBody.getParent().relayout();
 			}
 
-			if (!item.isHighlight()) {
-				item.setVisibility(EVisibility.NONE);
-				columnBody.getParent().relayout();
-			}
+			// if (!item.isHighlight()) {
+			// item.setVisibility(EVisibility.NONE);
+			// columnBody.getParent().relayout();
+			// }
 
 		}
 

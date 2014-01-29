@@ -83,13 +83,13 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 
 		float totalMinSize = 0;
 		for (EntityColumn column : columns) {
-			Vec2f minSize = column.getBody().getMinSize();
+			Vec2f minSize = column.getItemList().getMinSize();
 			totalMinSize += minSize.x();
 		}
 
 		for (int i = 0; i < columns.size(); i++) {
 			EntityColumn column = columns.get(i);
-			Vec2f minSize = column.getBody().getMinSize();
+			Vec2f minSize = column.getItemList().getMinSize();
 			column.setLayoutData(minSize.x() / totalMinSize);
 			relationshipExplorer.add(column);
 			if (i < columns.size() - 1) {

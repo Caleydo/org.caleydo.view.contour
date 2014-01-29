@@ -13,14 +13,12 @@ import java.util.Set;
 
 import org.caleydo.core.data.selection.EventBasedSelectionManager;
 import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
-import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
-import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
@@ -37,7 +35,7 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 	protected final IDType displayedIDType;
 	protected EventBasedSelectionManager selectionManager;
 
-	protected Map<Object, EntityColumnItem<?>> itemMap = new HashMap<>();
+	protected Map<Object, MinSizeTextElement> itemMap = new HashMap<>();
 
 	public IDContentProvider(IDType idType, IDType displayedIDType) {
 		this.idType = idType;
@@ -46,38 +44,7 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 		selectionManager = new EventBasedSelectionManager(this, idType);
 		selectionManager.registerEventListeners();
 
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
 
-		for (final Object id : mappingManager.getAllMappedIDs(idType)) {
-			Set<Object> idsToDisplay = mapper.apply(id);
-			if (idsToDisplay != null) {
-				for (Object name : idsToDisplay) {
-					final EntityColumnItem<?> item = addItem(name.toString());
-					item.onPick(new IPickingListener() {
-
-						@Override
-						public void pick(Pick pick) {
-							if (pick.getPickingMode() == PickingMode.CLICKED) {
-								// SelectionCommands.clearSelections();
-								// // selectionManager.triggerSelectionUpdateEvent();
-								// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
-								//
-								// selectionManager.triggerSelectionUpdateEvent();
-								// updateHighlights();
-							}
-						}
-					});
-					IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(id), this.idType);
-					event.setSender(this);
-					item.addContextMenuItem(new GenericContextMenuItem("Apply Filter", event));
-
-					itemMap.put(id, item);
-					// Only add first one
-					break;
-				}
-			}
-		}
 	}
 
 	@Override
@@ -110,9 +77,9 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 	}
 
 	protected void setFilteredItems(Set<Object> ids) {
-		for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+		for (Entry<Object, MinSizeTextElement> entry : itemMap.entrySet()) {
 
-			EntityColumnItem<?> item = entry.getValue();
+			MinSizeTextElement item = entry.getValue();
 			// item.setHighlight(false);
 			boolean visible = false;
 
@@ -120,46 +87,46 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 				visible = true;
 				// item.setHighlight(true);
 				// item.setHighlightColor(SelectionType.SELECTION.getColor());
-				item.setVisibility(EVisibility.PICKABLE);
-				columnBody.getParent().relayout();
+				entityColumn.getItemList().show(item);
+				entityColumn.getItemList().asGLElement().relayout();
 			}
 
 			if (!visible) {
-				item.setVisibility(EVisibility.NONE);
-				columnBody.getParent().relayout();
+				entityColumn.getItemList().hide(item);
+				entityColumn.getItemList().asGLElement().relayout();
 			}
 
 		}
 	}
 
 	protected void updateHighlights() {
-		for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
-
-			EntityColumnItem<?> item = entry.getValue();
-			item.setHighlight(false);
-
-			Set<Integer> selectionIDs = selectionManager.getElements(SelectionType.MOUSE_OVER);
-			if (selectionIDs.contains(entry.getKey())) {
-				item.setHighlight(true);
-				item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
-				// item.setVisibility(EVisibility.PICKABLE);
-				columnBody.getParent().relayout();
-			}
-
-			selectionIDs = selectionManager.getElements(SelectionType.SELECTION);
-			if (selectionIDs.contains(entry.getKey())) {
-				item.setHighlight(true);
-				item.setHighlightColor(SelectionType.SELECTION.getColor());
-				// item.setVisibility(EVisibility.PICKABLE);
-				columnBody.getParent().relayout();
-			}
-
-			// if (!item.isHighlight()) {
-			// item.setVisibility(EVisibility.NONE);
-			// columnBody.getParent().relayout();
-			// }
-
-		}
+		// for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+		//
+		// EntityColumnItem<?> item = entry.getValue();
+		// item.setHighlight(false);
+		//
+		// Set<Integer> selectionIDs = selectionManager.getElements(SelectionType.MOUSE_OVER);
+		// if (selectionIDs.contains(entry.getKey())) {
+		// item.setHighlight(true);
+		// item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
+		// // item.setVisibility(EVisibility.PICKABLE);
+		// columnBody.getParent().relayout();
+		// }
+		//
+		// selectionIDs = selectionManager.getElements(SelectionType.SELECTION);
+		// if (selectionIDs.contains(entry.getKey())) {
+		// item.setHighlight(true);
+		// item.setHighlightColor(SelectionType.SELECTION.getColor());
+		// // item.setVisibility(EVisibility.PICKABLE);
+		// columnBody.getParent().relayout();
+		// }
+		//
+		// // if (!item.isHighlight()) {
+		// // item.setVisibility(EVisibility.NONE);
+		// // columnBody.getParent().relayout();
+		// // }
+		//
+		// }
 
 	}
 
@@ -167,6 +134,45 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 	public void takeDown() {
 		selectionManager.unregisterEventListeners();
 		selectionManager = null;
+	}
+
+	@Override
+	public void setContent(GLElementList itemList) {
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
+
+		for (final Object id : mappingManager.getAllMappedIDs(idType)) {
+			Set<Object> idsToDisplay = mapper.apply(id);
+			if (idsToDisplay != null) {
+				for (Object name : idsToDisplay) {
+					final MinSizeTextElement item = addItem(name.toString());
+					item.onPick(new IPickingListener() {
+
+						@Override
+						public void pick(Pick pick) {
+							if (pick.getPickingMode() == PickingMode.CLICKED) {
+								// SelectionCommands.clearSelections();
+								// // selectionManager.triggerSelectionUpdateEvent();
+								// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
+								//
+								// selectionManager.triggerSelectionUpdateEvent();
+								// updateHighlights();
+							}
+						}
+					});
+
+					itemMap.put(id, item);
+					itemList.add(item);
+
+					IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(id), this.idType);
+					event.setSender(this);
+					itemList.addContextMenuItem(item, new GenericContextMenuItem("Apply Filter", event));
+					// Only add first one
+					break;
+				}
+			}
+		}
+
 	}
 
 }

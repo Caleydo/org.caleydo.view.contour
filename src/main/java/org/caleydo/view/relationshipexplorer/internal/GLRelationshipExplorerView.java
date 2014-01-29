@@ -5,7 +5,6 @@
  ******************************************************************************/
 package org.caleydo.view.relationshipexplorer.internal;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.media.opengl.GLAutoDrawable;
@@ -61,18 +60,18 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	@Override
 	protected void applyTablePerspectives(GLElementDecorator root, List<TablePerspective> all,
 			List<TablePerspective> added, List<TablePerspective> removed) {
-		RelationshipExplorerElement content = getContent();
-		for (TablePerspective add : added) {
-
-		}
-		for (TablePerspective rem : removed) {
-			for (Iterator<TablePerspective> it = content.getTablePerspectives().iterator(); it.hasNext();) {
-				if (rem.equals(it.next())) {
-					it.remove();
-					break;
-				}
-			}
-		}
+		// RelationshipExplorerElement content = getContent();
+		// for (TablePerspective add : added) {
+		//
+		// }
+		// for (TablePerspective rem : removed) {
+		// for (Iterator<TablePerspective> it = content.getTablePerspectives().iterator(); it.hasNext();) {
+		// if (rem.equals(it.next())) {
+		// it.remove();
+		// break;
+		// }
+		// }
+		// }
 	}
 
 }

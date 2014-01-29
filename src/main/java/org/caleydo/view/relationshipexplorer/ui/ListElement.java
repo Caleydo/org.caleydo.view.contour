@@ -15,7 +15,6 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
-import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -25,7 +24,7 @@ import org.caleydo.core.view.opengl.picking.PickingMode;
  * @author Christian
  *
  */
-public class EntityColumnItem<T extends GLElement & IHasMinSize> extends AnimatedGLElementContainer {
+public class ListElement extends AnimatedGLElementContainer {
 
 	protected class HighlightRenderer extends GLElement {
 
@@ -43,7 +42,7 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	boolean highlight = false;
 
 	protected HighlightRenderer highlightRenderer;
-	protected T content;
+	protected GLElement content;
 	protected String tooltip;
 
 	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
@@ -51,7 +50,7 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	/**
 	 *
 	 */
-	public EntityColumnItem() {
+	public ListElement() {
 		setLayout(GLLayouts.LAYERS);
 		setVisibility(EVisibility.PICKABLE);
 		highlightRenderer = new HighlightRenderer();
@@ -83,7 +82,7 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	/**
 	 * @return the content, see {@link #content}
 	 */
-	public T getContent() {
+	public GLElement getContent() {
 		return content;
 	}
 
@@ -91,7 +90,7 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	 * @param content
 	 *            setter, see {@link content}
 	 */
-	public void setContent(T content) {
+	public void setContent(GLElement content) {
 		this.content = content;
 		add(content);
 	}
@@ -117,7 +116,7 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 			@Override
 			public void pick(Pick pick) {
 				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
-					EntityColumnItem.this.context.getSWTLayer().showContextMenu(contextMenuCreator);
+					ListElement.this.context.getSWTLayer().showContextMenu(contextMenuCreator);
 				}
 
 			}
@@ -138,5 +137,4 @@ public class EntityColumnItem<T extends GLElement & IHasMinSize> extends Animate
 	public void addContextMenuItem(AContextMenuItem item) {
 		contextMenuCreator.add(item);
 	}
-
 }

@@ -20,7 +20,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
-import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
@@ -37,7 +36,7 @@ public class GroupingContentProvider extends ATextualContentProvider {
 	protected final Perspective perspective;
 	protected final GroupList groupList;
 
-	protected Map<Group, EntityColumnItem<?>> itemMap = new HashMap<>();
+	protected Map<Group, MinSizeTextElement> itemMap = new HashMap<>();
 
 	public GroupingContentProvider(Perspective perspective) {
 
@@ -45,34 +44,7 @@ public class GroupingContentProvider extends ATextualContentProvider {
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
 
-		for (final Group group : groupList) {
-			EntityColumnItem<?> item = addItem(group.getLabel());
-			itemMap.put(group, item);
-			item.onPick(new IPickingListener() {
 
-				@Override
-				public void pick(Pick pick) {
-
-					if (pick.getPickingMode() == PickingMode.CLICKED) {
-						// Perspective p = GroupingContentProvider.this.perspective;
-						// IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(p.getVirtualArray().getIDsOfGroup(
-						// group.getGroupIndex())), p.getIdType());
-						// event.setSender(GroupingContentProvider.this);
-						// EventPublisher.trigger(event);
-						// selectionManager.clearSelection(SelectionType.SELECTION);
-						// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
-						// selectionManager.triggerSelectionUpdateEvent();
-						// updateHighlights();
-					}
-				}
-			});
-
-			IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(perspective.getVirtualArray().getIDsOfGroup(
-					group.getGroupIndex())), perspective.getIdType());
-			event.setSender(this);
-			item.addContextMenuItem(new GenericContextMenuItem("Apply Filter", event));
-
-		}
 
 		// for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
 		// if (dataDomain instanceof ATableBasedDataDomain) {
@@ -162,9 +134,9 @@ public class GroupingContentProvider extends ATextualContentProvider {
 	}
 
 	protected void setFilteredItems(Set<Object> ids) {
-		for (Entry<Group, EntityColumnItem<?>> entry : itemMap.entrySet()) {
+		for (Entry<Group, MinSizeTextElement> entry : itemMap.entrySet()) {
 
-			EntityColumnItem<?> item = entry.getValue();
+			MinSizeTextElement item = entry.getValue();
 			Group group = entry.getKey();
 
 			boolean visible = false;
@@ -174,16 +146,16 @@ public class GroupingContentProvider extends ATextualContentProvider {
 				if (ids.contains(perspective.getVirtualArray().get(index))) {
 					// item.setHighlight(true);
 					// item.setHighlightColor(SelectionType.SELECTION.getColor());
-					item.setVisibility(EVisibility.PICKABLE);
+					entityColumn.getItemList().show(item);
 					visible = true;
-					columnBody.getParent().relayout();
+					entityColumn.getItemList().asGLElement().relayout();
 					break;
 				}
 			}
 
 			if (!visible) {
-				item.setVisibility(EVisibility.NONE);
-				columnBody.getParent().relayout();
+				entityColumn.getItemList().hide(item);
+				entityColumn.getItemList().asGLElement().relayout();
 			}
 
 		}
@@ -192,6 +164,37 @@ public class GroupingContentProvider extends ATextualContentProvider {
 	@Override
 	public String getLabel() {
 		return perspective.getLabel();
+	}
+
+	@Override
+	public void setContent(GLElementList itemList) {
+		for (final Group group : groupList) {
+			MinSizeTextElement item = addItem(group.getLabel());
+			itemMap.put(group, item);
+			item.onPick(new IPickingListener() {
+
+				@Override
+				public void pick(Pick pick) {
+
+					if (pick.getPickingMode() == PickingMode.CLICKED) {
+						// Perspective p = GroupingContentProvider.this.perspective;
+						// IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(p.getVirtualArray().getIDsOfGroup(
+						// group.getGroupIndex())), p.getIdType());
+						// event.setSender(GroupingContentProvider.this);
+						// EventPublisher.trigger(event);
+						// selectionManager.clearSelection(SelectionType.SELECTION);
+						// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
+						// selectionManager.triggerSelectionUpdateEvent();
+						// updateHighlights();
+					}
+				}
+			});
+			itemList.add(item);
+			IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(perspective.getVirtualArray().getIDsOfGroup(
+					group.getGroupIndex())), perspective.getIdType());
+			event.setSender(this);
+			itemList.addContextMenuItem(item, new GenericContextMenuItem("Apply Filter", event));
+		}
 	}
 
 }

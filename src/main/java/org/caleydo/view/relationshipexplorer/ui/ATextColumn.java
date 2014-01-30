@@ -7,27 +7,18 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
-import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnContentProvider;
 
 /**
  * @author Christian
  *
  */
-public abstract class ATextualContentProvider implements IEntityColumnContentProvider {
+public abstract class ATextColumn extends AEntityColumn {
 
 	protected static final int MIN_TEXT_WIDTH = 150;
 	protected static final int ITEM_HEIGHT = 16;
-
-	protected List<MinSizeTextElement> items = new ArrayList<>();
-	protected EntityColumn entityColumn;
-
-	// protected ColumnBody columnBody;
 
 	protected class MinSizeTextElement extends GLElement {
 
@@ -46,36 +37,11 @@ public abstract class ATextualContentProvider implements IEntityColumnContentPro
 
 	}
 
-	// @Override
-	// public void setColumnBody(ColumnBody body) {
-	// this.columnBody = body;
-	//
-	// }
-
-	// @Override
-	// public List<GLElement> getContent() {
-	// List<GLElement> content = new ArrayList<>(items.size());
-	// content.addAll(items);
-	// return content;
-	// }
-
-	public MinSizeTextElement addItem(String text) {
+	public MinSizeTextElement addTextElement(String text, Object elementID) {
 		MinSizeTextElement el = new MinSizeTextElement(GLRenderers.drawText(text));
-		// EntityColumnItem<MinSizeTextElement> item = new EntityColumnItem<>();
-		// item.setSize(Float.NaN, ITEM_HEIGHT);
-		// item.setContent(el);
-		items.add(el);
+		addElement(el, elementID);
 		return el;
 	}
 
-	@Override
-	public void takeDown() {
-		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void setEntityColumn(EntityColumn column) {
-		this.entityColumn = column;
-	}
 }

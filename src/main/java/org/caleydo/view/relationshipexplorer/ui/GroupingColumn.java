@@ -5,9 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -16,35 +14,28 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
-import org.caleydo.core.view.opengl.picking.IPickingListener;
-import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.core.view.opengl.picking.PickingMode;
-
-import com.google.common.collect.Sets;
+import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 
 /**
  * @author Christian
  *
  */
-public class GroupingContentProvider extends ATextualContentProvider {
+public class GroupingColumn extends ATextColumn {
 
 	protected final ATableBasedDataDomain dataDomain;
 	protected final Perspective perspective;
 	protected final GroupList groupList;
 
-	protected Map<Group, MinSizeTextElement> itemMap = new HashMap<>();
-
-	public GroupingContentProvider(Perspective perspective) {
+	public GroupingColumn(Perspective perspective) {
 
 		this.perspective = perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
-
-
 
 		// for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
 		// if (dataDomain instanceof ATableBasedDataDomain) {
@@ -133,29 +124,27 @@ public class GroupingContentProvider extends ATextualContentProvider {
 		// }
 	}
 
+	@Override
 	protected void setFilteredItems(Set<Object> ids) {
-		for (Entry<Group, MinSizeTextElement> entry : itemMap.entrySet()) {
+		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
 
-			MinSizeTextElement item = entry.getValue();
-			Group group = entry.getKey();
+			GLElement item = entry.getValue();
+			Group group = (Group) entry.getKey();
 
 			boolean visible = false;
-			// item.setHighlight(false);
 
 			for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
 				if (ids.contains(perspective.getVirtualArray().get(index))) {
-					// item.setHighlight(true);
-					// item.setHighlightColor(SelectionType.SELECTION.getColor());
-					entityColumn.getItemList().show(item);
+					itemList.show(item);
 					visible = true;
-					entityColumn.getItemList().asGLElement().relayout();
+					itemList.asGLElement().relayout();
 					break;
 				}
 			}
 
 			if (!visible) {
-				entityColumn.getItemList().hide(item);
-				entityColumn.getItemList().asGLElement().relayout();
+				itemList.hide(item);
+				itemList.asGLElement().relayout();
 			}
 
 		}
@@ -167,34 +156,47 @@ public class GroupingContentProvider extends ATextualContentProvider {
 	}
 
 	@Override
-	public void setContent(GLElementList itemList) {
+	protected void setContent() {
 		for (final Group group : groupList) {
-			MinSizeTextElement item = addItem(group.getLabel());
-			itemMap.put(group, item);
-			item.onPick(new IPickingListener() {
-
+			MinSizeTextElement item = addTextElement(group.getLabel(), group);
+			// item.onPick(new IPickingListener() {
+			//
+			// @Override
+			// public void pick(Pick pick) {
+			//
+			// if (pick.getPickingMode() == PickingMode.CLICKED) {
+			// // Perspective p = GroupingContentProvider.this.perspective;
+			// // IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(p.getVirtualArray().getIDsOfGroup(
+			// // group.getGroupIndex())), p.getIdType());
+			// // event.setSender(GroupingContentProvider.this);
+			// // EventPublisher.trigger(event);
+			// // selectionManager.clearSelection(SelectionType.SELECTION);
+			// // selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
+			// // selectionManager.triggerSelectionUpdateEvent();
+			// // updateHighlights();
+			// }
+			// }
+			// });
+			// itemList.add(item);
+			ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
 				@Override
-				public void pick(Pick pick) {
-
-					if (pick.getPickingMode() == PickingMode.CLICKED) {
-						// Perspective p = GroupingContentProvider.this.perspective;
-						// IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(p.getVirtualArray().getIDsOfGroup(
-						// group.getGroupIndex())), p.getIdType());
-						// event.setSender(GroupingContentProvider.this);
-						// EventPublisher.trigger(event);
-						// selectionManager.clearSelection(SelectionType.SELECTION);
-						// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
-						// selectionManager.triggerSelectionUpdateEvent();
-						// updateHighlights();
+				public void run() {
+					Set<Object> ids = new HashSet<>();
+					for (GLElement element : itemList.getSelectedElements()) {
+						Group g = (Group) mapIDToElement.inverse().get(element);
+						ids.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
 					}
+
+					IDFilterEvent event = new IDFilterEvent(ids, perspective.getIdType());
+					event.setSender(GroupingColumn.this);
+					EventPublisher.trigger(event);
+
 				}
 			});
-			itemList.add(item);
-			IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(perspective.getVirtualArray().getIDsOfGroup(
-					group.getGroupIndex())), perspective.getIdType());
-			event.setSender(this);
-			itemList.addContextMenuItem(item, new GenericContextMenuItem("Apply Filter", event));
+
+			itemList.addContextMenuItem(item, contextMenuItem);
 		}
+
 	}
 
 }

@@ -5,60 +5,54 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import org.caleydo.core.data.selection.EventBasedSelectionManager;
-import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
-import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
+import org.caleydo.core.util.base.ILabelHolder;
+import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
-
-import com.google.common.collect.Sets;
 
 /**
  * @author Christian
  *
  */
-public class IDContentProvider extends ATextualContentProvider implements IEventBasedSelectionManagerUser {
+public class IDColumn extends ATextColumn implements ILabelHolder {
 
 	protected final IDType idType;
 	protected final IDType displayedIDType;
-	protected EventBasedSelectionManager selectionManager;
 
-	protected Map<Object, MinSizeTextElement> itemMap = new HashMap<>();
+	protected String label;
 
-	public IDContentProvider(IDType idType, IDType displayedIDType) {
+	// protected EventBasedSelectionManager selectionManager;
+
+	// protected Map<Object, MinSizeTextElement> itemMap = new HashMap<>();
+
+	public IDColumn(IDType idType, IDType displayedIDType) {
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;
+		this.label = idType.getIDCategory().getDenominationPlural(true);
 
-		selectionManager = new EventBasedSelectionManager(this, idType);
-		selectionManager.registerEventListeners();
-
-
-	}
-
-	@Override
-	public String getLabel() {
-		return idType.getIDCategory().getDenominationPlural(true);
-	}
-
-	@Override
-	public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
-		if (selectionManager == this.selectionManager) {
-			updateHighlights();
-		}
+		// selectionManager = new EventBasedSelectionManager(this, idType);
+		// selectionManager.registerEventListeners();
 
 	}
+
+	// @Override
+	// public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
+	// if (selectionManager == this.selectionManager) {
+	// updateHighlights();
+	// }
+	//
+	// }
 
 	@ListenTo
 	public void onApplyIDFilter(IDFilterEvent event) {
@@ -76,28 +70,28 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 		setFilteredItems(mappedIDs);
 	}
 
-	protected void setFilteredItems(Set<Object> ids) {
-		for (Entry<Object, MinSizeTextElement> entry : itemMap.entrySet()) {
-
-			MinSizeTextElement item = entry.getValue();
-			// item.setHighlight(false);
-			boolean visible = false;
-
-			if (ids.contains(entry.getKey())) {
-				visible = true;
-				// item.setHighlight(true);
-				// item.setHighlightColor(SelectionType.SELECTION.getColor());
-				entityColumn.getItemList().show(item);
-				entityColumn.getItemList().asGLElement().relayout();
-			}
-
-			if (!visible) {
-				entityColumn.getItemList().hide(item);
-				entityColumn.getItemList().asGLElement().relayout();
-			}
-
-		}
-	}
+	// protected void setFilteredItems(Set<Object> ids) {
+	// for (Entry<Object, MinSizeTextElement> entry : itemMap.entrySet()) {
+	//
+	// MinSizeTextElement item = entry.getValue();
+	// // item.setHighlight(false);
+	// boolean visible = false;
+	//
+	// if (ids.contains(entry.getKey())) {
+	// visible = true;
+	// // item.setHighlight(true);
+	// // item.setHighlightColor(SelectionType.SELECTION.getColor());
+	// entityColumn.getItemList().show(item);
+	// entityColumn.getItemList().asGLElement().relayout();
+	// }
+	//
+	// if (!visible) {
+	// entityColumn.getItemList().hide(item);
+	// entityColumn.getItemList().asGLElement().relayout();
+	// }
+	//
+	// }
+	// }
 
 	protected void updateHighlights() {
 		// for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
@@ -130,14 +124,14 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 
 	}
 
-	@Override
-	public void takeDown() {
-		selectionManager.unregisterEventListeners();
-		selectionManager = null;
-	}
+	// @Override
+	// public void takeDown() {
+	// selectionManager.unregisterEventListeners();
+	// selectionManager = null;
+	// }
 
 	@Override
-	public void setContent(GLElementList itemList) {
+	protected void setContent() {
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
 
@@ -145,7 +139,7 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 			Set<Object> idsToDisplay = mapper.apply(id);
 			if (idsToDisplay != null) {
 				for (Object name : idsToDisplay) {
-					final MinSizeTextElement item = addItem(name.toString());
+					final MinSizeTextElement item = addTextElement(name.toString(), id);
 					item.onPick(new IPickingListener() {
 
 						@Override
@@ -161,18 +155,44 @@ public class IDContentProvider extends ATextualContentProvider implements IEvent
 						}
 					});
 
-					itemMap.put(id, item);
-					itemList.add(item);
+					ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter",
+							new Runnable() {
+								@Override
+								public void run() {
+									Set<Object> ids = new HashSet<>();
+									for (GLElement element : itemList.getSelectedElements()) {
+										ids.add(mapIDToElement.inverse().get(element));
+									}
 
-					IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(id), this.idType);
-					event.setSender(this);
-					itemList.addContextMenuItem(item, new GenericContextMenuItem("Apply Filter", event));
+									IDFilterEvent event = new IDFilterEvent(ids, idType);
+									event.setSender(IDColumn.this);
+									EventPublisher.trigger(event);
+
+								}
+							});
+
+					itemList.addContextMenuItem(item, contextMenuItem);
 					// Only add first one
 					break;
 				}
 			}
 		}
 
+	}
+
+	@Override
+	public String getProviderName() {
+		return "ID Column";
+	}
+
+	@Override
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	@Override
+	public String getLabel() {
+		return label;
 	}
 
 }

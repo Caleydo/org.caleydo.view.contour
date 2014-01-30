@@ -5,36 +5,28 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
-import org.caleydo.core.data.selection.EventBasedSelectionManager;
-import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
 import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.IDSpecification;
-import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
-import org.caleydo.view.relationshipexplorer.ui.EntityColumn.IEntityColumnContentProvider;
-
-import com.google.common.collect.Sets;
+import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 
 /**
  * @author Christian
  *
  */
-public class TabularDatasetContentProvider implements IEntityColumnContentProvider, IEventBasedSelectionManagerUser {
+public class TabularDataColumn extends AEntityColumn {
 
 	protected final ATableBasedDataDomain dataDomain;
 	protected final IDCategory itemIDCategory;
@@ -45,13 +37,13 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 
 	// protected EventBasedSelectionManager selectionManager;
 
-	protected Map<Object, SimpleDataRenderer> itemMap = new HashMap<>();
-	protected List<SimpleDataRenderer> items = new ArrayList<>();
-	protected EntityColumn entityColumn;
+	// protected Map<Object, SimpleDataRenderer> itemMap = new HashMap<>();
+	// protected List<SimpleDataRenderer> items = new ArrayList<>();
+	// protected EntityColumn entityColumn;
 
 	// protected ColumnBody columnBody;
 
-	public TabularDatasetContentProvider(TablePerspective tablePerspective, IDCategory itemIDCategory) {
+	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory) {
 		dataDomain = tablePerspective.getDataDomain();
 		this.itemIDCategory = itemIDCategory;
 		this.tablePerspective = tablePerspective;
@@ -94,12 +86,10 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 	// }
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
-			Perspective dimensionPerspective, GLElementList itemList) {
+			Perspective dimensionPerspective) {
 		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
-		// EntityColumnItem<SimpleDataRenderer> item = new EntityColumnItem<>();
-		// item.setContent(renderer);
-		// item.setSize(Float.NaN, SimpleDataRenderer.MIN_HEIGHT);
-		// items.add(renderer);
+
+		addElement(renderer, recordID);
 		IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
 		IDType origIDType;
 		IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
@@ -109,15 +99,28 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 			origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
 		}
 
-		itemList.add(renderer);
+		// itemList.add(renderer);
 		Object origID = m.getID(recordIDType, origIDType, recordID);
 
-		IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(recordID), recordIDType);
-		event.setSender(this);
-		itemList.addContextMenuItem(renderer, new GenericContextMenuItem("Apply Filter", event));
+		ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
+			@Override
+			public void run() {
+				Set<Object> ids = new HashSet<>();
+				for (GLElement element : itemList.getSelectedElements()) {
+					ids.add(mapIDToElement.inverse().get(element));
+				}
+
+				IDFilterEvent event = new IDFilterEvent(ids, recordIDType);
+				event.setSender(TabularDataColumn.this);
+				EventPublisher.trigger(event);
+
+			}
+		});
+
+		itemList.addContextMenuItem(renderer, contextMenuItem);
 		itemList.setElementTooltip(renderer, origID.toString());
 
-		itemMap.put(recordID, renderer);
+		// itemMap.put(recordID, renderer);
 		//
 		// item.onPick(new IPickingListener() {
 		//
@@ -153,13 +156,13 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		return dataDomain.getLabel();
 	}
 
-	@Override
-	public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
+	// @Override
+	// public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
 		// if (selectionManager == this.selectionManager) {
 		// updateHighlights();
 		// }
 
-	}
+	// }
 
 	@ListenTo
 	public void onApplyIDFilter(IDFilterEvent event) {
@@ -177,29 +180,7 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 		setFilteredItems(mappedIDs);
 	}
 
-	protected void setFilteredItems(Set<Object> ids) {
-		for (Entry<Object, SimpleDataRenderer> entry : itemMap.entrySet()) {
 
-			SimpleDataRenderer item = entry.getValue();
-			// item.setHighlight(false);
-			boolean visible = false;
-
-			if (ids.contains(entry.getKey())) {
-				visible = true;
-				// item.setHighlight(true);
-				// item.setHighlightColor(SelectionType.SELECTION.getColor());
-				entityColumn.getItemList().show(item);
-				// item.setVisibility(EVisibility.PICKABLE);
-				entityColumn.getItemList().asGLElement().relayout();
-			}
-
-			if (!visible) {
-				entityColumn.getItemList().hide(item);
-				entityColumn.getItemList().asGLElement().relayout();
-			}
-
-		}
-	}
 
 	protected void updateHighlights() {
 		// for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
@@ -233,37 +214,11 @@ public class TabularDatasetContentProvider implements IEntityColumnContentProvid
 	}
 
 	@Override
-	public void takeDown() {
-		// selectionManager.unregisterEventListeners();
-		// selectionManager = null;
-	}
-
-	// @Override
-	// public void updateContent(MinSizeElementList<?> itemList) {
-	// // for (EntityColumnItem<?> item : items) {
-	// // itemList.add(item.getContent());
-	// // }
-	// itemList.add(new SimpleDataRenderer(null, null, 1, null));
-	// }
-
-	@Override
-	public void setEntityColumn(EntityColumn column) {
-		this.entityColumn = column;
-
-	}
-
-	// @Override
-	// public List<GLElement> getContent() {
-	// List<GLElement> content = new ArrayList<>(items.size());
-	// content.addAll(items);
-	// return content;
-	// }
-
-	@Override
-	public void setContent(GLElementList itemList) {
+	protected void setContent() {
 		for (int id : va) {
-			addItem(dataDomain, itemIDType, id, perspective, itemList);
+			addItem(dataDomain, itemIDType, id, perspective);
 		}
+
 	}
 
 }

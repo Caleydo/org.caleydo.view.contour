@@ -15,14 +15,10 @@ import java.util.Set;
 
 import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.event.EventListenerManager.DeepScan;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
-import org.caleydo.core.view.opengl.canvas.IGLCanvas;
-import org.caleydo.core.view.opengl.canvas.IGLKeyListener;
-import org.caleydo.core.view.opengl.layout2.AGLElementView;
+import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
-import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
@@ -42,12 +38,6 @@ public class GLElementList implements IHasMinSize {
 	protected static final int DEFAULT_ELEMENT_GAP = 2;
 	protected static final int SCROLLBAR_WIDTH = 8;
 
-	protected boolean isCtrlPressed = false;
-	protected boolean isShiftPressed = false;
-	private IGLCanvas canvas;
-
-
-
 	protected Set<ListElement> selectedElements = new HashSet<>();
 	protected Map<GLElement, ListElement> listElementMap = new HashMap<>();
 
@@ -58,9 +48,6 @@ public class GLElementList implements IHasMinSize {
 	protected int elementGap;
 
 	protected class ScrollableList extends AnimatedGLElementContainer {
-
-		@DeepScan
-		private IGLKeyListener keyListener;
 
 		public ScrollableList(int elementGap) {
 			super(GLLayouts.flowVertical(elementGap));
@@ -87,37 +74,6 @@ public class GLElementList implements IHasMinSize {
 					}
 				}
 			}
-		}
-
-		@Override
-		protected void init(IGLElementContext context) {
-			super.init(context);
-			AGLElementView view = findParent(AGLElementView.class);
-			canvas = view.getParentGLCanvas();
-			keyListener = new IGLKeyListener() {
-
-				@Override
-				public void keyReleased(IKeyEvent e) {
-					update(e);
-				}
-
-				@Override
-				public void keyPressed(IKeyEvent e) {
-					update(e);
-				}
-
-				protected void update(IKeyEvent e) {
-					isCtrlPressed = e.isControlDown();
-					isShiftPressed = e.isShiftDown();
-				}
-			};
-			canvas.addKeyListener(keyListener);
-		}
-
-		@Override
-		protected void takeDown() {
-			canvas.removeKeyListener(keyListener);
-			super.takeDown();
 		}
 	}
 
@@ -177,14 +133,22 @@ public class GLElementList implements IHasMinSize {
 
 			@Override
 			public void pick(Pick pick) {
+				boolean isCtrlDown = ((IMouseEvent) pick).isCtrlDown();
+				boolean isSelected = selectedElements.contains(el);
+
 				if (pick.getPickingMode() == PickingMode.CLICKED) {
-					if (isCtrlPressed) {
-						addToSelection(el.getContent());
+					if (isCtrlDown) {
+						if (isSelected) {
+							removeFromSelection(el.getContent());
+						} else {
+							addToSelection(el.getContent());
+						}
 					} else {
 						setSelection(el.getContent());
 					}
 				} else if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
-					if (isCtrlPressed) {
+
+					if (isCtrlDown) {
 						addToSelection(el.getContent());
 					} else if (!selectedElements.contains(el)) {
 						setSelection(el.getContent());
@@ -195,6 +159,12 @@ public class GLElementList implements IHasMinSize {
 		el.setSize(Float.NaN, element.getMinSize().y());
 		listElementMap.put(element, el);
 		body.add(el);
+	}
+
+	public void removeFromSelection(GLElement element) {
+		ListElement el = listElementMap.get(element);
+		selectedElements.remove(el);
+		el.setHighlight(false);
 	}
 
 	public void clearSelection() {

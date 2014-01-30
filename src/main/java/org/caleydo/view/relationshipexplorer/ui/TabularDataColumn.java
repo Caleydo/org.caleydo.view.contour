@@ -22,6 +22,8 @@ import org.caleydo.core.io.IDSpecification;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 
+import com.google.common.collect.Sets;
+
 /**
  * @author Christian
  *
@@ -35,20 +37,11 @@ public class TabularDataColumn extends AEntityColumn {
 	protected final VirtualArray va;
 	protected final Perspective perspective;
 
-	// protected EventBasedSelectionManager selectionManager;
-
-	// protected Map<Object, SimpleDataRenderer> itemMap = new HashMap<>();
-	// protected List<SimpleDataRenderer> items = new ArrayList<>();
-	// protected EntityColumn entityColumn;
-
-	// protected ColumnBody columnBody;
-
 	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory) {
 		dataDomain = tablePerspective.getDataDomain();
 		this.itemIDCategory = itemIDCategory;
 		this.tablePerspective = tablePerspective;
 
-		// if (dataDomain.getTable().isDataHomogeneous()) {
 
 		if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
 			va = tablePerspective.getDimensionPerspective().getVirtualArray();
@@ -61,29 +54,8 @@ public class TabularDataColumn extends AEntityColumn {
 			perspective = tablePerspective.getDimensionPerspective();
 		}
 
-		// selectionManager = new EventBasedSelectionManager(this, itemIDType);
-		// selectionManager.registerEventListeners();
-		// } else {
-		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
-		// for (int id : tablePerspective.getDimensionPerspective().getVirtualArray()) {
-		// addInhomogeneousRenderer(dataDomain, tablePerspective.getDimensionPerspective().getIdType(), id,
-		// tablePerspective.getRecordPerspective());
-		// }
-		// } else {
-		// for (int id : tablePerspective.getRecordPerspective().getVirtualArray()) {
-		// addInhomogeneousRenderer(dataDomain, tablePerspective.getRecordPerspective().getIdType(), id,
-		// tablePerspective.getDimensionPerspective());
-		// }
-		// }
-		// }
 	}
 
-	// protected void addBarChartRenderer(ATableBasedDataDomain dd, IDType recordIDType, int recordID,
-	// Perspective dimensionPerspective) {
-	// BarChartRenderer renderer = new BarChartRenderer(dd, recordIDType, recordID, dimensionPerspective);
-	// renderer.setSize(Float.NaN, BarChartRenderer.MIN_HEIGHT);
-	// items.add(renderer);
-	// }
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
 			Perspective dimensionPerspective) {
@@ -120,49 +92,14 @@ public class TabularDataColumn extends AEntityColumn {
 		itemList.addContextMenuItem(renderer, contextMenuItem);
 		itemList.setElementTooltip(renderer, origID.toString());
 
-		// itemMap.put(recordID, renderer);
-		//
-		// item.onPick(new IPickingListener() {
-		//
-		// @Override
-		// public void pick(Pick pick) {
-		// if (pick.getPickingMode() == PickingMode.CLICKED) {
-		// SelectionCommands.clearSelections();
-		// // selectionManager.clearSelection(SelectionType.SELECTION);
-		// selectionManager.triggerSelectionUpdateEvent();
-		// selectionManager.addToType(SelectionType.SELECTION, recordID);
-		//
-		// selectionManager.triggerSelectionUpdateEvent();
-		// updateHighlights();
-		// }
-		// }
-		// });
-
 	}
-
-	// @Override
-	// public void setColumnBody(ColumnBody body) {
-	// // body.setMinSize(getMinSize());
-	// columnBody = body;
-	// }
-
-	// @Override
-	// public List<EntityColumnItem<?>> getContent() {
-	// return items;
-	// }
 
 	@Override
 	public String getLabel() {
 		return dataDomain.getLabel();
 	}
 
-	// @Override
-	// public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
-		// if (selectionManager == this.selectionManager) {
-		// updateHighlights();
-		// }
 
-	// }
 
 	@ListenTo
 	public void onApplyIDFilter(IDFilterEvent event) {
@@ -180,45 +117,26 @@ public class TabularDataColumn extends AEntityColumn {
 		setFilteredItems(mappedIDs);
 	}
 
-
-
-	protected void updateHighlights() {
-		// for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
-		//
-		// EntityColumnItem<?> item = entry.getValue();
-		// item.setHighlight(false);
-		//
-		// Set<Integer> selectionIDs = selectionManager.getElements(SelectionType.MOUSE_OVER);
-		// if (selectionIDs.contains(entry.getKey())) {
-		// item.setHighlight(true);
-		// item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
-		// // item.setVisibility(EVisibility.PICKABLE);
-		// columnBody.getParent().relayout();
-		// }
-		//
-		// selectionIDs = selectionManager.getElements(SelectionType.SELECTION);
-		// if (selectionIDs.contains(entry.getKey())) {
-		// item.setHighlight(true);
-		// item.setHighlightColor(SelectionType.SELECTION.getColor());
-		// // item.setVisibility(EVisibility.PICKABLE);
-		// columnBody.getParent().relayout();
-		// }
-		//
-		// // if (!item.isHighlight()) {
-		// // item.setVisibility(EVisibility.NONE);
-		// // columnBody.getParent().relayout();
-		// // }
-		//
-		// }
-
-	}
-
 	@Override
 	protected void setContent() {
 		for (int id : va) {
 			addItem(dataDomain, itemIDType, id, perspective);
 		}
+	}
 
+	@Override
+	protected IDType getBroadcastingIDType() {
+		return itemIDType;
+	}
+
+	@Override
+	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
+		return Sets.newHashSet((Integer) elementID);
+	}
+
+	@Override
+	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+		return Sets.newHashSet((Object) broadcastingID);
 	}
 
 }

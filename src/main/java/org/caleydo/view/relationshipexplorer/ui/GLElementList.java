@@ -47,6 +47,12 @@ public class GLElementList implements IHasMinSize {
 
 	protected int elementGap;
 
+	protected Set<IElementSelectionListener> selectionListeners = new HashSet<>();
+
+	public interface IElementSelectionListener {
+		public void onElementSelected(GLElement element, Pick pick);
+	}
+
 	protected class ScrollableList extends AnimatedGLElementContainer {
 
 		public ScrollableList(int elementGap) {
@@ -74,6 +80,12 @@ public class GLElementList implements IHasMinSize {
 					}
 				}
 			}
+		}
+
+		@Override
+		protected void takeDown() {
+			selectionListeners.clear();
+			super.takeDown();
 		}
 	}
 
@@ -154,6 +166,8 @@ public class GLElementList implements IHasMinSize {
 						setSelection(el.getContent());
 					}
 				}
+
+				notifySelectionListeners(el.getContent(), pick);
 			}
 		});
 		el.setSize(Float.NaN, element.getMinSize().y());
@@ -235,6 +249,21 @@ public class GLElementList implements IHasMinSize {
 		ListElement el = listElementMap.get(element);
 		if (el != null) {
 			el.setToolTip(tooltip);
+		}
+	}
+
+	public void addElementSelectionListener(IElementSelectionListener listener) {
+		if (listener != null)
+			selectionListeners.add(listener);
+	}
+
+	public void removeElementSelectionListener(IElementSelectionListener listener) {
+		selectionListeners.remove(listener);
+	}
+
+	protected void notifySelectionListeners(GLElement element, Pick pick) {
+		for (IElementSelectionListener listener : selectionListeners) {
+			listener.onElementSelected(element, pick);
 		}
 	}
 

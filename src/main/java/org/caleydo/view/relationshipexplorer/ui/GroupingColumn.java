@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -36,52 +37,6 @@ public class GroupingColumn extends ATextColumn {
 		this.perspective = perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
-
-		// for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
-		// if (dataDomain instanceof ATableBasedDataDomain) {
-		// ATableBasedDataDomain dd = (ATableBasedDataDomain) dataDomain;
-		// DataSetDescription desc = dd.getDataSetDescription();
-		// if (desc.getColumnIDSpecification().getIdType().equals("COMPOUND_ID")
-		// || desc.getRowIDSpecification().getIdType().equals("COMPOUND_ID")) {
-		//
-		// IDType compoundIDType = IDType.getIDType("COMPOUND_ID");
-		// if (dd.getDimensionIDCategory() == compoundIDType.getIDCategory()) {
-		// Set<String> perspectiveIDs = dd.getDimensionPerspectiveIDs();
-		// String defaultPerspectiveID = dd.getDefaultTablePerspective().getDimensionPerspective()
-		// .getPerspectiveID();
-		// for (String perspectiveID : perspectiveIDs) {
-		// if (!perspectiveID.equals(defaultPerspectiveID)) {
-		// GroupList groupList = dd.getDimensionVA(perspectiveID).getGroupList();
-		//
-		// for (Group group : groupList) {
-		// GLElement el = new GLElement(GLRenderers.drawText(group.getLabel()));
-		// el.setSize(Float.NaN, ITEM_HEIGHT);
-		// items.add(el);
-		// }
-		// return;
-		// }
-		// }
-		//
-		// } else {
-		// Set<String> perspectiveIDs = dd.getRecordPerspectiveIDs();
-		// String defaultPerspectiveID = dd.getDefaultTablePerspective().getRecordPerspective()
-		// .getPerspectiveID();
-		// for (String perspectiveID : perspectiveIDs) {
-		// if (!perspectiveID.equals(defaultPerspectiveID)) {
-		// GroupList groupList = dd.getRecordVA(perspectiveID).getGroupList();
-		// for (Group group : groupList) {
-		// GLElement el = new GLElement(GLRenderers.drawText(group.getLabel()));
-		// el.setSize(Float.NaN, ITEM_HEIGHT);
-		// items.add(el);
-		// }
-		// return;
-		// }
-		// }
-		// }
-		// return;
-		// }
-		// }
-
 	}
 
 	@ListenTo
@@ -98,30 +53,6 @@ public class GroupingColumn extends ATextColumn {
 		}
 
 		setFilteredItems(mappedIDs);
-		//
-		// Set<Group> filteredGroups = new HashSet<>();
-		// for (Object id : mappedIDs) {
-		// filteredGroups.addAll(perspective.getVirtualArray().getGroupOf((Integer) id));
-		// }
-		// for (Entry<Group, EntityColumnItem<?>> entry : itemMap.entrySet()) {
-		// Group group = entry.getKey();
-		// EntityColumnItem<?> item = entry.getValue();
-		//
-		// if (filteredGroups.contains(group)) {
-		// item.setHighlight(true);
-		// item.setHighlightColor(SelectionType.SELECTION.getColor());
-		// if (item.getVisibility() == EVisibility.NONE) {
-		// item.setVisibility(EVisibility.PICKABLE);
-		// columnBody.getParent().relayout();
-		// }
-		// } else {
-		// item.setHighlight(false);
-		// if (item.getVisibility() != EVisibility.NONE) {
-		// item.setVisibility(EVisibility.NONE);
-		// columnBody.getParent().relayout();
-		// }
-		// }
-		// }
 	}
 
 	@Override
@@ -159,32 +90,13 @@ public class GroupingColumn extends ATextColumn {
 	protected void setContent() {
 		for (final Group group : groupList) {
 			MinSizeTextElement item = addTextElement(group.getLabel(), group);
-			// item.onPick(new IPickingListener() {
-			//
-			// @Override
-			// public void pick(Pick pick) {
-			//
-			// if (pick.getPickingMode() == PickingMode.CLICKED) {
-			// // Perspective p = GroupingContentProvider.this.perspective;
-			// // IDFilterEvent event = new IDFilterEvent(Sets.newHashSet(p.getVirtualArray().getIDsOfGroup(
-			// // group.getGroupIndex())), p.getIdType());
-			// // event.setSender(GroupingContentProvider.this);
-			// // EventPublisher.trigger(event);
-			// // selectionManager.clearSelection(SelectionType.SELECTION);
-			// // selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
-			// // selectionManager.triggerSelectionUpdateEvent();
-			// // updateHighlights();
-			// }
-			// }
-			// });
-			// itemList.add(item);
 			ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
 				@Override
 				public void run() {
 					Set<Object> ids = new HashSet<>();
 					for (GLElement element : itemList.getSelectedElements()) {
 						Group g = (Group) mapIDToElement.inverse().get(element);
-						ids.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
+						ids.addAll(getBroadcastingIDsFromElementID(g));
 					}
 
 					IDFilterEvent event = new IDFilterEvent(ids, perspective.getIdType());
@@ -197,6 +109,36 @@ public class GroupingColumn extends ATextColumn {
 			itemList.addContextMenuItem(item, contextMenuItem);
 		}
 
+	}
+
+	@Override
+	protected IDType getBroadcastingIDType() {
+		return perspective.getIdType();
+	}
+
+	@Override
+	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
+		Group g = (Group) elementID;
+		return new HashSet<>(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
+	}
+
+	@Override
+	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+
+		List<Group> groups = perspective.getVirtualArray().getGroupOf(broadcastingID);
+		// for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
+		// if (ids.contains(perspective.getVirtualArray().get(index))) {
+		// itemList.show(item);
+		// visible = true;
+		// itemList.asGLElement().relayout();
+		// break;
+		// }
+		// }
+		Set<Object> elementIDs = new HashSet<>(groups.size());
+		for (Group group : groups) {
+			elementIDs.add(group);
+		}
+		return elementIDs;
 	}
 
 }

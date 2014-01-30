@@ -67,37 +67,18 @@ public class PathwayColumn extends ATextColumn {
 
 		for (final PathwayGraph pathway : pathways) {
 			MinSizeTextElement item = addTextElement(pathway.getLabel(), pathway);
-
-			// item.onPick(new IPickingListener() {
-			//
-			// @Override
-			// public void pick(Pick pick) {
-			// if (pick.getPickingMode() == PickingMode.CLICKED) {
-			// // IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
-			// // IDFilterEvent event = new IDFilterEvent(PathwayManager.getPathwayGeneIDs(pathway,
-			// // IDType.getIDType(EGeneIDTypes.DAVID.name())), davidIDType);
-			// // event.setSender(PathwayContentProvider.this);
-			// // EventPublisher.trigger(event);
-			// //
-			// // setFilteredItems(Sets.newHashSet(pathway));
-			// }
-			//
-			// }
-			// });
 			ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
 				@Override
 				public void run() {
-					IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
 					Set<Object> ids = new HashSet<>();
 					Set<Object> pathways = new HashSet<>();
 					for (GLElement element : itemList.getSelectedElements()) {
 						PathwayGraph pw = (PathwayGraph) mapIDToElement.inverse().get(element);
-						ids.addAll(PathwayManager.get().getPathwayGeneIDs(pw,
-								IDType.getIDType(EGeneIDTypes.DAVID.name())));
+						ids.addAll(getBroadcastingIDsFromElementID(pw));
 						pathways.add(pw);
 					}
 
-					IDFilterEvent event = new IDFilterEvent(ids, davidIDType);
+					IDFilterEvent event = new IDFilterEvent(ids, getBroadcastingIDType());
 					event.setSender(PathwayColumn.this);
 					EventPublisher.trigger(event);
 					setFilteredItems(pathways);
@@ -107,5 +88,36 @@ public class PathwayColumn extends ATextColumn {
 			itemList.addContextMenuItem(item, contextMenuItem);
 		}
 
+	}
+
+	@Override
+	protected IDType getBroadcastingIDType() {
+
+		return IDType.getIDType(EGeneIDTypes.DAVID.name());
+	}
+
+	@Override
+	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
+		Set<Object> ids = PathwayManager.get().getPathwayGeneIDs((PathwayGraph) elementID,
+				IDType.getIDType(EGeneIDTypes.DAVID.name()));
+		Set<Integer> bcIds = new HashSet<>(ids.size());
+		for (Object id : ids) {
+			bcIds.add((Integer) id);
+		}
+		return bcIds;
+	}
+
+	@Override
+	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+		Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(getBroadcastingIDType(),
+				broadcastingID);
+
+		Set<Object> elementIDs = new HashSet<>(pathways != null ? pathways.size() : 0);
+		if (pathways != null) {
+			for (PathwayGraph pathway : pathways) {
+				elementIDs.add(pathway);
+			}
+		}
+		return elementIDs;
 	}
 }

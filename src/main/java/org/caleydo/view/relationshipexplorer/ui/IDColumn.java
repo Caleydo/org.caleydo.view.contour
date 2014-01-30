@@ -17,9 +17,8 @@ import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.util.base.ILabelHolder;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.picking.IPickingListener;
-import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.core.view.opengl.picking.PickingMode;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -32,27 +31,12 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 
 	protected String label;
 
-	// protected EventBasedSelectionManager selectionManager;
-
-	// protected Map<Object, MinSizeTextElement> itemMap = new HashMap<>();
-
 	public IDColumn(IDType idType, IDType displayedIDType) {
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;
 		this.label = idType.getIDCategory().getDenominationPlural(true);
-
-		// selectionManager = new EventBasedSelectionManager(this, idType);
-		// selectionManager.registerEventListeners();
-
 	}
 
-	// @Override
-	// public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
-	// if (selectionManager == this.selectionManager) {
-	// updateHighlights();
-	// }
-	//
-	// }
 
 	@ListenTo
 	public void onApplyIDFilter(IDFilterEvent event) {
@@ -70,66 +54,6 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 		setFilteredItems(mappedIDs);
 	}
 
-	// protected void setFilteredItems(Set<Object> ids) {
-	// for (Entry<Object, MinSizeTextElement> entry : itemMap.entrySet()) {
-	//
-	// MinSizeTextElement item = entry.getValue();
-	// // item.setHighlight(false);
-	// boolean visible = false;
-	//
-	// if (ids.contains(entry.getKey())) {
-	// visible = true;
-	// // item.setHighlight(true);
-	// // item.setHighlightColor(SelectionType.SELECTION.getColor());
-	// entityColumn.getItemList().show(item);
-	// entityColumn.getItemList().asGLElement().relayout();
-	// }
-	//
-	// if (!visible) {
-	// entityColumn.getItemList().hide(item);
-	// entityColumn.getItemList().asGLElement().relayout();
-	// }
-	//
-	// }
-	// }
-
-	protected void updateHighlights() {
-		// for (Entry<Object, EntityColumnItem<?>> entry : itemMap.entrySet()) {
-		//
-		// EntityColumnItem<?> item = entry.getValue();
-		// item.setHighlight(false);
-		//
-		// Set<Integer> selectionIDs = selectionManager.getElements(SelectionType.MOUSE_OVER);
-		// if (selectionIDs.contains(entry.getKey())) {
-		// item.setHighlight(true);
-		// item.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
-		// // item.setVisibility(EVisibility.PICKABLE);
-		// columnBody.getParent().relayout();
-		// }
-		//
-		// selectionIDs = selectionManager.getElements(SelectionType.SELECTION);
-		// if (selectionIDs.contains(entry.getKey())) {
-		// item.setHighlight(true);
-		// item.setHighlightColor(SelectionType.SELECTION.getColor());
-		// // item.setVisibility(EVisibility.PICKABLE);
-		// columnBody.getParent().relayout();
-		// }
-		//
-		// // if (!item.isHighlight()) {
-		// // item.setVisibility(EVisibility.NONE);
-		// // columnBody.getParent().relayout();
-		// // }
-		//
-		// }
-
-	}
-
-	// @Override
-	// public void takeDown() {
-	// selectionManager.unregisterEventListeners();
-	// selectionManager = null;
-	// }
-
 	@Override
 	protected void setContent() {
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
@@ -140,20 +64,6 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 			if (idsToDisplay != null) {
 				for (Object name : idsToDisplay) {
 					final MinSizeTextElement item = addTextElement(name.toString(), id);
-					item.onPick(new IPickingListener() {
-
-						@Override
-						public void pick(Pick pick) {
-							if (pick.getPickingMode() == PickingMode.CLICKED) {
-								// SelectionCommands.clearSelections();
-								// // selectionManager.triggerSelectionUpdateEvent();
-								// selectionManager.addToType(SelectionType.SELECTION, (Integer) id);
-								//
-								// selectionManager.triggerSelectionUpdateEvent();
-								// updateHighlights();
-							}
-						}
-					});
 
 					ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter",
 							new Runnable() {
@@ -193,6 +103,21 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 	@Override
 	public String getLabel() {
 		return label;
+	}
+
+	@Override
+	protected IDType getBroadcastingIDType() {
+		return idType;
+	}
+
+	@Override
+	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
+		return Sets.newHashSet((Integer) elementID);
+	}
+
+	@Override
+	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+		return Sets.newHashSet((Object) broadcastingID);
 	}
 
 }

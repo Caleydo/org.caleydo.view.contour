@@ -5,9 +5,11 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.caleydo.core.data.collection.EDataType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
@@ -31,12 +33,20 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 
 	protected String label;
 
+	public static final Comparator<GLElement> ID_NUMBER_COMPARATOR = new Comparator<GLElement>() {
+
+		@Override
+		public int compare(GLElement arg0, GLElement arg1) {
+			return Integer.valueOf(((MinSizeTextElement) arg0).getLabel()).compareTo(
+					Integer.valueOf(((MinSizeTextElement) arg1).getLabel()));
+		}
+	};
+
 	public IDColumn(IDType idType, IDType displayedIDType) {
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;
 		this.label = idType.getIDCategory().getDenominationPlural(true);
 	}
-
 
 	@ListenTo
 	public void onApplyIDFilter(IDFilterEvent event) {
@@ -118,6 +128,13 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 	@Override
 	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
 		return Sets.newHashSet((Object) broadcastingID);
+	}
+
+	@Override
+	protected Comparator<GLElement> getDefaultElementComparator() {
+		if (displayedIDType.getDataType() == EDataType.INTEGER)
+			return ID_NUMBER_COMPARATOR;
+		return super.getDefaultElementComparator();
 	}
 
 }

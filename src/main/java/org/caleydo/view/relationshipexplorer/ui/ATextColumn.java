@@ -7,9 +7,11 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
+import java.util.Comparator;
+
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 
 /**
  * @author Christian
@@ -20,14 +22,22 @@ public abstract class ATextColumn extends AEntityColumn {
 	protected static final int MIN_TEXT_WIDTH = 150;
 	protected static final int ITEM_HEIGHT = 16;
 
-	protected class MinSizeTextElement extends GLElement {
+	public static final Comparator<GLElement> TEXT_COMPARATOR = new Comparator<GLElement>() {
 
-		public MinSizeTextElement() {
+		@Override
+		public int compare(GLElement arg0, GLElement arg1) {
 
+			return ((MinSizeTextElement) arg0).getLabel().compareTo(((MinSizeTextElement) arg1).getLabel());
 		}
+	};
 
-		public MinSizeTextElement(IGLRenderer renderer) {
-			super(renderer);
+	protected class MinSizeTextElement extends GLElement implements ILabeled {
+
+		private String text;
+
+		public MinSizeTextElement(String text) {
+			super(GLRenderers.drawText(text));
+			this.text = text;
 		}
 
 		@Override
@@ -35,12 +45,22 @@ public abstract class ATextColumn extends AEntityColumn {
 			return new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT);
 		}
 
+		@Override
+		public String getLabel() {
+			return text;
+		}
+
 	}
 
 	public MinSizeTextElement addTextElement(String text, Object elementID) {
-		MinSizeTextElement el = new MinSizeTextElement(GLRenderers.drawText(text));
+		MinSizeTextElement el = new MinSizeTextElement(text);
 		addElement(el, elementID);
 		return el;
+	}
+
+	@Override
+	protected Comparator<GLElement> getDefaultElementComparator() {
+		return TEXT_COMPARATOR;
 	}
 
 

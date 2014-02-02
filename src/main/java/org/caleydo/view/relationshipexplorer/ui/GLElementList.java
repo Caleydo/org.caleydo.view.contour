@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui;
 import gleem.linalg.Vec2f;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,6 +49,25 @@ public class GLElementList implements IHasMinSize {
 	protected int elementGap;
 
 	protected Set<IElementSelectionListener> selectionListeners = new HashSet<>();
+
+	private class ListElementComparatorWrapper implements Comparator<GLElement> {
+
+		private final Comparator<GLElement> wrappee;
+
+		public ListElementComparatorWrapper(Comparator<GLElement> wrappee) {
+			this.wrappee = wrappee;
+		}
+
+		@Override
+		public int compare(GLElement o1, GLElement o2) {
+			if (wrappee == null) {
+				System.out.println("wrappee null");
+			}
+
+			return wrappee.compare(((ListElement) o1).getContent(), ((ListElement) o2).getContent());
+		}
+
+	}
 
 	public interface IElementSelectionListener {
 		public void onElementSelected(GLElement element, Pick pick);
@@ -265,6 +285,10 @@ public class GLElementList implements IHasMinSize {
 		for (IElementSelectionListener listener : selectionListeners) {
 			listener.onElementSelected(element, pick);
 		}
+	}
+
+	public void sortBy(Comparator<GLElement> comparator) {
+		body.sortBy(new ListElementComparatorWrapper(comparator));
 	}
 
 }

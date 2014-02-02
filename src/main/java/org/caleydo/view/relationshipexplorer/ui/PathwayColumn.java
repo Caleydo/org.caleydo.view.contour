@@ -6,8 +6,6 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,13 +55,13 @@ public class PathwayColumn extends ATextColumn {
 	@Override
 	protected void setContent() {
 		List<PathwayGraph> pathways = new ArrayList<>(PathwayManager.get().getAllItems());
-		Collections.sort(pathways, new Comparator<PathwayGraph>() {
-
-			@Override
-			public int compare(PathwayGraph arg0, PathwayGraph arg1) {
-				return arg0.getLabel().toLowerCase().compareTo(arg1.getLabel().toLowerCase());
-			}
-		});
+		// Collections.sort(pathways, new Comparator<PathwayGraph>() {
+		//
+		// @Override
+		// public int compare(PathwayGraph arg0, PathwayGraph arg1) {
+		// return arg0.getLabel().toLowerCase().compareTo(arg1.getLabel().toLowerCase());
+		// }
+		// });
 
 		for (final PathwayGraph pathway : pathways) {
 			MinSizeTextElement item = addTextElement(pathway.getLabel(), pathway);

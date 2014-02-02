@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
+import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -63,9 +64,13 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		setContent();
 		header.setRenderer(GLRenderers.drawText(getLabel(), VAlign.CENTER));
 		itemList.addElementSelectionListener(this);
+		Comparator<GLElement> c = getDefaultElementComparator();
+		itemList.sortBy(c);
 	}
 
 	protected abstract void setContent();
+
+	protected abstract Comparator<GLElement> getDefaultElementComparator();
 
 	protected void addElement(GLElement element, Object elementID) {
 		mapIDToElement.put(elementID, element);

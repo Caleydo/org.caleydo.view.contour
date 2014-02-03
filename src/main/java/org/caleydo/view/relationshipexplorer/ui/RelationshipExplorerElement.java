@@ -5,7 +5,11 @@
  ******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
@@ -24,8 +28,15 @@ import com.google.common.collect.Iterables;
  */
 public class RelationshipExplorerElement extends GLElementContainer {
 
+	protected List<AEntityColumn> columns = new ArrayList<>();
+
 	public RelationshipExplorerElement() {
 		super(new GLSizeRestrictiveFlowLayout(true, 5, GLPadding.ZERO));
+	}
+
+	public void addEntityColumn(AEntityColumn column) {
+		add(column);
+		columns.add(column);
 	}
 
 	public Iterable<TablePerspective> getTablePerspecives() {
@@ -45,6 +56,29 @@ public class RelationshipExplorerElement extends GLElementContainer {
 		g.pushResourceLocator(Activator.getResourceLocator());
 		super.renderPickImpl(g, w, h);
 		g.popResourceLocator();
+	}
+
+	@Override
+	protected void takeDown() {
+		columns.clear();
+		super.takeDown();
+	}
+
+	/**
+	 * @return the columns, see {@link #columns}
+	 */
+	public List<AEntityColumn> getColumns() {
+		return columns;
+	}
+
+	public List<AEntityColumn> getColumnsWithBroadcastIDType(IDType idType) {
+		List<AEntityColumn> list = new ArrayList<>();
+		for (AEntityColumn column : columns) {
+			if (column.getBroadcastingIDType() == idType) {
+				list.add(column);
+			}
+		}
+		return list;
 	}
 
 }

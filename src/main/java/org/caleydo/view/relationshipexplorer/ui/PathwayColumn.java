@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
@@ -19,6 +18,7 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
+import org.caleydo.view.relationshipexplorer.ui.IDUpdateEvent.EUpdateType;
 
 /**
  * @author Christian
@@ -26,27 +26,31 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
  */
 public class PathwayColumn extends ATextColumn {
 
-	public PathwayColumn() {
 
+	/**
+	 * @param relationshipExplorer
+	 */
+	public PathwayColumn(RelationshipExplorerElement relationshipExplorer) {
+		super(relationshipExplorer);
 	}
 
-	@ListenTo
-	public void onApplyIDFilter(IDFilterEvent event) {
-		if (event.getSender() == this)
-			return;
-		Set<?> foreignIDs = event.getIds();
-		IDType foreignIDType = event.getIdType();
-		Set<Object> mappedPathways = new HashSet<>();
-		for (Object foreignID : foreignIDs) {
-			Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(foreignIDType,
-					(Integer) foreignID);
-			if (pathways != null) {
-				mappedPathways.addAll(pathways);
-			}
-		}
-
-		setFilteredItems(mappedPathways);
-	}
+	// @ListenTo
+	// public void onApplyIDFilter(IDUpdateEvent event) {
+	// if (event.getSender() == this)
+	// return;
+	// Set<?> foreignIDs = event.getIds();
+	// IDType foreignIDType = event.getIdType();
+	// Set<Object> mappedPathways = new HashSet<>();
+	// for (Object foreignID : foreignIDs) {
+	// Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(foreignIDType,
+	// (Integer) foreignID);
+	// if (pathways != null) {
+	// mappedPathways.addAll(pathways);
+	// }
+	// }
+	//
+	// setFilteredItems(mappedPathways);
+	// }
 
 	@Override
 	public String getLabel() {
@@ -92,7 +96,7 @@ public class PathwayColumn extends ATextColumn {
 					pathways.add(pw);
 				}
 
-				IDFilterEvent event = new IDFilterEvent(ids, getBroadcastingIDType());
+				IDUpdateEvent event = new IDUpdateEvent(ids, getBroadcastingIDType(), EUpdateType.FILTER);
 				event.setSender(PathwayColumn.this);
 				EventPublisher.trigger(event);
 				setFilteredItems(pathways);
@@ -108,14 +112,10 @@ public class PathwayColumn extends ATextColumn {
 	}
 
 	@Override
-	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
+	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
 		Set<Object> ids = PathwayManager.get().getPathwayGeneIDs((PathwayGraph) elementID,
 				IDType.getIDType(EGeneIDTypes.DAVID.name()));
-		Set<Integer> bcIds = new HashSet<>(ids.size());
-		for (Object id : ids) {
-			bcIds.add((Integer) id);
-		}
-		return bcIds;
+		return ids;
 	}
 
 	@Override

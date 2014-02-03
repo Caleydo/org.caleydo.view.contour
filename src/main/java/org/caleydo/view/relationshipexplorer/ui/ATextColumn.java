@@ -19,6 +19,13 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
  */
 public abstract class ATextColumn extends AEntityColumn {
 
+	/**
+	 * @param relationshipExplorer
+	 */
+	public ATextColumn(RelationshipExplorerElement relationshipExplorer) {
+		super(relationshipExplorer);
+	}
+
 	protected static final int MIN_TEXT_WIDTH = 150;
 	protected static final int ITEM_HEIGHT = 16;
 

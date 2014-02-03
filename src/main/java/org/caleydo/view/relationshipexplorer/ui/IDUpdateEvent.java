@@ -14,20 +14,26 @@ import org.caleydo.core.id.IDType;
  * @author Christian
  *
  */
-public class IDFilterEvent extends AEvent {
+public class IDUpdateEvent extends AEvent {
 
-	private Set<?> ids;
+	public enum EUpdateType {
+		FILTER, SELECTION
+	}
+
+	private Set<Object> ids;
 	private IDType idType;
+	private EUpdateType updateType;
 
 	/**
 	 *
 	 */
-	public IDFilterEvent() {
+	public IDUpdateEvent() {
 	}
 
-	public IDFilterEvent(Set<?> ids, IDType idType) {
+	public IDUpdateEvent(Set<Object> ids, IDType idType, EUpdateType updateType) {
 		this.ids = ids;
 		this.idType = idType;
+		this.updateType = updateType;
 	}
 
 	@Override
@@ -39,14 +45,14 @@ public class IDFilterEvent extends AEvent {
 	 * @param id
 	 *            setter, see {@link id}
 	 */
-	public void setIds(Set<?> ids) {
+	public void setIds(Set<Object> ids) {
 		this.ids = ids;
 	}
 
 	/**
 	 * @return the id, see {@link #id}
 	 */
-	public Set<?> getIds() {
+	public Set<Object> getIds() {
 		return ids;
 	}
 
@@ -63,6 +69,21 @@ public class IDFilterEvent extends AEvent {
 	 */
 	public IDType getIdType() {
 		return idType;
+	}
+
+	/**
+	 * @param updateType
+	 *            setter, see {@link updateType}
+	 */
+	public void setUpdateType(EUpdateType updateType) {
+		this.updateType = updateType;
+	}
+
+	/**
+	 * @return the updateType, see {@link #updateType}
+	 */
+	public EUpdateType getUpdateType() {
+		return updateType;
 	}
 
 }

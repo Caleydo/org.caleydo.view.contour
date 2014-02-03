@@ -6,17 +6,13 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDCategory;
-import org.caleydo.core.id.IDMappingManager;
-import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 
@@ -43,7 +39,9 @@ public class TabularDataColumn extends AEntityColumn {
 		}
 	};
 
-	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory) {
+	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory,
+			RelationshipExplorerElement relationshipExplorer) {
+		super(relationshipExplorer);
 		dataDomain = tablePerspective.getDataDomain();
 		this.itemIDCategory = itemIDCategory;
 		this.tablePerspective = tablePerspective;
@@ -89,24 +87,6 @@ public class TabularDataColumn extends AEntityColumn {
 		return dataDomain.getLabel();
 	}
 
-
-
-	@ListenTo
-	public void onApplyIDFilter(IDFilterEvent event) {
-		Set<?> foreignIDs = event.getIds();
-		IDType foreignIDType = event.getIdType();
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(itemIDType);
-		Set<Object> mappedIDs = new HashSet<>();
-		for (Object id : foreignIDs) {
-			Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, itemIDType, id);
-			if (ids != null) {
-				mappedIDs.addAll(ids);
-			}
-		}
-
-		setFilteredItems(mappedIDs);
-	}
-
 	@Override
 	protected void setContent() {
 		for (int id : va) {
@@ -120,8 +100,8 @@ public class TabularDataColumn extends AEntityColumn {
 	}
 
 	@Override
-	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
-		return Sets.newHashSet((Integer) elementID);
+	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+		return Sets.newHashSet(elementID);
 	}
 
 	@Override

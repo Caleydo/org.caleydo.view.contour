@@ -48,23 +48,25 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 
 		List<AEntityColumn> columns = new ArrayList<>();
 
-		columns.add(new PathwayColumn());
+		columns.add(new PathwayColumn(relationshipExplorer));
 
 		columns.add(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
-				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType()));
+.getIDCategory(
+				EGeneIDTypes.GENE.name()).getHumanReadableIDType(), relationshipExplorer));
 
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
 			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Activity")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					columns.add(new TabularDataColumn(dataDomain.getDefaultTablePerspective(), IDCategory
-							.getIDCategory(EGeneIDTypes.GENE.name())));
+							.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer));
 				}
 				break;
 			}
 		}
 		IDColumn compoundColumn = new IDColumn(IDType.getIDType("COMPOUND_ID"),
-				IDType.getIDType("COMPOUND_ID"));
+ IDType.getIDType("COMPOUND_ID"),
+				relationshipExplorer);
 		compoundColumn.setLabel("Compounds");
 		columns.add(compoundColumn);
 
@@ -73,13 +75,13 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					columns.add(new TabularDataColumn(dataDomain.getDefaultTablePerspective(), IDCategory
-							.getIDCategory(EGeneIDTypes.GENE.name())));
+							.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer));
 				}
 				break;
 			}
 		}
 
-		addGroupings(columns);
+		addGroupings(columns, relationshipExplorer);
 
 		float totalMinSize = 0;
 		for (AEntityColumn column : columns) {
@@ -91,7 +93,7 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 			AEntityColumn column = columns.get(i);
 			Vec2f minSize = column.getMinSize();
 			column.setLayoutData(minSize.x() / totalMinSize);
-			relationshipExplorer.add(column);
+			relationshipExplorer.addEntityColumn(column);
 			if (i < columns.size() - 1) {
 				GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
 				columnSpacer.setSize(2, Float.NaN);
@@ -102,7 +104,7 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 		return relationshipExplorer;
 	}
 
-	protected void addGroupings(List<AEntityColumn> columns) {
+	protected void addGroupings(List<AEntityColumn> columns, RelationshipExplorerElement relationshipExplorer) {
 		for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
 			if (dataDomain instanceof ATableBasedDataDomain) {
 				ATableBasedDataDomain dd = (ATableBasedDataDomain) dataDomain;
@@ -118,7 +120,7 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getDimensionPerspective(perspectiveID);
-								columns.add(new GroupingColumn(perspective));
+								columns.add(new GroupingColumn(perspective, relationshipExplorer));
 								return;
 							}
 						}
@@ -130,7 +132,7 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getRecordPerspective(perspectiveID);
-								columns.add(new GroupingColumn(perspective));
+								columns.add(new GroupingColumn(perspective, relationshipExplorer));
 								return;
 							}
 						}

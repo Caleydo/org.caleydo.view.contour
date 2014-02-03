@@ -6,11 +6,9 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDataType;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
@@ -40,27 +38,28 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 		}
 	};
 
-	public IDColumn(IDType idType, IDType displayedIDType) {
+	public IDColumn(IDType idType, IDType displayedIDType, RelationshipExplorerElement relationshipExplorer) {
+		super(relationshipExplorer);
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;
 		this.label = idType.getIDCategory().getDenominationPlural(true);
 	}
 
-	@ListenTo
-	public void onApplyIDFilter(IDFilterEvent event) {
-		Set<?> foreignIDs = event.getIds();
-		IDType foreignIDType = event.getIdType();
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(this.idType);
-		Set<Object> mappedIDs = new HashSet<>();
-		for (Object id : foreignIDs) {
-			Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, this.idType, id);
-			if (ids != null) {
-				mappedIDs.addAll(ids);
-			}
-		}
-
-		setFilteredItems(mappedIDs);
-	}
+	// @ListenTo
+	// public void onApplyIDFilter(IDUpdateEvent event) {
+	// Set<?> foreignIDs = event.getIds();
+	// IDType foreignIDType = event.getIdType();
+	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(this.idType);
+	// Set<Object> mappedIDs = new HashSet<>();
+	// for (Object id : foreignIDs) {
+	// Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, this.idType, id);
+	// if (ids != null) {
+	// mappedIDs.addAll(ids);
+	// }
+	// }
+	//
+	// setFilteredItems(mappedIDs);
+	// }
 
 	@Override
 	protected void setContent() {
@@ -119,8 +118,8 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 	}
 
 	@Override
-	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
-		return Sets.newHashSet((Integer) elementID);
+	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+		return Sets.newHashSet(elementID);
 	}
 
 	@Override

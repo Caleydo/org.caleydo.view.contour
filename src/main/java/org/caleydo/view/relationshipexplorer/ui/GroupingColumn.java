@@ -7,18 +7,13 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.id.IDMappingManager;
-import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 
 /**
  * @author Christian
@@ -30,54 +25,54 @@ public class GroupingColumn extends ATextColumn {
 	protected final Perspective perspective;
 	protected final GroupList groupList;
 
-	public GroupingColumn(Perspective perspective) {
-
+	public GroupingColumn(Perspective perspective, RelationshipExplorerElement relationshipExplorer) {
+		super(relationshipExplorer);
 		this.perspective = perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
 	}
 
-	@ListenTo
-	public void onApplyIDFilter(IDFilterEvent event) {
-		Set<?> foreignIDs = event.getIds();
-		IDType foreignIDType = event.getIdType();
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(perspective.getIdType());
-		Set<Object> mappedIDs = new HashSet<>();
-		for (Object id : foreignIDs) {
-			Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, perspective.getIdType(), id);
-			if (ids != null) {
-				mappedIDs.addAll(ids);
-			}
-		}
+	// @ListenTo
+	// public void onApplyIDFilter(IDUpdateEvent event) {
+	// Set<?> foreignIDs = event.getIds();
+	// IDType foreignIDType = event.getIdType();
+	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(perspective.getIdType());
+	// Set<Object> mappedIDs = new HashSet<>();
+	// for (Object id : foreignIDs) {
+	// Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, perspective.getIdType(), id);
+	// if (ids != null) {
+	// mappedIDs.addAll(ids);
+	// }
+	// }
+	//
+	// setFilteredItems(mappedIDs);
+	// }
 
-		setFilteredItems(mappedIDs);
-	}
-
-	@Override
-	protected void setFilteredItems(Set<Object> ids) {
-		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
-
-			GLElement item = entry.getValue();
-			Group group = (Group) entry.getKey();
-
-			boolean visible = false;
-
-			for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
-				if (ids.contains(perspective.getVirtualArray().get(index))) {
-					itemList.show(item);
-					visible = true;
-					itemList.asGLElement().relayout();
-					break;
-				}
-			}
-
-			if (!visible) {
-				itemList.hide(item);
-				itemList.asGLElement().relayout();
-			}
-
-		}
-	}
+	// @Override
+	// protected void setFilteredItems(Set<Object> ids) {
+	// for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
+	//
+	// GLElement item = entry.getValue();
+	// Group group = (Group) entry.getKey();
+	//
+	// boolean visible = false;
+	//
+	// for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
+	// if (ids.contains(perspective.getVirtualArray().get(index))) {
+	// itemList.show(item);
+	// visible = true;
+	// itemList.asGLElement().relayout();
+	// break;
+	// }
+	// }
+	//
+	// if (!visible) {
+	// itemList.hide(item);
+	// itemList.asGLElement().relayout();
+	// }
+	//
+	// }
+	// }
 
 	@Override
 	public String getLabel() {
@@ -116,9 +111,11 @@ public class GroupingColumn extends ATextColumn {
 	}
 
 	@Override
-	protected Set<Integer> getBroadcastingIDsFromElementID(Object elementID) {
+	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
 		Group g = (Group) elementID;
-		return new HashSet<>(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
+		Set<Object> bcIDs = new HashSet<>();
+		bcIDs.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
+		return bcIDs;
 	}
 
 	@Override

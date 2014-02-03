@@ -17,9 +17,11 @@ import java.util.Set;
 import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
+import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
+import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
@@ -49,6 +51,9 @@ public class GLElementList implements IHasMinSize {
 	protected int elementGap;
 
 	protected Set<IElementSelectionListener> selectionListeners = new HashSet<>();
+
+
+	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 	private class ListElementComparatorWrapper implements Comparator<GLElement> {
 
@@ -106,6 +111,10 @@ public class GLElementList implements IHasMinSize {
 		protected void takeDown() {
 			selectionListeners.clear();
 			super.takeDown();
+		}
+
+		protected IGLElementContext getContext() {
+			return context;
 		}
 	}
 
@@ -175,21 +184,36 @@ public class GLElementList implements IHasMinSize {
 						} else {
 							addToSelection(el.getContent());
 						}
+						notifySelectionListeners(el.getContent(), pick);
 					} else {
 						setSelection(el.getContent());
+						notifySelectionListeners(el.getContent(), pick);
+
 					}
 				} else if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
-
-					if (isCtrlDown) {
-						addToSelection(el.getContent());
-					} else if (!selectedElements.contains(el)) {
-						setSelection(el.getContent());
+					if (!selectedElements.contains(el)) {
+						if (isCtrlDown) {
+							addToSelection(el.getContent());
+						} else {
+							setSelection(el.getContent());
+						}
+						notifySelectionListeners(el.getContent(), pick);
 					}
 				}
 
-				notifySelectionListeners(el.getContent(), pick);
 			}
 		});
+		el.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
+					body.getContext().getSWTLayer().showContextMenu(contextMenuCreator);
+				}
+
+			}
+		});
+
 		el.setSize(Float.NaN, element.getMinSize().y());
 		listElementMap.put(element, el);
 		body.add(el);
@@ -197,6 +221,8 @@ public class GLElementList implements IHasMinSize {
 
 	public void removeFromSelection(GLElement element) {
 		ListElement el = listElementMap.get(element);
+		if (el == null)
+			return;
 		selectedElements.remove(el);
 		el.setHighlight(false);
 	}
@@ -220,6 +246,8 @@ public class GLElementList implements IHasMinSize {
 
 	public void addToSelection(GLElement element) {
 		ListElement el = listElementMap.get(element);
+		if (el == null)
+			return;
 		selectedElements.add(el);
 		el.setHighlight(true);
 		el.setHighlightColor(SelectionType.SELECTION.getColor());
@@ -258,11 +286,15 @@ public class GLElementList implements IHasMinSize {
 		}
 	}
 
-	public void addContextMenuItem(GLElement element, AContextMenuItem item) {
-		ListElement el = listElementMap.get(element);
-		if (el != null) {
-			el.addContextMenuItem(item);
-		}
+	// public void addContextMenuItem(GLElement element, AContextMenuItem item) {
+	// ListElement el = listElementMap.get(element);
+	// if (el != null) {
+	// el.addContextMenuItem(item);
+	// }
+	// }
+
+	public void addContextMenuItem(AContextMenuItem item) {
+		contextMenuCreator.add(item);
 	}
 
 	public void setElementTooltip(GLElement element, String tooltip) {
@@ -289,6 +321,25 @@ public class GLElementList implements IHasMinSize {
 
 	public void sortBy(Comparator<GLElement> comparator) {
 		body.sortBy(new ListElementComparatorWrapper(comparator));
+	}
+
+	public void clear() {
+		body.clear();
+		selectedElements.clear();
+		listElementMap.clear();
+	}
+
+	public boolean hasElement(GLElement element) {
+		return listElementMap.containsKey(element);
+	}
+
+	public void removeElement(GLElement element) {
+		removeFromSelection(element);
+		ListElement el = listElementMap.get(element);
+		if (el == null)
+			return;
+		listElementMap.remove(element);
+		body.remove(el);
 	}
 
 }

@@ -15,11 +15,9 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 
 /**
@@ -89,24 +87,25 @@ public class GroupingColumn extends ATextColumn {
 	@Override
 	protected void setContent() {
 		for (final Group group : groupList) {
-			MinSizeTextElement item = addTextElement(group.getLabel(), group);
-			ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
-				@Override
-				public void run() {
-					Set<Object> ids = new HashSet<>();
-					for (GLElement element : itemList.getSelectedElements()) {
-						Group g = (Group) mapIDToElement.inverse().get(element);
-						ids.addAll(getBroadcastingIDsFromElementID(g));
-					}
-
-					IDFilterEvent event = new IDFilterEvent(ids, perspective.getIdType());
-					event.setSender(GroupingColumn.this);
-					EventPublisher.trigger(event);
-
-				}
-			});
-
-			itemList.addContextMenuItem(item, contextMenuItem);
+			addTextElement(group.getLabel(), group);
+			// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new
+			// Runnable() {
+			// @Override
+			// public void run() {
+			// Set<Object> ids = new HashSet<>();
+			// for (GLElement element : itemList.getSelectedElements()) {
+			// Group g = (Group) mapIDToElement.inverse().get(element);
+			// ids.addAll(getBroadcastingIDsFromElementID(g));
+			// }
+			//
+			// IDFilterEvent event = new IDFilterEvent(ids, perspective.getIdType());
+			// event.setSender(GroupingColumn.this);
+			// EventPublisher.trigger(event);
+			//
+			// }
+			// });
+			//
+			// itemList.addContextMenuItem(item, contextMenuItem);
 		}
 
 	}

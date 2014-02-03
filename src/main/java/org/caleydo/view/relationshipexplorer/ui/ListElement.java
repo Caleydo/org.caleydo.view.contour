@@ -9,16 +9,11 @@ import javax.media.opengl.GL2;
 
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
-import org.caleydo.core.view.contextmenu.AContextMenuItem;
-import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
-import org.caleydo.core.view.opengl.picking.IPickingListener;
-import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.core.view.opengl.picking.PickingMode;
 
 /**
  * @author Christian
@@ -45,7 +40,8 @@ public class ListElement extends AnimatedGLElementContainer {
 	protected GLElement content;
 	protected String tooltip;
 
-	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+	//
+	// protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 	/**
 	 *
@@ -111,16 +107,16 @@ public class ListElement extends AnimatedGLElementContainer {
 				return getTooltip();
 			}
 		}));
-		this.onPick(new IPickingListener() {
-
-			@Override
-			public void pick(Pick pick) {
-				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
-					ListElement.this.context.getSWTLayer().showContextMenu(contextMenuCreator);
-				}
-
-			}
-		});
+		// this.onPick(new IPickingListener() {
+		//
+		// @Override
+		// public void pick(Pick pick) {
+		// if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
+		// ListElement.this.context.getSWTLayer().showContextMenu(contextMenuCreator);
+		// }
+		//
+		// }
+		// });
 	}
 
 	public void setToolTip(String tooltip) {
@@ -134,7 +130,7 @@ public class ListElement extends AnimatedGLElementContainer {
 		return tooltip;
 	}
 
-	public void addContextMenuItem(AContextMenuItem item) {
-		contextMenuCreator.add(item);
-	}
+	// public void addContextMenuItem(AContextMenuItem item) {
+	// contextMenuCreator.add(item);
+	// }
 }

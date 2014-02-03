@@ -11,13 +11,11 @@ import java.util.Set;
 
 import org.caleydo.core.data.collection.EDataType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.util.base.ILabelHolder;
-import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 
 import com.google.common.collect.Sets;
@@ -73,25 +71,25 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 			Set<Object> idsToDisplay = mapper.apply(id);
 			if (idsToDisplay != null) {
 				for (Object name : idsToDisplay) {
-					final MinSizeTextElement item = addTextElement(name.toString(), id);
+					addTextElement(name.toString(), id);
 
-					ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter",
-							new Runnable() {
-								@Override
-								public void run() {
-									Set<Object> ids = new HashSet<>();
-									for (GLElement element : itemList.getSelectedElements()) {
-										ids.add(mapIDToElement.inverse().get(element));
-									}
-
-									IDFilterEvent event = new IDFilterEvent(ids, idType);
-									event.setSender(IDColumn.this);
-									EventPublisher.trigger(event);
-
-								}
-							});
-
-					itemList.addContextMenuItem(item, contextMenuItem);
+					// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter",
+					// new Runnable() {
+					// @Override
+					// public void run() {
+					// Set<Object> ids = new HashSet<>();
+					// for (GLElement element : itemList.getSelectedElements()) {
+					// ids.add(mapIDToElement.inverse().get(element));
+					// }
+					//
+					// IDFilterEvent event = new IDFilterEvent(ids, idType);
+					// event.setSender(IDColumn.this);
+					// EventPublisher.trigger(event);
+					//
+					// }
+					// });
+					//
+					// itemList.addContextMenuItem(item, contextMenuItem);
 					// Only add first one
 					break;
 				}

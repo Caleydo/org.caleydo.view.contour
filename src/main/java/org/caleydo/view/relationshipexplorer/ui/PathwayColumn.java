@@ -13,6 +13,7 @@ import java.util.Set;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
@@ -64,28 +65,40 @@ public class PathwayColumn extends ATextColumn {
 		// });
 
 		for (final PathwayGraph pathway : pathways) {
-			MinSizeTextElement item = addTextElement(pathway.getLabel(), pathway);
-			ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
-				@Override
-				public void run() {
-					Set<Object> ids = new HashSet<>();
-					Set<Object> pathways = new HashSet<>();
-					for (GLElement element : itemList.getSelectedElements()) {
-						PathwayGraph pw = (PathwayGraph) mapIDToElement.inverse().get(element);
-						ids.addAll(getBroadcastingIDsFromElementID(pw));
-						pathways.add(pw);
-					}
-
-					IDFilterEvent event = new IDFilterEvent(ids, getBroadcastingIDType());
-					event.setSender(PathwayColumn.this);
-					EventPublisher.trigger(event);
-					setFilteredItems(pathways);
-
-				}
-			});
-			itemList.addContextMenuItem(item, contextMenuItem);
+			addTextElement(pathway.getLabel(), pathway);
+			// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new
+			// Runnable() {
+			// @Override
+			// public void run() {
+			//
+			//
+			// }
+			// });
+			// itemList.addContextMenuItem(item, contextMenuItem);
 		}
 
+	}
+
+	@Override
+	protected AContextMenuItem getFilterContextMenuItem() {
+		ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
+			@Override
+			public void run() {
+				Set<Object> ids = new HashSet<>();
+				Set<Object> pathways = new HashSet<>();
+				for (GLElement element : itemList.getSelectedElements()) {
+					PathwayGraph pw = (PathwayGraph) mapIDToElement.inverse().get(element);
+					ids.addAll(getBroadcastingIDsFromElementID(pw));
+					pathways.add(pw);
+				}
+
+				IDFilterEvent event = new IDFilterEvent(ids, getBroadcastingIDType());
+				event.setSender(PathwayColumn.this);
+				EventPublisher.trigger(event);
+				setFilteredItems(pathways);
+			}
+		});
+		return contextMenuItem;
 	}
 
 	@Override

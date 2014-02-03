@@ -14,13 +14,10 @@ import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.io.IDSpecification;
-import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 
 import com.google.common.collect.Sets;
@@ -71,35 +68,19 @@ public class TabularDataColumn extends AEntityColumn {
 		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
 
 		addElement(renderer, recordID);
-		IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
-		IDType origIDType;
-		IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
-		if (spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
-			origIDType = IDType.getIDType(spec.getIdType());
-		} else {
-			origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
-		}
+		// IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
+		// IDType origIDType;
+		// IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
+		// if (spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
+		// origIDType = IDType.getIDType(spec.getIdType());
+		// } else {
+		// origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
+		// }
 
 		// itemList.add(renderer);
-		Object origID = m.getID(recordIDType, origIDType, recordID);
+		// Object origID = m.getID(recordIDType, origIDType, recordID);
 
-		ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
-			@Override
-			public void run() {
-				Set<Object> ids = new HashSet<>();
-				for (GLElement element : itemList.getSelectedElements()) {
-					ids.add(mapIDToElement.inverse().get(element));
-				}
-
-				IDFilterEvent event = new IDFilterEvent(ids, recordIDType);
-				event.setSender(TabularDataColumn.this);
-				EventPublisher.trigger(event);
-
-			}
-		});
-
-		itemList.addContextMenuItem(renderer, contextMenuItem);
-		itemList.setElementTooltip(renderer, origID.toString());
+		// itemList.setElementTooltip(renderer, origID.toString());
 
 	}
 

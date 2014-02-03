@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -15,8 +16,11 @@ import org.caleydo.core.data.selection.EventBasedSelectionManager;
 import org.caleydo.core.data.selection.IEventBasedSelectionManagerUser;
 import org.caleydo.core.data.selection.SelectionCommands;
 import org.caleydo.core.data.selection.SelectionType;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
+import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
@@ -26,9 +30,11 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.GLElementList.IElementSelectionListener;
+import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 
 /**
  * @author Christian
@@ -47,6 +53,21 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	private boolean handleSelectionUpdate = true;
 
+	public final Comparator<GLElement> SELECTION_COMPARATOR = new Comparator<GLElement>() {
+
+		@Override
+		public int compare(GLElement el1, GLElement el2) {
+			Set<GLElement> selectedElements = itemList.getSelectedElements();
+			boolean el1Selected = selectedElements.contains(el1);
+			boolean el2Selected = selectedElements.contains(el2);
+			if (el1Selected && !el2Selected)
+				return -1;
+			if (!el1Selected && el2Selected)
+				return 1;
+			return 0;
+		}
+	};
+
 	public AEntityColumn() {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		header = new GLElement();
@@ -62,6 +83,9 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		selectionManager.registerEventListeners();
 
 		setContent();
+
+		itemList.addContextMenuItem(getFilterContextMenuItem());
+
 		header.setRenderer(GLRenderers.drawText(getLabel(), VAlign.CENTER));
 		itemList.addElementSelectionListener(this);
 		Comparator<GLElement> c = getDefaultElementComparator();
@@ -72,12 +96,31 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	protected abstract Comparator<GLElement> getDefaultElementComparator();
 
+	protected AContextMenuItem getFilterContextMenuItem() {
+		ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
+			@Override
+			public void run() {
+				Set<Object> ids = new HashSet<>();
+				for (GLElement element : itemList.getSelectedElements()) {
+					ids.addAll(getBroadcastingIDsFromElementID(mapIDToElement.inverse().get(element)));
+				}
+
+				IDFilterEvent event = new IDFilterEvent(ids, getBroadcastingIDType());
+				event.setSender(AEntityColumn.this);
+				EventPublisher.trigger(event);
+
+			}
+		});
+		return contextMenuItem;
+	}
+
 	protected void addElement(GLElement element, Object elementID) {
 		mapIDToElement.put(elementID, element);
 		itemList.add(element);
 	}
 
 	protected void setFilteredItems(Set<Object> ids) {
+		// itemList.clear();
 		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
 
 			GLElement element = entry.getValue();
@@ -85,16 +128,21 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 			if (ids.contains(entry.getKey())) {
 				visible = true;
-				itemList.show(element);
-				itemList.asGLElement().relayout();
+				// itemList.show(element);
+				if (!itemList.hasElement(element)) {
+					itemList.add(element);
+					itemList.asGLElement().relayout();
+				}
 			}
 
 			if (!visible) {
-				itemList.hide(element);
+				itemList.removeElement(element);
+				// itemList.hide(element);
 				itemList.asGLElement().relayout();
 			}
 
 		}
+		updateHighlights();
 	}
 
 	@Override
@@ -128,7 +176,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 				}
 			}
 		}
-
+		@SuppressWarnings("unchecked")
+		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTION_COMPARATOR,
+				getDefaultElementComparator()));
+		itemList.sortBy(chain);
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import org.caleydo.core.id.IDType;
 public class IDUpdateEvent extends AEvent {
 
 	public enum EUpdateType {
-		FILTER, SELECTION
+		REPLACE_FILTER, AND_FILTER, OR_FILTER, SELECTION
 	}
 
 	private Set<Object> ids;

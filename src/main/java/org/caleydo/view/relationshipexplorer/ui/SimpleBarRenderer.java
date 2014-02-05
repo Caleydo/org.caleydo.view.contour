@@ -19,6 +19,7 @@ public class SimpleBarRenderer extends PickableGLElement {
 
 	private boolean isHorizontal = false;
 	private float normalizedValue = 0;
+	private float value = 0;
 	private Color color = Color.GRAY;
 	private Vec2f minSize = new Vec2f(0, 0);
 	private float barWidth = Float.NaN;
@@ -41,14 +42,23 @@ public class SimpleBarRenderer extends PickableGLElement {
 			if (!Float.isNaN(barWidth)) {
 				posY = (h - barWidth) / 2.0f;
 			}
-			g.color(color).fillRect(0, posY, w * 0.9f * normalizedValue, Float.isNaN(barWidth) ? h : barWidth);
+			float barSize = w * 0.9f * normalizedValue;
+			if (Float.compare(normalizedValue, 0) > 0) {
+				barSize = Math.max(barSize, 2);
+			}
+
+			g.color(color).fillRect(0, posY, barSize, Float.isNaN(barWidth) ? h : barWidth);
 
 		} else {
 			float posX = 0;
 			if (!Float.isNaN(barWidth)) {
 				posX = (w - barWidth) / 2.0f;
 			}
-			g.color(color).fillRect(posX, 0, Float.isNaN(barWidth) ? w : barWidth, h * 0.9f * normalizedValue);
+			float barSize = h * 0.9f * normalizedValue;
+			if (Float.compare(normalizedValue, 0) > 0) {
+				barSize = Math.max(barSize, 2);
+			}
+			g.color(color).fillRect(posX, 0, Float.isNaN(barWidth) ? w : barWidth, barSize);
 		}
 	}
 
@@ -129,6 +139,22 @@ public class SimpleBarRenderer extends PickableGLElement {
 	 */
 	public float getBarWidth() {
 		return barWidth;
+	}
+
+	/**
+	 * @param value
+	 *            setter, see {@link value}
+	 */
+	public void setValue(float value) {
+		this.value = value;
+		setTooltip(String.valueOf(value));
+	}
+
+	/**
+	 * @return the value, see {@link #value}
+	 */
+	public float getValue() {
+		return value;
 	}
 
 }

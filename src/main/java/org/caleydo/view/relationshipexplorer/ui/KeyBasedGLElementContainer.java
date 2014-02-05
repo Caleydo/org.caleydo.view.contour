@@ -12,21 +12,26 @@ import java.util.Map;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
-import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
+import org.caleydo.core.view.opengl.layout2.layout.IGLLayout2;
 
 /**
  * @author Christian
  *
  */
-public class KeyBasedGLElementContainer extends AnimatedGLElementContainer {
+public class KeyBasedGLElementContainer<T extends GLElement> extends AnimatedGLElementContainer {
 
-	private Map<Object, GLElement> contentMap = new HashMap<>();
+	protected Map<Object, T> contentMap = new HashMap<>();
+	protected IHasMinSize minSizeProvider;
 
 	public KeyBasedGLElementContainer() {
-		setLayout(GLLayouts.sizeRestrictiveFlowHorizontal(2));
 	}
 
-	public void setElement(Object key, GLElement element) {
+	public KeyBasedGLElementContainer(IGLLayout2 layout) {
+		super(layout);
+	}
+
+	public void setElement(Object key, T element) {
 		GLElement existingElement = contentMap.get(key);
 		if (existingElement != null)
 			remove(existingElement);
@@ -34,7 +39,7 @@ public class KeyBasedGLElementContainer extends AnimatedGLElementContainer {
 		add(element);
 	}
 
-	public GLElement getElement(Object key) {
+	public T getElement(Object key) {
 		return contentMap.get(key);
 	}
 
@@ -44,20 +49,84 @@ public class KeyBasedGLElementContainer extends AnimatedGLElementContainer {
 
 	@Override
 	public Vec2f getMinSize() {
-		float maxHeight = Float.MIN_VALUE;
-		float sumWidth = 0;
-		int numItems = 0;
-		for (GLElement child : this) {
-			if (child.getVisibility() != EVisibility.NONE) {
-				Vec2f minSize = child.getMinSize();
-				sumWidth += minSize.x();
-				if (maxHeight < minSize.y())
-					maxHeight = minSize.y();
+		if (minSizeProvider == null)
+			return super.getMinSize();
+		return minSizeProvider.getMinSize();
+	}
 
-				numItems++;
+	/**
+	 * @param minSizeProvider
+	 *            setter, see {@link minSizeProvider}
+	 */
+	public void setMinSizeProvider(IHasMinSize minSizeProvider) {
+		this.minSizeProvider = minSizeProvider;
+	}
+
+	public void setHorizontalFlowMinSizeProvider(final float gap) {
+		minSizeProvider = new IHasMinSize() {
+
+			@Override
+			public Vec2f getMinSize() {
+				float maxHeight = Float.MIN_VALUE;
+				float sumWidth = 0;
+				int numItems = 0;
+				for (GLElement child : KeyBasedGLElementContainer.this) {
+					if (child.getVisibility() != EVisibility.NONE) {
+						Vec2f minSize = child.getMinSize();
+						sumWidth += minSize.x();
+						if (maxHeight < minSize.y())
+							maxHeight = minSize.y();
+
+						numItems++;
+					}
+				}
+				return new Vec2f(sumWidth + (numItems - 1) * gap, maxHeight);
 			}
-		}
-		return new Vec2f(sumWidth + (numItems - 1) * 3, maxHeight);
+		};
+	}
+
+	public void setVerticalFlowMinSizeProvider(final float gap) {
+		minSizeProvider = new IHasMinSize() {
+
+			@Override
+			public Vec2f getMinSize() {
+				float maxWidth = Float.MIN_VALUE;
+				float sumHeight = 0;
+				int numItems = 0;
+				for (GLElement child : KeyBasedGLElementContainer.this) {
+					if (child.getVisibility() != EVisibility.NONE) {
+						Vec2f minSize = child.getMinSize();
+						sumHeight += minSize.y();
+						if (maxWidth < minSize.x())
+							maxWidth = minSize.x();
+
+						numItems++;
+					}
+				}
+				return new Vec2f(maxWidth, sumHeight + (numItems - 1) * gap);
+			}
+		};
+	}
+
+	public void setLayeredMinSizeProvider() {
+		minSizeProvider = new IHasMinSize() {
+
+			@Override
+			public Vec2f getMinSize() {
+				float maxHeight = Float.MIN_VALUE;
+				float maxWidth = Float.MIN_VALUE;
+				for (GLElement child : KeyBasedGLElementContainer.this) {
+					if (child.getVisibility() != EVisibility.NONE) {
+						Vec2f minSize = child.getMinSize();
+						if (maxWidth < minSize.x())
+							maxWidth = minSize.x();
+						if (maxHeight < minSize.y())
+							maxHeight = minSize.y();
+					}
+				}
+				return new Vec2f(maxWidth, maxHeight);
+			}
+		};
 	}
 
 }

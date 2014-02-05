@@ -25,6 +25,7 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
@@ -46,16 +47,20 @@ import com.google.common.collect.Sets;
 
 /**
  * @author Christian
- * 
+ *
  */
 public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
-	protected static final Integer DATA_KEY = new Integer(0);
-	protected static final Integer MAPPING_KEY = new Integer(1);
+	protected static final Integer DATA_KEY = Integer.valueOf(0);
+	protected static final Integer MAPPING_KEY = Integer.valueOf(1);
 
-	protected KeyBasedGLElementContainer header;
+	protected static final Integer SELECTED_ELEMENTS_KEY = Integer.valueOf(2);
+	protected static final Integer FILTERED_ELEMENTS_KEY = Integer.valueOf(3);
+	protected static final Integer ALL_ELEMENTS_KEY = Integer.valueOf(4);
+
+	protected KeyBasedGLElementContainer<GLElement> header;
 	protected GLElementList itemList = new GLElementList();
 	protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
 
@@ -78,18 +83,33 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	//
 	// private boolean handleSelectionUpdate = true;
 
-	protected final Comparator<GLElement> SELECTION_COMPARATOR = new Comparator<GLElement>() {
+	protected static class MappingBarComparator implements Comparator<GLElement> {
+
+		private final Object key;
+
+		public MappingBarComparator(Object key) {
+			this.key = key;
+		}
 
 		@Override
 		public int compare(GLElement el1, GLElement el2) {
-			SimpleBarRenderer barRenderer1 = (SimpleBarRenderer) ((KeyBasedGLElementContainer) el1)
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<SimpleBarRenderer> layeredBars1 = (KeyBasedGLElementContainer<SimpleBarRenderer>) ((KeyBasedGLElementContainer<GLElement>) el1)
 					.getElement(MAPPING_KEY);
-			SimpleBarRenderer barRenderer2 = (SimpleBarRenderer) ((KeyBasedGLElementContainer) el2)
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<SimpleBarRenderer> layeredBars2 = (KeyBasedGLElementContainer<SimpleBarRenderer>) ((KeyBasedGLElementContainer<GLElement>) el2)
 					.getElement(MAPPING_KEY);
-			return Float.compare(barRenderer2.getNormalizedValue(), barRenderer1.getNormalizedValue());
-		}
 
-	};
+			return Float.compare(layeredBars2.getElement(key).getNormalizedValue(), layeredBars1.getElement(key)
+					.getNormalizedValue());
+		}
+	}
+
+	protected static final MappingBarComparator SELECTED_ELEMENTS_COMPARATOR = new MappingBarComparator(
+			SELECTED_ELEMENTS_KEY);
+	protected static final MappingBarComparator FILTERED_ELEMENTS_COMPARATOR = new MappingBarComparator(
+			FILTERED_ELEMENTS_KEY);
+	protected static final MappingBarComparator ALL_ELEMENTS_COMPARATOR = new MappingBarComparator(ALL_ELEMENTS_KEY);
 
 	// protected class SelectionComparator implements Comparator<GLElement> {
 	//
@@ -130,7 +150,8 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public AEntityColumn(RelationshipExplorerElement relationshipExplorer) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.relationshipExplorer = relationshipExplorer;
-		header = new KeyBasedGLElementContainer();
+		header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
+		header.setHorizontalFlowMinSizeProvider(2);
 		header.setSize(Float.NaN, HEADER_HEIGHT);
 		add(header);
 		add(itemList.asGLElement());
@@ -191,17 +212,31 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	protected void addElement(GLElement element, Object elementID) {
 
-		KeyBasedGLElementContainer row = new KeyBasedGLElementContainer();
+		KeyBasedGLElementContainer<GLElement> row = new KeyBasedGLElementContainer<>(
+				GLLayouts.sizeRestrictiveFlowHorizontal(2));
+		row.setHorizontalFlowMinSizeProvider(2);
 		row.setElement(DATA_KEY, element);
 		mapIDToElement.put(elementID, row);
 		itemList.add(row);
 	}
 
-	protected SimpleBarRenderer createDefaultBarRenderer() {
+	protected KeyBasedGLElementContainer<SimpleBarRenderer> createLayeredBarRenderer() {
+		KeyBasedGLElementContainer<SimpleBarRenderer> barLayerRenderer = new KeyBasedGLElementContainer<>(
+				GLLayouts.LAYERS);
+		barLayerRenderer.setSize(80, Float.NaN);
+		barLayerRenderer.setLayeredMinSizeProvider();
+		barLayerRenderer.setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY));
+		barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY));
+		barLayerRenderer
+				.setElement(SELECTED_ELEMENTS_KEY, createDefaultBarRenderer(SelectionType.SELECTION.getColor()));
+		return barLayerRenderer;
+	}
+
+	protected SimpleBarRenderer createDefaultBarRenderer(Color color) {
 		SimpleBarRenderer renderer = new SimpleBarRenderer(0, true);
 		renderer.setMinSize(new Vec2f(80, 0));
 		renderer.setSize(80, Float.NaN);
-		renderer.setColor(SelectionType.SELECTION.getColor());
+		renderer.setColor(color);
 		renderer.setBarWidth(12);
 		return renderer;
 	}
@@ -335,26 +370,28 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		AEntityColumn foreignColumn = getNearestMappingColumn(path);
 
-		int maxSelectedElements = Integer.MIN_VALUE;
+		int maxMappedElements = Integer.MIN_VALUE;
 		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
 
-			KeyBasedGLElementContainer row = (KeyBasedGLElementContainer) entry.getValue();
-			SimpleBarRenderer mappingRenderer = (SimpleBarRenderer) row.getElement(MAPPING_KEY);
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<GLElement> row = (KeyBasedGLElementContainer<GLElement>) entry.getValue();
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>) row
+					.getElement(MAPPING_KEY);
 
 			if (event.getSender() == this) {
 				if (mappingRenderer != null)
 					mappingRenderer.setVisibility(EVisibility.NONE);
 			} else {
 				if (mappingRenderer == null) {
-					mappingRenderer = createDefaultBarRenderer();
+					mappingRenderer = createLayeredBarRenderer();
 					row.setElement(MAPPING_KEY, mappingRenderer);
 				}
 				mappingRenderer.setVisibility(EVisibility.PICKABLE);
-				int numSelectedElements = getNumMappedSelectedElements(row, foreignColumn);
-				if (numSelectedElements > maxSelectedElements)
-					maxSelectedElements = numSelectedElements;
-				mappingRenderer.setNormalizedValue(numSelectedElements);
-				mappingRenderer.setTooltip(String.valueOf(numSelectedElements));
+				fillMappedElementCounts(row, foreignColumn, mappingRenderer);
+				int numMappedElements = (int) (mappingRenderer.getElement(ALL_ELEMENTS_KEY)).getValue();
+				if (numMappedElements > maxMappedElements)
+					maxMappedElements = numMappedElements;
 			}
 		}
 		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
@@ -380,26 +417,50 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
 
-			KeyBasedGLElementContainer row = (KeyBasedGLElementContainer) entry.getValue();
-			SimpleBarRenderer mappingRenderer = (SimpleBarRenderer) row.getElement(MAPPING_KEY);
-			mappingRenderer.setNormalizedValue(mappingRenderer.getNormalizedValue() / maxSelectedElements);
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<GLElement> row = (KeyBasedGLElementContainer<GLElement>) entry.getValue();
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>) row
+					.getElement(MAPPING_KEY);
+			SimpleBarRenderer barRenderer = mappingRenderer.getElement(ALL_ELEMENTS_KEY);
+			barRenderer.setNormalizedValue(barRenderer.getValue() / maxMappedElements);
+			barRenderer = mappingRenderer.getElement(FILTERED_ELEMENTS_KEY);
+			barRenderer.setNormalizedValue(barRenderer.getValue() / maxMappedElements);
+			barRenderer = mappingRenderer.getElement(SELECTED_ELEMENTS_KEY);
+			barRenderer.setNormalizedValue(barRenderer.getValue() / maxMappedElements);
 		}
 
 		@SuppressWarnings("unchecked")
-		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTION_COMPARATOR,
-				getDefaultElementComparator()));
+		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
+				FILTERED_ELEMENTS_COMPARATOR, ALL_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
 		itemList.sortBy(chain);
 	}
 
-	protected int getNumMappedSelectedElements(GLElement element, AEntityColumn foreignColumn) {
+	protected void fillMappedElementCounts(GLElement element, AEntityColumn foreignColumn,
+			KeyBasedGLElementContainer<SimpleBarRenderer> layeredBars) {
 		Set<Object> broadcastIDs = getBroadcastingIDsFromElementID(mapIDToElement.inverse().get(element));
 
-		int numSelections = 0;
-		for (Object elementID : foreignColumn.getElementIDsFromForeignIDs(broadcastIDs, getBroadcastingIDType())) {
-			if (foreignColumn.getSelectedElementIDs().contains(elementID))
-				numSelections++;
+		int numSelectedElements = 0;
+		int numFilteredElements = 0;
+		Set<Object> foreignMappedElementIDs = foreignColumn.getElementIDsFromForeignIDs(broadcastIDs,
+				getBroadcastingIDType());
+		Set<Object> foreignFilteredElements = foreignColumn.getFilteredElementIDs();
+		Set<Object> foreignSelectedElements = foreignColumn.getSelectedElementIDs();
+		for (Object elementID : foreignMappedElementIDs) {
+			if (foreignFilteredElements.contains(elementID)) {
+				numFilteredElements++;
+				// Only filtered elements can be selected
+				if (foreignSelectedElements.contains(elementID))
+					numSelectedElements++;
+			}
 		}
-		return numSelections;
+		layeredBars.getElement(ALL_ELEMENTS_KEY).setValue(foreignMappedElementIDs.size());
+		layeredBars.getElement(FILTERED_ELEMENTS_KEY).setValue(numFilteredElements);
+		layeredBars.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelectedElements);
+	}
+
+	public Set<Object> getFilteredElementIDs() {
+		return mapFilteredElements.keySet();
 	}
 
 	@Override

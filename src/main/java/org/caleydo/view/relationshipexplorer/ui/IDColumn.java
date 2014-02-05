@@ -33,8 +33,8 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 
 		@Override
 		public int compare(GLElement arg0, GLElement arg1) {
-			MinSizeTextElement r1 = (MinSizeTextElement) ((EntityRow) arg0).getElement(DATA_KEY);
-			MinSizeTextElement r2 = (MinSizeTextElement) ((EntityRow) arg1).getElement(DATA_KEY);
+			MinSizeTextElement r1 = (MinSizeTextElement) ((KeyBasedGLElementContainer) arg0).getElement(DATA_KEY);
+			MinSizeTextElement r2 = (MinSizeTextElement) ((KeyBasedGLElementContainer) arg1).getElement(DATA_KEY);
 			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
 		}
 	};

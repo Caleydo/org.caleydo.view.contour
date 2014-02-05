@@ -18,21 +18,28 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
  * @author Christian
  *
  */
-public class EntityRow extends AnimatedGLElementContainer {
+public class KeyBasedGLElementContainer extends AnimatedGLElementContainer {
 
 	private Map<Object, GLElement> contentMap = new HashMap<>();
 
-	public EntityRow() {
+	public KeyBasedGLElementContainer() {
 		setLayout(GLLayouts.sizeRestrictiveFlowHorizontal(2));
 	}
 
-	public void addElement(Object key, GLElement element) {
+	public void setElement(Object key, GLElement element) {
+		GLElement existingElement = contentMap.get(key);
+		if (existingElement != null)
+			remove(existingElement);
 		contentMap.put(key, element);
 		add(element);
 	}
 
 	public GLElement getElement(Object key) {
 		return contentMap.get(key);
+	}
+
+	public boolean hasElement(Object key) {
+		return contentMap.containsKey(key);
 	}
 
 	@Override

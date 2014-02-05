@@ -46,7 +46,7 @@ import com.google.common.collect.Sets;
 
 /**
  * @author Christian
- *
+ * 
  */
 public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled {
 	protected static final int HEADER_HEIGHT = 20;
@@ -55,7 +55,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected static final Integer DATA_KEY = new Integer(0);
 	protected static final Integer MAPPING_KEY = new Integer(1);
 
-	protected GLElement header;
+	protected KeyBasedGLElementContainer header;
 	protected GLElementList itemList = new GLElementList();
 	protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
 
@@ -82,8 +82,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		@Override
 		public int compare(GLElement el1, GLElement el2) {
-			SimpleBarRenderer barRenderer1 = (SimpleBarRenderer) ((EntityRow) el1).getElement(MAPPING_KEY);
-			SimpleBarRenderer barRenderer2 = (SimpleBarRenderer) ((EntityRow) el2).getElement(MAPPING_KEY);
+			SimpleBarRenderer barRenderer1 = (SimpleBarRenderer) ((KeyBasedGLElementContainer) el1)
+					.getElement(MAPPING_KEY);
+			SimpleBarRenderer barRenderer2 = (SimpleBarRenderer) ((KeyBasedGLElementContainer) el2)
+					.getElement(MAPPING_KEY);
 			return Float.compare(barRenderer2.getNormalizedValue(), barRenderer1.getNormalizedValue());
 		}
 
@@ -128,7 +130,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public AEntityColumn(RelationshipExplorerElement relationshipExplorer) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.relationshipExplorer = relationshipExplorer;
-		header = new GLElement();
+		header = new KeyBasedGLElementContainer();
 		header.setSize(Float.NaN, HEADER_HEIGHT);
 		add(header);
 		add(itemList.asGLElement());
@@ -144,7 +146,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		itemList.addContextMenuItem(getFilterContextMenuItem());
 
-		header.setRenderer(GLRenderers.drawText(getLabel(), VAlign.CENTER));
+		header.setElement(DATA_KEY, new GLElement(GLRenderers.drawText(getLabel(), VAlign.CENTER)));
 		itemList.addElementSelectionListener(this);
 		Comparator<GLElement> c = getDefaultElementComparator();
 		itemList.sortBy(c);
@@ -189,17 +191,19 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	protected void addElement(GLElement element, Object elementID) {
 
-		EntityRow row = new EntityRow();
-		row.addElement(DATA_KEY, element);
-		SimpleBarRenderer mappingRenderer = new SimpleBarRenderer(0, true);
-		mappingRenderer.setMinSize(new Vec2f(80, 0));
-		mappingRenderer.setSize(80, Float.NaN);
-		mappingRenderer.setColor(SelectionType.SELECTION.getColor());
-		mappingRenderer.setBarWidth(12);
-		// mappingRenderer.setVisibility(EVisibility.NONE);
-		row.addElement(MAPPING_KEY, mappingRenderer);
+		KeyBasedGLElementContainer row = new KeyBasedGLElementContainer();
+		row.setElement(DATA_KEY, element);
 		mapIDToElement.put(elementID, row);
 		itemList.add(row);
+	}
+
+	protected SimpleBarRenderer createDefaultBarRenderer() {
+		SimpleBarRenderer renderer = new SimpleBarRenderer(0, true);
+		renderer.setMinSize(new Vec2f(80, 0));
+		renderer.setSize(80, Float.NaN);
+		renderer.setColor(SelectionType.SELECTION.getColor());
+		renderer.setBarWidth(12);
+		return renderer;
 	}
 
 	@Override
@@ -321,6 +325,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
+	@SuppressWarnings("null")
 	public void updateSelectionMappings(IDUpdateEvent event) {
 
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
@@ -333,11 +338,17 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		int maxSelectedElements = Integer.MIN_VALUE;
 		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
 
-			EntityRow row = (EntityRow) entry.getValue();
+			KeyBasedGLElementContainer row = (KeyBasedGLElementContainer) entry.getValue();
 			SimpleBarRenderer mappingRenderer = (SimpleBarRenderer) row.getElement(MAPPING_KEY);
+
 			if (event.getSender() == this) {
-				mappingRenderer.setVisibility(EVisibility.NONE);
+				if (mappingRenderer != null)
+					mappingRenderer.setVisibility(EVisibility.NONE);
 			} else {
+				if (mappingRenderer == null) {
+					mappingRenderer = createDefaultBarRenderer();
+					row.setElement(MAPPING_KEY, mappingRenderer);
+				}
 				mappingRenderer.setVisibility(EVisibility.PICKABLE);
 				int numSelectedElements = getNumMappedSelectedElements(row, foreignColumn);
 				if (numSelectedElements > maxSelectedElements)
@@ -346,17 +357,30 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 				mappingRenderer.setTooltip(String.valueOf(numSelectedElements));
 			}
 		}
+		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
+
 		if (event.getSender() == this) {
 			itemList.setHighlightSelections(true);
-			header.setRenderer(GLRenderers.drawText(getLabel(), VAlign.CENTER));
+			if (mappingHeaderExists) {
+				header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
+			}
 			return;
 		}
+		if (!mappingHeaderExists) {
+			GLElement mappingHeader = new GLElement(GLRenderers.drawText(foreignColumn.getLabel(), VAlign.CENTER));
+			mappingHeader.setSize(80, 12);
+			header.setElement(MAPPING_KEY, mappingHeader);
+		} else {
+			GLElement mappingHeader = header.getElement(MAPPING_KEY);
+			mappingHeader.setVisibility(EVisibility.PICKABLE);
+			mappingHeader.setRenderer(GLRenderers.drawText(foreignColumn.getLabel(), VAlign.CENTER));
+		}
+
 		itemList.setHighlightSelections(false);
-		header.setRenderer(GLRenderers.drawText(getLabel() + "/" + foreignColumn.getLabel(), VAlign.CENTER));
 
 		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
 
-			EntityRow row = (EntityRow) entry.getValue();
+			KeyBasedGLElementContainer row = (KeyBasedGLElementContainer) entry.getValue();
 			SimpleBarRenderer mappingRenderer = (SimpleBarRenderer) row.getElement(MAPPING_KEY);
 			mappingRenderer.setNormalizedValue(mappingRenderer.getNormalizedValue() / maxSelectedElements);
 		}
@@ -381,7 +405,6 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	@Override
 	public void onElementSelected(GLElement element, Pick pick) {
 		if (pick.getPickingMode() == PickingMode.CLICKED || pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
-
 
 			Set<Object> broadcastIDs = new HashSet<>();
 			Set<Object> elementIDs = new HashSet<>();

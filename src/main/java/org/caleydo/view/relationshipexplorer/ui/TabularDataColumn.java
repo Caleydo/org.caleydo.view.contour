@@ -36,8 +36,8 @@ public class TabularDataColumn extends AEntityColumn {
 
 		@Override
 		public int compare(GLElement arg0, GLElement arg1) {
-			SimpleDataRenderer r1 = (SimpleDataRenderer) ((EntityRow) arg0).getElement(DATA_KEY);
-			SimpleDataRenderer r2 = (SimpleDataRenderer) ((EntityRow) arg1).getElement(DATA_KEY);
+			SimpleDataRenderer r1 = (SimpleDataRenderer) ((KeyBasedGLElementContainer) arg0).getElement(DATA_KEY);
+			SimpleDataRenderer r2 = (SimpleDataRenderer) ((KeyBasedGLElementContainer) arg1).getElement(DATA_KEY);
 
 			return r1.recordID - r2.recordID;
 		}

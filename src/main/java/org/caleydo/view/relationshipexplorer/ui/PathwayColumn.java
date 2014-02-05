@@ -10,15 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.contextmenu.AContextMenuItem;
-import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
-import org.caleydo.view.relationshipexplorer.ui.IDUpdateEvent.EUpdateType;
 
 /**
  * @author Christian
@@ -83,27 +78,41 @@ public class PathwayColumn extends ATextColumn {
 
 	}
 
-	@Override
-	protected AContextMenuItem getFilterContextMenuItem() {
-		ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
-			@Override
-			public void run() {
-				Set<Object> ids = new HashSet<>();
-				Set<Object> pathways = new HashSet<>();
-				for (GLElement element : itemList.getSelectedElements()) {
-					PathwayGraph pw = (PathwayGraph) mapIDToElement.inverse().get(element);
-					ids.addAll(getBroadcastingIDsFromElementID(pw));
-					pathways.add(pw);
-				}
-
-				IDUpdateEvent event = new IDUpdateEvent(ids, getBroadcastingIDType(), EUpdateType.FILTER);
-				event.setSender(PathwayColumn.this);
-				EventPublisher.trigger(event);
-				setFilteredItems(pathways);
-			}
-		});
-		return contextMenuItem;
-	}
+	// @Override
+	// protected AContextMenuItem getFilterContextMenuItem() {
+	// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
+	// @Override
+	// public void run() {
+	// Set<Object> ids = new HashSet<>();
+	// Set<Object> pathways = new HashSet<>();
+	// for (GLElement element : itemList.getSelectedElements()) {
+	// PathwayGraph pw = (PathwayGraph) mapIDToElement.inverse().get(element);
+	// ids.addAll(getBroadcastingIDsFromElementID(pw));
+	// pathways.add(pw);
+	// }
+	//
+	//
+	// IDUpdateEvent event = new IDUpdateEvent(ids, getBroadcastingIDType(), EUpdateType.FILTER);
+	// event.setSender(PathwayColumn.this);
+	// EventPublisher.trigger(event);
+	// setFilteredItems(pathways);
+	//
+	//
+	// Set<Object> broadcastIDs = new HashSet<>();
+	// Set<Object> elementIDs = new HashSet<>();
+	// for (GLElement element : itemList.getSelectedElements()) {
+	// Object elementID = mapIDToElement.inverse().get(element);
+	// elementIDs.add(elementID);
+	// broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
+	// }
+	// // Avoid direct calling of setFilteredItems due to synchronization issues
+	// EventPublisher.trigger(new FilterEvent(elementIDs).to(AEntityColumn.this));
+	//
+	// triggerIDUpdate(broadcastIDs, EUpdateType.FILTER);
+	// }
+	// });
+	// return contextMenuItem;
+	// }
 
 	@Override
 	protected IDType getBroadcastingIDType() {
@@ -130,5 +139,10 @@ public class PathwayColumn extends ATextColumn {
 			}
 		}
 		return elementIDs;
+	}
+
+	@Override
+	protected IDType getMappingIDType() {
+		return getBroadcastingIDType();
 	}
 }

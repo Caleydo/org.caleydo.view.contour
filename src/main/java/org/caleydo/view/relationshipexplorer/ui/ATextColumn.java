@@ -33,8 +33,9 @@ public abstract class ATextColumn extends AEntityColumn {
 
 		@Override
 		public int compare(GLElement arg0, GLElement arg1) {
-
-			return ((MinSizeTextElement) arg0).getLabel().compareTo(((MinSizeTextElement) arg1).getLabel());
+			MinSizeTextElement r1 = (MinSizeTextElement) ((EntityRow) arg0).getElement(DATA_KEY);
+			MinSizeTextElement r2 = (MinSizeTextElement) ((EntityRow) arg1).getElement(DATA_KEY);
+			return r1.getLabel().compareTo(r2.getLabel());
 		}
 	};
 
@@ -69,6 +70,5 @@ public abstract class ATextColumn extends AEntityColumn {
 	protected Comparator<GLElement> getDefaultElementComparator() {
 		return TEXT_COMPARATOR;
 	}
-
 
 }

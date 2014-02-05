@@ -30,22 +30,28 @@ public class TabularDataColumn extends AEntityColumn {
 	protected final IDType itemIDType;
 	protected final VirtualArray va;
 	protected final Perspective perspective;
+	protected final IDType mappingIDType;
 
 	public static final Comparator<GLElement> ID_COMPARATOR = new Comparator<GLElement>() {
 
 		@Override
 		public int compare(GLElement arg0, GLElement arg1) {
-			return ((SimpleDataRenderer) arg0).recordID - ((SimpleDataRenderer) arg1).recordID;
+			SimpleDataRenderer r1 = (SimpleDataRenderer) ((EntityRow) arg0).getElement(DATA_KEY);
+			SimpleDataRenderer r2 = (SimpleDataRenderer) ((EntityRow) arg1).getElement(DATA_KEY);
+
+			return r1.recordID - r2.recordID;
 		}
 	};
 
 	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory,
 			RelationshipExplorerElement relationshipExplorer) {
+
 		super(relationshipExplorer);
 		dataDomain = tablePerspective.getDataDomain();
+
 		this.itemIDCategory = itemIDCategory;
 		this.tablePerspective = tablePerspective;
-
+		this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
 
 		if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
 			va = tablePerspective.getDimensionPerspective().getVirtualArray();
@@ -59,7 +65,6 @@ public class TabularDataColumn extends AEntityColumn {
 		}
 
 	}
-
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
 			Perspective dimensionPerspective) {
@@ -112,6 +117,11 @@ public class TabularDataColumn extends AEntityColumn {
 	@Override
 	protected Comparator<GLElement> getDefaultElementComparator() {
 		return ID_COMPARATOR;
+	}
+
+	@Override
+	protected IDType getMappingIDType() {
+		return mappingIDType;
 	}
 
 }

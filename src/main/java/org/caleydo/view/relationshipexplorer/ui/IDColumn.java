@@ -33,8 +33,9 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 
 		@Override
 		public int compare(GLElement arg0, GLElement arg1) {
-			return Integer.valueOf(((MinSizeTextElement) arg0).getLabel()).compareTo(
-					Integer.valueOf(((MinSizeTextElement) arg1).getLabel()));
+			MinSizeTextElement r1 = (MinSizeTextElement) ((EntityRow) arg0).getElement(DATA_KEY);
+			MinSizeTextElement r2 = (MinSizeTextElement) ((EntityRow) arg1).getElement(DATA_KEY);
+			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
 		}
 	};
 
@@ -71,27 +72,10 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 			if (idsToDisplay != null) {
 				for (Object name : idsToDisplay) {
 					addTextElement(name.toString(), id);
-
-					// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter",
-					// new Runnable() {
-					// @Override
-					// public void run() {
-					// Set<Object> ids = new HashSet<>();
-					// for (GLElement element : itemList.getSelectedElements()) {
-					// ids.add(mapIDToElement.inverse().get(element));
-					// }
-					//
-					// IDFilterEvent event = new IDFilterEvent(ids, idType);
-					// event.setSender(IDColumn.this);
-					// EventPublisher.trigger(event);
-					//
-					// }
-					// });
-					//
-					// itemList.addContextMenuItem(item, contextMenuItem);
-					// Only add first one
 					break;
 				}
+			} else {
+				addTextElement(id.toString(), id);
 			}
 		}
 
@@ -132,6 +116,11 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 		if (displayedIDType.getDataType() == EDataType.INTEGER)
 			return ID_NUMBER_COMPARATOR;
 		return super.getDefaultElementComparator();
+	}
+
+	@Override
+	protected IDType getMappingIDType() {
+		return getBroadcastingIDType();
 	}
 
 }

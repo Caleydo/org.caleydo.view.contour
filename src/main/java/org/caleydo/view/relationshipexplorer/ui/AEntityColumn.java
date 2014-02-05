@@ -8,11 +8,14 @@ package org.caleydo.view.relationshipexplorer.ui;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.ADirectedEvent;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.event.EventPublisher;
@@ -39,6 +42,7 @@ import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -48,11 +52,15 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
+	protected static final Integer DATA_KEY = new Integer(0);
+	protected static final Integer MAPPING_KEY = new Integer(1);
+
 	protected GLElement header;
 	protected GLElementList itemList = new GLElementList();
 	protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
 
 	protected Set<Object> selectedElementIDs = new HashSet<>();
+	protected Map<Object, GLElement> mapFilteredElements = new HashMap<>();
 	protected RelationshipExplorerElement relationshipExplorer;
 
 	// @DeepScan
@@ -70,43 +78,52 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	//
 	// private boolean handleSelectionUpdate = true;
 
-	protected SelectionComparator selectionComparator;
-
-	protected class SelectionComparator implements Comparator<GLElement> {
-
-		protected final AEntityColumn foreignColumn;
-
-		public SelectionComparator(AEntityColumn foreignColumn) {
-			this.foreignColumn = foreignColumn;
-		}
+	protected final Comparator<GLElement> SELECTION_COMPARATOR = new Comparator<GLElement>() {
 
 		@Override
 		public int compare(GLElement el1, GLElement el2) {
-			Set<GLElement> selectedElements = itemList.getSelectedElements();
-			boolean el1Selected = selectedElements.contains(el1);
-			boolean el2Selected = selectedElements.contains(el2);
-			if (el1Selected && !el2Selected)
-				return -1;
-			if (!el1Selected && el2Selected)
-				return 1;
-			if (!el1Selected && !el2Selected)
-				return 0;
-
-			return getNumMappedSelectedElements(el2) - getNumMappedSelectedElements(el1);
-
+			SimpleBarRenderer barRenderer1 = (SimpleBarRenderer) ((EntityRow) el1).getElement(MAPPING_KEY);
+			SimpleBarRenderer barRenderer2 = (SimpleBarRenderer) ((EntityRow) el2).getElement(MAPPING_KEY);
+			return Float.compare(barRenderer2.getNormalizedValue(), barRenderer1.getNormalizedValue());
 		}
 
-		protected int getNumMappedSelectedElements(GLElement element) {
-			Set<Object> broadcastIDs = getBroadcastingIDsFromElementID(mapIDToElement.inverse().get(element));
+	};
 
-			int numSelections = 0;
-			for (Object elementID : foreignColumn.getElementIDsFromForeignIDs(broadcastIDs, getBroadcastingIDType())) {
-				if (foreignColumn.getSelectedElementIDs().contains(elementID))
-					numSelections++;
-			}
-			return numSelections;
-		}
-	}
+	// protected class SelectionComparator implements Comparator<GLElement> {
+	//
+	// protected final AEntityColumn foreignColumn;
+	//
+	// public SelectionComparator(AEntityColumn foreignColumn) {
+	// this.foreignColumn = foreignColumn;
+	// }
+	//
+	// @Override
+	// public int compare(GLElement el1, GLElement el2) {
+	// Set<GLElement> selectedElements = itemList.getSelectedElements();
+	// boolean el1Selected = selectedElements.contains(el1);
+	// boolean el2Selected = selectedElements.contains(el2);
+	// if (el1Selected && !el2Selected)
+	// return -1;
+	// if (!el1Selected && el2Selected)
+	// return 1;
+	// if (!el1Selected && !el2Selected)
+	// return 0;
+	//
+	// return getNumMappedSelectedElements(el2) - getNumMappedSelectedElements(el1);
+	//
+	// }
+	//
+	// protected int getNumMappedSelectedElements(GLElement element) {
+	// Set<Object> broadcastIDs = getBroadcastingIDsFromElementID(mapIDToElement.inverse().get(element));
+	//
+	// int numSelections = 0;
+	// for (Object elementID : foreignColumn.getElementIDsFromForeignIDs(broadcastIDs, getBroadcastingIDType())) {
+	// if (foreignColumn.getSelectedElementIDs().contains(elementID))
+	// numSelections++;
+	// }
+	// return numSelections;
+	// }
+	// }
 
 	public AEntityColumn(RelationshipExplorerElement relationshipExplorer) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
@@ -131,6 +148,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		itemList.addElementSelectionListener(this);
 		Comparator<GLElement> c = getDefaultElementComparator();
 		itemList.sortBy(c);
+		mapFilteredElements.putAll(mapIDToElement);
+		// for (GLElement el : mapIDToElement.values()) {
+		// ((EntityRow) el).getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
+		// }
 	}
 
 	protected abstract void setContent();
@@ -149,7 +170,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 					elementIDs.add(elementID);
 					broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
 				}
-				// Avoid direct calling of setFilteredItems due to synchrinization issues
+				// Avoid direct calling of setFilteredItems due to synchronization issues
 				EventPublisher.trigger(new FilterEvent(elementIDs).to(AEntityColumn.this));
 
 				triggerIDUpdate(broadcastIDs, EUpdateType.FILTER);
@@ -167,8 +188,18 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	protected void addElement(GLElement element, Object elementID) {
-		mapIDToElement.put(elementID, element);
-		itemList.add(element);
+
+		EntityRow row = new EntityRow();
+		row.addElement(DATA_KEY, element);
+		SimpleBarRenderer mappingRenderer = new SimpleBarRenderer(0, true);
+		mappingRenderer.setMinSize(new Vec2f(80, 0));
+		mappingRenderer.setSize(80, Float.NaN);
+		mappingRenderer.setColor(SelectionType.SELECTION.getColor());
+		mappingRenderer.setBarWidth(12);
+		// mappingRenderer.setVisibility(EVisibility.NONE);
+		row.addElement(MAPPING_KEY, mappingRenderer);
+		mapIDToElement.put(elementID, row);
+		itemList.add(row);
 	}
 
 	@Override
@@ -181,42 +212,30 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return itemList.getMinSize();
 	}
 
-	@ListenTo
-	public void onApplyIDUpdate(IDUpdateEvent event) {
+	public void applyIDUpdate(IDUpdateEvent event) {
 		if (event.getSender() == this)
 			return;
 
 		Set<Object> elementIDs = getElementIDsFromForeignIDs(event.getIds(), event.getIdType());
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(event.getIdType(),
-				getBroadcastingIDType());
-		List<MappingType> path = mapper.getPath();
-
-		// No path or same id type as broadcasting id
-		if (path == null) {
-			selectionComparator = new SelectionComparator(getForeignColumnWithBroadcastIDType(getBroadcastingIDType()));
-		} else {
-			AEntityColumn column = null;
-			for (int i = path.size() - 1; i >= 0; i--) {
-				column = getForeignColumnWithBroadcastIDType(path.get(i).getFromIDType());
-				if (column != null)
-					break;
-			}
-			if (column == null)
-				column = this;
-			selectionComparator = new SelectionComparator(column);
-		}
 
 		if (event.getUpdateType() == EUpdateType.FILTER) {
 			setFilteredItems(elementIDs);
 		} else if (event.getUpdateType() == EUpdateType.SELECTION) {
-			setSelectedItems(elementIDs, true);
+			setSelectedItems(Sets.intersection(mapFilteredElements.keySet(), elementIDs));
 		}
 	}
 
+	protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
+
+		return getFirstForeignColumn(relationshipExplorer.getColumnsWithMappingIDType(idType));
+	}
 
 	protected AEntityColumn getForeignColumnWithBroadcastIDType(IDType idType) {
-		List<AEntityColumn> foreignColumns = relationshipExplorer.getColumnsWithBroadcastIDType(idType);
+
+		return getFirstForeignColumn(relationshipExplorer.getColumnsWithBroadcastIDType(idType));
+	}
+
+	protected AEntityColumn getFirstForeignColumn(List<AEntityColumn> foreignColumns) {
 		AEntityColumn foreignColumn = null;
 		for (AEntityColumn col : foreignColumns) {
 			if (col != this) {
@@ -251,10 +270,19 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	@ListenTo(sendToMe = true)
 	public void onFilter(FilterEvent event) {
 		setFilteredItems(event.elementIDs);
+
+		Set<Object> broadcastIDs = new HashSet<>();
+		for (GLElement el : itemList.getSelectedElements()) {
+			Object elementID = mapIDToElement.inverse().get(el);
+			broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
+		}
+
+		triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
 	}
 
 	protected void setFilteredItems(Set<Object> elementIDs) {
 		// itemList.clear();
+		mapFilteredElements = new HashMap<>(elementIDs.size());
 		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
 
 			GLElement element = entry.getValue();
@@ -267,6 +295,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 					itemList.add(element);
 					itemList.asGLElement().relayout();
 				}
+				mapFilteredElements.put(entry.getKey(), entry.getValue());
 			}
 
 			if (!visible) {
@@ -276,66 +305,83 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			}
 
 		}
-		setSelectedItems(selectedElementIDs, true);
+
+		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs));
 	}
 
-	protected void setSelectedItems(Set<Object> elementIDs, boolean updateSorting) {
+	protected void setSelectedItems(Set<Object> elementIDs) {
 		selectedElementIDs = elementIDs;
 		itemList.clearSelection();
+
 		for (Object elementID : elementIDs) {
 			GLElement element = mapIDToElement.get(elementID);
 			if (element != null) {
 				itemList.addToSelection(element);
 			}
 		}
-		if (updateSorting) {
-			@SuppressWarnings("unchecked")
-			ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(selectionComparator,
-					getDefaultElementComparator()));
-			itemList.sortBy(chain);
-		}
 	}
 
-	// @Override
-	// public void notifyOfSelectionChange(EventBasedSelectionManager selectionManager) {
-	// if (selectionManager == this.selectionManager && handleSelectionUpdate) {
-	// updateHighlights();
-	// }
-	//
-	// }
+	public void updateSelectionMappings(IDUpdateEvent event) {
 
-	// protected void updateHighlights() {
-	// itemList.clearSelection();
-	//
-	// Set<Integer> selectionIDs = selectionManager.getElements(SelectionType.SELECTION);
-	// for (Integer id : selectionIDs) {
-	// Set<Object> elementIDs = getElementIDsFromBroadcastingID(id);
-	// for (Object elementID : elementIDs) {
-	// GLElement element = mapIDToElement.get(elementID);
-	// if (element != null) {
-	// itemList.addToSelection(element);
-	// }
-	// }
-	// }
-	// @SuppressWarnings("unchecked")
-	// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTION_COMPARATOR,
-	// getDefaultElementComparator()));
-	// itemList.sortBy(chain);
-	// }
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(event.getIdType(),
+				getBroadcastingIDType());
+		List<MappingType> path = mapper.getPath();
+
+		AEntityColumn foreignColumn = getNearestMappingColumn(path);
+
+		int maxSelectedElements = Integer.MIN_VALUE;
+		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
+
+			EntityRow row = (EntityRow) entry.getValue();
+			SimpleBarRenderer mappingRenderer = (SimpleBarRenderer) row.getElement(MAPPING_KEY);
+			if (event.getSender() == this) {
+				mappingRenderer.setVisibility(EVisibility.NONE);
+			} else {
+				mappingRenderer.setVisibility(EVisibility.PICKABLE);
+				int numSelectedElements = getNumMappedSelectedElements(row, foreignColumn);
+				if (numSelectedElements > maxSelectedElements)
+					maxSelectedElements = numSelectedElements;
+				mappingRenderer.setNormalizedValue(numSelectedElements);
+				mappingRenderer.setTooltip(String.valueOf(numSelectedElements));
+			}
+		}
+		if (event.getSender() == this) {
+			itemList.setHighlightSelections(true);
+			header.setRenderer(GLRenderers.drawText(getLabel(), VAlign.CENTER));
+			return;
+		}
+		itemList.setHighlightSelections(false);
+		header.setRenderer(GLRenderers.drawText(getLabel() + "/" + foreignColumn.getLabel(), VAlign.CENTER));
+
+		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
+
+			EntityRow row = (EntityRow) entry.getValue();
+			SimpleBarRenderer mappingRenderer = (SimpleBarRenderer) row.getElement(MAPPING_KEY);
+			mappingRenderer.setNormalizedValue(mappingRenderer.getNormalizedValue() / maxSelectedElements);
+		}
+
+		@SuppressWarnings("unchecked")
+		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTION_COMPARATOR,
+				getDefaultElementComparator()));
+		itemList.sortBy(chain);
+	}
+
+	protected int getNumMappedSelectedElements(GLElement element, AEntityColumn foreignColumn) {
+		Set<Object> broadcastIDs = getBroadcastingIDsFromElementID(mapIDToElement.inverse().get(element));
+
+		int numSelections = 0;
+		for (Object elementID : foreignColumn.getElementIDsFromForeignIDs(broadcastIDs, getBroadcastingIDType())) {
+			if (foreignColumn.getSelectedElementIDs().contains(elementID))
+				numSelections++;
+		}
+		return numSelections;
+	}
 
 	@Override
 	public void onElementSelected(GLElement element, Pick pick) {
 		if (pick.getPickingMode() == PickingMode.CLICKED || pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
 
-			// Save selected elements before clearing
-			// Set<GLElement> selectedElements = itemList.getSelectedElements();
-			// FIXME: bad hack to prevent this column to be affected from clearing
-			// handleSelectionUpdate = false;
-			// SelectionCommands.clearSelections();
-			// handleSelectionUpdate = true;
-			// Trigger update after clearing to only have added selections in va delta. In case of multimappings it
-			// could otherwise happen that it is not clear whether to select an element or remove it from selection.
-			// selectionManager.triggerSelectionUpdateEvent();
 
 			Set<Object> broadcastIDs = new HashSet<>();
 			Set<Object> elementIDs = new HashSet<>();
@@ -347,28 +393,34 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 			triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
 
-			setSelectedItems(elementIDs, false);
-			// for (GLElement el : selectedElements) {
-			//
-			// selectionManager.addToType(SelectionType.SELECTION, getBroadcastingIDsFromElementID(mapIDToElement
-			// .inverse().get(el)));
-			// }
-
-			// selectionManager.triggerSelectionUpdateEvent();
-			// updateHighlights();
+			setSelectedItems(elementIDs);
 		}
 
 	}
-
-	// @Override
-	// protected void takeDown() {
-	// selectionManager.unregisterEventListeners();
-	// super.takeDown();
-	// }
 
 	protected abstract IDType getBroadcastingIDType();
 
 	protected abstract Set<Object> getBroadcastingIDsFromElementID(Object elementID);
 
 	protected abstract Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
+
+	protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {
+		if (path == null) {
+			AEntityColumn foreignColumn = getForeignColumnWithMappingIDType(getMappingIDType());
+			if (foreignColumn == null)
+				foreignColumn = getForeignColumnWithBroadcastIDType(getBroadcastingIDType());
+			if (foreignColumn != null)
+				return foreignColumn;
+		} else {
+			for (int i = path.size() - 1; i >= 0; i--) {
+				AEntityColumn foreignColumn = getForeignColumnWithMappingIDType(path.get(i).getFromIDType());
+				if (foreignColumn != null)
+					return foreignColumn;
+			}
+
+		}
+		return this;
+	}
+
+	protected abstract IDType getMappingIDType();
 }

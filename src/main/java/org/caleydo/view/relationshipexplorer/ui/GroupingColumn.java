@@ -14,6 +14,7 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.id.MappingType;
 
 /**
  * @author Christian
@@ -135,6 +136,34 @@ public class GroupingColumn extends ATextColumn {
 			elementIDs.add(group);
 		}
 		return elementIDs;
+	}
+
+	@Override
+	protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {
+
+		List<AEntityColumn> foreignColumns = relationshipExplorer
+				.getColumnsWithBroadcastIDType(getBroadcastingIDType());
+		foreignColumns.remove(this);
+		for (AEntityColumn column : foreignColumns) {
+			if (column instanceof TabularDataColumn) {
+				return column;
+			}
+		}
+		AEntityColumn foreignColumn = this;
+
+		if (path != null) {
+			for (int i = path.size() - 1; i >= 0; i--) {
+				foreignColumn = getForeignColumnWithMappingIDType(path.get(i).getFromIDType());
+				if (foreignColumn != null)
+					break;
+			}
+		}
+		return foreignColumn;
+	}
+
+	@Override
+	protected IDType getMappingIDType() {
+		return getBroadcastingIDType();
 	}
 
 }

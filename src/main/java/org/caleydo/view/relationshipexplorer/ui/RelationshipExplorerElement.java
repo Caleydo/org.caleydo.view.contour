@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
@@ -79,6 +80,27 @@ public class RelationshipExplorerElement extends GLElementContainer {
 			}
 		}
 		return list;
+	}
+
+	public List<AEntityColumn> getColumnsWithMappingIDType(IDType idType) {
+		List<AEntityColumn> list = new ArrayList<>();
+		for (AEntityColumn column : columns) {
+			if (column.getMappingIDType() == idType) {
+				list.add(column);
+			}
+		}
+		return list;
+	}
+
+	@ListenTo
+	public void onApplyIDUpdate(IDUpdateEvent event) {
+		for (AEntityColumn column : columns) {
+			column.applyIDUpdate(event);
+		}
+
+		for (AEntityColumn column : columns) {
+			column.updateSelectionMappings(event);
+		}
 	}
 
 }

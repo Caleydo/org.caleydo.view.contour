@@ -52,8 +52,9 @@ public class GLElementList implements IHasMinSize {
 
 	protected Set<IElementSelectionListener> selectionListeners = new HashSet<>();
 
-
 	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+
+	protected boolean isHighlightSelections = true;
 
 	private class ListElementComparatorWrapper implements Comparator<GLElement> {
 
@@ -249,7 +250,7 @@ public class GLElementList implements IHasMinSize {
 		if (el == null)
 			return;
 		selectedElements.add(el);
-		el.setHighlight(true);
+		el.setHighlight(isHighlightSelections);
 		el.setHighlightColor(SelectionType.SELECTION.getColor());
 	}
 
@@ -340,6 +341,19 @@ public class GLElementList implements IHasMinSize {
 			return;
 		listElementMap.remove(element);
 		body.remove(el);
+	}
+
+	/**
+	 * @param isHighlightSelections
+	 *            setter, see {@link isHighlightSelections}
+	 */
+	public void setHighlightSelections(boolean isHighlightSelections) {
+		if (isHighlightSelections != this.isHighlightSelections) {
+			this.isHighlightSelections = isHighlightSelections;
+			for (ListElement el : selectedElements) {
+				el.setHighlight(isHighlightSelections);
+			}
+		}
 	}
 
 }

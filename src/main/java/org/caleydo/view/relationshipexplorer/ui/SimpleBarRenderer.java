@@ -1,0 +1,134 @@
+/*******************************************************************************
+ * Caleydo - Visualization for Molecular Biology - http://caleydo.org
+ * Copyright (c) The Caleydo Team. All rights reserved.
+ * Licensed under the new BSD license, available at http://caleydo.org/license
+ *******************************************************************************/
+package org.caleydo.view.relationshipexplorer.ui;
+
+import gleem.linalg.Vec2f;
+
+import org.caleydo.core.util.color.Color;
+import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.PickableGLElement;
+
+/**
+ * @author Christian
+ *
+ */
+public class SimpleBarRenderer extends PickableGLElement {
+
+	private boolean isHorizontal = false;
+	private float normalizedValue = 0;
+	private Color color = Color.GRAY;
+	private Vec2f minSize = new Vec2f(0, 0);
+	private float barWidth = Float.NaN;
+
+	/**
+	 *
+	 */
+	public SimpleBarRenderer() {
+	}
+
+	public SimpleBarRenderer(float value, boolean isHorizontal) {
+		this.normalizedValue = value;
+		this.isHorizontal = isHorizontal;
+	}
+
+	@Override
+	protected void renderImpl(GLGraphics g, float w, float h) {
+		if (isHorizontal) {
+			float posY = 0;
+			if (!Float.isNaN(barWidth)) {
+				posY = (h - barWidth) / 2.0f;
+			}
+			g.color(color).fillRect(0, posY, w * 0.9f * normalizedValue, Float.isNaN(barWidth) ? h : barWidth);
+
+		} else {
+			float posX = 0;
+			if (!Float.isNaN(barWidth)) {
+				posX = (w - barWidth) / 2.0f;
+			}
+			g.color(color).fillRect(posX, 0, Float.isNaN(barWidth) ? w : barWidth, h * 0.9f * normalizedValue);
+		}
+	}
+
+	@Override
+	protected void renderPickImpl(GLGraphics g, float w, float h) {
+		renderImpl(g, w, h);
+	}
+
+	/**
+	 * @param isHorizontal
+	 *            setter, see {@link isHorizontal}
+	 */
+	public void setHorizontal(boolean isHorizontal) {
+		this.isHorizontal = isHorizontal;
+	}
+
+	/**
+	 * @param value
+	 *            setter, see {@link value}
+	 */
+	public void setNormalizedValue(float value) {
+		this.normalizedValue = value;
+		repaintAll();
+	}
+
+	/**
+	 * @return the isHorizontal, see {@link #isHorizontal}
+	 */
+	public boolean isHorizontal() {
+		return isHorizontal;
+	}
+
+	/**
+	 * @return the value, see {@link #normalizedValue}
+	 */
+	public float getNormalizedValue() {
+		return normalizedValue;
+	}
+
+	/**
+	 * @param color
+	 *            setter, see {@link color}
+	 */
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	/**
+	 * @return the color, see {@link #color}
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * @param minSize
+	 *            setter, see {@link minSize}
+	 */
+	public void setMinSize(Vec2f minSize) {
+		this.minSize = minSize;
+	}
+
+	@Override
+	public Vec2f getMinSize() {
+		return minSize;
+	}
+
+	/**
+	 * @param barWidth
+	 *            setter, see {@link barWidth}
+	 */
+	public void setBarWidth(float barWidth) {
+		this.barWidth = barWidth;
+	}
+
+	/**
+	 * @return the barWidth, see {@link #barWidth}
+	 */
+	public float getBarWidth() {
+		return barWidth;
+	}
+
+}

@@ -93,7 +93,7 @@ public class RelationshipExplorerElement extends GLElementContainer {
 	}
 
 	@ListenTo
-	public void onApplyIDUpdate(IDUpdateEvent event) {
+	public void onApplyIDUpdate(IDMappingUpdateEvent event) {
 		for (AEntityColumn column : columns) {
 			column.applyIDUpdate(event);
 		}

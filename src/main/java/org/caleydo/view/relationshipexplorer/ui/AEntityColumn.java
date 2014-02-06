@@ -36,6 +36,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
+import org.caleydo.view.relationshipexplorer.ui.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.GLElementList.IElementSelectionListener;
 import org.caleydo.view.relationshipexplorer.ui.IDUpdateEvent.EUpdateType;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
@@ -68,14 +69,21 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected Map<Object, GLElement> mapFilteredElements = new HashMap<>();
 	protected RelationshipExplorerElement relationshipExplorer;
 
-	protected static class FilterEvent extends ADirectedEvent {
+	// protected static class FilterEvent extends ADirectedEvent {
+	//
+	// protected IColumnFilter filter;
+	//
+	// public FilterEvent(IColumnFilter filter) {
+	// this.filter = filter;
+	// }
+	// }
 
-		// protected Set<Object> elementIDs;
-		protected EUpdateType type;
+	protected static class ContextMenuOperationEvent extends ADirectedEvent {
 
-		public FilterEvent(EUpdateType type) {
-			// this.elementIDs = elementIDs;
-			this.type = type;
+		protected final ESetOperation setOperation;
+
+		public ContextMenuOperationEvent(ESetOperation setOperation) {
+			this.setOperation = setOperation;
 		}
 	}
 
@@ -152,14 +160,20 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		// }
 		// };
 
-		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new FilterEvent(
-				EUpdateType.REPLACE_FILTER).to(this));
-		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce",
-				new FilterEvent(
-				EUpdateType.AND_FILTER).to(this));
-		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add",
-				new FilterEvent(
-				EUpdateType.OR_FILTER).to(this));
+		// AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new FilterEvent(
+		// new SelectionBasedFilter(ESetOperation.REPLACE)).to(this));
+		// AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new FilterEvent(new
+		// SelectionBasedFilter(
+		// ESetOperation.INTERSECTION)).to(this));
+		// AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new FilterEvent(new SelectionBasedFilter(
+		// ESetOperation.UNION)).to(this));
+
+		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new ContextMenuOperationEvent(
+				ESetOperation.REPLACE).to(this));
+		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new ContextMenuOperationEvent(
+				ESetOperation.INTERSECTION).to(this));
+		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new ContextMenuOperationEvent(
+				ESetOperation.UNION).to(this));
 		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem);
 	}
 
@@ -210,18 +224,19 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return itemList.getMinSize();
 	}
 
-	public void applyIDUpdate(IDUpdateEvent event) {
+	public void applyIDUpdate(IDMappingUpdateEvent event) {
 		if (event.getSender() == this)
 			return;
-
-		Set<Object> elementIDs = getElementIDsFromForeignIDs(event.getIds(), event.getIdType());
-
-		if (event.getUpdateType() == EUpdateType.REPLACE_FILTER || event.getUpdateType() == EUpdateType.AND_FILTER
-				|| event.getUpdateType() == EUpdateType.OR_FILTER) {
-			applyFilter(event.getUpdateType(), elementIDs);
-		} else if (event.getUpdateType() == EUpdateType.SELECTION) {
-			setSelectedItems(Sets.intersection(mapFilteredElements.keySet(), elementIDs));
-		}
+		event.getColumnOperation().execute(this);
+		//
+		// Set<Object> elementIDs = getElementIDsFromForeignIDs(event.getIds(), event.getIdType());
+		//
+		// if (event.getUpdateType() == EUpdateType.REPLACE_FILTER || event.getUpdateType() == EUpdateType.AND_FILTER
+		// || event.getUpdateType() == EUpdateType.OR_FILTER) {
+		// applyFilter(event.getUpdateType(), elementIDs);
+		// } else if (event.getUpdateType() == EUpdateType.SELECTION) {
+		// setSelectedItems(Sets.intersection(mapFilteredElements.keySet(), elementIDs));
+		// }
 	}
 
 	protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
@@ -248,14 +263,12 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
 
 		Set<Object> elementIDs = new HashSet<>();
-		for (Object foreignID : foreignIDs) {
-			Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, getBroadcastingIDType(), foreignID);
-			if (ids != null) {
-				for (Object id : ids) {
-					elementIDs.addAll(getElementIDsFromBroadcastingID((Integer) id));
-				}
-			}
+		Set<Object> broadcastIDs = mappingManager.getIDTypeMapper(foreignIDType, getBroadcastingIDType()).apply(
+				foreignIDs);
+		for (Object bcID : broadcastIDs) {
+			elementIDs.addAll(getElementIDsFromBroadcastingID((Integer) bcID));
 		}
+
 		return elementIDs;
 	}
 
@@ -267,32 +280,55 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	@ListenTo(sendToMe = true)
-	public void onFilter(FilterEvent event) {
+	public void onFilter(ContextMenuOperationEvent event) {
 		Set<Object> broadcastIDs = new HashSet<>();
 		Set<Object> elementIDs = new HashSet<>();
-		for (GLElement element : itemList.getSelectedElements()) {
-			Object elementID = mapIDToElement.inverse().get(element);
-			elementIDs.add(elementID);
-			broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-		}
+		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
 
-		applyFilter(event.type, elementIDs);
-		triggerIDUpdate(broadcastIDs, event.type);
-		triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
+		SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs,
+				event.setOperation);
+		o.execute(this);
+
+		// applyFilter(event.type, elementIDs);
+		// triggerIDUpdate(broadcastIDs, event.type);
+		// triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
 	}
 
-	protected void applyFilter(EUpdateType filterType, Set<Object> elementIDs) {
-		if (filterType == EUpdateType.REPLACE_FILTER) {
-			setFilteredItems(elementIDs);
-		} else if (filterType == EUpdateType.AND_FILTER) {
-			setFilteredItems(Sets.intersection(elementIDs, mapFilteredElements.keySet()));
-		} else if (filterType == EUpdateType.OR_FILTER) {
-			setFilteredItems(Sets.union(elementIDs, mapFilteredElements.keySet()));
+	@Override
+	public void onElementSelected(GLElement element, Pick pick) {
+		if (pick.getPickingMode() == PickingMode.CLICKED || pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
+
+			Set<Object> broadcastIDs = new HashSet<>();
+			Set<Object> elementIDs = new HashSet<>();
+			fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
+
+			SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs);
+			o.execute(this);
+		}
+
+	}
+
+	private void fillSelectedElementAndBroadcastIDs(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs) {
+		for (GLElement el : itemList.getSelectedElements()) {
+			Object elementID = mapIDToElement.inverse().get(el);
+			selectedElementIDs.add(elementID);
+			selectedBroadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
 		}
 	}
+
+	// protected void applyFilter(EUpdateType filterType, Set<Object> elementIDs) {
+	// if (filterType == EUpdateType.REPLACE_FILTER) {
+	// setFilteredItems(elementIDs);
+	// } else if (filterType == EUpdateType.AND_FILTER) {
+	// setFilteredItems(Sets.intersection(elementIDs, mapFilteredElements.keySet()));
+	// } else if (filterType == EUpdateType.OR_FILTER) {
+	// setFilteredItems(Sets.union(elementIDs, mapFilteredElements.keySet()));
+	// }
+	// }
 
 	protected void setFilteredItems(Set<Object> elementIDs) {
 		// itemList.clear();
+
 		mapFilteredElements = new HashMap<>(elementIDs.size());
 		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
 
@@ -333,10 +369,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	@SuppressWarnings("null")
-	public void updateSelectionMappings(IDUpdateEvent event) {
+	public void updateSelectionMappings(IDMappingUpdateEvent event) {
 
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(event.getIdType(),
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(event.getColumnOperation().srcIDType,
 				getBroadcastingIDType());
 		List<MappingType> path = mapper.getPath();
 
@@ -433,25 +469,6 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	public Set<Object> getFilteredElementIDs() {
 		return mapFilteredElements.keySet();
-	}
-
-	@Override
-	public void onElementSelected(GLElement element, Pick pick) {
-		if (pick.getPickingMode() == PickingMode.CLICKED || pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
-
-			Set<Object> broadcastIDs = new HashSet<>();
-			Set<Object> elementIDs = new HashSet<>();
-			for (GLElement el : itemList.getSelectedElements()) {
-				Object elementID = mapIDToElement.inverse().get(el);
-				elementIDs.add(elementID);
-				broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-			}
-
-			triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
-
-			setSelectedItems(elementIDs);
-		}
-
 	}
 
 	protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {

@@ -107,16 +107,6 @@ public class ListElement extends AnimatedGLElementContainer {
 				return getTooltip();
 			}
 		}));
-		// this.onPick(new IPickingListener() {
-		//
-		// @Override
-		// public void pick(Pick pick) {
-		// if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
-		// ListElement.this.context.getSWTLayer().showContextMenu(contextMenuCreator);
-		// }
-		//
-		// }
-		// });
 	}
 
 	public void setToolTip(String tooltip) {

@@ -5,16 +5,23 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
+import gleem.linalg.Vec2f;
+
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.caleydo.core.data.collection.table.NumericalTable;
+import org.caleydo.core.data.collection.table.Table;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.MappingType;
+import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 
 /**
  * @author Christian
@@ -22,9 +29,29 @@ import org.caleydo.core.id.MappingType;
  */
 public class GroupingColumn extends ATextColumn {
 
+	protected static final int GROUP_NAME_KEY = 0;
+	protected static final int AGGREGATED_DATA_KEY = 1;
+
 	protected final ATableBasedDataDomain dataDomain;
 	protected final Perspective perspective;
 	protected final GroupList groupList;
+
+	public final Comparator<GLElement> GROUP_COMPARATOR = new Comparator<GLElement>() {
+
+		@Override
+		public int compare(GLElement arg0, GLElement arg1) {
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<GLElement> c1 = (KeyBasedGLElementContainer<GLElement>) ((KeyBasedGLElementContainer<GLElement>) arg0)
+					.getElement(DATA_KEY);
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<GLElement> c2 = (KeyBasedGLElementContainer<GLElement>) ((KeyBasedGLElementContainer<GLElement>) arg1)
+					.getElement(DATA_KEY);
+			MinSizeTextElement r1 = (MinSizeTextElement) c1.getElement(GROUP_NAME_KEY);
+			MinSizeTextElement r2 = (MinSizeTextElement) c2.getElement(GROUP_NAME_KEY);
+
+			return r2.getLabel().compareTo(r1.getLabel());
+		}
+	};
 
 	public GroupingColumn(Perspective perspective, RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
@@ -33,7 +60,6 @@ public class GroupingColumn extends ATextColumn {
 		this.groupList = perspective.getVirtualArray().getGroupList();
 	}
 
-
 	@Override
 	public String getLabel() {
 		return perspective.getLabel();
@@ -41,8 +67,32 @@ public class GroupingColumn extends ATextColumn {
 
 	@Override
 	protected void setContent() {
-		for (final Group group : groupList) {
-			addTextElement(group.getLabel(), group);
+		Table table = dataDomain.getTable();
+		if (table instanceof NumericalTable) {
+			NumericalTable numTable = (NumericalTable) table;
+
+			for (final Group group : groupList) {
+				List<Integer> indices = perspective.getVirtualArray().getIDsOfGroup(group.getGroupIndex());
+				IDType dimensionIDType = dataDomain.getOppositeIDType(perspective.getIdType());
+				Perspective dimensionPerspective = dataDomain.getDefaultTablePerspective().getPerspective(
+						dimensionIDType);
+
+				KeyBasedGLElementContainer<GLElement> container = new KeyBasedGLElementContainer<>(
+						GLLayouts.sizeRestrictiveFlowHorizontal(2));
+				MinSizeTextElement textElement = new MinSizeTextElement(group.getLabel());
+				textElement.setMinSize(new Vec2f(40, ITEM_HEIGHT));
+				textElement.setSize(45, 16);
+				container.setElement(GROUP_NAME_KEY, textElement);
+				SimpleAggregateDataRenderer renderer = new SimpleAggregateDataRenderer(dataDomain, indices,
+						perspective.getIdType(), dimensionPerspective, (float) numTable.getMin(),
+						(float) numTable.getMax(), numTable.getDataCenter().floatValue());
+				container.setElement(AGGREGATED_DATA_KEY, renderer);
+				container.setHorizontalFlowMinSizeProvider(2);
+
+				addElement(container, group);
+
+				// addTextElement(group.getLabel(), group);
+			}
 		}
 
 	}
@@ -98,6 +148,12 @@ public class GroupingColumn extends ATextColumn {
 	@Override
 	protected IDType getMappingIDType() {
 		return getBroadcastingIDType();
+	}
+
+	@Override
+	public Comparator<GLElement> getDefaultElementComparator() {
+
+		return GROUP_COMPARATOR;
 	}
 
 }

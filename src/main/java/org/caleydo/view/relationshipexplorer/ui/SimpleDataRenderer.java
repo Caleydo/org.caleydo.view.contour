@@ -19,7 +19,6 @@ import org.caleydo.core.io.NumericalProperties;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
-import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator.IHasMinSize;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 
 /**
@@ -28,7 +27,7 @@ import org.caleydo.core.view.opengl.layout2.geom.Rect;
  * @author Christian
  *
  */
-public class SimpleDataRenderer extends GLElement implements IHasMinSize {
+public class SimpleDataRenderer extends GLElement {
 
 	protected static final int MIN_BAR_WIDTH = 3;
 	protected static final int MIN_HEIGHT = 30;

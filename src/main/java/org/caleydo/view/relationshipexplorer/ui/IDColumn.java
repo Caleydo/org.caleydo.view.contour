@@ -112,7 +112,7 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 	}
 
 	@Override
-	protected Comparator<GLElement> getDefaultElementComparator() {
+	public Comparator<GLElement> getDefaultElementComparator() {
 		if (displayedIDType.getDataType() == EDataType.INTEGER)
 			return ID_NUMBER_COMPARATOR;
 		return super.getDefaultElementComparator();

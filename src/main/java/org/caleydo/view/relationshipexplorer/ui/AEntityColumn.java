@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +19,6 @@ import java.util.Set;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.ADirectedEvent;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
@@ -38,7 +38,6 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.GLElementList.IElementSelectionListener;
-import org.caleydo.view.relationshipexplorer.ui.IDUpdateEvent.EUpdateType;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.collect.BiMap;
@@ -177,12 +176,6 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem);
 	}
 
-	protected void triggerIDUpdate(Set<Object> ids, EUpdateType updateType) {
-		IDUpdateEvent event = new IDUpdateEvent(ids, getBroadcastingIDType(), updateType);
-		event.setSender(AEntityColumn.this);
-		EventPublisher.trigger(event);
-	}
-
 	protected void addElement(GLElement element, Object elementID) {
 
 		KeyBasedGLElementContainer<GLElement> row = new KeyBasedGLElementContainer<>(
@@ -224,20 +217,20 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return itemList.getMinSize();
 	}
 
-	public void applyIDUpdate(IDMappingUpdateEvent event) {
-		if (event.getSender() == this)
-			return;
-		event.getColumnOperation().execute(this);
-		//
-		// Set<Object> elementIDs = getElementIDsFromForeignIDs(event.getIds(), event.getIdType());
-		//
-		// if (event.getUpdateType() == EUpdateType.REPLACE_FILTER || event.getUpdateType() == EUpdateType.AND_FILTER
-		// || event.getUpdateType() == EUpdateType.OR_FILTER) {
-		// applyFilter(event.getUpdateType(), elementIDs);
-		// } else if (event.getUpdateType() == EUpdateType.SELECTION) {
-		// setSelectedItems(Sets.intersection(mapFilteredElements.keySet(), elementIDs));
-		// }
-	}
+	// public void applyIDUpdate(IDMappingUpdateEvent event) {
+	// if (event.getSender() == this)
+	// return;
+	// event.getColumnOperation().execute(this);
+	// //
+	// // Set<Object> elementIDs = getElementIDsFromForeignIDs(event.getIds(), event.getIdType());
+	// //
+	// // if (event.getUpdateType() == EUpdateType.REPLACE_FILTER || event.getUpdateType() == EUpdateType.AND_FILTER
+	// // || event.getUpdateType() == EUpdateType.OR_FILTER) {
+	// // applyFilter(event.getUpdateType(), elementIDs);
+	// // } else if (event.getUpdateType() == EUpdateType.SELECTION) {
+	// // setSelectedItems(Sets.intersection(mapFilteredElements.keySet(), elementIDs));
+	// // }
+	// }
 
 	protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
 
@@ -288,7 +281,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs,
 				event.setOperation);
 		o.execute(this);
-
+		relationshipExplorer.getHistory().addColumnOperation(this, o);
 		// applyFilter(event.type, elementIDs);
 		// triggerIDUpdate(broadcastIDs, event.type);
 		// triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
@@ -304,6 +297,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 			SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs);
 			o.execute(this);
+			relationshipExplorer.getHistory().addColumnOperation(this, o);
 		}
 
 	}
@@ -369,10 +363,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	@SuppressWarnings("null")
-	public void updateSelectionMappings(IDMappingUpdateEvent event) {
+	public void updateSelectionMappings(AEntityColumn srcColumn) {
 
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(event.getColumnOperation().srcIDType,
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(srcColumn.getBroadcastingIDType(),
 				getBroadcastingIDType());
 		List<MappingType> path = mapper.getPath();
 
@@ -387,7 +381,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>) row
 					.getElement(MAPPING_KEY);
 
-			if (event.getSender() == this) {
+			if (srcColumn == this) {
 				if (mappingRenderer != null)
 					mappingRenderer.setVisibility(EVisibility.NONE);
 			} else {
@@ -404,7 +398,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
 
-		if (event.getSender() == this) {
+		if (srcColumn == this) {
 			itemList.setHighlightSelections(true);
 			if (mappingHeaderExists) {
 				header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
@@ -442,6 +436,30 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
 				FILTERED_ELEMENTS_COMPARATOR, ALL_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
 		itemList.sortBy(chain);
+	}
+
+	public void hideMappings() {
+		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
+
+		itemList.setHighlightSelections(true);
+		if (mappingHeaderExists) {
+			header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
+		}
+
+		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<GLElement> row = (KeyBasedGLElementContainer<GLElement>) entry.getValue();
+			@SuppressWarnings("unchecked")
+			KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>) row
+					.getElement(MAPPING_KEY);
+			if (mappingRenderer != null)
+				mappingRenderer.setVisibility(EVisibility.NONE);
+		}
+
+	}
+
+	public void sort(Comparator<GLElement> comparator) {
+		itemList.sortBy(comparator);
 	}
 
 	protected void fillMappedElementCounts(GLElement element, AEntityColumn foreignColumn,
@@ -489,9 +507,13 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return this;
 	}
 
+	public Set<Object> getAllElementIDs() {
+		return Collections.unmodifiableSet(mapIDToElement.keySet());
+	}
+
 	protected abstract void setContent();
 
-	protected abstract Comparator<GLElement> getDefaultElementComparator();
+	public abstract Comparator<GLElement> getDefaultElementComparator();
 
 	protected abstract IDType getBroadcastingIDType();
 

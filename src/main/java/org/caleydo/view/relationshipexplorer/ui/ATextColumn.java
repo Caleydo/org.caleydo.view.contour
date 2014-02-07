@@ -67,7 +67,7 @@ public abstract class ATextColumn extends AEntityColumn {
 	}
 
 	@Override
-	protected Comparator<GLElement> getDefaultElementComparator() {
+	public Comparator<GLElement> getDefaultElementComparator() {
 		return TEXT_COMPARATOR;
 	}
 

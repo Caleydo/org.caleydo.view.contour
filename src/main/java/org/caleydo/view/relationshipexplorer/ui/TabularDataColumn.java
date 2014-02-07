@@ -119,7 +119,7 @@ public class TabularDataColumn extends AEntityColumn {
 	}
 
 	@Override
-	protected Comparator<GLElement> getDefaultElementComparator() {
+	public Comparator<GLElement> getDefaultElementComparator() {
 		return ID_COMPARATOR;
 	}
 

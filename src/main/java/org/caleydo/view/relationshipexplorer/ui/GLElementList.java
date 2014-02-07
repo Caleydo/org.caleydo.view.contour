@@ -188,8 +188,10 @@ public class GLElementList implements IHasMinSize {
 						}
 						notifySelectionListeners(el.getContent(), pick);
 					} else {
-						setSelection(el.getContent());
-						notifySelectionListeners(el.getContent(), pick);
+
+							setSelection(el.getContent());
+							notifySelectionListeners(el.getContent(), pick);
+
 
 					}
 				} else if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {

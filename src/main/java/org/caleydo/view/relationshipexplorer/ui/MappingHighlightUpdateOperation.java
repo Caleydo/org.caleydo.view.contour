@@ -7,8 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.Set;
 
-import org.caleydo.core.id.IDType;
-
 /**
  * @author Christian
  *
@@ -20,8 +18,8 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, IDType srcIDType, ESetOperation op) {
-		super(srcBroadcastIDs, srcIDType, op);
+	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, AEntityColumn srcColumn, ESetOperation op) {
+		super(srcBroadcastIDs, srcColumn, op);
 	}
 
 	@Override

@@ -18,11 +18,9 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.DataSetDescription;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.ui.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.GroupingColumn;
@@ -94,11 +92,11 @@ public class HCSRelationshipExplorerElementFactory implements IGLElementFactory 
 			Vec2f minSize = column.getMinSize();
 			column.setLayoutData(minSize.x() / totalMinSize);
 			relationshipExplorer.addEntityColumn(column);
-			if (i < columns.size() - 1) {
-				GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
-				columnSpacer.setSize(2, Float.NaN);
-				relationshipExplorer.add(columnSpacer);
-			}
+			// if (i < columns.size() - 1) {
+			// GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
+			// columnSpacer.setSize(2, Float.NaN);
+			// relationshipExplorer.add(columnSpacer);
+			// }
 		}
 
 		return relationshipExplorer;

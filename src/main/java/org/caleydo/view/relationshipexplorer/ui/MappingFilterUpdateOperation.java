@@ -7,8 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.Set;
 
-import org.caleydo.core.id.IDType;
-
 /**
  * @author Christian
  *
@@ -20,8 +18,8 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, IDType srcIDType, ESetOperation op) {
-		super(srcBroadcastIDs, srcIDType, op);
+	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, AEntityColumn srcColumn, ESetOperation op) {
+		super(srcBroadcastIDs, srcColumn, op);
 	}
 
 	@Override

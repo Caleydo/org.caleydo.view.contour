@@ -7,8 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import java.util.Set;
 
-import org.caleydo.core.event.EventPublisher;
-
 /**
  * @author Christian
  *
@@ -37,10 +35,8 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 
 		column.setFilteredItems(setOperation.apply(selectedElementIDs, column.getFilteredElementIDs()));
 
-		IDMappingUpdateEvent e = new IDMappingUpdateEvent(new MappingFilterUpdateOperation(selectedBroadcastIDs,
-				column.getBroadcastingIDType(), setOperation));
-		e.setSender(column);
-		EventPublisher.trigger(e);
+		column.relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs,
+				column, setOperation));
 	}
 
 }

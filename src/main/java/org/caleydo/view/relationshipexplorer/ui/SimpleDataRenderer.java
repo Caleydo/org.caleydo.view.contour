@@ -9,6 +9,7 @@ import gleem.linalg.Vec2f;
 
 import org.caleydo.core.data.collection.column.container.CategoricalClassDescription;
 import org.caleydo.core.data.collection.column.container.CategoryProperty;
+import org.caleydo.core.data.collection.table.NumericalTable;
 import org.caleydo.core.data.collection.table.Table;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
@@ -59,7 +60,12 @@ public class SimpleDataRenderer extends GLElement {
 			CategoricalClassDescription<?> categoricalClassDesc = desc.getCategoricalClassDescription();
 			for (int dimensionID : dimensionPerspective.getVirtualArray()) {
 				if (categoricalClassDesc == null) {
-					renderNumericalValue(g, currentBarPos, h, barWidth, dimensionID);
+					NumericalTable numericalTable = (NumericalTable) dataDomain.getTable();
+					float dataCenter = numericalTable.getDataCenter().floatValue();
+					float min = (float) numericalTable.getMin();
+					float max = (float) numericalTable.getMax();
+					renderNumericalValue(g, currentBarPos, h, barWidth, dimensionID,
+							getNormalizedValue(dataCenter, min, max));
 				} else {
 					renderCategoricalValue(g, currentBarPos, h, barWidth, dimensionID, categoricalClassDesc);
 				}
@@ -73,7 +79,8 @@ public class SimpleDataRenderer extends GLElement {
 						dimensionPerspective.getIdType(), dimensionID);
 
 				if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
-					renderNumericalValue(g, currentBarPos, h, barWidth, dimensionID);
+					// TODO: use correct data center
+					renderNumericalValue(g, currentBarPos, h, barWidth, dimensionID, 0);
 				} else {
 					renderCategoricalValue(g, currentBarPos, h, barWidth, dimensionID,
 							(CategoricalClassDescription<?>) dataClassDesc);
@@ -85,10 +92,21 @@ public class SimpleDataRenderer extends GLElement {
 
 	}
 
-	protected void renderNumericalValue(GLGraphics g, float posX, float h, float width, int dimensionID) {
+	protected float getNormalizedValue(float rawValue, float min, float max) {
+		float value = (rawValue - min) / (max - min);
+		if (value > 1)
+			return 1;
+		if (value < 0)
+			return 0;
+		return value;
+	}
+
+	protected void renderNumericalValue(GLGraphics g, float posX, float h, float width, int dimensionID,
+			float normalizedDataCenter) {
 		float val = dataDomain
 				.getNormalizedValue(recordIDType, recordID, dimensionPerspective.getIdType(), dimensionID);
-		g.color(dataDomain.getColor()).fillRect(new Rect(posX, h, width, -(val * h)));
+		g.color(dataDomain.getColor()).fillRect(
+				new Rect(posX, normalizedDataCenter * h, width, (normalizedDataCenter * h) - (val * h)));
 	}
 
 	protected void renderCategoricalValue(GLGraphics g, float posX, float h, float width, int dimensionID,

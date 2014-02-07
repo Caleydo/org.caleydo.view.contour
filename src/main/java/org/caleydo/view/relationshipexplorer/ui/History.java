@@ -25,6 +25,9 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.IIDMappingUpdateHandler;
 
 /**
+ * TODO: Possible performance improvements: Take snapshots of the whole setup every now and then. The reset command
+ * might not need to call sorting etc if a filtering or selection update follows.
+ *
  * @author Christian
  *
  */
@@ -78,7 +81,7 @@ public class History extends AnimatedGLElementContainer {
 		@Override
 		public void execute() {
 			for (AEntityColumn column : relationshipExplorer.getColumns()) {
-				column.setFilteredItems(column.getAllElementIDs());
+				column.showAllItems();
 				column.setSelectedItems(new HashSet<>());
 				column.hideMappings();
 				column.sort(column.getDefaultElementComparator());

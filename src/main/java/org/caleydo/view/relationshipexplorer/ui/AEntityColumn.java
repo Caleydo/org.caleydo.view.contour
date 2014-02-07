@@ -350,6 +350,20 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs));
 	}
 
+	public void showAllItems() {
+		mapFilteredElements.clear();
+		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
+
+			GLElement element = entry.getValue();
+			// itemList.show(element);
+			if (!itemList.hasElement(element)) {
+				itemList.add(element);
+				itemList.asGLElement().relayout();
+			}
+			mapFilteredElements.put(entry.getKey(), entry.getValue());
+		}
+	}
+
 	protected void setSelectedItems(Set<Object> elementIDs) {
 		selectedElementIDs = elementIDs;
 		itemList.clearSelection();

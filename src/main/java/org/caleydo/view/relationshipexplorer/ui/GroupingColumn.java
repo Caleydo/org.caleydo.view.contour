@@ -33,47 +33,6 @@ public class GroupingColumn extends ATextColumn {
 		this.groupList = perspective.getVirtualArray().getGroupList();
 	}
 
-	// @ListenTo
-	// public void onApplyIDFilter(IDUpdateEvent event) {
-	// Set<?> foreignIDs = event.getIds();
-	// IDType foreignIDType = event.getIdType();
-	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(perspective.getIdType());
-	// Set<Object> mappedIDs = new HashSet<>();
-	// for (Object id : foreignIDs) {
-	// Set<Object> ids = mappingManager.getIDAsSet(foreignIDType, perspective.getIdType(), id);
-	// if (ids != null) {
-	// mappedIDs.addAll(ids);
-	// }
-	// }
-	//
-	// setFilteredItems(mappedIDs);
-	// }
-
-	// @Override
-	// protected void setFilteredItems(Set<Object> ids) {
-	// for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
-	//
-	// GLElement item = entry.getValue();
-	// Group group = (Group) entry.getKey();
-	//
-	// boolean visible = false;
-	//
-	// for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
-	// if (ids.contains(perspective.getVirtualArray().get(index))) {
-	// itemList.show(item);
-	// visible = true;
-	// itemList.asGLElement().relayout();
-	// break;
-	// }
-	// }
-	//
-	// if (!visible) {
-	// itemList.hide(item);
-	// itemList.asGLElement().relayout();
-	// }
-	//
-	// }
-	// }
 
 	@Override
 	public String getLabel() {
@@ -84,24 +43,6 @@ public class GroupingColumn extends ATextColumn {
 	protected void setContent() {
 		for (final Group group : groupList) {
 			addTextElement(group.getLabel(), group);
-			// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new
-			// Runnable() {
-			// @Override
-			// public void run() {
-			// Set<Object> ids = new HashSet<>();
-			// for (GLElement element : itemList.getSelectedElements()) {
-			// Group g = (Group) mapIDToElement.inverse().get(element);
-			// ids.addAll(getBroadcastingIDsFromElementID(g));
-			// }
-			//
-			// IDFilterEvent event = new IDFilterEvent(ids, perspective.getIdType());
-			// event.setSender(GroupingColumn.this);
-			// EventPublisher.trigger(event);
-			//
-			// }
-			// });
-			//
-			// itemList.addContextMenuItem(item, contextMenuItem);
 		}
 
 	}
@@ -123,14 +64,7 @@ public class GroupingColumn extends ATextColumn {
 	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
 
 		List<Group> groups = perspective.getVirtualArray().getGroupOf(broadcastingID);
-		// for (int index = group.getStartIndex(); index <= group.getEndIndex(); index++) {
-		// if (ids.contains(perspective.getVirtualArray().get(index))) {
-		// itemList.show(item);
-		// visible = true;
-		// itemList.asGLElement().relayout();
-		// break;
-		// }
-		// }
+
 		Set<Object> elementIDs = new HashSet<>(groups.size());
 		for (Group group : groups) {
 			elementIDs.add(group);

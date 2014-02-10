@@ -123,4 +123,10 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 		return getBroadcastingIDType();
 	}
 
+	@Override
+	public void showDetailView() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

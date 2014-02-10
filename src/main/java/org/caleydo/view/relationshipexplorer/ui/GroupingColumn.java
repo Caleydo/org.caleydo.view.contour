@@ -22,6 +22,8 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.MappingType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
+import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 
 /**
  * @author Christian
@@ -87,7 +89,8 @@ public class GroupingColumn extends ATextColumn {
 						perspective.getIdType(), dimensionPerspective, (float) numTable.getMin(),
 						(float) numTable.getMax(), numTable.getDataCenter().floatValue());
 				container.setElement(AGGREGATED_DATA_KEY, renderer);
-				container.setHorizontalFlowMinSizeProvider(2);
+				container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 2,
+						GLPadding.ONE));
 
 				addElement(container, group);
 
@@ -154,6 +157,12 @@ public class GroupingColumn extends ATextColumn {
 	public Comparator<GLElement> getDefaultElementComparator() {
 
 		return GROUP_COMPARATOR;
+	}
+
+	@Override
+	public void showDetailView() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

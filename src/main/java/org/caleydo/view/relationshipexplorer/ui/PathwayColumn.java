@@ -11,16 +11,19 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
+import org.caleydo.view.pathway.v2.ui.PathwayElement;
+import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
+import org.caleydo.view.pathway.v2.ui.augmentation.CompoundAugmentation;
 
 /**
  * @author Christian
  *
  */
 public class PathwayColumn extends ATextColumn {
-
 
 	/**
 	 * @param relationshipExplorer
@@ -144,5 +147,31 @@ public class PathwayColumn extends ATextColumn {
 	@Override
 	protected IDType getMappingIDType() {
 		return getBroadcastingIDType();
+	}
+
+	// @Override
+	// protected List<AContextMenuItem> getContextMenuItems() {
+	// List<AContextMenuItem> items = super.getContextMenuItems();
+	//
+	// element.setRenderer(GLRenderers.fillRect(Color.RED));
+	//
+	// return items;
+	// }
+
+	@Override
+	public void showDetailView() {
+		Set<GLElement> elements = itemList.getSelectedElements();
+
+		if (elements.size() != 1)
+			return;
+
+		PathwayGraph pathway = (PathwayGraph) mapIDToElement.inverse().get(elements.iterator().next());
+
+		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
+		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
+		pathwayElement.setPathwayRepresentation(representation);
+		pathwayElement.addForegroundAugmentation(new CompoundAugmentation(representation));
+
+		relationshipExplorer.showDetailView(this, pathwayElement, pathway);
 	}
 }

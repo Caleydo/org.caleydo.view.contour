@@ -33,6 +33,8 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
+import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
@@ -77,12 +79,37 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	// }
 	// }
 
-	protected static class ContextMenuOperationEvent extends ADirectedEvent {
+	protected interface IContextMenuOperation {
+		public void execute();
+	}
+
+	protected class FilterOperation implements IContextMenuOperation {
 
 		protected final ESetOperation setOperation;
 
-		public ContextMenuOperationEvent(ESetOperation setOperation) {
+		public FilterOperation(ESetOperation setOperation) {
 			this.setOperation = setOperation;
+		}
+
+		@Override
+		public void execute() {
+			Set<Object> broadcastIDs = new HashSet<>();
+			Set<Object> elementIDs = new HashSet<>();
+			fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
+
+			SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs, setOperation);
+			o.execute(AEntityColumn.this);
+			relationshipExplorer.getHistory().addColumnOperation(AEntityColumn.this, o);
+
+		}
+	}
+
+	protected static class ContextMenuOperationEvent extends ADirectedEvent {
+
+		protected final IContextMenuOperation operation;
+
+		public ContextMenuOperationEvent(IContextMenuOperation operation) {
+			this.operation = operation;
 		}
 	}
 
@@ -118,7 +145,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.relationshipExplorer = relationshipExplorer;
 		header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
-		header.setHorizontalFlowMinSizeProvider(2);
+		header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
 		header.setSize(Float.NaN, HEADER_HEIGHT);
 		add(header);
 		add(itemList.asGLElement());
@@ -130,7 +157,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		setContent();
 
-		itemList.addContextMenuItems(getFilterContextMenuItems());
+		itemList.addContextMenuItems(getContextMenuItems());
 
 		header.setElement(DATA_KEY, new GLElement(GLRenderers.drawText(getLabel(), VAlign.CENTER)));
 		itemList.addElementSelectionListener(this);
@@ -139,48 +166,29 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		mapFilteredElements.putAll(mapIDToElement);
 	}
 
-	protected List<AContextMenuItem> getFilterContextMenuItems() {
-
-		// Runnable filterRunnable = new Runnable() {
-		// @Override
-		// public void run() {
-		// Set<Object> broadcastIDs = new HashSet<>();
-		// Set<Object> elementIDs = new HashSet<>();
-		// for (GLElement element : itemList.getSelectedElements()) {
-		// Object elementID = mapIDToElement.inverse().get(element);
-		// elementIDs.add(elementID);
-		// broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-		// }
-		// // Avoid direct calling of setFilteredItems due to synchronization issues
-		// EventPublisher.trigger(new FilterEvent(elementIDs).to(AEntityColumn.this));
-		//
-		// triggerIDUpdate(broadcastIDs, EUpdateType.FILTER);
-		//
-		// }
-		// };
-
-		// AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new FilterEvent(
-		// new SelectionBasedFilter(ESetOperation.REPLACE)).to(this));
-		// AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new FilterEvent(new
-		// SelectionBasedFilter(
-		// ESetOperation.INTERSECTION)).to(this));
-		// AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new FilterEvent(new SelectionBasedFilter(
-		// ESetOperation.UNION)).to(this));
-
+	protected List<AContextMenuItem> getContextMenuItems() {
 		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new ContextMenuOperationEvent(
-				ESetOperation.REPLACE).to(this));
+				new FilterOperation(ESetOperation.REPLACE)).to(this));
 		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new ContextMenuOperationEvent(
-				ESetOperation.INTERSECTION).to(this));
+				new FilterOperation(ESetOperation.INTERSECTION)).to(this));
 		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new ContextMenuOperationEvent(
-				ESetOperation.UNION).to(this));
-		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem);
+				new FilterOperation(ESetOperation.UNION)).to(this));
+		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuOperationEvent(
+				new IContextMenuOperation() {
+					@Override
+					public void execute() {
+						showDetailView();
+					}
+				}).to(this));
+
+		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem, detailItem);
 	}
 
 	protected void addElement(GLElement element, Object elementID) {
 
 		KeyBasedGLElementContainer<GLElement> row = new KeyBasedGLElementContainer<>(
 				GLLayouts.sizeRestrictiveFlowHorizontal(2));
-		row.setHorizontalFlowMinSizeProvider(2);
+		row.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(row, 2, GLPadding.ZERO));
 		row.setElement(DATA_KEY, element);
 		mapIDToElement.put(elementID, row);
 		itemList.add(row);
@@ -190,7 +198,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		KeyBasedGLElementContainer<SimpleBarRenderer> barLayerRenderer = new KeyBasedGLElementContainer<>(
 				GLLayouts.LAYERS);
 		barLayerRenderer.setSize(80, Float.NaN);
-		barLayerRenderer.setLayeredMinSizeProvider();
+		barLayerRenderer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(barLayerRenderer));
 		barLayerRenderer.setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY));
 		barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY));
 		barLayerRenderer
@@ -273,15 +281,9 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	@ListenTo(sendToMe = true)
-	public void onFilter(ContextMenuOperationEvent event) {
-		Set<Object> broadcastIDs = new HashSet<>();
-		Set<Object> elementIDs = new HashSet<>();
-		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
+	public void onHandleContextMenuOperation(ContextMenuOperationEvent event) {
+		event.operation.execute();
 
-		SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs,
-				event.setOperation);
-		o.execute(this);
-		relationshipExplorer.getHistory().addColumnOperation(this, o);
 		// applyFilter(event.type, elementIDs);
 		// triggerIDUpdate(broadcastIDs, event.type);
 		// triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
@@ -536,4 +538,6 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected abstract Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
 
 	protected abstract IDType getMappingIDType();
+
+	public abstract void showDetailView();
 }

@@ -128,4 +128,10 @@ public class TabularDataColumn extends AEntityColumn {
 		return mappingIDType;
 	}
 
+	@Override
+	public void showDetailView() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

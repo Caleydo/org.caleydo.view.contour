@@ -10,6 +10,8 @@ import gleem.linalg.Vec2f;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.opengl.GL2;
+
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
@@ -91,13 +93,26 @@ public class SimpleAggregateDataRenderer extends GLElement {
 		// spacing = 0;
 		// }
 
+		// for (Float value : aggregatedNormalizedValues) {
+		// renderNumericalValue(g, currentBarPos, h, barWidth, value);
+		//
+		// // renderSingleBar((normalizedDataCenter * range) + spacing, (value - normalizedDataCenter) * range, x,
+		// // selectionTypes, color, columnID, useShading);
+		// currentBarPos += barWidth;
+		// }
+		// currentBarPos = 0;
+		List<Vec2f> path = new ArrayList<>(aggregatedNormalizedValues.size());
 		for (Float value : aggregatedNormalizedValues) {
-			renderNumericalValue(g, currentBarPos, h, barWidth, value);
+			path.add(new Vec2f(currentBarPos, h - (value * h)));
+			// renderNumericalValue(g, currentBarPos, h, barWidth, value);
+
 			// renderSingleBar((normalizedDataCenter * range) + spacing, (value - normalizedDataCenter) * range, x,
 			// selectionTypes, color, columnID, useShading);
 			currentBarPos += barWidth;
 		}
-
+		g.gl.glPushAttrib(GL2.GL_LINE_BIT);
+		g.lineWidth(2).color(dataDomain.getColor()).drawPath(path, false);
+		g.gl.glPopAttrib();
 	}
 
 	protected void renderNumericalValue(GLGraphics g, float posX, float h, float width, float val) {

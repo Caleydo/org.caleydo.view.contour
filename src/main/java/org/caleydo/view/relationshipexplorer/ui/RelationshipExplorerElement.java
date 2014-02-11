@@ -190,9 +190,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 				@Override
 				public void onWindowClosed(GLElementWindow window) {
 					detailContainer.remove(window);
-					if (detailContainer.size() <= 0) {
-						resizeChild(detailContainer, Float.NaN, 0);
-					}
+					updateDetailHeight();
 				}
 			});
 
@@ -215,8 +213,14 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			detailContainer.remove(0);
 			detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
 		}
+		updateDetailHeight();
+	}
+
+	protected void updateDetailHeight() {
+		IGLCanvas canvas = findParent(AGLElementView.class).getParentGLCanvas();
+		Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
 		float detailHeight = Math.max(0,
-				Math.min(canvas.getDIPHeight() - (MIN_COLUMN_HEIGHT + MIN_HISTORY_HEIGHT), window.getMinSize().y()));
+				Math.min(canvas.getDIPHeight() - (MIN_COLUMN_HEIGHT + MIN_HISTORY_HEIGHT), detailContainerMinSize.y()));
 
 		resizeChild(detailContainer, Float.NaN, detailHeight);
 	}

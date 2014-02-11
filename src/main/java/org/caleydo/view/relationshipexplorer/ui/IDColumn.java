@@ -5,6 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
+import gleem.linalg.Vec2f;
+
 import java.util.Comparator;
 import java.util.Set;
 
@@ -13,8 +15,11 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
+import org.caleydo.core.util.base.DefaultLabelProvider;
 import org.caleydo.core.util.base.ILabelHolder;
+import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 
 import com.google.common.collect.Sets;
 
@@ -125,7 +130,15 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 
 	@Override
 	public void showDetailView() {
-		// TODO Auto-generated method stub
+		GLElement dummy = new GLElement() {
+			@Override
+			public Vec2f getMinSize() {
+				return new Vec2f(300, 300);
+			}
+		};
+		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
+
+		relationshipExplorer.showDetailView(this, dummy, new DefaultLabelProvider("Dummy"));
 
 	}
 

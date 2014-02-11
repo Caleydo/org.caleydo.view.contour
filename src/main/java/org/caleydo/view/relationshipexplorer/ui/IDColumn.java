@@ -97,17 +97,17 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 	}
 
 	@Override
-	protected IDType getBroadcastingIDType() {
+	public IDType getBroadcastingIDType() {
 		return idType;
 	}
 
 	@Override
-	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
 		return Sets.newHashSet(elementID);
 	}
 
 	@Override
-	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
 		return Sets.newHashSet((Object) broadcastingID);
 	}
 
@@ -119,7 +119,7 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 	}
 
 	@Override
-	protected IDType getMappingIDType() {
+	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
 	}
 

@@ -19,7 +19,6 @@ import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
-import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
@@ -32,12 +31,13 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
+import org.caleydo.view.relationshipexplorer.ui.MultiSelectionUtil.IMultiSelectionHandler;
 
 /**
  * @author Christian
  *
  */
-public class GLElementList implements IHasMinSize {
+public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElement> {
 
 	protected static final int DEFAULT_ELEMENT_GAP = 2;
 	protected static final int SCROLLBAR_WIDTH = 8;
@@ -176,34 +176,39 @@ public class GLElementList implements IHasMinSize {
 
 			@Override
 			public void pick(Pick pick) {
-				boolean isCtrlDown = ((IMouseEvent) pick).isCtrlDown();
-				boolean isSelected = selectedElements.contains(el);
 
-				if (pick.getPickingMode() == PickingMode.CLICKED) {
-					if (isCtrlDown) {
-						if (isSelected) {
-							removeFromSelection(el.getContent());
-						} else {
-							addToSelection(el.getContent());
-						}
-						notifySelectionListeners(el.getContent(), pick);
-					} else {
-
-							setSelection(el.getContent());
-							notifySelectionListeners(el.getContent(), pick);
-
-
-					}
-				} else if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
-					if (!selectedElements.contains(el)) {
-						if (isCtrlDown) {
-							addToSelection(el.getContent());
-						} else {
-							setSelection(el.getContent());
-						}
-						notifySelectionListeners(el.getContent(), pick);
-					}
+				boolean update = MultiSelectionUtil.handleSelection(pick, el.getContent(), GLElementList.this);
+				if (update) {
+					notifySelectionListeners(el.getContent(), pick);
 				}
+				// boolean isCtrlDown = ((IMouseEvent) pick).isCtrlDown();
+				// boolean isSelected = selectedElements.contains(el);
+				//
+				// if (pick.getPickingMode() == PickingMode.CLICKED) {
+				// if (isCtrlDown) {
+				// if (isSelected) {
+				// removeFromSelection(el.getContent());
+				// } else {
+				// addToSelection(el.getContent());
+				// }
+				// notifySelectionListeners(el.getContent(), pick);
+				// } else {
+				//
+				// setSelection(el.getContent());
+				// notifySelectionListeners(el.getContent(), pick);
+				//
+				//
+				// }
+				// } else if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
+				// if (!selectedElements.contains(el)) {
+				// if (isCtrlDown) {
+				// addToSelection(el.getContent());
+				// } else {
+				// setSelection(el.getContent());
+				// }
+				// notifySelectionListeners(el.getContent(), pick);
+				// }
+				// }
 
 			}
 		});
@@ -223,6 +228,7 @@ public class GLElementList implements IHasMinSize {
 		body.add(el);
 	}
 
+	@Override
 	public void removeFromSelection(GLElement element) {
 		ListElement el = listElementMap.get(element);
 		if (el == null)
@@ -238,6 +244,7 @@ public class GLElementList implements IHasMinSize {
 		selectedElements.clear();
 	}
 
+	@Override
 	public void setSelection(GLElement element) {
 		clearSelection();
 		addToSelection(element);
@@ -248,6 +255,7 @@ public class GLElementList implements IHasMinSize {
 		setSelection(element);
 	}
 
+	@Override
 	public void addToSelection(GLElement element) {
 		ListElement el = listElementMap.get(element);
 		if (el == null)
@@ -361,6 +369,12 @@ public class GLElementList implements IHasMinSize {
 				el.setHighlight(isHighlightSelections);
 			}
 		}
+	}
+
+	@Override
+	public boolean isSelected(GLElement element) {
+		ListElement el = listElementMap.get(element);
+		return selectedElements.contains(el);
 	}
 
 }

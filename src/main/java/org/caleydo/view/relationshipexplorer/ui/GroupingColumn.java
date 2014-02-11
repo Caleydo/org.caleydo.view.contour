@@ -101,12 +101,12 @@ public class GroupingColumn extends ATextColumn {
 	}
 
 	@Override
-	protected IDType getBroadcastingIDType() {
+	public IDType getBroadcastingIDType() {
 		return perspective.getIdType();
 	}
 
 	@Override
-	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
 		Group g = (Group) elementID;
 		Set<Object> bcIDs = new HashSet<>();
 		bcIDs.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
@@ -114,7 +114,7 @@ public class GroupingColumn extends ATextColumn {
 	}
 
 	@Override
-	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
 
 		List<Group> groups = perspective.getVirtualArray().getGroupOf(broadcastingID);
 
@@ -149,7 +149,7 @@ public class GroupingColumn extends ATextColumn {
 	}
 
 	@Override
-	protected IDType getMappingIDType() {
+	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
 	}
 

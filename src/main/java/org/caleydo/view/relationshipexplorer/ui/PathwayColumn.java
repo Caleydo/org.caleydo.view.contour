@@ -18,6 +18,7 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.pathway.v2.ui.augmentation.CompoundAugmentation;
+import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugmentation;
 
 /**
  * @author Christian
@@ -118,20 +119,20 @@ public class PathwayColumn extends ATextColumn {
 	// }
 
 	@Override
-	protected IDType getBroadcastingIDType() {
+	public IDType getBroadcastingIDType() {
 
 		return IDType.getIDType(EGeneIDTypes.DAVID.name());
 	}
 
 	@Override
-	protected Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
 		Set<Object> ids = PathwayManager.get().getPathwayGeneIDs((PathwayGraph) elementID,
 				IDType.getIDType(EGeneIDTypes.DAVID.name()));
 		return ids;
 	}
 
 	@Override
-	protected Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
 		Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(getBroadcastingIDType(),
 				broadcastingID);
 
@@ -145,7 +146,7 @@ public class PathwayColumn extends ATextColumn {
 	}
 
 	@Override
-	protected IDType getMappingIDType() {
+	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
 	}
 
@@ -171,6 +172,9 @@ public class PathwayColumn extends ATextColumn {
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
 		pathwayElement.setPathwayRepresentation(representation);
 		pathwayElement.addForegroundAugmentation(new CompoundAugmentation(representation));
+		// FIXME: hacky, we do not know what id type the gene column has...
+		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation,
+				getForeignColumnWithBroadcastIDType(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()))));
 
 		relationshipExplorer.showDetailView(this, pathwayElement, pathway);
 	}

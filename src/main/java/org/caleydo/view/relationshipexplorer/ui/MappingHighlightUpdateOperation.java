@@ -24,7 +24,7 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 
 	@Override
 	protected void execute(AEntityColumn column, Set<Object> elementIDs) {
-		column.setSelectedItems(setOperation.apply(elementIDs, column.getFilteredElementIDs()));
+		column.setSelectedItems(setOperation.apply(elementIDs, column.getFilteredElementIDs()), false);
 	}
 
 }

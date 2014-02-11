@@ -82,7 +82,7 @@ public class History extends AnimatedGLElementContainer {
 		public void execute() {
 			for (AEntityColumn column : relationshipExplorer.getColumns()) {
 				column.showAllItems();
-				column.setSelectedItems(new HashSet<>());
+				column.setSelectedItems(new HashSet<>(), false);
 				column.hideMappings();
 				column.sort(column.getDefaultElementComparator());
 			}

@@ -135,11 +135,30 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
-	protected static final MappingBarComparator SELECTED_ELEMENTS_COMPARATOR = new MappingBarComparator(
+	protected static final MappingBarComparator SELECTED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
 			SELECTED_ELEMENTS_KEY);
-	protected static final MappingBarComparator FILTERED_ELEMENTS_COMPARATOR = new MappingBarComparator(
+	protected static final MappingBarComparator FILTERED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
 			FILTERED_ELEMENTS_KEY);
-	protected static final MappingBarComparator ALL_ELEMENTS_COMPARATOR = new MappingBarComparator(ALL_ELEMENTS_KEY);
+	protected static final MappingBarComparator ALL_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
+			ALL_ELEMENTS_KEY);
+
+	protected final Comparator<GLElement> SELECTED_ELEMENTS_COMPARATOR = new Comparator<GLElement>() {
+
+		@Override
+		public int compare(GLElement o1, GLElement o2) {
+			boolean o1Selected = itemList.isSelected(o1);
+			boolean o2Selected = itemList.isSelected(o2);
+
+			if (o1Selected && !o2Selected) {
+				return -1;
+			}
+			if (!o1Selected && o2Selected) {
+				return 1;
+			}
+
+			return 0;
+		}
+	};
 
 	public AEntityColumn(RelationshipExplorerElement relationshipExplorer) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
@@ -260,7 +279,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return foreignColumn;
 	}
 
-	protected Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
+	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
 
 		Set<Object> elementIDs = new HashSet<>();
@@ -276,7 +295,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	/**
 	 * @return the selectedElementIDs, see {@link #selectedElementIDs}
 	 */
-	protected Set<Object> getSelectedElementIDs() {
+	public Set<Object> getSelectedElementIDs() {
 		return selectedElementIDs;
 	}
 
@@ -297,7 +316,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			Set<Object> elementIDs = new HashSet<>();
 			fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
 
-			SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs);
+			SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs, false);
 			o.execute(this);
 			relationshipExplorer.getHistory().addColumnOperation(this, o);
 		}
@@ -349,7 +368,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		}
 
-		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs));
+		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs), false);
 	}
 
 	public void showAllItems() {
@@ -366,7 +385,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
-	protected void setSelectedItems(Set<Object> elementIDs) {
+	public void setSelectedItems(Set<Object> elementIDs, boolean sort) {
 		selectedElementIDs = elementIDs;
 		itemList.clearSelection();
 
@@ -375,6 +394,13 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			if (element != null) {
 				itemList.addToSelection(element);
 			}
+		}
+		if (sort) {
+			@SuppressWarnings("unchecked")
+			ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
+SELECTED_ELEMENTS_COMPARATOR,
+					getDefaultElementComparator()));
+			itemList.sortBy(chain);
 		}
 	}
 
@@ -449,8 +475,9 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 
 		@SuppressWarnings("unchecked")
-		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
-				FILTERED_ELEMENTS_COMPARATOR, ALL_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
+		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
+				SELECTED_FOREIGN_ELEMENTS_COMPARATOR, FILTERED_FOREIGN_ELEMENTS_COMPARATOR,
+				ALL_FOREIGN_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
 		itemList.sortBy(chain);
 	}
 
@@ -527,17 +554,24 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return Collections.unmodifiableSet(mapIDToElement.keySet());
 	}
 
+	/**
+	 * @return the relationshipExplorer, see {@link #relationshipExplorer}
+	 */
+	public RelationshipExplorerElement getRelationshipExplorer() {
+		return relationshipExplorer;
+	}
+
 	protected abstract void setContent();
 
 	public abstract Comparator<GLElement> getDefaultElementComparator();
 
-	protected abstract IDType getBroadcastingIDType();
+	public abstract IDType getBroadcastingIDType();
 
-	protected abstract Set<Object> getBroadcastingIDsFromElementID(Object elementID);
+	public abstract Set<Object> getBroadcastingIDsFromElementID(Object elementID);
 
-	protected abstract Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
+	public abstract Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
 
-	protected abstract IDType getMappingIDType();
+	public abstract IDType getMappingIDType();
 
 	public abstract void showDetailView();
 }

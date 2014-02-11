@@ -13,18 +13,22 @@ import java.util.Set;
  */
 public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 
+	protected final boolean sort;
+
 	/**
 	 * @param selectedElementIDs
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedHighlightOperation(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs) {
+	public SelectionBasedHighlightOperation(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
+			boolean sort) {
 		super(selectedElementIDs, selectedBroadcastIDs, ESetOperation.INTERSECTION);
+		this.sort = sort;
 	}
 
 	@Override
 	public void execute(AEntityColumn column) {
-		column.setSelectedItems(selectedElementIDs);
+		column.setSelectedItems(selectedElementIDs, sort);
 
 		column.relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(selectedBroadcastIDs,
 				column, ESetOperation.INTERSECTION));

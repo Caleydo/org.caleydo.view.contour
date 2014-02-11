@@ -45,7 +45,7 @@ import com.google.common.collect.Iterables;
 public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	protected final static int MIN_HISTORY_HEIGHT = 30;
-	protected final static int MIN_COLUMN_HEIGHT = 150;
+	protected final static int MIN_COLUMN_HEIGHT = 200;
 
 	protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
@@ -84,12 +84,12 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	}
 
 	public void addEntityColumn(AEntityColumn column) {
-		columnContainer.add(column);
 		if (columns.size() > 0) {
 			GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
 			columnSpacer.setSize(2, Float.NaN);
 			columnContainer.add(columnSpacer);
 		}
+		columnContainer.add(column);
 		columns.add(column);
 	}
 

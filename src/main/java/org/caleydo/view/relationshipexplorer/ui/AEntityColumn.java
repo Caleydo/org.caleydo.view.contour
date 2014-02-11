@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.event.ADirectedEvent;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
@@ -25,6 +25,7 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.util.base.IProvider;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
@@ -51,7 +52,8 @@ import com.google.common.collect.Sets;
  * @author Christian
  *
  */
-public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled {
+public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled,
+		IProvider<Set<Object>> {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
@@ -79,39 +81,39 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	// }
 	// }
 
-	protected interface IContextMenuOperation {
-		public void execute();
-	}
+	// public interface IContextMenuOperation {
+	// public void execute();
+	// }
+	//
+	// public class FilterOperation implements IContextMenuOperation {
+	//
+	// protected final ESetOperation setOperation;
+	//
+	// public FilterOperation(ESetOperation setOperation) {
+	// this.setOperation = setOperation;
+	// }
+	//
+	// @Override
+	// public void execute() {
+	// Set<Object> broadcastIDs = new HashSet<>();
+	// Set<Object> elementIDs = new HashSet<>();
+	// fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
+	//
+	// SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs, setOperation);
+	// o.execute(AEntityColumn.this);
+	// relationshipExplorer.getHistory().addColumnOperation(AEntityColumn.this, o);
+	//
+	// }
+	// }
 
-	protected class FilterOperation implements IContextMenuOperation {
-
-		protected final ESetOperation setOperation;
-
-		public FilterOperation(ESetOperation setOperation) {
-			this.setOperation = setOperation;
-		}
-
-		@Override
-		public void execute() {
-			Set<Object> broadcastIDs = new HashSet<>();
-			Set<Object> elementIDs = new HashSet<>();
-			fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
-
-			SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs, setOperation);
-			o.execute(AEntityColumn.this);
-			relationshipExplorer.getHistory().addColumnOperation(AEntityColumn.this, o);
-
-		}
-	}
-
-	protected static class ContextMenuOperationEvent extends ADirectedEvent {
-
-		protected final IContextMenuOperation operation;
-
-		public ContextMenuOperationEvent(IContextMenuOperation operation) {
-			this.operation = operation;
-		}
-	}
+	// protected static class ContextMenuOperationEvent extends ADirectedEvent {
+	//
+	// protected final IContextMenuOperation operation;
+	//
+	// public ContextMenuOperationEvent(IContextMenuOperation operation) {
+	// this.operation = operation;
+	// }
+	// }
 
 	protected static class MappingBarComparator implements Comparator<GLElement> {
 
@@ -186,14 +188,14 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	protected List<AContextMenuItem> getContextMenuItems() {
-		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new ContextMenuOperationEvent(
-				new FilterOperation(ESetOperation.REPLACE)).to(this));
-		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new ContextMenuOperationEvent(
-				new FilterOperation(ESetOperation.INTERSECTION)).to(this));
-		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new ContextMenuOperationEvent(
-				new FilterOperation(ESetOperation.UNION)).to(this));
-		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuOperationEvent(
-				new IContextMenuOperation() {
+		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
+				new FilterCommand(ESetOperation.REPLACE, this, this)).to(this));
+		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
+				new FilterCommand(ESetOperation.INTERSECTION, this, this)).to(this));
+		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
+				new FilterCommand(ESetOperation.UNION, this, this)).to(this));
+		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
+				new IContextMenuCommand() {
 					@Override
 					public void execute() {
 						showDetailView();
@@ -300,8 +302,8 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	@ListenTo(sendToMe = true)
-	public void onHandleContextMenuOperation(ContextMenuOperationEvent event) {
-		event.operation.execute();
+	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
+		event.getCommand().execute();
 
 		// applyFilter(event.type, elementIDs);
 		// triggerIDUpdate(broadcastIDs, event.type);
@@ -397,8 +399,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 		if (sort) {
 			@SuppressWarnings("unchecked")
-			ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
-SELECTED_ELEMENTS_COMPARATOR,
+			ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
 					getDefaultElementComparator()));
 			itemList.sortBy(chain);
 		}
@@ -560,6 +561,21 @@ SELECTED_ELEMENTS_COMPARATOR,
 	public RelationshipExplorerElement getRelationshipExplorer() {
 		return relationshipExplorer;
 	}
+
+	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
+		Set<Object> broadcastIDs = new HashSet<>();
+		for (Object elementID : elementIDs) {
+			broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
+		}
+
+		return broadcastIDs;
+	}
+
+	@Override
+	public Set<Object> get() {
+		return getSelectedElementIDs();
+	}
+
 
 	protected abstract void setContent();
 

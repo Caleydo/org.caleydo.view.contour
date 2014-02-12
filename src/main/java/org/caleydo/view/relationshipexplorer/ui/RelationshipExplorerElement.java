@@ -9,9 +9,11 @@ import gleem.linalg.Vec2f;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.perspective.table.TablePerspective;
@@ -58,8 +60,14 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected BiMap<AEntityColumn, GLElementWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
+	protected Set<ISelectionMappingUpdateListener> selectionMappingUpdateListeners = new LinkedHashSet<>();
+
 	public interface IIDMappingUpdateHandler {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation);
+	}
+
+	public interface ISelectionMappingUpdateListener {
+		public void updateSelectionMappings(AEntityColumn srcColumn);
 	}
 
 	protected IIDMappingUpdateHandler idMappingUpdateHandler = new IIDMappingUpdateHandler() {
@@ -71,6 +79,21 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		}
 
 	};
+
+	private class DetailConnector extends GLElement {
+
+		@Override
+		protected void renderImpl(GLGraphics g, float w, float h) {
+			for (GLElement detailWindow : detailContainer) {
+				AEntityColumn column = detailMap.inverse().get(detailWindow);
+				Vec2f winLoc1 = new Vec2f(detailWindow.getLocation().x(), 0);
+				Vec2f winLoc2 = new Vec2f(winLoc1.x() + detailWindow.getSize().x(), 0);
+				Vec2f colLoc1 = new Vec2f(column.getLocation().x(), h);
+				Vec2f colLoc2 = new Vec2f(colLoc1.x() + column.getSize().x(), h);
+				g.color(Color.RED).drawPath(true, winLoc1, winLoc2, colLoc2, colLoc1);
+			}
+		}
+	}
 
 	public RelationshipExplorerElement() {
 		super(new GLSizeRestrictiveFlowLayout(false, 5, GLPadding.ZERO));
@@ -96,6 +119,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		}
 		columnContainer.add(column);
 		columns.add(column);
+		addSelectionMappingUpdateListener(column);
+	}
+
+	public void addSelectionMappingUpdateListener(ISelectionMappingUpdateListener listener) {
+		selectionMappingUpdateListeners.add(listener);
+	}
+
+	public void removeSelectionMappingUpdateListener(ISelectionMappingUpdateListener listener) {
+		selectionMappingUpdateListeners.remove(listener);
 	}
 
 	public Iterable<TablePerspective> getTablePerspecives() {
@@ -162,8 +194,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	}
 
 	public void updateSelectionMappings(AEntityColumn srcColumn) {
-		for (AEntityColumn column : columns) {
-			column.updateSelectionMappings(srcColumn);
+		for (ISelectionMappingUpdateListener listener : selectionMappingUpdateListeners) {
+			listener.updateSelectionMappings(srcColumn);
 		}
 	}
 

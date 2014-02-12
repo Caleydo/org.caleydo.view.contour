@@ -41,6 +41,7 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.GLElementList.IElementSelectionListener;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.collect.BiMap;
@@ -53,7 +54,7 @@ import com.google.common.collect.Sets;
  *
  */
 public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled,
-		IProvider<Set<Object>> {
+		IProvider<Set<Object>>, ISelectionMappingUpdateListener {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
@@ -405,6 +406,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
+	@Override
 	@SuppressWarnings("null")
 	public void updateSelectionMappings(AEntityColumn srcColumn) {
 
@@ -575,7 +577,6 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public Set<Object> get() {
 		return getSelectedElementIDs();
 	}
-
 
 	protected abstract void setContent();
 

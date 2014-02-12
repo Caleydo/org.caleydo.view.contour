@@ -16,7 +16,6 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.util.base.DefaultLabelProvider;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
@@ -143,7 +142,7 @@ public class TabularDataColumn extends AEntityColumn {
 		};
 		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 
-		relationshipExplorer.showDetailView(this, dummy, new DefaultLabelProvider("Dummy"));
+		relationshipExplorer.showDetailView(this, dummy, this);
 
 	}
 

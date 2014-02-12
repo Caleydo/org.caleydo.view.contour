@@ -8,9 +8,10 @@ package org.caleydo.view.relationshipexplorer.ui;
 import gleem.linalg.Vec2f;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Queue;
 
 import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.perspective.table.TablePerspective;
@@ -28,12 +29,15 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 
 import com.google.common.base.Predicates;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
 
 /**
@@ -51,7 +55,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected AnimatedGLElementContainer columnContainer;
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
-	protected Map<AEntityColumn, GLElementWindow> detailMap = new HashMap<>();
+	protected BiMap<AEntityColumn, GLElementWindow> detailMap = HashBiMap.create(2);
+	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
 	public interface IIDMappingUpdateHandler {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation);
@@ -69,8 +74,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public RelationshipExplorerElement() {
 		super(new GLSizeRestrictiveFlowLayout(false, 5, GLPadding.ZERO));
-		columnContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout(true, 5, GLPadding.ZERO));
-		detailContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout(true, 5, GLPadding.ZERO));
+		columnContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 5, GLPadding.ZERO));
+		detailContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 5, GLPadding.ZERO));
 		detailContainer.setSize(Float.NaN, 0);
 		add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
@@ -197,8 +202,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			detailMap.put(srcColumn, window);
 		}
 
-		if (detailContainer.indexOf(window) == -1)
+		if (detailContainer.indexOf(window) == -1) {
 			detailContainer.add(window);
+			detailWindowQueue.add(window);
+		}
 
 		window.setContent(detailView);
 		window.getTitleBar().setLabelProvider(labeled);
@@ -210,9 +217,20 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			return;
 
 		while (detailContainerMinSize.x() > canvas.getDIPWidth() && detailContainer.size() != 1) {
-			detailContainer.remove(0);
+			GLElementWindow w = detailWindowQueue.poll();
+			detailContainer.remove(w);
 			detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
 		}
+		detailContainer.sortBy(new Comparator<GLElement>() {
+
+			@Override
+			public int compare(GLElement arg0, GLElement arg1) {
+				int index1 = columnContainer.indexOf(detailMap.inverse().get(arg0));
+				int index2 = columnContainer.indexOf(detailMap.inverse().get(arg1));
+				return index1 - index2;
+			}
+		});
+
 		updateDetailHeight();
 	}
 

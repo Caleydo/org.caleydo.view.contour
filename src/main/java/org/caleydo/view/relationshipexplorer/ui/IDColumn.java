@@ -15,7 +15,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
-import org.caleydo.core.util.base.DefaultLabelProvider;
 import org.caleydo.core.util.base.ILabelHolder;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -138,7 +137,7 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 		};
 		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 
-		relationshipExplorer.showDetailView(this, dummy, new DefaultLabelProvider("Dummy"));
+		relationshipExplorer.showDetailView(this, dummy, this);
 
 	}
 

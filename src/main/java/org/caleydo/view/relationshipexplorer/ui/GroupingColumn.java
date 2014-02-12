@@ -20,7 +20,6 @@ import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.MappingType;
-import org.caleydo.core.util.base.DefaultLabelProvider;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
@@ -172,7 +171,7 @@ public class GroupingColumn extends ATextColumn {
 		};
 		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 
-		relationshipExplorer.showDetailView(this, dummy, new DefaultLabelProvider("Dummy"));
+		relationshipExplorer.showDetailView(this, dummy, this);
 
 	}
 

@@ -219,21 +219,23 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected KeyBasedGLElementContainer<SimpleBarRenderer> createLayeredBarRenderer() {
 		KeyBasedGLElementContainer<SimpleBarRenderer> barLayerRenderer = new KeyBasedGLElementContainer<>(
 				GLLayouts.LAYERS);
+
 		barLayerRenderer.setSize(80, Float.NaN);
 		barLayerRenderer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(barLayerRenderer));
-		barLayerRenderer.setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY));
-		barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY));
-		barLayerRenderer
-				.setElement(SELECTED_ELEMENTS_KEY, createDefaultBarRenderer(SelectionType.SELECTION.getColor()));
+		barLayerRenderer.setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.1f));
+		barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.2f));
+		barLayerRenderer.setElement(SELECTED_ELEMENTS_KEY,
+				createDefaultBarRenderer(SelectionType.SELECTION.getColor(), 0.3f));
 		return barLayerRenderer;
 	}
 
-	protected SimpleBarRenderer createDefaultBarRenderer(Color color) {
+	protected SimpleBarRenderer createDefaultBarRenderer(Color color, float zDelta) {
 		SimpleBarRenderer renderer = new SimpleBarRenderer(0, true);
 		renderer.setMinSize(new Vec2f(80, 0));
 		renderer.setSize(80, Float.NaN);
 		renderer.setColor(color);
 		renderer.setBarWidth(12);
+		renderer.setzDelta(zDelta);
 		return renderer;
 	}
 

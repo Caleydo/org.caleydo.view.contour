@@ -27,7 +27,6 @@ import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
-import org.caleydo.datadomain.pathway.graph.item.vertex.EPathwayVertexType;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.AEntityColumn;
@@ -36,12 +35,11 @@ import org.caleydo.view.relationshipexplorer.ui.CompositeContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.FilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.MultiSelectionUtil;
 import org.caleydo.view.relationshipexplorer.ui.MultiSelectionUtil.IMultiSelectionHandler;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
 import org.caleydo.view.relationshipexplorer.ui.SelectionBasedHighlightOperation;
-
-import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -51,6 +49,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		IMultiSelectionHandler<PathwayVertexRep>, IProvider<Set<Object>>, ISelectionMappingUpdateListener {
 
 	protected Set<PathwayVertexRep> selectedVertexReps = new HashSet<>();
+	protected Set<PathwayVertexRep> highlightedVertexReps = new HashSet<>();
 	protected AEntityColumn referenceColumn;
 	protected boolean updateIsFromMe = false;
 
@@ -70,6 +69,12 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		if (update) {
 			repaint();
 			propagateSelection();
+		}
+		update = MultiSelectionUtil.handleHighlight(pick, vertexRep, this);
+
+		if (update) {
+			repaint();
+			propagateHighlight();
 		}
 
 		if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
@@ -101,38 +106,70 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	@Override
 	protected void renderVertexAugmentation(GLGraphics g, float w, float h, PathwayVertexRep vertexRep, Rect bounds) {
 
-		if (selectedVertexReps.contains(vertexRep)) {
-			renderHighlight(g, bounds, SelectionType.SELECTION.getColor(), vertexRep);
-		}
+		renderHighlight(g, bounds, SelectionType.SELECTION.getColor(), SelectionType.MOUSE_OVER.getColor(), vertexRep,
+				selectedVertexReps.contains(vertexRep), highlightedVertexReps.contains(vertexRep));
+
 	}
 
-	protected void renderHighlight(GLGraphics g, Rect bounds, Color color, PathwayVertexRep vertexRep) {
+	protected void renderHighlight(GLGraphics g, Rect bounds, Color selectionColor, Color highlightColor,
+			PathwayVertexRep vertexRep, boolean isSelected, boolean isHighlight) {
+		if (!isSelected && !isHighlight)
+			return;
+
 		g.gl.glPushAttrib(GL2.GL_LINE_BIT);
 		g.gl.glEnable(GL.GL_BLEND);
 		g.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-		g.lineWidth(3).color(color);
-		if (vertexRep.getType() == EPathwayVertexType.compound) {
-			float radius = bounds.width() / 2.0f;
-			g.drawCircle(bounds.x() + radius + 0.5f, bounds.y() + radius + 0.5f, radius);
-		} else {
-			g.drawRect(bounds.x(), bounds.y(), bounds.width() + 1, bounds.height());
+		g.lineWidth(3);
+
+		// g.drawRect(bounds.x(), bounds.y(), bounds.width() + 1, bounds.height());
+		if (isHighlight || isSelected) {
+			Color primaryColor = selectionColor;
+			Color secondaryColor = selectionColor;
+
+			if (isHighlight) {
+				if (!isSelected) {
+					primaryColor = highlightColor;
+				}
+				secondaryColor = highlightColor;
+			}
+
+			GL2 gl = g.gl;
+			g.color(primaryColor);
+			gl.glBegin(GL.GL_LINE_LOOP);
+			gl.glVertex3f(bounds.x(), bounds.y() + bounds.height(), g.z());
+			gl.glVertex3f(bounds.x() + bounds.width() + 1, bounds.y() + bounds.height(), g.z());
+			g.color(secondaryColor);
+			gl.glVertex3f(bounds.x() + bounds.width() + 1, bounds.y(), g.z());
+			gl.glVertex3f(bounds.x(), bounds.y(), g.z());
+			gl.glEnd();
+			// g.gl.glPushAttrib(GL2.GL_LINE_BIT);
+			// g.color(highlightColor).lineWidth(3).drawRect(0, 0, w, h);
+			// g.gl.glPopAttrib();
 		}
+
 		g.gl.glPopAttrib();
 	}
 
 	public void propagateSelection() {
 		Set<Object> selectedElementIDs = get();
-		Set<Object> filteredElementIDs = referenceColumn.getFilteredElementIDs();
+		// Set<Object> filteredElementIDs = referenceColumn.getFilteredElementIDs();
 
-		Set<Object> selectedFilteredElementIDs = Sets.intersection(selectedElementIDs, filteredElementIDs);
-		Set<Object> selectedFilteredbroadcastIDs = referenceColumn
-				.getBroadcastingIDsFromElementIDs(selectedFilteredElementIDs);
+		// Set<Object> selectedFilteredElementIDs = Sets.intersection(selectedElementIDs, filteredElementIDs);
+		// Set<Object> selectedFilteredbroadcastIDs = referenceColumn
+		// .getBroadcastingIDsFromElementIDs(selectedFilteredElementIDs);
 		Set<Object> selectedBroadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(selectedElementIDs);
 		updateIsFromMe = true;
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
 				selectedBroadcastIDs, true);
 		o.execute(referenceColumn);
 		referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
+	}
+
+	public void propagateHighlight() {
+		Set<Object> highlightElementIDs = getReferenceColumnElementIDs(highlightedVertexReps);
+		Set<Object> highlightBroadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(highlightElementIDs);
+		referenceColumn.getRelationshipExplorer().applyIDMappingUpdate(
+				new MappingHighlightUpdateOperation(highlightBroadcastIDs, referenceColumn), false);
 	}
 
 	@Override
@@ -160,13 +197,16 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 	@Override
 	public Set<Object> get() {
-		Set<Object> selectedDavidIDs = new HashSet<>();
-		for (PathwayVertexRep v : selectedVertexReps) {
-			selectedDavidIDs.addAll(v.getDavidIDs());
+		return getReferenceColumnElementIDs(selectedVertexReps);
+	}
+
+	public Set<Object> getReferenceColumnElementIDs(Set<PathwayVertexRep> vertexReps) {
+		Set<Object> davidIDs = new HashSet<>();
+		for (PathwayVertexRep v : vertexReps) {
+			davidIDs.addAll(v.getDavidIDs());
 		}
 
-		return referenceColumn.getElementIDsFromForeignIDs(selectedDavidIDs,
-				IDType.getIDType(EGeneIDTypes.DAVID.name()));
+		return referenceColumn.getElementIDsFromForeignIDs(davidIDs, IDType.getIDType(EGeneIDTypes.DAVID.name()));
 	}
 
 	@ListenTo(sendToMe = true)
@@ -182,8 +222,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 			return;
 		}
 
-		selectVerticesFromForeignIDs(
-srcColumn.getBroadcastingIDsFromElementIDs(srcColumn.getSelectedElementIDs()),
+		selectVerticesFromForeignIDs(srcColumn.getBroadcastingIDsFromElementIDs(srcColumn.getSelectedElementIDs()),
 				srcColumn.getBroadcastingIDType());
 	}
 
@@ -211,20 +250,19 @@ srcColumn.getBroadcastingIDsFromElementIDs(srcColumn.getSelectedElementIDs()),
 	}
 
 	@Override
-	public boolean isHighlight(PathwayVertexRep object) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isHighlight(PathwayVertexRep vertexRep) {
+		return highlightedVertexReps.contains(vertexRep);
 	}
 
 	@Override
-	public void setHighlight(PathwayVertexRep object) {
-		// TODO Auto-generated method stub
-
+	public void setHighlight(PathwayVertexRep vertexRep) {
+		highlightedVertexReps.clear();
+		highlightedVertexReps.add(vertexRep);
 	}
 
 	@Override
 	public void removeHighlight(PathwayVertexRep vertexRep) {
-		// TODO Auto-generated method stub
+		highlightedVertexReps.remove(vertexRep);
 
 	}
 

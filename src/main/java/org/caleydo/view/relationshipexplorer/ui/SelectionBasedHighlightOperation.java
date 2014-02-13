@@ -30,8 +30,8 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 	public void execute(AEntityColumn column) {
 		column.setSelectedItems(selectedElementIDs, sort);
 
-		column.relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(selectedBroadcastIDs,
-				column, ESetOperation.INTERSECTION));
+		column.relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
+				column), true);
 	}
 
 }

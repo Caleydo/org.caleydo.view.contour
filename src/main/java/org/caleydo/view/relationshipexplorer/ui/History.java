@@ -43,9 +43,10 @@ public class History extends AnimatedGLElementContainer {
 	protected class HistoryIDMappingHandler implements IIDMappingUpdateHandler {
 
 		@Override
-		public void handleIDMappingUpdate(AMappingUpdateOperation operation) {
+		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
 			relationshipExplorer.executeMappingUpdateOperation(operation);
-			lastMappingUpdateOperation = operation;
+			if (updateSelectionMappings)
+				lastMappingUpdateOperation = operation;
 		}
 	}
 

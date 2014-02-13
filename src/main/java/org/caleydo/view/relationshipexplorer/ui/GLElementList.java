@@ -55,7 +55,7 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 
 	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
-	protected GLElement highlightElement;
+	protected Set<ListElement> highlightedElements = new HashSet<>();
 
 	protected boolean isHighlightSelections = true;
 
@@ -357,6 +357,7 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 	public void clear() {
 		body.clear();
 		selectedElements.clear();
+		highlightedElements.clear();
 		listElementMap.clear();
 	}
 
@@ -393,30 +394,48 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 	}
 
 	@Override
-	public boolean isHighlight(GLElement object) {
-
-		return object == highlightElement;
+	public boolean isHighlight(GLElement element) {
+		ListElement el = listElementMap.get(element);
+		return highlightedElements.contains(el);
 	}
 
 	@Override
-	public void setHighlight(GLElement object) {
-		ListElement el = listElementMap.get(object);
-		if (el != null)
-			el.setHighlight(true);
-		highlightElement = object;
+	public void setHighlight(GLElement element) {
+		highlightedElements.clear();
+		addToHighlight(element);
+	}
 
+	public void addToHighlight(GLElement element) {
+		ListElement el = listElementMap.get(element);
+		if (el == null)
+			return;
+		highlightedElements.add(el);
+		el.setHighlight(true);
 	}
 
 	@Override
-	public void removeHighlight() {
-		ListElement el = listElementMap.get(highlightElement);
-		if (el != null)
-			el.setHighlight(false);
-		highlightElement = null;
+	public void removeHighlight(GLElement element) {
+		ListElement el = listElementMap.get(element);
+		if (el == null)
+			return;
+		highlightedElements.remove(el);
+		el.setHighlight(false);
 	}
 
-	public GLElement getHighlight() {
-		return highlightElement;
+	public Set<GLElement> getHighlightElements() {
+		Set<GLElement> elements = new HashSet<>();
+
+		for (ListElement e : highlightedElements) {
+			elements.add(e.getContent());
+		}
+		return elements;
+	}
+
+	public void clearHighlight() {
+		for (ListElement element : highlightedElements) {
+			element.setHighlight(false);
+		}
+		highlightedElements.clear();
 	}
 
 }

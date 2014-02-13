@@ -317,7 +317,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public void onSelectionChanged(GLElementList list) {
 		Set<Object> broadcastIDs = new HashSet<>();
 		Set<Object> elementIDs = new HashSet<>();
-		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
+		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs, itemList.getSelectedElements());
 
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs, false);
 		o.execute(this);
@@ -326,12 +326,16 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	@Override
 	public void onHighlightChanged(GLElementList list) {
-		// TODO Auto-generated method stub
+		Set<Object> broadcastIDs = new HashSet<>();
+		Set<Object> elementIDs = new HashSet<>();
+		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs, itemList.getHighlightElements());
 
+		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(broadcastIDs, this), false);
 	}
 
-	private void fillSelectedElementAndBroadcastIDs(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs) {
-		for (GLElement el : itemList.getSelectedElements()) {
+	private void fillSelectedElementAndBroadcastIDs(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
+			Set<GLElement> selectedElements) {
+		for (GLElement el : selectedElements) {
 			Object elementID = mapIDToElement.inverse().get(el);
 			selectedElementIDs.add(elementID);
 			selectedBroadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
@@ -407,6 +411,17 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
 					getDefaultElementComparator()));
 			itemList.sortBy(chain);
+		}
+	}
+
+	public void setHighlightItems(Set<Object> elementIDs) {
+		itemList.clearHighlight();
+
+		for (Object elementID : elementIDs) {
+			GLElement element = mapIDToElement.get(elementID);
+			if (element != null) {
+				itemList.addToHighlight(element);
+			}
 		}
 	}
 
@@ -595,4 +610,5 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public abstract IDType getMappingIDType();
 
 	public abstract void showDetailView();
+
 }

@@ -11,20 +11,20 @@ import java.util.Set;
  * @author Christian
  *
  */
-public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
+public class MappingSelectionUpdateOperation extends AMappingUpdateOperation {
 
 	/**
 	 * @param srcBroadcastIDs
-	 * @param srcColumn
+	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, AEntityColumn srcColumn) {
+	public MappingSelectionUpdateOperation(Set<Object> srcBroadcastIDs, AEntityColumn srcColumn) {
 		super(srcBroadcastIDs, srcColumn, ESetOperation.INTERSECTION);
 	}
 
 	@Override
 	protected void execute(AEntityColumn column, Set<Object> elementIDs) {
-		column.setHighlightItems(setOperation.apply(elementIDs, column.getFilteredElementIDs()));
+		column.setSelectedItems(setOperation.apply(elementIDs, column.getFilteredElementIDs()), false);
 	}
 
 }

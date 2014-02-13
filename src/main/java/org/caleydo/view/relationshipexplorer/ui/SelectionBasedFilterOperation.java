@@ -35,7 +35,7 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 
 		column.setFilteredItems(setOperation.apply(selectedElementIDs, column.getFilteredElementIDs()));
 		column.relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs, column,
-				setOperation));
+				setOperation), true);
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
 				selectedBroadcastIDs, false);
 		o.execute(column);

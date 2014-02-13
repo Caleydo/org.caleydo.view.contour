@@ -223,7 +223,7 @@ srcColumn.getBroadcastingIDsFromElementIDs(srcColumn.getSelectedElementIDs()),
 	}
 
 	@Override
-	public void removeHighlight() {
+	public void removeHighlight(PathwayVertexRep vertexRep) {
 		// TODO Auto-generated method stub
 
 	}

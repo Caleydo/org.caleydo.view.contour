@@ -28,7 +28,7 @@ public class MultiSelectionUtil {
 
 		public void setHighlight(T object);
 
-		public void removeHighlight();
+		public void removeHighlight(T object);
 	}
 
 	public static <T> boolean handleSelection(Pick pick, T pickedObject, IMultiSelectionHandler<T> handler) {
@@ -72,7 +72,7 @@ public class MultiSelectionUtil {
 			}
 		} else if (pick.getPickingMode() == PickingMode.MOUSE_OUT) {
 			if (isHighlight) {
-				handler.removeHighlight();
+				handler.removeHighlight(pickedObject);
 				return true;
 			}
 		}

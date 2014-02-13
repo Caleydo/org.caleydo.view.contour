@@ -63,7 +63,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected Set<ISelectionMappingUpdateListener> selectionMappingUpdateListeners = new LinkedHashSet<>();
 
 	public interface IIDMappingUpdateHandler {
-		public void handleIDMappingUpdate(AMappingUpdateOperation operation);
+		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings);
 	}
 
 	public interface ISelectionMappingUpdateListener {
@@ -73,9 +73,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected IIDMappingUpdateHandler idMappingUpdateHandler = new IIDMappingUpdateHandler() {
 
 		@Override
-		public void handleIDMappingUpdate(AMappingUpdateOperation operation) {
+		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
 			executeMappingUpdateOperation(operation);
-			updateSelectionMappings(operation.getSrcColumn());
+			if (updateSelectionMappings)
+				updateSelectionMappings(operation.getSrcColumn());
 		}
 
 	};
@@ -182,8 +183,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return list;
 	}
 
-	public void applyIDMappingUpdate(AMappingUpdateOperation operation) {
-		idMappingUpdateHandler.handleIDMappingUpdate(operation);
+	public void applyIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
+		idMappingUpdateHandler.handleIDMappingUpdate(operation, updateSelectionMappings);
 	}
 
 	public void executeMappingUpdateOperation(AMappingUpdateOperation operation) {

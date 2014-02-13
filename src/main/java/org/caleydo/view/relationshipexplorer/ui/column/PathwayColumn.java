@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.column;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,6 +18,7 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.pathway.v2.ui.augmentation.CompoundAugmentation;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugmentation;
 
 /**

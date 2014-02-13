@@ -24,6 +24,13 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.IIDMappingUpdateHandler;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.IColumnOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedFilterOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
 
 /**
  * TODO: Possible performance improvements: Take snapshots of the whole setup every now and then. The reset command

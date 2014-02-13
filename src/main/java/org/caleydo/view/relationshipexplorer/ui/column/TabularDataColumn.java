@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.column;
 
 import gleem.linalg.Vec2f;
 
@@ -19,6 +19,9 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
+import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 
 import com.google.common.collect.Sets;
 
@@ -47,7 +50,7 @@ public class TabularDataColumn extends AEntityColumn {
 			SimpleDataRenderer r2 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg1)
 					.getElement(DATA_KEY);
 
-			return r1.recordID - r2.recordID;
+			return r1.getRecordID() - r2.getRecordID();
 		}
 	};
 

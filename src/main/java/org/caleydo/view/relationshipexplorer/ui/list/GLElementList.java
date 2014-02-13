@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.list;
 
 import gleem.linalg.Vec2f;
 
@@ -31,7 +31,8 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
-import org.caleydo.view.relationshipexplorer.ui.MultiSelectionUtil.IMultiSelectionHandler;
+import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
+import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
 /**
  * @author Christian

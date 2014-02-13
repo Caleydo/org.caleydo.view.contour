@@ -3,17 +3,12 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.contextmenu;
 
 /**
  * @author Christian
- * 
+ *
  */
-public class ShowDetailOperation implements IColumnOperation {
-
-	@Override
-	public void execute(AEntityColumn column) {
-		column.showDetailView();
-	}
-
+public interface IContextMenuCommand {
+	public void execute();
 }

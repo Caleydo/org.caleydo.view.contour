@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.column;
 
 import gleem.linalg.Vec2f;
 
@@ -37,9 +37,19 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.view.relationshipexplorer.ui.ASetBasedColumnOperation.ESetOperation;
-import org.caleydo.view.relationshipexplorer.ui.GLElementList.IElementSelectionListener;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.list.GLElementList;
+import org.caleydo.view.relationshipexplorer.ui.list.GLElementList.IElementSelectionListener;
+import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
+import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.collect.BiMap;
@@ -352,7 +362,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	// }
 	// }
 
-	protected void setFilteredItems(Set<Object> elementIDs) {
+	public void setFilteredItems(Set<Object> elementIDs) {
 		// itemList.clear();
 
 		mapFilteredElements = new HashMap<>(elementIDs.size());

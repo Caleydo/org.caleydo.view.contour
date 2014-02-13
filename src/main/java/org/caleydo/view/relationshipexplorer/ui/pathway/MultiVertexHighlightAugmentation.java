@@ -29,17 +29,17 @@ import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.ASetBasedColumnOperation.ESetOperation;
-import org.caleydo.view.relationshipexplorer.ui.CompositeContextMenuCommand;
-import org.caleydo.view.relationshipexplorer.ui.ContextMenuCommandEvent;
-import org.caleydo.view.relationshipexplorer.ui.FilterCommand;
-import org.caleydo.view.relationshipexplorer.ui.IContextMenuCommand;
-import org.caleydo.view.relationshipexplorer.ui.MappingHighlightUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.MultiSelectionUtil;
-import org.caleydo.view.relationshipexplorer.ui.MultiSelectionUtil.IMultiSelectionHandler;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
-import org.caleydo.view.relationshipexplorer.ui.SelectionBasedHighlightOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
+import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
 /**
  * @author Christian

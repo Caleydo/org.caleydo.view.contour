@@ -22,12 +22,12 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
-import org.caleydo.view.relationshipexplorer.ui.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.GroupingColumn;
-import org.caleydo.view.relationshipexplorer.ui.IDColumn;
-import org.caleydo.view.relationshipexplorer.ui.PathwayColumn;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.TabularDataColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.GroupingColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.PathwayColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 
 /**
  * @author Christian

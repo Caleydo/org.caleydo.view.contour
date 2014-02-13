@@ -3,9 +3,12 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
+
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 
 /**
  * @author Christian
@@ -30,7 +33,8 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 	public void execute(AEntityColumn column) {
 		column.setSelectedItems(selectedElementIDs, sort);
 
-		column.relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
+		column.getRelationshipExplorer().applyIDMappingUpdate(
+				new MappingSelectionUpdateOperation(selectedBroadcastIDs,
 				column), true);
 	}
 

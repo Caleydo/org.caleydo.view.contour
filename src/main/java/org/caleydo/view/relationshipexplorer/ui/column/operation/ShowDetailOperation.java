@@ -3,14 +3,19 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.column.operation;
+
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 
 /**
  * @author Christian
- *
+ * 
  */
-public interface IColumnOperation {
+public class ShowDetailOperation implements IColumnOperation {
 
-	public void execute(AEntityColumn column);
+	@Override
+	public void execute(AEntityColumn column) {
+		column.showDetailView();
+	}
 
 }

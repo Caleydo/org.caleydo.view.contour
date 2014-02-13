@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.util;
 
 import gleem.linalg.Vec2f;
 
@@ -123,6 +123,13 @@ public class SimpleDataRenderer extends GLElement {
 	@Override
 	public Vec2f getMinSize() {
 		return new Vec2f(dimensionPerspective.getVirtualArray().size() * MIN_BAR_WIDTH, MIN_HEIGHT);
+	}
+
+	/**
+	 * @return the recordID, see {@link #recordID}
+	 */
+	public int getRecordID() {
+		return recordID;
 	}
 
 }

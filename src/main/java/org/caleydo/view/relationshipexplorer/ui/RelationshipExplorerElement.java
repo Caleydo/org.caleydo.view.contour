@@ -36,6 +36,9 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.BiMap;

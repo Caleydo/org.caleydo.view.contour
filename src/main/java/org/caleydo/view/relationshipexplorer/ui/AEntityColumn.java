@@ -37,8 +37,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.GLElementList.IElementSelectionListener;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
@@ -316,17 +314,19 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	@Override
-	public void onElementSelected(GLElement element, Pick pick) {
-		if (pick.getPickingMode() == PickingMode.CLICKED || pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
+	public void onSelectionChanged(GLElementList list) {
+		Set<Object> broadcastIDs = new HashSet<>();
+		Set<Object> elementIDs = new HashSet<>();
+		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
 
-			Set<Object> broadcastIDs = new HashSet<>();
-			Set<Object> elementIDs = new HashSet<>();
-			fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs, false);
+		o.execute(this);
+		relationshipExplorer.getHistory().addColumnOperation(this, o);
+	}
 
-			SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs, false);
-			o.execute(this);
-			relationshipExplorer.getHistory().addColumnOperation(this, o);
-		}
+	@Override
+	public void onHighlightChanged(GLElementList list) {
+		// TODO Auto-generated method stub
 
 	}
 
@@ -448,7 +448,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
 
 		if (srcColumn == this) {
-			itemList.setHighlightSelections(true);
+			// itemList.setHighlightSelections(true);
 			if (mappingHeaderExists) {
 				header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
 			}
@@ -464,7 +464,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			mappingHeader.setRenderer(GLRenderers.drawText(foreignColumn.getLabel(), VAlign.CENTER));
 		}
 
-		itemList.setHighlightSelections(false);
+		// itemList.setHighlightSelections(false);
 
 		for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
 
@@ -482,7 +482,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 
 		@SuppressWarnings("unchecked")
-		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
+		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
 				SELECTED_FOREIGN_ELEMENTS_COMPARATOR, FILTERED_FOREIGN_ELEMENTS_COMPARATOR,
 				ALL_FOREIGN_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
 		itemList.sortBy(chain);
@@ -491,7 +491,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public void hideMappings() {
 		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
 
-		itemList.setHighlightSelections(true);
+		// itemList.setHighlightSelections(true);
 		if (mappingHeaderExists) {
 			header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
 		}

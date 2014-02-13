@@ -190,6 +190,7 @@ public class History extends AnimatedGLElementContainer {
 		element.setSize(16, Float.NaN);
 		add(element);
 		currentPosition++;
+		relayoutParent();
 	}
 
 	public void applyHistoryState(int index) {

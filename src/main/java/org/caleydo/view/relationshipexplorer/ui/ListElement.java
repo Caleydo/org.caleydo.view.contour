@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui;
 
 import javax.media.opengl.GL2;
+import javax.media.opengl.GL2GL3;
 
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
@@ -25,16 +26,37 @@ public class ListElement extends AnimatedGLElementContainer {
 
 		@Override
 		protected void renderImpl(GLGraphics g, float w, float h) {
-			if (highlight) {
-				g.gl.glPushAttrib(GL2.GL_LINE_BIT);
-				g.color(highlightColor).lineWidth(3).drawRect(0, 0, w, h);
-				g.gl.glPopAttrib();
+			if (isHighlight || isSelected) {
+				Color primaryColor = selectionColor;
+				Color secondaryColor = selectionColor;
+
+				if (isHighlight) {
+					if (!isSelected) {
+						primaryColor = highlightColor;
+					}
+					secondaryColor = highlightColor;
+				}
+
+				GL2 gl = g.gl;
+				g.color(primaryColor.r, primaryColor.g, primaryColor.b, 0.4f);
+				gl.glBegin(GL2GL3.GL_QUADS);
+				gl.glVertex2f(0, h);
+				gl.glVertex2f(w, h);
+				g.color(secondaryColor.r, secondaryColor.g, secondaryColor.b, 0.4f);
+				gl.glVertex2f(w, 0);
+				gl.glVertex2f(0, 0);
+				gl.glEnd();
+				// g.gl.glPushAttrib(GL2.GL_LINE_BIT);
+				// g.color(highlightColor).lineWidth(3).drawRect(0, 0, w, h);
+				// g.gl.glPopAttrib();
 			}
 		}
 	}
 
 	protected Color highlightColor = new Color();
-	boolean highlight = false;
+	protected Color selectionColor = new Color();
+	boolean isSelected = false;
+	boolean isHighlight = false;
 
 	protected HighlightRenderer highlightRenderer;
 	protected GLElement content;
@@ -53,16 +75,6 @@ public class ListElement extends AnimatedGLElementContainer {
 		add(highlightRenderer);
 	}
 
-	/**
-	 * @param highlight
-	 *            setter, see {@link highlight}
-	 */
-	public void setHighlight(boolean highlight) {
-		if (this.highlight == highlight)
-			return;
-		this.highlight = highlight;
-		repaint();
-	}
 
 	/**
 	 * @param highlightColor
@@ -91,13 +103,6 @@ public class ListElement extends AnimatedGLElementContainer {
 		add(content);
 	}
 
-	/**
-	 * @return the highlight, see {@link #highlight}
-	 */
-	public boolean isHighlight() {
-		return highlight;
-	}
-
 	@Override
 	protected void init(IGLElementContext context) {
 		super.init(context);
@@ -118,6 +123,50 @@ public class ListElement extends AnimatedGLElementContainer {
 	 */
 	public String getTooltip() {
 		return tooltip;
+	}
+
+	/**
+	 * @return the isHighlight, see {@link #isHighlight}
+	 */
+	public boolean isHighlight() {
+		return isHighlight;
+	}
+
+	/**
+	 * @param isHighlight
+	 *            setter, see {@link isHighlight}
+	 */
+	public void setHighlight(boolean isHighlight) {
+		if (isHighlight == this.isHighlight)
+			return;
+		this.isHighlight = isHighlight;
+		repaint();
+	}
+
+	/**
+	 * @return the isSelected, see {@link #isSelected}
+	 */
+	public boolean isSelected() {
+		return isSelected;
+	}
+
+	/**
+	 * @param isSelected
+	 *            setter, see {@link isSelected}
+	 */
+	public void setSelected(boolean isSelected) {
+		if (isSelected == this.isSelected)
+			return;
+		this.isSelected = isSelected;
+		repaint();
+	}
+
+	/**
+	 * @param selectionColor
+	 *            setter, see {@link selectionColor}
+	 */
+	public void setSelectionColor(Color selectionColor) {
+		this.selectionColor = selectionColor;
 	}
 
 	// public void addContextMenuItem(AContextMenuItem item) {

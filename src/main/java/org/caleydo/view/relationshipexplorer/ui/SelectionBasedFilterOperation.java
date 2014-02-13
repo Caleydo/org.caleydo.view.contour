@@ -34,9 +34,11 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 		// }
 
 		column.setFilteredItems(setOperation.apply(selectedElementIDs, column.getFilteredElementIDs()));
-
-		column.relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs,
-				column, setOperation));
+		column.relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs, column,
+				setOperation));
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
+				selectedBroadcastIDs, false);
+		o.execute(column);
 	}
 
 }

@@ -23,6 +23,12 @@ public class MultiSelectionUtil {
 		public void addToSelection(T object);
 
 		public void setSelection(T object);
+
+		public boolean isHighlight(T object);
+
+		public void setHighlight(T object);
+
+		public void removeHighlight();
 	}
 
 	public static <T> boolean handleSelection(Pick pick, T pickedObject, IMultiSelectionHandler<T> handler) {
@@ -55,4 +61,22 @@ public class MultiSelectionUtil {
 		return false;
 	}
 
+	public static <T> boolean handleHighlight(Pick pick, T pickedObject, IMultiSelectionHandler<T> handler) {
+
+		boolean isHighlight = handler.isHighlight(pickedObject);
+
+		if (pick.getPickingMode() == PickingMode.MOUSE_OVER) {
+			if (!isHighlight) {
+				handler.setHighlight(pickedObject);
+				return true;
+			}
+		} else if (pick.getPickingMode() == PickingMode.MOUSE_OUT) {
+			if (isHighlight) {
+				handler.removeHighlight();
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

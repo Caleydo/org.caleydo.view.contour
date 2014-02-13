@@ -55,6 +55,8 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 
 	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
+	protected GLElement highlightElement;
+
 	protected boolean isHighlightSelections = true;
 
 	private class ListElementComparatorWrapper implements Comparator<GLElement> {
@@ -77,7 +79,9 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 	}
 
 	public interface IElementSelectionListener {
-		public void onElementSelected(GLElement element, Pick pick);
+		public void onSelectionChanged(GLElementList list);
+
+		public void onHighlightChanged(GLElementList list);
 	}
 
 	protected class ScrollableList extends AnimatedGLElementContainer {
@@ -171,6 +175,8 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 
 	public void add(final GLElement element) {
 		final ListElement el = new ListElement();
+		el.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
+		el.setSelectionColor(SelectionType.SELECTION.getColor());
 		el.setContent(element);
 		el.onPick(new IPickingListener() {
 
@@ -179,7 +185,11 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 
 				boolean update = MultiSelectionUtil.handleSelection(pick, el.getContent(), GLElementList.this);
 				if (update) {
-					notifySelectionListeners(el.getContent(), pick);
+					notifyOfSelectionUpdate();
+				}
+				update = MultiSelectionUtil.handleHighlight(pick, el.getContent(), GLElementList.this);
+				if (update) {
+					notifyOfHighlightUpdate();
 				}
 				// boolean isCtrlDown = ((IMouseEvent) pick).isCtrlDown();
 				// boolean isSelected = selectedElements.contains(el);
@@ -234,12 +244,12 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 		if (el == null)
 			return;
 		selectedElements.remove(el);
-		el.setHighlight(false);
+		el.setSelected(false);
 	}
 
 	public void clearSelection() {
 		for (ListElement element : selectedElements) {
-			element.setHighlight(false);
+			element.setSelected(false);
 		}
 		selectedElements.clear();
 	}
@@ -261,8 +271,7 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 		if (el == null)
 			return;
 		selectedElements.add(el);
-		el.setHighlight(isHighlightSelections);
-		el.setHighlightColor(SelectionType.SELECTION.getColor());
+		el.setSelected(isHighlightSelections);
 	}
 
 	public void addToSelection(Collection<GLElement> elements) {
@@ -329,9 +338,15 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 		selectionListeners.remove(listener);
 	}
 
-	protected void notifySelectionListeners(GLElement element, Pick pick) {
+	protected void notifyOfSelectionUpdate() {
 		for (IElementSelectionListener listener : selectionListeners) {
-			listener.onElementSelected(element, pick);
+			listener.onSelectionChanged(this);
+		}
+	}
+
+	protected void notifyOfHighlightUpdate() {
+		for (IElementSelectionListener listener : selectionListeners) {
+			listener.onHighlightChanged(this);
 		}
 	}
 
@@ -366,7 +381,7 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 		if (isHighlightSelections != this.isHighlightSelections) {
 			this.isHighlightSelections = isHighlightSelections;
 			for (ListElement el : selectedElements) {
-				el.setHighlight(isHighlightSelections);
+				el.setSelected(isHighlightSelections);
 			}
 		}
 	}
@@ -375,6 +390,33 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 	public boolean isSelected(GLElement element) {
 		ListElement el = listElementMap.get(element);
 		return selectedElements.contains(el);
+	}
+
+	@Override
+	public boolean isHighlight(GLElement object) {
+
+		return object == highlightElement;
+	}
+
+	@Override
+	public void setHighlight(GLElement object) {
+		ListElement el = listElementMap.get(object);
+		if (el != null)
+			el.setHighlight(true);
+		highlightElement = object;
+
+	}
+
+	@Override
+	public void removeHighlight() {
+		ListElement el = listElementMap.get(highlightElement);
+		if (el != null)
+			el.setHighlight(false);
+		highlightElement = null;
+	}
+
+	public GLElement getHighlight() {
+		return highlightElement;
 	}
 
 }

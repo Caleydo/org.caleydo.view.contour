@@ -125,10 +125,12 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		Set<Object> filteredElementIDs = referenceColumn.getFilteredElementIDs();
 
 		Set<Object> selectedFilteredElementIDs = Sets.intersection(selectedElementIDs, filteredElementIDs);
-		Set<Object> broadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(selectedFilteredElementIDs);
+		Set<Object> selectedFilteredbroadcastIDs = referenceColumn
+				.getBroadcastingIDsFromElementIDs(selectedFilteredElementIDs);
+		Set<Object> selectedBroadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(selectedElementIDs);
 		updateIsFromMe = true;
-		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedFilteredElementIDs,
-				broadcastIDs, true);
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
+				selectedBroadcastIDs, true);
 		o.execute(referenceColumn);
 		referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
 	}
@@ -206,6 +208,24 @@ srcColumn.getBroadcastingIDsFromElementIDs(srcColumn.getSelectedElementIDs()),
 	protected void takeDown() {
 		referenceColumn.getRelationshipExplorer().removeSelectionMappingUpdateListener(this);
 		super.takeDown();
+	}
+
+	@Override
+	public boolean isHighlight(PathwayVertexRep object) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setHighlight(PathwayVertexRep object) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void removeHighlight() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

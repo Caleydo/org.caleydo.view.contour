@@ -226,8 +226,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 				@Override
 				public void onWindowClosed(GLElementWindow window) {
-					detailContainer.remove(window);
-					updateDetailHeight();
+					HideDetailOperation o = new HideDetailOperation();
+					AEntityColumn column = detailMap.inverse().get(window);
+					o.execute(column);
+					getHistory().addColumnOperation(column, o);
 				}
 			});
 
@@ -251,6 +253,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		while (detailContainerMinSize.x() > canvas.getDIPWidth() && detailContainer.size() != 1) {
 			GLElementWindow w = detailWindowQueue.poll();
 			detailContainer.remove(w);
+			detailMap.inverse().remove(w);
 			detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
 		}
 		detailContainer.sortBy(new Comparator<GLElement>() {
@@ -264,6 +267,24 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		});
 
 		updateDetailHeight();
+	}
+
+	public void removeAllDetailViews() {
+		for (GLElementWindow window : detailMap.values()) {
+			detailContainer.remove(window);
+			detailWindowQueue.remove(window);
+		}
+		detailMap.clear();
+		updateDetailHeight();
+	}
+
+	public void removeDetailViewOfColumn(AEntityColumn column) {
+		GLElementWindow window = detailMap.remove(column);
+		if (window != null) {
+			detailContainer.remove(window);
+			detailWindowQueue.remove(window);
+			updateDetailHeight();
+		}
 	}
 
 	protected void updateDetailHeight() {

@@ -15,6 +15,7 @@ import javax.media.opengl.GL2;
 
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
@@ -80,6 +81,7 @@ public class History extends AnimatedGLElementContainer {
 
 		@Override
 		public void execute() {
+			relationshipExplorer.removeAllDetailViews();
 			for (AEntityColumn column : relationshipExplorer.getColumns()) {
 				column.showAllItems();
 				column.setSelectedItems(new HashSet<>(), false);
@@ -166,6 +168,10 @@ public class History extends AnimatedGLElementContainer {
 			color = Color.LIGHT_BLUE;
 		} else if (columnOperation instanceof SelectionBasedHighlightOperation) {
 			color = SelectionType.SELECTION.getColor();
+		} else if (columnOperation instanceof ShowDetailOperation) {
+			color = ColorBrewer.Greens.getColors(3).get(1);
+		} else if (columnOperation instanceof HideDetailOperation) {
+			color = ColorBrewer.Greens.getColors(3).get(2);
 		}
 		addHistoryCommand(new ColumnOperationCommand(column, columnOperation), color);
 

@@ -199,7 +199,9 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 				new IContextMenuCommand() {
 					@Override
 					public void execute() {
-						showDetailView();
+						ShowDetailOperation o = new ShowDetailOperation();
+						o.execute(AEntityColumn.this);
+						relationshipExplorer.getHistory().addColumnOperation(AEntityColumn.this, o);
 					}
 				}).to(this));
 

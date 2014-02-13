@@ -402,7 +402,7 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 
 	@Override
 	public void setHighlight(GLElement element) {
-		highlightedElements.clear();
+		clearHighlight();
 		addToHighlight(element);
 	}
 

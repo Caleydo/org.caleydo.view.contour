@@ -18,6 +18,7 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
@@ -32,6 +33,7 @@ import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
@@ -40,6 +42,9 @@ import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
+import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
+
+import com.google.common.collect.Lists;
 
 /**
  * Augmentation that highlights elements
@@ -167,6 +172,12 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 				selectedBroadcastIDs, referenceColumn.getRelationshipExplorer());
 		o.execute(referenceColumn);
 		referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
+		@SuppressWarnings("unchecked")
+		ColumnSortingCommand c = new ColumnSortingCommand(referenceColumn, new ComparatorChain<>(Lists.newArrayList(
+				referenceColumn.SELECTED_ELEMENTS_COMPARATOR, referenceColumn.getDefaultElementComparator())));
+		c.execute();
+		referenceColumn.getRelationshipExplorer().getHistory()
+				.addHistoryCommand(c, ColorBrewer.Purples.getColors(3).get(1));
 	}
 
 	public void propagateHighlight() {

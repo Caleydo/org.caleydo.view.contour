@@ -147,14 +147,14 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
-	protected static final MappingBarComparator SELECTED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
+	public static final MappingBarComparator SELECTED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
 			SELECTED_ELEMENTS_KEY);
-	protected static final MappingBarComparator FILTERED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
+	public static final MappingBarComparator FILTERED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
 			FILTERED_ELEMENTS_KEY);
-	protected static final MappingBarComparator ALL_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
+	public static final MappingBarComparator ALL_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
 			ALL_ELEMENTS_KEY);
 
-	protected final Comparator<GLElement> SELECTED_ELEMENTS_COMPARATOR = new Comparator<GLElement>() {
+	public final Comparator<GLElement> SELECTED_ELEMENTS_COMPARATOR = new Comparator<GLElement>() {
 
 		@Override
 		public int compare(GLElement o1, GLElement o2) {

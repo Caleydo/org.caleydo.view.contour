@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
@@ -18,11 +19,15 @@ import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
+import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
+import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 
 /**
@@ -137,15 +142,31 @@ public class TabularDataColumn extends AEntityColumn {
 
 	@Override
 	public void showDetailView() {
-		GLElement dummy = new GLElement() {
-			@Override
-			public Vec2f getMinSize() {
-				return new Vec2f(300, 300);
-			}
-		};
-		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
+		GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
+		List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
+				new Predicate<String>() {
 
-		relationshipExplorer.showDetailView(this, dummy, this);
+					@Override
+					public boolean apply(String input) {
+						return input.equals("paco");
+					}
+				});
+
+		GLElement detailView = null;
+		if (suppliers.isEmpty()) {
+			detailView = new GLElement() {
+				@Override
+				public Vec2f getMinSize() {
+					return new Vec2f(300, 300);
+				}
+			};
+			detailView.setRenderer(GLRenderers.fillRect(Color.BLUE));
+
+		} else {
+			detailView = suppliers.get(0).get();
+		}
+
+		relationshipExplorer.showDetailView(this, detailView, this);
 
 	}
 

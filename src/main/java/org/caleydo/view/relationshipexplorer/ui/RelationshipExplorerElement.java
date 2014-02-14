@@ -20,6 +20,7 @@ import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -63,15 +64,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected BiMap<AEntityColumn, GLElementWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
-	protected Set<ISelectionMappingUpdateListener> selectionMappingUpdateListeners = new LinkedHashSet<>();
+	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
 
 	public interface IIDMappingUpdateHandler {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings);
 	}
 
-	public interface ISelectionMappingUpdateListener {
-		public void updateSelectionMappings(AEntityColumn srcColumn);
-	}
+	// public interface ISelectionMappingUpdateListener {
+	// public void updateSelectionMappings(AEntityColumn srcColumn);
+	// }
 
 	protected IIDMappingUpdateHandler idMappingUpdateHandler = new IIDMappingUpdateHandler() {
 
@@ -79,7 +80,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
 			executeMappingUpdateOperation(operation);
 			if (updateSelectionMappings)
-				updateSelectionMappings(operation.getSrcColumn());
+				updateSelectionMappings(operation.getSrcCollection());
 		}
 
 	};
@@ -123,15 +124,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		}
 		columnContainer.add(column);
 		columns.add(column);
-		addSelectionMappingUpdateListener(column);
+		registerEntityCollection(column);
 	}
 
-	public void addSelectionMappingUpdateListener(ISelectionMappingUpdateListener listener) {
-		selectionMappingUpdateListeners.add(listener);
+	public void registerEntityCollection(IEntityCollection collection) {
+		entityCollections.add(collection);
 	}
 
-	public void removeSelectionMappingUpdateListener(ISelectionMappingUpdateListener listener) {
-		selectionMappingUpdateListeners.remove(listener);
+	public void unregisterEntityCollection(IEntityCollection collection) {
+		entityCollections.remove(collection);
 	}
 
 	public Iterable<TablePerspective> getTablePerspecives() {
@@ -156,6 +157,9 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	@Override
 	protected void takeDown() {
 		columns.clear();
+		entityCollections.clear();
+		detailMap.clear();
+		detailWindowQueue.clear();
 		super.takeDown();
 	}
 
@@ -191,15 +195,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	}
 
 	public void executeMappingUpdateOperation(AMappingUpdateOperation operation) {
-		for (AEntityColumn column : columns) {
-			if (operation.getSrcColumn() != column)
-				operation.execute(column);
+		for (IEntityCollection collection : entityCollections) {
+			if (operation.getSrcCollection() != collection)
+				operation.execute(collection);
 		}
 	}
 
-	public void updateSelectionMappings(AEntityColumn srcColumn) {
-		for (ISelectionMappingUpdateListener listener : selectionMappingUpdateListeners) {
-			listener.updateSelectionMappings(srcColumn);
+	public void updateSelectionMappings(IEntityCollection srcCollection) {
+		for (IEntityCollection collection : entityCollections) {
+			collection.updateSelectionMappings(srcCollection);
 		}
 	}
 
@@ -230,10 +234,11 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 				@Override
 				public void onWindowClosed(GLElementWindow window) {
-					HideDetailOperation o = new HideDetailOperation();
 					AEntityColumn column = detailMap.inverse().get(window);
-					o.execute(column);
-					getHistory().addColumnOperation(column, o);
+					HideDetailOperation o = new HideDetailOperation(column);
+
+					o.execute();
+					getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(2));
 				}
 			});
 

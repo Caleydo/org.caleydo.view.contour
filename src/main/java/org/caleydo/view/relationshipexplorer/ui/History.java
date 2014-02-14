@@ -15,7 +15,6 @@ import javax.media.opengl.GL2;
 
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.util.color.Color;
-import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
@@ -26,11 +25,9 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.IIDMappingUpdateHandler;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.IColumnOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedFilterOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
 
 /**
  * TODO: Possible performance improvements: Take snapshots of the whole setup every now and then. The reset command
@@ -64,17 +61,17 @@ public class History extends AnimatedGLElementContainer {
 	}
 
 	protected static class ColumnOperationCommand implements IHistoryCommand {
-		protected final AEntityColumn column;
+		protected final IEntityCollection collection;
 		protected final IColumnOperation columnOperation;
 
-		public ColumnOperationCommand(AEntityColumn column, IColumnOperation columnOperation) {
-			this.column = column;
+		public ColumnOperationCommand(IEntityCollection collection, IColumnOperation columnOperation) {
+			this.collection = collection;
 			this.columnOperation = columnOperation;
 		}
 
 		@Override
 		public void execute() {
-			columnOperation.execute(column);
+			columnOperation.execute(collection);
 		}
 
 	}
@@ -92,7 +89,7 @@ public class History extends AnimatedGLElementContainer {
 			relationshipExplorer.removeAllDetailViews();
 			for (AEntityColumn column : relationshipExplorer.getColumns()) {
 				column.showAllItems();
-				column.setSelectedItems(new HashSet<>(), false);
+				column.setSelectedItems(new HashSet<>());
 				column.hideMappings();
 				column.sort(column.getDefaultElementComparator());
 			}
@@ -170,22 +167,23 @@ public class History extends AnimatedGLElementContainer {
 		addHistoryCommand(new ResetCommand(relationshipExplorer), Color.GRAY);
 	}
 
-	public void addColumnOperation(AEntityColumn column, IColumnOperation columnOperation) {
+	public void addColumnOperation(IEntityCollection collection, IColumnOperation columnOperation) {
 		Color color = Color.GRAY;
 		if (columnOperation instanceof SelectionBasedFilterOperation) {
 			color = Color.LIGHT_BLUE;
 		} else if (columnOperation instanceof SelectionBasedHighlightOperation) {
 			color = SelectionType.SELECTION.getColor();
-		} else if (columnOperation instanceof ShowDetailOperation) {
-			color = ColorBrewer.Greens.getColors(3).get(1);
-		} else if (columnOperation instanceof HideDetailOperation) {
-			color = ColorBrewer.Greens.getColors(3).get(2);
 		}
-		addHistoryCommand(new ColumnOperationCommand(column, columnOperation), color);
+		// } else if (columnOperation instanceof ShowDetailOperation) {
+		// color = ColorBrewer.Greens.getColors(3).get(1);
+		// } else if (columnOperation instanceof HideDetailOperation) {
+		// color = ColorBrewer.Greens.getColors(3).get(2);
+		// }
+		addHistoryCommand(new ColumnOperationCommand(collection, columnOperation), color);
 
 	}
 
-	protected void addHistoryCommand(IHistoryCommand command, Color color) {
+	public void addHistoryCommand(IHistoryCommand command, Color color) {
 		if (currentPosition < commands.size() - 1) {
 			int numElementsToRemove = (commands.size() - 1) - currentPosition;
 			for (int i = 0; i < numElementsToRemove; i++) {
@@ -214,7 +212,7 @@ public class History extends AnimatedGLElementContainer {
 		}
 
 		if (lastMappingUpdateOperation != null)
-			relationshipExplorer.updateSelectionMappings(lastMappingUpdateOperation.getSrcColumn());
+			relationshipExplorer.updateSelectionMappings(lastMappingUpdateOperation.getSrcCollection());
 		relationshipExplorer.setIdMappingUpdateHandler(prevIDMappingHandler);
 
 		currentPosition = index;

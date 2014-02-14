@@ -5,17 +5,25 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 
 /**
  * @author Christian
- * 
+ *
  */
-public class ShowDetailOperation implements IColumnOperation {
+public class ShowDetailOperation implements IHistoryCommand {
+
+	protected AEntityColumn column;
+
+	public ShowDetailOperation(AEntityColumn column) {
+		this.column = column;
+	}
 
 	@Override
-	public void execute(AEntityColumn column) {
+	public void execute() {
 		column.showDetailView();
+
 	}
 
 }

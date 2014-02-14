@@ -5,7 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 
 /**
  * @author Christian
@@ -13,6 +13,6 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
  */
 public interface IColumnOperation {
 
-	public void execute(AEntityColumn column);
+	public void execute(IEntityCollection collection);
 
 }

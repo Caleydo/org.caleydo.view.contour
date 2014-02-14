@@ -25,8 +25,8 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.base.ILabeled;
-import org.caleydo.core.util.base.IProvider;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
@@ -37,12 +37,12 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
@@ -62,7 +62,7 @@ import com.google.common.collect.Sets;
  *
  */
 public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled,
-		IProvider<Set<Object>>, ISelectionMappingUpdateListener {
+		IEntityCollection {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
@@ -78,6 +78,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
 
 	protected Set<Object> selectedElementIDs = new HashSet<>();
+	protected Set<Object> highlightElementIDs = new HashSet<>();
 	protected Map<Object, GLElement> mapFilteredElements = new HashMap<>();
 	protected RelationshipExplorerElement relationshipExplorer;
 
@@ -198,18 +199,18 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	protected List<AContextMenuItem> getContextMenuItems() {
 		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
-				new FilterCommand(ESetOperation.REPLACE, this, this)).to(this));
+				new FilterCommand(ESetOperation.REPLACE, this, relationshipExplorer)).to(this));
 		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
-				new FilterCommand(ESetOperation.INTERSECTION, this, this)).to(this));
+				new FilterCommand(ESetOperation.INTERSECTION, this, relationshipExplorer)).to(this));
 		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
-				new FilterCommand(ESetOperation.UNION, this, this)).to(this));
+				new FilterCommand(ESetOperation.UNION, this, relationshipExplorer)).to(this));
 		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
 				new IContextMenuCommand() {
 					@Override
 					public void execute() {
-						ShowDetailOperation o = new ShowDetailOperation();
-						o.execute(AEntityColumn.this);
-						relationshipExplorer.getHistory().addColumnOperation(AEntityColumn.this, o);
+						ShowDetailOperation o = new ShowDetailOperation(AEntityColumn.this);
+						o.execute();
+						relationshipExplorer.getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(1));
 					}
 				}).to(this));
 
@@ -294,6 +295,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return foreignColumn;
 	}
 
+	@Override
 	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
 
@@ -310,8 +312,14 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	/**
 	 * @return the selectedElementIDs, see {@link #selectedElementIDs}
 	 */
+	@Override
 	public Set<Object> getSelectedElementIDs() {
 		return selectedElementIDs;
+	}
+
+	@Override
+	public Set<Object> getHighlightElementIDs() {
+		return highlightElementIDs;
 	}
 
 	@ListenTo(sendToMe = true)
@@ -329,7 +337,8 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		Set<Object> elementIDs = new HashSet<>();
 		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs, itemList.getSelectedElements());
 
-		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs, false);
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs,
+				relationshipExplorer);
 		o.execute(this);
 		relationshipExplorer.getHistory().addColumnOperation(this, o);
 	}
@@ -339,6 +348,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		Set<Object> broadcastIDs = new HashSet<>();
 		Set<Object> elementIDs = new HashSet<>();
 		fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs, itemList.getHighlightElements());
+		highlightElementIDs = elementIDs;
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(broadcastIDs, this), false);
 	}
@@ -362,6 +372,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	// }
 	// }
 
+	@Override
 	public void setFilteredItems(Set<Object> elementIDs) {
 		// itemList.clear();
 
@@ -389,7 +400,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		}
 
-		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs), false);
+		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs));
 	}
 
 	public void showAllItems() {
@@ -406,7 +417,8 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
-	public void setSelectedItems(Set<Object> elementIDs, boolean sort) {
+	@Override
+	public void setSelectedItems(Set<Object> elementIDs) {
 		selectedElementIDs = elementIDs;
 		itemList.clearSelection();
 
@@ -416,15 +428,17 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 				itemList.addToSelection(element);
 			}
 		}
-		if (sort) {
-			@SuppressWarnings("unchecked")
-			ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
-					getDefaultElementComparator()));
-			itemList.sortBy(chain);
-		}
+		// if (sort) {
+		// @SuppressWarnings("unchecked")
+		// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
+		// getDefaultElementComparator()));
+		// itemList.sortBy(chain);
+		// }
 	}
 
+	@Override
 	public void setHighlightItems(Set<Object> elementIDs) {
+		highlightElementIDs = elementIDs;
 		itemList.clearHighlight();
 
 		for (Object elementID : elementIDs) {
@@ -437,10 +451,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	@Override
 	@SuppressWarnings("null")
-	public void updateSelectionMappings(AEntityColumn srcColumn) {
+	public void updateSelectionMappings(IEntityCollection srcCollection) {
 
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(srcColumn.getBroadcastingIDType(),
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(srcCollection.getBroadcastingIDType(),
 				getBroadcastingIDType());
 		List<MappingType> path = mapper.getPath();
 
@@ -455,7 +469,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>) row
 					.getElement(MAPPING_KEY);
 
-			if (srcColumn == this) {
+			if (srcCollection == this) {
 				if (mappingRenderer != null)
 					mappingRenderer.setVisibility(EVisibility.NONE);
 			} else {
@@ -472,7 +486,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 		boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
 
-		if (srcColumn == this) {
+		if (srcCollection == this) {
 			// itemList.setHighlightSelections(true);
 			if (mappingHeaderExists) {
 				header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
@@ -560,6 +574,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		layeredBars.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelectedElements);
 	}
 
+	@Override
 	public Set<Object> getFilteredElementIDs() {
 		return mapFilteredElements.keySet();
 	}
@@ -582,6 +597,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return this;
 	}
 
+	@Override
 	public Set<Object> getAllElementIDs() {
 		return Collections.unmodifiableSet(mapIDToElement.keySet());
 	}
@@ -593,6 +609,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return relationshipExplorer;
 	}
 
+	@Override
 	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
 		Set<Object> broadcastIDs = new HashSet<>();
 		for (Object elementID : elementIDs) {
@@ -602,20 +619,15 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		return broadcastIDs;
 	}
 
-	@Override
-	public Set<Object> get() {
-		return getSelectedElementIDs();
-	}
-
 	protected abstract void setContent();
 
 	public abstract Comparator<GLElement> getDefaultElementComparator();
 
-	public abstract IDType getBroadcastingIDType();
-
-	public abstract Set<Object> getBroadcastingIDsFromElementID(Object elementID);
-
-	public abstract Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
+	// public abstract IDType getBroadcastingIDType();
+	//
+	// public abstract Set<Object> getBroadcastingIDsFromElementID(Object elementID);
+	//
+	// public abstract Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
 
 	public abstract IDType getMappingIDType();
 

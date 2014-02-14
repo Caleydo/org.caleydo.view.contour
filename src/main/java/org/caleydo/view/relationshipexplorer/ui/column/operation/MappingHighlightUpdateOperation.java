@@ -7,8 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 
 /**
  * @author Christian
@@ -18,16 +17,16 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 
 	/**
 	 * @param srcBroadcastIDs
-	 * @param srcColumn
+	 * @param srcCollection
 	 * @param op
 	 */
-	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, AEntityColumn srcColumn) {
-		super(srcBroadcastIDs, srcColumn, ESetOperation.INTERSECTION);
+	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, IEntityCollection srcCollection) {
+		super(srcBroadcastIDs, srcCollection, ESetOperation.INTERSECTION);
 	}
 
 	@Override
-	protected void execute(AEntityColumn column, Set<Object> elementIDs) {
-		column.setHighlightItems(setOperation.apply(elementIDs, column.getFilteredElementIDs()));
+	protected void execute(IEntityCollection collection, Set<Object> elementIDs) {
+		collection.setHighlightItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
 	}
 
 }

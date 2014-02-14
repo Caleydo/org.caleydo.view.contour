@@ -7,7 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 
 /**
  * @author Christian
@@ -16,27 +16,27 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation {
 
 	protected final Set<Object> srcBroadcastIDs;
-	protected final AEntityColumn srcColumn;
+	protected final IEntityCollection srcCollection;
 
-	public AMappingUpdateOperation(Set<Object> srcBroadcastIDs, AEntityColumn srcColumn, ESetOperation op) {
+	public AMappingUpdateOperation(Set<Object> srcBroadcastIDs, IEntityCollection srcCollection, ESetOperation op) {
 		super(op);
 		this.srcBroadcastIDs = srcBroadcastIDs;
-		this.srcColumn = srcColumn;
+		this.srcCollection = srcCollection;
 	}
 
 	@Override
-	public void execute(AEntityColumn column) {
-		execute(column, column.getElementIDsFromForeignIDs(srcBroadcastIDs, srcColumn.getBroadcastingIDType()));
+	public void execute(IEntityCollection collection) {
+		execute(collection, collection.getElementIDsFromForeignIDs(srcBroadcastIDs, srcCollection.getBroadcastingIDType()));
 
 	}
 
-	protected abstract void execute(AEntityColumn column, Set<Object> elementIDs);
+	protected abstract void execute(IEntityCollection collection, Set<Object> elementIDs);
 
 	/**
 	 * @return the srcColumn, see {@link #srcColumn}
 	 */
-	public AEntityColumn getSrcColumn() {
-		return srcColumn;
+	public IEntityCollection getSrcCollection() {
+		return srcCollection;
 	}
 
 	/**

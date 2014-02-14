@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.pathway;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,7 +17,6 @@ import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.util.base.IProvider;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
@@ -29,11 +29,11 @@ import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.ISelectionMappingUpdateListener;
+import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
@@ -42,11 +42,13 @@ import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
 /**
+ * Augmentation that highlights elements
+ *
  * @author Christian
  *
  */
 public class MultiVertexHighlightAugmentation extends APerVertexAugmentation implements IVertexRepSelectionListener,
-		IMultiSelectionHandler<PathwayVertexRep>, IProvider<Set<Object>>, ISelectionMappingUpdateListener {
+		IMultiSelectionHandler<PathwayVertexRep>, IEntityCollection {
 
 	protected Set<PathwayVertexRep> selectedVertexReps = new HashSet<>();
 	protected Set<PathwayVertexRep> highlightedVertexReps = new HashSet<>();
@@ -59,7 +61,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	public MultiVertexHighlightAugmentation(IPathwayRepresentation pathwayRepresentation, AEntityColumn referenceColumn) {
 		super(pathwayRepresentation);
 		this.referenceColumn = referenceColumn;
-		referenceColumn.getRelationshipExplorer().addSelectionMappingUpdateListener(this);
+		referenceColumn.getRelationshipExplorer().registerEntityCollection(this);
 		pathwayRepresentation.addVertexRepSelectionListener(this);
 	}
 
@@ -87,10 +89,12 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 				}
 
 			};
-			IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this, referenceColumn);
+			IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
+					referenceColumn.getRelationshipExplorer());
 			IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
-					referenceColumn);
-			IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, referenceColumn);
+					referenceColumn.getRelationshipExplorer());
+			IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this,
+					referenceColumn.getRelationshipExplorer());
 
 			contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
 					new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
@@ -151,7 +155,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	public void propagateSelection() {
-		Set<Object> selectedElementIDs = get();
+		Set<Object> selectedElementIDs = getReferenceColumnElementIDs(selectedVertexReps);
 		// Set<Object> filteredElementIDs = referenceColumn.getFilteredElementIDs();
 
 		// Set<Object> selectedFilteredElementIDs = Sets.intersection(selectedElementIDs, filteredElementIDs);
@@ -160,12 +164,13 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		Set<Object> selectedBroadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(selectedElementIDs);
 		updateIsFromMe = true;
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
-				selectedBroadcastIDs, true);
+				selectedBroadcastIDs, referenceColumn.getRelationshipExplorer());
 		o.execute(referenceColumn);
 		referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
 	}
 
 	public void propagateHighlight() {
+		updateIsFromMe = true;
 		Set<Object> highlightElementIDs = getReferenceColumnElementIDs(highlightedVertexReps);
 		Set<Object> highlightBroadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(highlightElementIDs);
 		referenceColumn.getRelationshipExplorer().applyIDMappingUpdate(
@@ -195,11 +200,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		addToSelection(object);
 	}
 
-	@Override
-	public Set<Object> get() {
-		return getReferenceColumnElementIDs(selectedVertexReps);
-	}
-
 	public Set<Object> getReferenceColumnElementIDs(Set<PathwayVertexRep> vertexReps) {
 		Set<Object> davidIDs = new HashSet<>();
 		for (PathwayVertexRep v : vertexReps) {
@@ -215,27 +215,21 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	@Override
-	public void updateSelectionMappings(AEntityColumn srcColumn) {
-		// FIXME: Hack to prevent filtered elements of own selection to be received
-		if (srcColumn == referenceColumn && updateIsFromMe) {
-			updateIsFromMe = false;
-			return;
-		}
-
-		selectVerticesFromForeignIDs(srcColumn.getBroadcastingIDsFromElementIDs(srcColumn.getSelectedElementIDs()),
-				srcColumn.getBroadcastingIDType());
+	public void updateSelectionMappings(IEntityCollection srcCollection) {
+		// nothing to do
 	}
 
-	private void selectVerticesFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
+	private void selectVerticesFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType,
+			Set<PathwayVertexRep> vertexSet) {
 
 		IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(davidIDType);
 		Set<Object> selectedDavidIDs = mappingManager.getIDTypeMapper(foreignIDType, davidIDType).apply(foreignIDs);
-		selectedVertexReps.clear();
+		vertexSet.clear();
 		for (PathwayVertexRep v : pathwayRepresentation.getPathway().vertexSet()) {
 			for (Integer davidID : v.getDavidIDs()) {
 				if (selectedDavidIDs.contains(davidID)) {
-					addToSelection(v);
+					vertexSet.add(v);
 					break;
 				}
 			}
@@ -245,7 +239,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 	@Override
 	protected void takeDown() {
-		referenceColumn.getRelationshipExplorer().removeSelectionMappingUpdateListener(this);
+		referenceColumn.getRelationshipExplorer().unregisterEntityCollection(this);
 		super.takeDown();
 	}
 
@@ -264,6 +258,81 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	public void removeHighlight(PathwayVertexRep vertexRep) {
 		highlightedVertexReps.remove(vertexRep);
 
+	}
+
+	@Override
+	public Set<Object> getAllElementIDs() {
+		return referenceColumn.getAllElementIDs();
+	}
+
+	@Override
+	public Set<Object> getFilteredElementIDs() {
+		// Get all because we do not want to reduce the set of genes for selections to that of the column
+		return referenceColumn.getAllElementIDs();
+	}
+
+	@Override
+	public Set<Object> getSelectedElementIDs() {
+		return getReferenceColumnElementIDs(selectedVertexReps);
+	}
+
+	@Override
+	public Set<Object> getHighlightElementIDs() {
+		return getReferenceColumnElementIDs(highlightedVertexReps);
+	}
+
+	@Override
+	public void setFilteredItems(Set<Object> elementIDs) {
+		// nothing to do
+
+	}
+
+	@Override
+	public void setHighlightItems(Set<Object> elementIDs) {
+		// FIXME: Hack to prevent filtered elements of own selection to be received
+		if (updateIsFromMe) {
+			updateIsFromMe = false;
+			return;
+		}
+		selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
+				highlightedVertexReps);
+	}
+
+	@Override
+	public void setSelectedItems(Set<Object> elementIDs) {
+		// FIXME: Hack to prevent filtered elements of own selection to be received
+		if (updateIsFromMe) {
+			updateIsFromMe = false;
+			return;
+		}
+
+		selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
+				selectedVertexReps);
+	}
+
+	@Override
+	public IDType getBroadcastingIDType() {
+		return referenceColumn.getBroadcastingIDType();
+	}
+
+	@Override
+	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+		return referenceColumn.getBroadcastingIDsFromElementID(elementID);
+	}
+
+	@Override
+	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
+		return referenceColumn.getBroadcastingIDsFromElementIDs(elementIDs);
+	}
+
+	@Override
+	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+		return referenceColumn.getElementIDsFromBroadcastingID(broadcastingID);
+	}
+
+	@Override
+	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
+		return referenceColumn.getElementIDsFromForeignIDs(foreignIDs, foreignIDType);
 	}
 
 }

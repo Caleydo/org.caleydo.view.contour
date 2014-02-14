@@ -5,16 +5,23 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 
 /**
  * @author Christian
  *
  */
-public class HideDetailOperation implements IColumnOperation {
+public class HideDetailOperation implements IHistoryCommand {
+
+	protected AEntityColumn column;
+
+	public HideDetailOperation(AEntityColumn column) {
+		this.column = column;
+	}
 
 	@Override
-	public void execute(AEntityColumn column) {
+	public void execute() {
 		column.getRelationshipExplorer().removeDetailViewOfColumn(column);
 	}
 

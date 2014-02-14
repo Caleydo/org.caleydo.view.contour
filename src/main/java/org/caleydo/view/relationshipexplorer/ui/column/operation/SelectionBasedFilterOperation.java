@@ -7,8 +7,8 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 
 /**
  * @author Christian
@@ -22,12 +22,12 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 	 * @param op
 	 */
 	public SelectionBasedFilterOperation(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
-			ESetOperation op) {
-		super(selectedElementIDs, selectedBroadcastIDs, op);
+			ESetOperation op, RelationshipExplorerElement relationshipExplorer) {
+		super(selectedElementIDs, selectedBroadcastIDs, op, relationshipExplorer);
 	}
 
 	@Override
-	public void execute(AEntityColumn column) {
+	public void execute(IEntityCollection collection) {
 		// Set<Object> broadcastIDs = new HashSet<>();
 		// Set<Object> elementIDs = new HashSet<>();
 		// for (GLElement element : column.itemList.getSelectedElements()) {
@@ -36,13 +36,12 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 		// broadcastIDs.addAll(column.getBroadcastingIDsFromElementID(elementID));
 		// }
 
-		column.setFilteredItems(setOperation.apply(selectedElementIDs, column.getFilteredElementIDs()));
-		column.getRelationshipExplorer().applyIDMappingUpdate(
-				new MappingFilterUpdateOperation(selectedBroadcastIDs, column,
+		collection.setFilteredItems(setOperation.apply(selectedElementIDs, collection.getFilteredElementIDs()));
+		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs, collection,
 				setOperation), true);
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
-				selectedBroadcastIDs, false);
-		o.execute(column);
+				selectedBroadcastIDs, relationshipExplorer);
+		o.execute(collection);
 	}
 
 }

@@ -37,9 +37,13 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
@@ -178,6 +182,23 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
 		header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
 		header.setSize(Float.NaN, HEADER_HEIGHT);
+		header.setVisibility(EVisibility.PICKABLE);
+		header.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+				if (pick.getPickingMode() == PickingMode.DOUBLE_CLICKED) {
+					@SuppressWarnings("unchecked")
+					ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
+							SELECTED_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
+					ColumnSortingCommand c = new ColumnSortingCommand(AEntityColumn.this, chain);
+					c.execute();
+					AEntityColumn.this.relationshipExplorer.getHistory().addHistoryCommand(c,
+							ColorBrewer.Purples.getColors(3).get(1));
+				}
+
+			}
+		});
 		add(header);
 		add(itemList.asGLElement());
 	}

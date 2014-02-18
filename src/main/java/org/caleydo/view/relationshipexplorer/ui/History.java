@@ -183,7 +183,7 @@ public class History extends AnimatedGLElementContainer {
 
 	}
 
-	public void addHistoryCommand(IHistoryCommand command, Color color) {
+	public synchronized void addHistoryCommand(IHistoryCommand command, Color color) {
 		if (currentPosition < commands.size() - 1) {
 			int numElementsToRemove = (commands.size() - 1) - currentPosition;
 			for (int i = 0; i < numElementsToRemove; i++) {
@@ -199,7 +199,7 @@ public class History extends AnimatedGLElementContainer {
 		relayoutParent();
 	}
 
-	public void applyHistoryState(int index) {
+	public synchronized void applyHistoryState(int index) {
 		if (index == currentPosition || index < 0 || index >= commands.size())
 			return;
 

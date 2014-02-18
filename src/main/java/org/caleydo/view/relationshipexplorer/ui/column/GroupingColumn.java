@@ -47,14 +47,8 @@ public class GroupingColumn extends ATextColumn {
 
 		@Override
 		public int compare(GLElement arg0, GLElement arg1) {
-			@SuppressWarnings("unchecked")
-			KeyBasedGLElementContainer<GLElement> c1 = (KeyBasedGLElementContainer<GLElement>) ((KeyBasedGLElementContainer<GLElement>) arg0)
-					.getElement(DATA_KEY);
-			@SuppressWarnings("unchecked")
-			KeyBasedGLElementContainer<GLElement> c2 = (KeyBasedGLElementContainer<GLElement>) ((KeyBasedGLElementContainer<GLElement>) arg1)
-					.getElement(DATA_KEY);
-			MinSizeTextElement r1 = (MinSizeTextElement) c1.getElement(GROUP_NAME_KEY);
-			MinSizeTextElement r2 = (MinSizeTextElement) c2.getElement(GROUP_NAME_KEY);
+			MinSizeTextElement r1 = asMinSizeTextElement(arg0);
+			MinSizeTextElement r2 = asMinSizeTextElement(arg1);
 
 			return r2.getLabel().compareTo(r1.getLabel());
 		}
@@ -156,6 +150,14 @@ public class GroupingColumn extends ATextColumn {
 	@Override
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected MinSizeTextElement asMinSizeTextElement(GLElement element) {
+		KeyBasedGLElementContainer<GLElement> c = (KeyBasedGLElementContainer<GLElement>) ((KeyBasedGLElementContainer<GLElement>) element)
+				.getElement(DATA_KEY);
+		return (MinSizeTextElement) c.getElement(GROUP_NAME_KEY);
 	}
 
 	@Override

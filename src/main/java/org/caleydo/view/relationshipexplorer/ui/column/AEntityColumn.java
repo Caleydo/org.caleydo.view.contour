@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import gleem.linalg.Vec2f;
 
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,15 +32,17 @@ import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
@@ -59,7 +62,6 @@ import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -77,7 +79,12 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected static final Integer FILTERED_ELEMENTS_KEY = Integer.valueOf(3);
 	protected static final Integer ALL_ELEMENTS_KEY = Integer.valueOf(4);
 
+	protected static final URL FILTER_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
+
 	protected KeyBasedGLElementContainer<GLElement> header;
+	protected GLElementContainer buttonBar;
+
 	protected GLElementList itemList = new GLElementList();
 	protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
 
@@ -86,48 +93,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected Map<Object, GLElement> mapFilteredElements = new HashMap<>();
 	protected RelationshipExplorerElement relationshipExplorer;
 
-	// protected static class FilterEvent extends ADirectedEvent {
-	//
-	// protected IColumnFilter filter;
-	//
-	// public FilterEvent(IColumnFilter filter) {
-	// this.filter = filter;
-	// }
-	// }
-
-	// public interface IContextMenuOperation {
-	// public void execute();
-	// }
-	//
-	// public class FilterOperation implements IContextMenuOperation {
-	//
-	// protected final ESetOperation setOperation;
-	//
-	// public FilterOperation(ESetOperation setOperation) {
-	// this.setOperation = setOperation;
-	// }
-	//
-	// @Override
-	// public void execute() {
-	// Set<Object> broadcastIDs = new HashSet<>();
-	// Set<Object> elementIDs = new HashSet<>();
-	// fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs);
-	//
-	// SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs, setOperation);
-	// o.execute(AEntityColumn.this);
-	// relationshipExplorer.getHistory().addColumnOperation(AEntityColumn.this, o);
-	//
-	// }
-	// }
-
-	// protected static class ContextMenuOperationEvent extends ADirectedEvent {
-	//
-	// protected final IContextMenuOperation operation;
-	//
-	// public ContextMenuOperationEvent(IContextMenuOperation operation) {
-	// this.operation = operation;
-	// }
-	// }
+	protected Comparator<GLElement> currentComparator;
 
 	protected static class MappingBarComparator implements Comparator<GLElement> {
 
@@ -183,24 +149,51 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
 		header.setSize(Float.NaN, HEADER_HEIGHT);
 		header.setVisibility(EVisibility.PICKABLE);
-		header.onPick(new IPickingListener() {
+		buttonBar = new GLElementContainer(GLLayouts.sizeRestrictiveFlowHorizontal(1));
+
+		GLElementContainer headerContainer = new GLElementContainer();
+		headerContainer.setLayout(GLLayouts.LAYERS);
+		headerContainer.add(header);
+		headerContainer.add(buttonBar);
+		buttonBar.setzDelta(0.1f);
+		buttonBar.setVisibility(EVisibility.HIDDEN);
+		headerContainer.setSize(Float.NaN, HEADER_HEIGHT);
+		headerContainer.setVisibility(EVisibility.PICKABLE);
+
+		add(headerContainer);
+		add(itemList.asGLElement());
+
+		headerContainer.onPick(new APickingListener() {
+			@Override
+			protected void doubleClicked(Pick pick) {
+				@SuppressWarnings("unchecked")
+				ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
+						SELECTED_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
+				ColumnSortingCommand c = new ColumnSortingCommand(AEntityColumn.this, chain);
+				c.execute();
+				AEntityColumn.this.relationshipExplorer.getHistory().addHistoryCommand(c,
+						ColorBrewer.Purples.getColors(3).get(1));
+			}
 
 			@Override
-			public void pick(Pick pick) {
-				if (pick.getPickingMode() == PickingMode.DOUBLE_CLICKED) {
-					@SuppressWarnings("unchecked")
-					ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
-							SELECTED_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
-					ColumnSortingCommand c = new ColumnSortingCommand(AEntityColumn.this, chain);
-					c.execute();
-					AEntityColumn.this.relationshipExplorer.getHistory().addHistoryCommand(c,
-							ColorBrewer.Purples.getColors(3).get(1));
-				}
+			protected void mouseOver(Pick pick) {
+				buttonBar.setVisibility(EVisibility.PICKABLE);
+			}
 
+			@Override
+			protected void mouseOut(Pick pick) {
+				buttonBar.setVisibility(EVisibility.HIDDEN);
 			}
 		});
-		add(header);
-		add(itemList.asGLElement());
+
+	}
+
+	protected GLButton addHeaderButton(URL iconURL) {
+		GLButton button = new GLButton(EButtonMode.BUTTON);
+		button.setRenderer(GLRenderers.fillImage(iconURL));
+		button.setSize(16, 16);
+		buttonBar.add(button);
+		return button;
 	}
 
 	@Override
@@ -213,8 +206,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 		header.setElement(DATA_KEY, new GLElement(GLRenderers.drawText(getLabel(), VAlign.CENTER)));
 		itemList.addElementSelectionListener(this);
-		Comparator<GLElement> c = getDefaultElementComparator();
-		itemList.sortBy(c);
+		sort(getDefaultElementComparator());
 		mapFilteredElements.putAll(mapIDToElement);
 	}
 
@@ -280,21 +272,6 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public Vec2f getMinSize() {
 		return itemList.getMinSize();
 	}
-
-	// public void applyIDUpdate(IDMappingUpdateEvent event) {
-	// if (event.getSender() == this)
-	// return;
-	// event.getColumnOperation().execute(this);
-	// //
-	// // Set<Object> elementIDs = getElementIDsFromForeignIDs(event.getIds(), event.getIdType());
-	// //
-	// // if (event.getUpdateType() == EUpdateType.REPLACE_FILTER || event.getUpdateType() == EUpdateType.AND_FILTER
-	// // || event.getUpdateType() == EUpdateType.OR_FILTER) {
-	// // applyFilter(event.getUpdateType(), elementIDs);
-	// // } else if (event.getUpdateType() == EUpdateType.SELECTION) {
-	// // setSelectedItems(Sets.intersection(mapFilteredElements.keySet(), elementIDs));
-	// // }
-	// }
 
 	protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
 
@@ -383,20 +360,8 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	}
 
-	// protected void applyFilter(EUpdateType filterType, Set<Object> elementIDs) {
-	// if (filterType == EUpdateType.REPLACE_FILTER) {
-	// setFilteredItems(elementIDs);
-	// } else if (filterType == EUpdateType.AND_FILTER) {
-	// setFilteredItems(Sets.intersection(elementIDs, mapFilteredElements.keySet()));
-	// } else if (filterType == EUpdateType.OR_FILTER) {
-	// setFilteredItems(Sets.union(elementIDs, mapFilteredElements.keySet()));
-	// }
-	// }
-
 	@Override
 	public void setFilteredItems(Set<Object> elementIDs) {
-		// itemList.clear();
-
 		mapFilteredElements = new HashMap<>(elementIDs.size());
 		for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
 
@@ -420,8 +385,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			}
 
 		}
-
-		setSelectedItems(Sets.intersection(selectedElementIDs, elementIDs));
+		updateSelections();
 	}
 
 	public void showAllItems() {
@@ -441,20 +405,18 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	@Override
 	public void setSelectedItems(Set<Object> elementIDs) {
 		selectedElementIDs = elementIDs;
+		updateSelections();
+	}
+
+	protected void updateSelections() {
 		itemList.clearSelection();
 
-		for (Object elementID : elementIDs) {
+		for (Object elementID : selectedElementIDs) {
 			GLElement element = mapIDToElement.get(elementID);
 			if (element != null) {
 				itemList.addToSelection(element);
 			}
 		}
-		// if (sort) {
-		// @SuppressWarnings("unchecked")
-		// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
-		// getDefaultElementComparator()));
-		// itemList.sortBy(chain);
-		// }
 	}
 
 	@Override
@@ -545,7 +507,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
 				SELECTED_FOREIGN_ELEMENTS_COMPARATOR, FILTERED_FOREIGN_ELEMENTS_COMPARATOR,
 				ALL_FOREIGN_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
-		itemList.sortBy(chain);
+		sort(chain);
 	}
 
 	public void hideMappings() {
@@ -569,6 +531,9 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	}
 
 	public void sort(Comparator<GLElement> comparator) {
+		if (comparator == null)
+			return;
+		this.currentComparator = comparator;
 		itemList.sortBy(comparator);
 	}
 
@@ -638,6 +603,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 
 		return broadcastIDs;
+	}
+
+	public void updateSorting() {
+		sort(currentComparator);
 	}
 
 	protected abstract void setContent();

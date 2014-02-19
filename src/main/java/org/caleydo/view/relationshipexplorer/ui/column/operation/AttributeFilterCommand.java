@@ -28,7 +28,10 @@ public class AttributeFilterCommand implements IHistoryCommand {
 	public void execute() {
 		column.setFilteredItems(filteredElementIDs);
 		column.updateSorting();
-		// column.getRelationshipExplorer().updateSelectionMappings(srcCollection);
+
+		// column.getRelationshipExplorer().applyIDMappingUpdate(
+		// new MappingFilterUpdateOperation(column.getBroadcastingIDsFromElementIDs(filteredElementIDs), column,
+		// ESetOperation.REPLACE), true);
 	}
 
 }

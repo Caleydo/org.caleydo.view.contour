@@ -19,6 +19,7 @@ import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn;
 
 /**
  *
@@ -38,8 +39,9 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
-		HCSRelationshipExplorerElementFactory factory = new HCSRelationshipExplorerElementFactory();
-		getRootDecorator().setContent(factory.create(null));
+		// HCSRelationshipExplorerElementFactory factory = new HCSRelationshipExplorerElementFactory();
+		// getRootDecorator().setContent(factory.create(null));
+		getRootDecorator().setContent(new INestableColumn());
 	}
 
 	@Override

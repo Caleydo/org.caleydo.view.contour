@@ -118,6 +118,20 @@ public class INestableColumn extends GLElementContainer {
 
 			return width;
 		}
+
+		public void updateSummaryItems() {
+			for (NestableItem item : items) {
+				item.updateSummaryItems();
+
+			}
+			for (Column child : children) {
+				child.updateSummaryItems();
+			}
+		}
+
+		public GLElement getSummaryElement(Set<GLElement> items) {
+			return createTextElement("Summary of " + items.size(), 16);
+		}
 	}
 
 	protected class ColumnHeader extends GLElementContainer {
@@ -212,6 +226,15 @@ public class INestableColumn extends GLElementContainer {
 			collapseButton.setCallback(this);
 		}
 
+		public void updateSummaryItems() {
+			Set<GLElement> items = new HashSet<>(itemList.size());
+			for (GLElement item : itemList) {
+				if (item != summaryItem)
+					items.add(item);
+			}
+			summaryItem.setItem(column.getSummaryElement(items));
+		}
+
 		public void addItem(NestableItem item) {
 			if (itemList.isEmpty())
 				add(0, collapseButton);
@@ -242,7 +265,7 @@ public class INestableColumn extends GLElementContainer {
 
 	protected class NestableItem extends GLElementContainer {
 
-		protected Map<Column, CollapsableItemContainer> nestedCollections = new HashMap<>();
+		protected Map<Column, CollapsableItemContainer> itemContainers = new HashMap<>();
 		protected NestableItem parentItem;
 		protected GLElement item;
 		protected Column column;
@@ -264,8 +287,18 @@ public class INestableColumn extends GLElementContainer {
 
 		}
 
+		/**
+		 * @param item
+		 *            setter, see {@link item}
+		 */
+		public void setItem(GLElement item) {
+			remove(this.item);
+			this.item = item;
+			add(0, item);
+		}
+
 		public CollapsableItemContainer getNestedContainer(Column column) {
-			CollapsableItemContainer c = nestedCollections.get(column);
+			CollapsableItemContainer c = itemContainers.get(column);
 			if (c == null)
 				c = addNestedContainer(column);
 			return c;
@@ -289,7 +322,7 @@ public class INestableColumn extends GLElementContainer {
 		private CollapsableItemContainer addNestedContainer(Column column) {
 
 			CollapsableItemContainer container = new CollapsableItemContainer(column, this);
-			nestedCollections.put(column, container);
+			itemContainers.put(column, container);
 
 			add(container);
 			return container;
@@ -302,6 +335,12 @@ public class INestableColumn extends GLElementContainer {
 			// ((GLElementContainer) getParent()).setSize(width, Float.NaN);
 			((GLElementContainer) getParent().getParent()).setSize(width + 2 * HORIZONTAL_PADDING
 					+ (column.parent != null ? HORIZONTAL_SPACING + COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
+		}
+
+		public void updateSummaryItems() {
+			for (CollapsableItemContainer container : itemContainers.values()) {
+				container.updateSummaryItems();
+			}
 		}
 
 	}
@@ -355,7 +394,14 @@ public class INestableColumn extends GLElementContainer {
 		NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
 		NestableItem nni324 = addElement(createTextElement("nested3 item 2_2", 16), nested3, ni12);
 
+		updateSummaryItems();
 		updateSizes();
+	}
+
+	public void updateSummaryItems() {
+		for (Column rootColumn : rootColumns) {
+			rootColumn.updateSummaryItems();
+		}
 	}
 
 	public void updateSizes() {

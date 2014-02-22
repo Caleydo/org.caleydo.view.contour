@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -19,9 +20,13 @@ import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
+import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
+import org.caleydo.core.view.opengl.layout2.layout.IGLLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 
 /**
@@ -41,7 +46,8 @@ public class INestableColumn extends GLElementContainer {
 	protected Map<Column, GLElementContainer> rootContainers = new HashMap<>();
 
 	protected GLElementContainer headerRow;
-	protected GLElementContainer bodyRow;
+	protected ScrollableList bodyRow;
+	protected ScrollingDecorator scrollingDecorator;
 
 	protected class Column {
 		protected ColumnHeader header;
@@ -345,6 +351,36 @@ public class INestableColumn extends GLElementContainer {
 
 	}
 
+	protected class ScrollableList extends GLElementContainer {
+
+		public ScrollableList(IGLLayout2 layout) {
+			super(layout);
+		}
+
+		@Override
+		public void layout(int deltaTimeMs) {
+			super.layout(deltaTimeMs);
+
+			Rect clippingArea = scrollingDecorator.getClipingArea();
+			for (GLElement child : this) {
+				Rect bounds = child.getRectBounds();
+				if (child.getVisibility() != EVisibility.NONE) {
+					if (clippingArea.asRectangle2D().intersects(bounds.asRectangle2D())) {
+						if (child.getVisibility() != EVisibility.PICKABLE) {
+							child.setVisibility(EVisibility.PICKABLE);
+							repaintAll();
+						}
+					} else {
+						if (child.getVisibility() != EVisibility.HIDDEN) {
+							child.setVisibility(EVisibility.HIDDEN);
+							repaintAll();
+						}
+					}
+				}
+			}
+		}
+	}
+
 	public INestableColumn() {
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this, VERTICAL_SPACING, GLPadding.ZERO));
@@ -354,10 +390,14 @@ public class INestableColumn extends GLElementContainer {
 				HORIZONTAL_SPACING, GLPadding.ZERO));
 		add(headerRow);
 
-		bodyRow = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
+		bodyRow = new ScrollableList(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
 		bodyRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(bodyRow, HORIZONTAL_SPACING,
 				GLPadding.ZERO));
-		add(bodyRow);
+
+		scrollingDecorator = new ScrollingDecorator(bodyRow, new ScrollBar(true), new ScrollBar(
+				false), 8, EDimension.RECORD);
+		scrollingDecorator.setMinSizeProvider(bodyRow);
+		add(scrollingDecorator);
 
 		Column root1 = addRootColumn("Root1");
 		// root1.setColumnWidth(root1.calcMinColumnWidth());

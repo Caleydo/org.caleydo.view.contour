@@ -29,6 +29,8 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.layout.IGLLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 
+import com.google.common.collect.Lists;
+
 /**
  * @author Christian
  *
@@ -43,10 +45,10 @@ public class INestableColumn extends GLElementContainer {
 	protected static final int VERTICAL_SPACING = 2;
 
 	protected List<Column> rootColumns = new ArrayList<>();
-	protected Map<Column, GLElementContainer> rootContainers = new HashMap<>();
+	protected Map<Column, CollapsableItemContainer> rootContainers = new HashMap<>();
 
 	protected GLElementContainer headerRow;
-	protected ScrollableList bodyRow;
+	protected ScrollableItemList bodyRow;
 	protected ScrollingDecorator scrollingDecorator;
 
 	protected class Column {
@@ -54,16 +56,20 @@ public class INestableColumn extends GLElementContainer {
 		protected Column parent;
 		protected List<Column> children = new ArrayList<>();
 
-		protected Set<NestableItem> items = new HashSet<>();
+		// protected Set<NestableItem> items = new HashSet<>();
+		protected Set<CollapsableItemContainer> itemContainers = new HashSet<>();
+		// protected Set<NestableItem> summaryItems = new HashSet<>();
 		protected float columnWidth = 0;
 
 		public float calcMinColumnWidth() {
 
 			float maxItemWidth = Float.MIN_VALUE;
-			for (NestableItem item : items) {
-				float itemWidth = item.item.getMinSize().x();
-				if (itemWidth > maxItemWidth)
-					maxItemWidth = itemWidth;
+			for (CollapsableItemContainer container : itemContainers) {
+				for (NestableItem item : container.getCurrentItems()) {
+					float itemWidth = item.element.getMinSize().x();
+					if (itemWidth > maxItemWidth)
+						maxItemWidth = itemWidth;
+				}
 			}
 			float minColumnWidth = 0;
 			if (parent == null) {
@@ -92,25 +98,41 @@ public class INestableColumn extends GLElementContainer {
 
 		public void updateSizes() {
 			float headerItemWidth = 0;
-			float itemWidth = 0;
+			float itemWidth = getItemWidth();
 
 			if (parent == null) {
 				headerItemWidth = columnWidth - 2 * HORIZONTAL_PADDING;
-				itemWidth = columnWidth - 2 * HORIZONTAL_PADDING;
 			} else {
 				headerItemWidth = columnWidth - 2 * HORIZONTAL_PADDING - CAPTION_HEIGHT - HORIZONTAL_SPACING;
-				itemWidth = columnWidth - 2 * HORIZONTAL_PADDING - COLLAPSE_BUTTON_SIZE - HORIZONTAL_SPACING;
 			}
 
 			header.headerItem.setSize(headerItemWidth, CAPTION_HEIGHT);
 			header.updateSize();
 
-			for (NestableItem item : items) {
-				item.item.setSize(itemWidth, item.item.getMinSize().y());
-				item.updateSize();
+			for (CollapsableItemContainer container : itemContainers) {
+				for (NestableItem item : container.getCurrentItems()) {
+					item.element.setSize(itemWidth, item.element.getMinSize().y());
+					item.updateSize();
+				}
 			}
+			// for (NestableItem item : items) {
+			// item.element.setSize(itemWidth, item.element.getMinSize().y());
+			// item.updateSize();
+			// }
+			// for (NestableItem item : summaryItems) {
+			// item.element.setSize(itemWidth, item.element.getMinSize().y());
+			// item.updateSize();
+			// }
 
 			// parent.updateSizes();
+		}
+
+		public float getItemWidth() {
+			if (parent == null) {
+				return columnWidth - 2 * HORIZONTAL_PADDING;
+			} else {
+				return columnWidth - 2 * HORIZONTAL_PADDING - COLLAPSE_BUTTON_SIZE - HORIZONTAL_SPACING;
+			}
 		}
 
 		protected float calcNestingWidth() {
@@ -126,16 +148,20 @@ public class INestableColumn extends GLElementContainer {
 		}
 
 		public void updateSummaryItems() {
-			for (NestableItem item : items) {
-				item.updateSummaryItems();
-
+			for (CollapsableItemContainer container : itemContainers) {
+				container.updateSummaryItems();
+				// for (NestableItem item : container.getItems()) {
+				// item.updateSummaryItems();
+				//
+				// }
 			}
+
 			for (Column child : children) {
 				child.updateSummaryItems();
 			}
 		}
 
-		public GLElement getSummaryElement(Set<GLElement> items) {
+		public GLElement getSummaryElement(Set<NestableItem> items) {
 			return createTextElement("Summary of " + items.size(), 16);
 		}
 	}
@@ -198,8 +224,9 @@ public class INestableColumn extends GLElementContainer {
 	}
 
 	protected class CollapsableItemContainer extends GLElementContainer implements ISelectionCallback {
-		protected GLElementContainer itemList;
+		protected GLElementContainer itemContainer;
 		protected GLButton collapseButton;
+		protected List<NestableItem> items = new ArrayList<>();
 		protected NestableItem summaryItem;
 		protected Column column;
 		protected NestableItem parentItem;
@@ -217,63 +244,152 @@ public class INestableColumn extends GLElementContainer {
 			collapseButton.setRenderer(GLRenderers.fillImage("resources/icons/general/minus.png"));
 			collapseButton.setSelectedRenderer(GLRenderers.fillImage("resources/icons/general/plus.png"));
 			collapseButton.setSize(COLLAPSE_BUTTON_SIZE, COLLAPSE_BUTTON_SIZE);
+			column.itemContainers.add(this);
 			// add(collapseButton);
 			// collapseContainer.setRenderer(GLRenderers.drawRect(Color.CYAN));
 
-			itemList = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING, GLPadding.ZERO));
-			itemList.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(itemList,
+			itemContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING,
+					GLPadding.ZERO));
+			itemContainer.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(itemContainer,
 					VERTICAL_SPACING, GLPadding.ZERO));
 			// nestedList.setRenderer(GLRenderers.drawRect(Color.YELLOW));
 
 			summaryItem = new NestableItem(createTextElement("Default Summary", 16), column, parentItem);
-
-			add(itemList);
+			// column.summaryItems.add(summaryItem);
+			if (parentItem != null)
+				add(collapseButton);
+			collapseButton.setVisibility(EVisibility.HIDDEN);
+			add(itemContainer);
 
 			collapseButton.setCallback(this);
 		}
 
+		public boolean isCollapsed() {
+			return collapseButton.isSelected();
+		}
+
 		public void updateSummaryItems() {
-			Set<GLElement> items = new HashSet<>(itemList.size());
-			for (GLElement item : itemList) {
-				if (item != summaryItem)
-					items.add(item);
+			// Set<NestableItem> items = new HashSet<>(itemContainer.size());
+			Map<Column, Set<NestableItem>> childColumnItems = new HashMap<>();
+			for (NestableItem item : items) {
+				// if (item != summaryItem) {
+				// items.add((NestableItem) item);
+				for (Column col : column.children) {
+					Set<NestableItem> childItems = childColumnItems.get(col);
+					if (childItems == null) {
+						childItems = new HashSet<>();
+						childColumnItems.put(col, childItems);
+					}
+					childItems.addAll(item.getNestedContainer(col).getItems());
+				}
+				// }
 			}
-			summaryItem.setItem(column.getSummaryElement(items));
+			summaryItem.setElement(column.getSummaryElement(new HashSet<>(items)));
+			for (Column col : column.children) {
+				// NestableItem childSummaryItem = new NestableItem(col.getSummaryElement(childColumnItems.get(col)),
+				// col,
+				// summaryItem);
+				// summaryItem.addItem(childSummaryItem, col);
+				Set<NestableItem> i = childColumnItems.get(col);
+				if (i != null) {
+					CollapsableItemContainer container = summaryItem.getNestedContainer(col);
+					container.summaryItem.setElement(col.getSummaryElement(i));
+					container.collapseButton.setSelected(true);
+					container.items.clear();
+					container.items.addAll(i);
+					container.updateButtonVisibility();
+				}
+				// col.summaryItems.add(childSummaryItem);
+			}
+
+		}
+
+		public List<NestableItem> getItems() {
+			return items;
+		}
+
+		public List<NestableItem> getCurrentItems() {
+			// List<NestableItem> items = new ArrayList<>(itemContainer.size());
+			// for (GLElement item : itemContainer) {
+			// items.add((NestableItem) item);
+			// }
+			return isCollapsed() ? Lists.<NestableItem> newArrayList(summaryItem) : getItems();
 		}
 
 		public void addItem(NestableItem item) {
-			if (itemList.isEmpty())
-				add(0, collapseButton);
-			itemList.add(item);
+			items.add(item);
+			if (!isCollapsed())
+				itemContainer.add(item);
+			updateButtonVisibility();
+		}
+
+		protected void updateButtonVisibility() {
+			if (items.isEmpty() || parentItem == null)
+				collapseButton.setVisibility(EVisibility.HIDDEN);
+			else
+				collapseButton.setVisibility(EVisibility.PICKABLE);
 		}
 
 		@Override
 		public void onSelectionChanged(GLButton button, boolean selected) {
+			itemContainer.clear();
 			if (selected) {
-				setItemVisibility(EVisibility.NONE);
-				if (itemList.indexOf(summaryItem) == -1) {
-					itemList.add(summaryItem);
+				// setItemVisibility(EVisibility.NONE);
+
+				itemContainer.add(summaryItem);
+
+				for (Column col : column.children) {
+					// NestableItem childSummaryItem = new
+					// NestableItem(col.getSummaryElement(childColumnItems.get(col)),
+					// col,
+					// summaryItem);
+					// summaryItem.addItem(childSummaryItem, col);
+
+					CollapsableItemContainer container = summaryItem.getNestedContainer(col);
+					container.onSelectionChanged(container.collapseButton, collapseButton.isSelected());
+
+					// col.summaryItems.add(childSummaryItem);
 				}
-				summaryItem.setVisibility(EVisibility.PICKABLE);
+
+				// summaryItem.element.setSize(column.getItemWidth(), summaryItem.element.getMinSize().y());
+				// summaryItem.updateSize();
+
+				// summaryItem.setVisibility(EVisibility.PICKABLE);
 			} else {
-				setItemVisibility(EVisibility.PICKABLE);
-				summaryItem.setVisibility(EVisibility.NONE);
+				for (NestableItem item : items) {
+					itemContainer.add(item);
+					for (Column col : column.children) {
+						// NestableItem childSummaryItem = new
+						// NestableItem(col.getSummaryElement(childColumnItems.get(col)),
+						// col,
+						// summaryItem);
+						// summaryItem.addItem(childSummaryItem, col);
+
+						CollapsableItemContainer container = item.getNestedContainer(col);
+						container.onSelectionChanged(container.collapseButton, container.collapseButton.isSelected());
+
+						// col.summaryItems.add(childSummaryItem);
+					}
+				}
+				// setItemVisibility(EVisibility.PICKABLE);
+				// summaryItem.setVisibility(EVisibility.NONE);
 			}
+
 			updateSizes();
 		}
 
-		private void setItemVisibility(EVisibility visibility) {
-			for (GLElement element : itemList) {
-				element.setVisibility(visibility);
-			}
-		}
+		// private void setItemVisibility(EVisibility visibility) {
+		// for (GLElement element : itemContainer) {
+		// element.setVisibility(visibility);
+		// }
+		// }
 	}
 
 	protected class NestableItem extends GLElementContainer {
 
 		protected Map<Column, CollapsableItemContainer> itemContainers = new HashMap<>();
 		protected NestableItem parentItem;
-		protected GLElement item;
+		protected GLElement element;
 		protected Column column;
 
 		public NestableItem(GLElement item, Column column, NestableItem parentItem) {
@@ -283,7 +399,7 @@ public class INestableColumn extends GLElementContainer {
 			this.column = column;
 			setRenderer(GLRenderers.drawRect(Color.BLUE));
 			add(item);
-			this.item = item;
+			this.element = item;
 
 			setSize(Float.NaN, getMinSize().y());
 			// for (Column col : column.children) {
@@ -297,9 +413,9 @@ public class INestableColumn extends GLElementContainer {
 		 * @param item
 		 *            setter, see {@link item}
 		 */
-		public void setItem(GLElement item) {
-			remove(this.item);
-			this.item = item;
+		public void setElement(GLElement item) {
+			remove(this.element);
+			this.element = item;
 			add(0, item);
 		}
 
@@ -335,9 +451,12 @@ public class INestableColumn extends GLElementContainer {
 		}
 
 		public void updateSize() {
-			float width = item.getSize().x();
+			if (getParent() == null)
+				return;
+			float width = element.getSize().x();
 			width += column.calcNestingWidth();
 			setSize(width, getMinSize().y());
+
 			// ((GLElementContainer) getParent()).setSize(width, Float.NaN);
 			((GLElementContainer) getParent().getParent()).setSize(width + 2 * HORIZONTAL_PADDING
 					+ (column.parent != null ? HORIZONTAL_SPACING + COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
@@ -351,9 +470,9 @@ public class INestableColumn extends GLElementContainer {
 
 	}
 
-	protected class ScrollableList extends GLElementContainer {
+	protected class ScrollableItemList extends GLElementContainer {
 
-		public ScrollableList(IGLLayout2 layout) {
+		public ScrollableItemList(IGLLayout2 layout) {
 			super(layout);
 		}
 
@@ -390,12 +509,12 @@ public class INestableColumn extends GLElementContainer {
 				HORIZONTAL_SPACING, GLPadding.ZERO));
 		add(headerRow);
 
-		bodyRow = new ScrollableList(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
+		bodyRow = new ScrollableItemList(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
 		bodyRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(bodyRow, HORIZONTAL_SPACING,
 				GLPadding.ZERO));
 
-		scrollingDecorator = new ScrollingDecorator(bodyRow, new ScrollBar(true), new ScrollBar(
-				false), 8, EDimension.RECORD);
+		scrollingDecorator = new ScrollingDecorator(bodyRow, new ScrollBar(true), new ScrollBar(false), 8,
+				EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(bodyRow);
 		add(scrollingDecorator);
 
@@ -403,32 +522,32 @@ public class INestableColumn extends GLElementContainer {
 		// root1.setColumnWidth(root1.calcMinColumnWidth());
 		root1.setColumnWidth(300);
 		NestableItem ri1 = addElement(createTextElement("root1 item 1", 16), root1, null);
-		NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
-		NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
+		// NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
+		// NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
 
 		Column nested1 = addNestedColumn("Nested1", root1);
 		nested1.setColumnWidth(nested1.calcMinColumnWidth());
 		NestableItem ni11 = addElement(createTextElement("nested1 item 1_1", 16), nested1, ri1);
 		NestableItem ni12 = addElement(createTextElement("nested1 item 1_2", 16), nested1, ri1);
-		NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
+		// NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
 
-		NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
-		NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
-		NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
+		// NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
+		// NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
+		// NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
+		//
+		// NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
+		// NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
 
-		NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
-		NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
-
-		Column nested2 = addNestedColumn("Nested2", root1);
-		// nested2.setColumnWidth(nested2.calcMinColumnWidth());
-		nested2.setColumnWidth(500);
-		NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
-		NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
-		NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
-		NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
+		// Column nested2 = addNestedColumn("Nested2", root1);
+		// // nested2.setColumnWidth(nested2.calcMinColumnWidth());
+		// nested2.setColumnWidth(500);
+		// NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
+		// NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
+		// NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
+		// NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
 		Column nested3 = addNestedColumn("Nested3", nested1);
 		// nested3.setColumnWidth(nested3.calcMinColumnWidth());
-		nested3.setColumnWidth(100);
+		nested3.setColumnWidth(200);
 		NestableItem nni311 = addElement(createTextElement("nested3 item 1_1", 16), nested3, ni11);
 		NestableItem nni312 = addElement(createTextElement("nested3 item 1_2", 16), nested3, ni11);
 		NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
@@ -461,13 +580,14 @@ public class INestableColumn extends GLElementContainer {
 	}
 
 	private void addRootContainer(Column column) {
-		GLElementContainer nestedList = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false,
-				VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
-		nestedList.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(nestedList,
-				VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
+		CollapsableItemContainer itemContainer = new CollapsableItemContainer(column, null);
+		// GLElementContainer nestedList = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false,
+		// VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
+		// nestedList.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(nestedList,
+		// VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
 		// nestedList.setRenderer(GLRenderers.drawRect(Color.RED));
-		rootContainers.put(column, nestedList);
-		bodyRow.add(nestedList);
+		rootContainers.put(column, itemContainer);
+		bodyRow.add(itemContainer);
 	}
 
 	// private GLElementContainer createHeader(String caption, GLElementContainer headerParent) {
@@ -523,18 +643,19 @@ public class INestableColumn extends GLElementContainer {
 		column.header = new ColumnHeader(column, caption, parent.header);
 		parent.children.add(column);
 		column.parent = parent;
-
-		for (NestableItem item : parent.items) {
-			item.addNestedContainer(column);
-		}
+		// for (CollapsableItemContainer container : parent.itemContainers) {
+		// for (NestableItem item : container.getItems()) {
+		// item.addNestedContainer(column);
+		// }
+		// }
 		return column;
 	}
 
 	public NestableItem addElement(GLElement element, Column column, NestableItem parentItem) {
 		NestableItem item = new NestableItem(element, column, parentItem);
-		column.items.add(item);
+		// column.items.add(item);
 		if (parentItem == null) {
-			rootContainers.get(column).add(item);
+			rootContainers.get(column).addItem(item);
 		} else {
 			parentItem.addItem(item, column);
 			// parentItem.updateSize();

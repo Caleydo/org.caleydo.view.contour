@@ -5,19 +5,30 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 
 /**
  * @author Christian
  *
  */
-public interface IColumnModel extends ILabeled {
+public class ItemContainer extends GLElementContainer {
+	public List<NestableItem> getItems() {
+		return getCurrentItems();
+	}
 
-	public void fill(NestableColumn column, NestableColumn parentColumn);
+	public List<NestableItem> getCurrentItems() {
+		List<NestableItem> items = new ArrayList<>(size());
+		for (GLElement item : this) {
+			items.add((NestableItem) item);
+		}
+		return items;
+	}
 
-	public GLElement getSummaryElement(Set<NestableItem> items);
+	public void updateSummaryItems() {
 
+	}
 }

@@ -5,19 +5,20 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
-import java.util.Set;
-
-import org.caleydo.core.util.base.ILabeled;
-import org.caleydo.core.view.opengl.layout2.GLElement;
-
 /**
  * @author Christian
  *
  */
-public interface IColumnModel extends ILabeled {
+public final class ColumnTreeRenderStyle {
 
-	public void fill(NestableColumn column, NestableColumn parentColumn);
+	public static final int CAPTION_HEIGHT = 20;
+	public static final int COLLAPSE_BUTTON_SIZE = 16;
+	public static final int HEADER_TOP_PADDING = 10;
+	public static final int HORIZONTAL_PADDING = 4;
+	public static final int HORIZONTAL_SPACING = 4;
+	public static final int VERTICAL_SPACING = 2;
 
-	public GLElement getSummaryElement(Set<NestableItem> items);
+	private ColumnTreeRenderStyle() {
+	}
 
 }

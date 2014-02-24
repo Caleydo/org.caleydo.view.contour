@@ -22,7 +22,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
 /**
  *
@@ -45,8 +45,8 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 		// HCSRelationshipExplorerElementFactory factory = new HCSRelationshipExplorerElementFactory();
 		// getRootDecorator().setContent(factory.create(null));
 		GLElementContainer row = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10, GLPadding.ZERO));
-		row.add(new INestableColumn());
-		row.add(new INestableColumn());
+		row.add(new ColumnTree());
+		row.add(new ColumnTree());
 		getRootDecorator().setContent(row);
 	}
 

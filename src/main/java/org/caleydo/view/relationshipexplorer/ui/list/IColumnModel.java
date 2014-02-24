@@ -9,8 +9,8 @@ import java.util.Set;
 
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.Column;
-import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.NestableItem;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree.Column;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree.NestableItem;
 
 /**
  * @author Christian

@@ -26,7 +26,6 @@ import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
-import org.caleydo.core.view.opengl.layout2.layout.IGLLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 
 import com.google.common.collect.Lists;
@@ -35,7 +34,7 @@ import com.google.common.collect.Lists;
  * @author Christian
  *
  */
-public class INestableColumn extends GLElementContainer {
+public class ColumnTree extends GLElementContainer {
 
 	protected static final int CAPTION_HEIGHT = 20;
 	protected static final int COLLAPSE_BUTTON_SIZE = 16;
@@ -45,10 +44,10 @@ public class INestableColumn extends GLElementContainer {
 	protected static final int VERTICAL_SPACING = 2;
 
 	protected Column rootColumn;
-	protected CollapsableItemContainer rootContainer;
+	protected ItemContainer rootContainer;
 
 	protected GLElementContainer headerRow;
-	protected ScrollableItemList bodyRow;
+	// protected GLElementContainer bodyRow;
 	protected ScrollingDecorator scrollingDecorator;
 
 	protected Set<Column> allColumns = new HashSet<>();
@@ -59,7 +58,7 @@ public class INestableColumn extends GLElementContainer {
 		protected List<Column> children = new ArrayList<>();
 
 		// protected Set<NestableItem> items = new HashSet<>();
-		protected Set<CollapsableItemContainer> itemContainers = new HashSet<>();
+		protected Set<ItemContainer> itemContainers = new HashSet<>();
 		// protected Set<NestableItem> summaryItems = new HashSet<>();
 		protected float columnWidth = 0;
 		protected float relColumnWidth = 0;
@@ -67,7 +66,7 @@ public class INestableColumn extends GLElementContainer {
 		public float calcMinColumnWidth() {
 
 			float maxItemWidth = Float.MIN_VALUE;
-			for (CollapsableItemContainer container : itemContainers) {
+			for (ItemContainer container : itemContainers) {
 				for (NestableItem item : container.getCurrentItems()) {
 					float itemWidth = item.element.getMinSize().x();
 					if (itemWidth > maxItemWidth)
@@ -113,7 +112,7 @@ public class INestableColumn extends GLElementContainer {
 			header.headerItem.setSize(headerItemWidth, CAPTION_HEIGHT);
 			header.updateSize();
 
-			for (CollapsableItemContainer container : itemContainers) {
+			for (ItemContainer container : itemContainers) {
 				for (NestableItem item : container.getCurrentItems()) {
 					item.element.setSize(itemWidth, item.element.getMinSize().y());
 					item.updateSize();
@@ -144,7 +143,7 @@ public class INestableColumn extends GLElementContainer {
 			header.headerItem.setSize(headerItemWidth, CAPTION_HEIGHT);
 			header.updateSize();
 
-			for (CollapsableItemContainer container : itemContainers) {
+			for (ItemContainer container : itemContainers) {
 				for (NestableItem item : container.getCurrentItems()) {
 					item.element.setSize(itemWidth, item.element.getMinSize().y());
 					item.updateSize();
@@ -183,7 +182,7 @@ public class INestableColumn extends GLElementContainer {
 		}
 
 		public void updateSummaryItems() {
-			for (CollapsableItemContainer container : itemContainers) {
+			for (ItemContainer container : itemContainers) {
 				container.updateSummaryItems();
 				// for (NestableItem item : container.getItems()) {
 				// item.updateSummaryItems();
@@ -258,7 +257,25 @@ public class INestableColumn extends GLElementContainer {
 
 	}
 
-	protected class CollapsableItemContainer extends GLElementContainer implements ISelectionCallback {
+	public class ItemContainer extends GLElementContainer {
+		public List<NestableItem> getItems() {
+			return getCurrentItems();
+		}
+
+		public List<NestableItem> getCurrentItems() {
+			List<NestableItem> items = new ArrayList<>(size());
+			for (GLElement item : this) {
+				items.add((NestableItem) item);
+			}
+			return items;
+		}
+
+		public void updateSummaryItems() {
+
+		}
+	}
+
+	protected class CollapsableItemContainer extends ItemContainer implements ISelectionCallback {
 		protected GLElementContainer itemContainer;
 		protected GLButton collapseButton;
 		protected List<NestableItem> items = new ArrayList<>();
@@ -284,19 +301,21 @@ public class INestableColumn extends GLElementContainer {
 			column.itemContainers.add(this);
 			// add(collapseButton);
 			setRenderer(GLRenderers.drawRect(Color.CYAN));
+			if (parentItem != null)
+				add(collapseButton);
 
 			itemContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING,
 					GLPadding.ZERO));
+			add(itemContainer);
+
 			itemContainer.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(itemContainer,
 					VERTICAL_SPACING, GLPadding.ZERO));
 			// nestedList.setRenderer(GLRenderers.drawRect(Color.YELLOW));
 
 			summaryItem = new NestableItem(createTextElement("Default Summary", 16), column, parentItem);
 			// column.summaryItems.add(summaryItem);
-			if (parentItem != null)
-				add(collapseButton);
+
 			collapseButton.setVisibility(EVisibility.HIDDEN);
-			add(itemContainer);
 
 			collapseButton.setCallback(this);
 		}
@@ -305,6 +324,7 @@ public class INestableColumn extends GLElementContainer {
 			return collapseButton.isSelected();
 		}
 
+		@Override
 		public void updateSummaryItems() {
 			// Set<NestableItem> items = new HashSet<>(itemContainer.size());
 			Map<Column, Set<NestableItem>> childColumnItems = new HashMap<>();
@@ -341,10 +361,12 @@ public class INestableColumn extends GLElementContainer {
 
 		}
 
+		@Override
 		public List<NestableItem> getItems() {
 			return items;
 		}
 
+		@Override
 		public List<NestableItem> getCurrentItems() {
 			// List<NestableItem> items = new ArrayList<>(itemContainer.size());
 			// for (GLElement item : itemContainer) {
@@ -494,8 +516,10 @@ public class INestableColumn extends GLElementContainer {
 			width += column.calcNestingWidth();
 			setSize(width, getMinSize().y());
 
+			// if (column == rootColumn)
+			// return;
 			// ((GLElementContainer) getParent()).setSize(width, Float.NaN);
-			((GLElementContainer) getParent().getParent()).setSize(width + 2 * HORIZONTAL_PADDING
+			((GLElement) getParent().getParent()).setSize(width + 2 * HORIZONTAL_PADDING
 					+ (column.parent != null ? HORIZONTAL_SPACING + COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
 		}
 
@@ -507,10 +531,12 @@ public class INestableColumn extends GLElementContainer {
 
 	}
 
-	protected class ScrollableItemList extends GLElementContainer {
+	protected class ScrollableItemList extends ItemContainer {
 
-		public ScrollableItemList(IGLLayout2 layout) {
-			super(layout);
+		public ScrollableItemList() {
+			setLayout(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
+			setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this, VERTICAL_SPACING,
+					GLPadding.ZERO));
 		}
 
 		@Override
@@ -537,7 +563,7 @@ public class INestableColumn extends GLElementContainer {
 		}
 	}
 
-	public INestableColumn() {
+	public ColumnTree() {
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this, VERTICAL_SPACING, GLPadding.ZERO));
 
@@ -547,15 +573,13 @@ public class INestableColumn extends GLElementContainer {
 		headerRow.setRenderer(GLRenderers.drawRect(Color.RED));
 		add(headerRow);
 
-		bodyRow = new ScrollableItemList(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
-		bodyRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(bodyRow, HORIZONTAL_SPACING,
-				GLPadding.ZERO));
-		bodyRow.setRenderer(GLRenderers.drawRect(Color.RED));
+		// bodyRow = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
+		// bodyRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(bodyRow,
+		// HORIZONTAL_SPACING,
+		// GLPadding.ZERO));
+		// bodyRow.setRenderer(GLRenderers.drawRect(Color.RED));
 
-		scrollingDecorator = new ScrollingDecorator(bodyRow, null, new ScrollBar(false), 8, EDimension.RECORD);
-		scrollingDecorator.setMinSizeProvider(bodyRow);
-		add(scrollingDecorator);
-
+		// add(bodyRow);
 		Column root1 = addRootColumn("Root1");
 		// root1.setColumnWidth(root1.calcMinColumnWidth());
 		root1.setColumnWidth(100);
@@ -625,9 +649,15 @@ public class INestableColumn extends GLElementContainer {
 	public Column addRootColumn(String caption) {
 		rootColumn = new Column();
 		rootColumn.header = new ColumnHeader(rootColumn, caption, headerRow);
-		rootContainer = new CollapsableItemContainer(rootColumn, null);
+		rootContainer = new ScrollableItemList();
+		rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
+		rootColumn.itemContainers.add(rootContainer);
+		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8, EDimension.RECORD);
+		scrollingDecorator.setMinSizeProvider(rootContainer);
 		allColumns.add(rootColumn);
-		bodyRow.add(rootContainer);
+
+		add(scrollingDecorator);
+		// bodyRow.add(scrollingDecorator);
 		return rootColumn;
 	}
 
@@ -708,7 +738,7 @@ public class INestableColumn extends GLElementContainer {
 		NestableItem item = new NestableItem(element, column, parentItem);
 		// column.items.add(item);
 		if (parentItem == null) {
-			rootContainer.addItem(item);
+			rootContainer.add(item);
 		} else {
 			parentItem.addItem(item, column);
 			// parentItem.updateSize();

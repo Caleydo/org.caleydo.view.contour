@@ -21,8 +21,8 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
-import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.Column;
-import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.NestableItem;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree.Column;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 

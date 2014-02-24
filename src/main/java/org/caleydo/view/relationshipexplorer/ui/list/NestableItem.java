@@ -10,7 +10,7 @@ import java.util.Map;
 
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
@@ -20,7 +20,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
  * @author Christian
  *
  */
-public class NestableItem extends GLElementContainer {
+public class NestableItem extends AnimatedGLElementContainer {
 	protected Map<NestableColumn, CollapsableItemContainer> itemContainers = new HashMap<>();
 	protected NestableItem parentItem;
 	protected GLElement element;

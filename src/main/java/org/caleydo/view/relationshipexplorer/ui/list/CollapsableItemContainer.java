@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.caleydo.core.util.color.Color;
-import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
 public class CollapsableItemContainer extends ItemContainer implements ISelectionCallback {
 
 	protected final ColumnTree columnTree;
-	protected final GLElementContainer itemContainer;
+	protected final AnimatedGLElementContainer itemContainer;
 	protected final GLButton collapseButton;
 	protected final List<NestableItem> items = new ArrayList<>();
 	protected final NestableItem summaryItem;
@@ -61,7 +61,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 		if (parentItem != null)
 			add(collapseButton);
 
-		itemContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false,
+		itemContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(false,
 				ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
 		add(itemContainer);
 

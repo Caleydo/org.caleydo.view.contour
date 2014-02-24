@@ -166,7 +166,8 @@ public class NestableColumn {
 	}
 
 	public GLElement getSummaryElement(Set<NestableItem> items) {
-		return ColumnTree.createTextElement("Summary of " + items.size(), 16);
+		// return model.getSummaryElement(items);
+		return ColumnTree.createTextElement("summary of " + items.size(), 16);
 	}
 
 	public boolean isRoot() {

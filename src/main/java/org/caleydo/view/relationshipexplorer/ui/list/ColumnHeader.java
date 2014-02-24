@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.list;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
@@ -19,12 +20,12 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
  * @author Christian
  *
  */
-public class ColumnHeader extends GLElementContainer {
+public class ColumnHeader extends AnimatedGLElementContainer {
 
 	protected GLElement headerItem;
 	protected NestableColumn column;
 
-	public ColumnHeader(NestableColumn column, String caption, GLElementContainer headerParent) {
+	public ColumnHeader(NestableColumn column, String caption, AnimatedGLElementContainer headerParent) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(
 				ColumnTreeRenderStyle.HORIZONTAL_PADDING, ColumnTreeRenderStyle.HEADER_TOP_PADDING,
 				ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));

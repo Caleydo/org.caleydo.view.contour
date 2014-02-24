@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 
 /**
  * @author Christian
  *
  */
-public class ItemContainer extends GLElementContainer {
+public class ItemContainer extends AnimatedGLElementContainer {
 	public List<NestableItem> getItems() {
 		return getCurrentItems();
 	}

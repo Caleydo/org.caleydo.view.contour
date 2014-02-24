@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.util;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.IGLElementParent;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
+import org.caleydo.core.view.opengl.layout2.animation.Duration;
 
 /**
  * @author Christian
@@ -23,7 +24,7 @@ public final class AnimationUtil {
 			IGLElementParent parent = element.getParent();
 
 			if (parent != null && parent instanceof AnimatedGLElementContainer) {
-				((AnimatedGLElementContainer) parent).resizeChild(element, width, height);
+				((AnimatedGLElementContainer) parent).resizeChild(element, width, height, new Duration(0));
 			} else {
 				element.setSize(width, height);
 			}

@@ -73,6 +73,27 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		}
 	}
 
+	// protected class ColumnTreeLayout extends GLSizeRestrictiveFlowLayout2 {
+	//
+	// /**
+	// * @param horizontal
+	// * @param gap
+	// * @param padding
+	// */
+	// public ColumnTreeLayout(boolean horizontal, float gap, GLPadding padding) {
+	// super(horizontal, gap, padding);
+	// }
+	//
+	// @Override
+	// public boolean doLayout(List<? extends IGLLayoutElement> children, float w, float h, IGLLayoutElement parent,
+	// int deltaTimeMs) {
+	//
+	//
+	// return super.doLayout(children, w, h, parent, deltaTimeMs);
+	// }
+	//
+	// }
+
 	public ColumnTree(IColumnModel columnModel) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
@@ -207,7 +228,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 		// columnModel.fill(rootColumn, null);
 		updateSummaryItems();
-		updateSizes();
+		// updateSizes();
+		relayout();
 	}
 
 	public void updateSummaryItems() {

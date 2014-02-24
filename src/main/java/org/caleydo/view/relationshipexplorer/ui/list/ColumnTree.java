@@ -15,6 +15,7 @@ import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementAccessor;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
@@ -238,7 +239,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	@Override
 	public void layout(int deltaTimeMs) {
-		if (dirtyLayout) {
+		if (GLElementAccessor.isLayoutDirty(this)) {
 			float totalWidth = 0;
 			Map<NestableColumn, Float> minWidths = new HashMap<>();
 			for (NestableColumn column : allColumns) {

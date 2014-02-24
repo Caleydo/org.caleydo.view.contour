@@ -17,7 +17,8 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
  *
  */
 public class NestableColumn {
-	protected IColumnModel columnModel;
+	protected final IColumnModel model;
+	protected final ColumnTree columnTree;
 
 	protected ColumnHeader header;
 	protected NestableColumn parent;
@@ -28,6 +29,15 @@ public class NestableColumn {
 	// protected Set<NestableItem> summaryItems = new HashSet<>();
 	protected float columnWidth = 0;
 	protected float relColumnWidth = 0;
+
+	/**
+	 *
+	 */
+	public NestableColumn(IColumnModel model, NestableColumn parent, ColumnTree columnTree) {
+		this.model = model;
+		this.parent = parent;
+		this.columnTree = columnTree;
+	}
 
 	public float calcMinColumnWidth() {
 
@@ -142,10 +152,10 @@ public class NestableColumn {
 	}
 
 	/**
-	 * @return the columnModel, see {@link #columnModel}
+	 * @return the columnModel, see {@link #model}
 	 */
 	public IColumnModel getColumnModel() {
-		return columnModel;
+		return model;
 	}
 
 	/**
@@ -161,5 +171,9 @@ public class NestableColumn {
 
 	public boolean isRoot() {
 		return parent == null;
+	}
+
+	public NestableItem addElement(GLElement element, NestableItem parentItem) {
+		return columnTree.addElement(element, this, parentItem);
 	}
 }

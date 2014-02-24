@@ -71,7 +71,7 @@ public class ColumnTree extends GLElementContainer {
 		}
 	}
 
-	public ColumnTree() {
+	public ColumnTree(IColumnModel columnModel) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
 				ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
@@ -83,6 +83,8 @@ public class ColumnTree extends GLElementContainer {
 		headerRow.setRenderer(GLRenderers.drawRect(Color.RED));
 		add(headerRow);
 
+		addRootColumn(columnModel.getLabel(), columnModel);
+
 		// bodyRow = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
 		// bodyRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(bodyRow,
 		// HORIZONTAL_SPACING,
@@ -90,41 +92,42 @@ public class ColumnTree extends GLElementContainer {
 		// bodyRow.setRenderer(GLRenderers.drawRect(Color.RED));
 
 		// add(bodyRow);
-		NestableColumn root1 = addRootColumn("Root1");
-		// root1.setColumnWidth(root1.calcMinColumnWidth());
-		root1.setColumnWidth(100);
-		NestableItem ri1 = addElement(createTextElement("root1 item 1", 16), root1, null);
-		NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
-		NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
+		// NestableColumn root1 = addRootColumn("Root1");
+		// // root1.setColumnWidth(root1.calcMinColumnWidth());
+		// root1.setColumnWidth(100);
+		// NestableItem ri1 = addElement(createTextElement("root1 item 1", 16), root1, null);
+		// NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
+		// NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
+		//
+		// NestableColumn nested1 = addNestedColumn("Nested1", root1);
+		// nested1.setColumnWidth(nested1.calcMinColumnWidth());
+		// NestableItem ni11 = addElement(createTextElement("nested1 item 1_1", 16), nested1, ri1);
+		// NestableItem ni12 = addElement(createTextElement("nested1 item 1_2", 16), nested1, ri1);
+		// NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
+		//
+		// NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
+		// NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
+		// NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
+		//
+		// NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
+		// NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
+		//
+		// NestableColumn nested2 = addNestedColumn("Nested2", root1);
+		// // nested2.setColumnWidth(nested2.calcMinColumnWidth());
+		// nested2.setColumnWidth(100);
+		// NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
+		// NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
+		// NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
+		// NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
+		// NestableColumn nested3 = addNestedColumn("Nested3", nested1);
+		// // nested3.setColumnWidth(nested3.calcMinColumnWidth());
+		// nested3.setColumnWidth(100);
+		// NestableItem nni311 = addElement(createTextElement("nested3 item 1_1", 16), nested3, ni11);
+		// NestableItem nni312 = addElement(createTextElement("nested3 item 1_2", 16), nested3, ni11);
+		// NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
+		// NestableItem nni324 = addElement(createTextElement("nested3 item 2_2", 16), nested3, ni12);
 
-		NestableColumn nested1 = addNestedColumn("Nested1", root1);
-		nested1.setColumnWidth(nested1.calcMinColumnWidth());
-		NestableItem ni11 = addElement(createTextElement("nested1 item 1_1", 16), nested1, ri1);
-		NestableItem ni12 = addElement(createTextElement("nested1 item 1_2", 16), nested1, ri1);
-		NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
-
-		NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
-		NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
-		NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
-
-		NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
-		NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
-
-		NestableColumn nested2 = addNestedColumn("Nested2", root1);
-		// nested2.setColumnWidth(nested2.calcMinColumnWidth());
-		nested2.setColumnWidth(100);
-		NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
-		NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
-		NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
-		NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
-		NestableColumn nested3 = addNestedColumn("Nested3", nested1);
-		// nested3.setColumnWidth(nested3.calcMinColumnWidth());
-		nested3.setColumnWidth(100);
-		NestableItem nni311 = addElement(createTextElement("nested3 item 1_1", 16), nested3, ni11);
-		NestableItem nni312 = addElement(createTextElement("nested3 item 1_2", 16), nested3, ni11);
-		NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
-		NestableItem nni324 = addElement(createTextElement("nested3 item 2_2", 16), nested3, ni12);
-
+		columnModel.fill(rootColumn, null);
 		updateSummaryItems();
 		updateSizes();
 	}
@@ -156,8 +159,8 @@ public class ColumnTree extends GLElementContainer {
 		headerRow.setSize(Float.NaN, headerRow.getMinSize().y());
 	}
 
-	public NestableColumn addRootColumn(String caption) {
-		rootColumn = new NestableColumn();
+	public NestableColumn addRootColumn(String caption, IColumnModel model) {
+		rootColumn = new NestableColumn(model, null, this);
 		rootColumn.header = new ColumnHeader(rootColumn, caption, headerRow);
 		rootContainer = new ScrollableItemList();
 		rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
@@ -174,16 +177,16 @@ public class ColumnTree extends GLElementContainer {
 
 
 	static GLElement createTextElement(String text, float height) {
-		GLElement captionElement = new GLElement(GLRenderers.drawText(text, VAlign.LEFT));
+		GLElement captionElement = new GLElement(GLRenderers.drawText(text, VAlign.CENTER));
 		// GLElement captionElement = new GLElement(GLRenderers.drawRect(Color.RED));
 		captionElement.setSize(Float.NaN, height);
 		captionElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(200, height));
 		return captionElement;
 	}
 
-	public NestableColumn addNestedColumn(String caption, NestableColumn parent) {
-		NestableColumn column = new NestableColumn();
-		column.header = new ColumnHeader(column, caption, parent.header);
+	public NestableColumn addNestedColumn(IColumnModel model, NestableColumn parent) {
+		NestableColumn column = new NestableColumn(model, parent, this);
+		column.header = new ColumnHeader(column, model.getLabel(), parent.header);
 		parent.children.add(column);
 		allColumns.add(column);
 		column.parent = parent;

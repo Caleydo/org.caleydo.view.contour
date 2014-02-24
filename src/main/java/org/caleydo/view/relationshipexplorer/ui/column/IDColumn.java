@@ -21,8 +21,8 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
-import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree.Column;
-import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree.NestableItem;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
@@ -148,7 +148,7 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 	}
 
 	@Override
-	public void fill(Column column, Column parentColumn) {
+	public void fill(NestableColumn column, NestableColumn parentColumn) {
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
 

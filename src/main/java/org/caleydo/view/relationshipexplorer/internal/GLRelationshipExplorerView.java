@@ -12,6 +12,8 @@ import javax.media.opengl.GLAutoDrawable;
 import org.caleydo.core.data.datadomain.DataSupportDefinitions;
 import org.caleydo.core.data.datadomain.IDataSupportDefinition;
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.id.IDCategory;
+import org.caleydo.core.id.IDType;
 import org.caleydo.core.serialize.ASerializedView;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
@@ -20,8 +22,10 @@ import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
+import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
 /**
@@ -45,8 +49,9 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 		// HCSRelationshipExplorerElementFactory factory = new HCSRelationshipExplorerElementFactory();
 		// getRootDecorator().setContent(factory.create(null));
 		GLElementContainer row = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10, GLPadding.ZERO));
-		row.add(new ColumnTree());
-		row.add(new ColumnTree());
+		row.add(new ColumnTree(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
+				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), null)));
+		// row.add(new ColumnTree());
 		getRootDecorator().setContent(row);
 	}
 

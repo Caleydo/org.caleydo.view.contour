@@ -23,6 +23,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
  * @author Christian
@@ -235,7 +236,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	public void updateSizes() {
 		rootColumn.updateSizeRec();
-		headerRow.setSize(Float.NaN, headerRow.getMinSize().y());
+		AnimationUtil.resizeElement(headerRow, Float.NaN, headerRow.getMinSize().y());
+		// headerRow.setSize(Float.NaN, headerRow.getMinSize().y());
 	}
 
 	public NestableColumn addRootColumn(String caption, IColumnModel model) {

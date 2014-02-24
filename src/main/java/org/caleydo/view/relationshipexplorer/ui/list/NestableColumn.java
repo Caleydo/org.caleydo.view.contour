@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
  * @author Christian
@@ -88,7 +89,8 @@ public class NestableColumn {
 					- ColumnTreeRenderStyle.CAPTION_HEIGHT - ColumnTreeRenderStyle.HORIZONTAL_SPACING;
 		}
 
-		header.headerItem.setSize(headerItemWidth, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+		AnimationUtil.resizeElement(header.headerItem, headerItemWidth, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+		// header.headerItem.setSize(headerItemWidth, ColumnTreeRenderStyle.CAPTION_HEIGHT);
 		header.updateSize();
 
 		for (ItemContainer container : itemContainers) {

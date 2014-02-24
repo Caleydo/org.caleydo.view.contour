@@ -149,7 +149,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 	@Override
 	public void onSelectionChanged(GLButton button, boolean selected) {
-		itemContainer.clear();
+		itemContainer.clear(0);
 		if (selected) {
 			// setItemVisibility(EVisibility.NONE);
 
@@ -163,7 +163,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 				// summaryItem.addItem(childSummaryItem, col);
 
 				CollapsableItemContainer container = summaryItem.getNestedContainer(col);
-				container.onSelectionChanged(container.collapseButton, collapseButton.isSelected());
+				container.onSelectionChanged(container.collapseButton, container.collapseButton.isSelected());
 
 				// col.summaryItems.add(childSummaryItem);
 			}

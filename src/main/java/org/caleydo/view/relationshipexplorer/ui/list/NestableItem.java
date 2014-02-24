@@ -15,6 +15,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
  * @author Christian
@@ -37,7 +38,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 		add(item);
 		this.element = item;
 
-		setSize(Float.NaN, getMinSize().y());
+		// setSize(Float.NaN, getMinSize().y());
 		// for (Column col : column.children) {
 		// addNestedContainer(col);
 		// }
@@ -91,16 +92,23 @@ public class NestableItem extends AnimatedGLElementContainer {
 			return;
 		float width = element.getSize().x();
 		width += column.calcNestingWidth();
-		setSize(width, getMinSize().y());
+		AnimationUtil.resizeElement(this, width, getMinSize().y());
+		// setSize(width, getMinSize().y());
 
 		// if (column == rootColumn)
 		// return;
 		// ((GLElementContainer) getParent()).setSize(width, Float.NaN);
-		((GLElement) getParent().getParent()).setSize(width
+		AnimationUtil.resizeElement((GLElement) getParent().getParent(), width
 				+ 2
 				* ColumnTreeRenderStyle.HORIZONTAL_PADDING
 				+ (column.parent != null ? ColumnTreeRenderStyle.HORIZONTAL_SPACING
 						+ ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
+
+		// ((GLElement) getParent().getParent()).setSize(width
+		// + 2
+		// * ColumnTreeRenderStyle.HORIZONTAL_PADDING
+		// + (column.parent != null ? ColumnTreeRenderStyle.HORIZONTAL_SPACING
+		// + ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
 	}
 
 	public void updateSummaryItems() {

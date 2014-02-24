@@ -15,6 +15,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
  * @author Christian
@@ -33,8 +34,8 @@ public class ColumnHeader extends AnimatedGLElementContainer {
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(ColumnTreeRenderStyle.HORIZONTAL_PADDING,
 						ColumnTreeRenderStyle.HEADER_TOP_PADDING, ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
 
-		GLElementContainer captionContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true,
-				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
+		AnimatedGLElementContainer captionContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(
+				true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		captionContainer.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(captionContainer,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		captionContainer.setSize(Float.NaN, ColumnTreeRenderStyle.CAPTION_HEIGHT);
@@ -74,7 +75,16 @@ public class ColumnHeader extends AnimatedGLElementContainer {
 	public void updateSize() {
 		float width = column.columnWidth;
 		width += column.calcNestingWidth();
-		setSize(width, Float.NaN);
+		AnimationUtil.resizeElement(this, width, Float.NaN);
+		// if (Float.compare(width, getSize().x()) != 0) {
+		// IGLElementParent parent = getParent();
+		//
+		// if (parent != null && parent instanceof AnimatedGLElementContainer) {
+		// ((AnimatedGLElementContainer) parent).resizeChild(this, width, Float.NaN);
+		// } else {
+		// setSize(width, Float.NaN);
+		// }
+		// }
 	}
 
 }

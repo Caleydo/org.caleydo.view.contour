@@ -44,12 +44,14 @@ public class INestableColumn extends GLElementContainer {
 	protected static final int HORIZONTAL_SPACING = 4;
 	protected static final int VERTICAL_SPACING = 2;
 
-	protected List<Column> rootColumns = new ArrayList<>();
-	protected Map<Column, CollapsableItemContainer> rootContainers = new HashMap<>();
+	protected Column rootColumn;
+	protected CollapsableItemContainer rootContainer;
 
 	protected GLElementContainer headerRow;
 	protected ScrollableItemList bodyRow;
 	protected ScrollingDecorator scrollingDecorator;
+
+	protected Set<Column> allColumns = new HashSet<>();
 
 	protected class Column {
 		protected ColumnHeader header;
@@ -60,6 +62,7 @@ public class INestableColumn extends GLElementContainer {
 		protected Set<CollapsableItemContainer> itemContainers = new HashSet<>();
 		// protected Set<NestableItem> summaryItems = new HashSet<>();
 		protected float columnWidth = 0;
+		protected float relColumnWidth = 0;
 
 		public float calcMinColumnWidth() {
 
@@ -93,10 +96,42 @@ public class INestableColumn extends GLElementContainer {
 			for (Column child : children) {
 				child.updateSizeRec();
 			}
-			updateSizes();
+			updateSizesRel();
+			// updateSizes();
 		}
 
 		public void updateSizes() {
+			float headerItemWidth = 0;
+			float itemWidth = getItemWidth();
+
+			if (parent == null) {
+				headerItemWidth = columnWidth - 2 * HORIZONTAL_PADDING;
+			} else {
+				headerItemWidth = columnWidth - 2 * HORIZONTAL_PADDING - CAPTION_HEIGHT - HORIZONTAL_SPACING;
+			}
+
+			header.headerItem.setSize(headerItemWidth, CAPTION_HEIGHT);
+			header.updateSize();
+
+			for (CollapsableItemContainer container : itemContainers) {
+				for (NestableItem item : container.getCurrentItems()) {
+					item.element.setSize(itemWidth, item.element.getMinSize().y());
+					item.updateSize();
+				}
+			}
+			// for (NestableItem item : items) {
+			// item.element.setSize(itemWidth, item.element.getMinSize().y());
+			// item.updateSize();
+			// }
+			// for (NestableItem item : summaryItems) {
+			// item.element.setSize(itemWidth, item.element.getMinSize().y());
+			// item.updateSize();
+			// }
+
+			// parent.updateSizes();
+		}
+
+		public void updateSizesRel() {
 			float headerItemWidth = 0;
 			float itemWidth = getItemWidth();
 
@@ -244,9 +279,11 @@ public class INestableColumn extends GLElementContainer {
 			collapseButton.setRenderer(GLRenderers.fillImage("resources/icons/general/minus.png"));
 			collapseButton.setSelectedRenderer(GLRenderers.fillImage("resources/icons/general/plus.png"));
 			collapseButton.setSize(COLLAPSE_BUTTON_SIZE, COLLAPSE_BUTTON_SIZE);
+			collapseButton.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(COLLAPSE_BUTTON_SIZE,
+					COLLAPSE_BUTTON_SIZE));
 			column.itemContainers.add(this);
 			// add(collapseButton);
-			// collapseContainer.setRenderer(GLRenderers.drawRect(Color.CYAN));
+			setRenderer(GLRenderers.drawRect(Color.CYAN));
 
 			itemContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, VERTICAL_SPACING,
 					GLPadding.ZERO));
@@ -507,47 +544,48 @@ public class INestableColumn extends GLElementContainer {
 		headerRow = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
 		headerRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(headerRow,
 				HORIZONTAL_SPACING, GLPadding.ZERO));
+		headerRow.setRenderer(GLRenderers.drawRect(Color.RED));
 		add(headerRow);
 
 		bodyRow = new ScrollableItemList(new GLSizeRestrictiveFlowLayout2(true, HORIZONTAL_SPACING, GLPadding.ZERO));
 		bodyRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(bodyRow, HORIZONTAL_SPACING,
 				GLPadding.ZERO));
+		bodyRow.setRenderer(GLRenderers.drawRect(Color.RED));
 
-		scrollingDecorator = new ScrollingDecorator(bodyRow, new ScrollBar(true), new ScrollBar(false), 8,
-				EDimension.RECORD);
+		scrollingDecorator = new ScrollingDecorator(bodyRow, null, new ScrollBar(false), 8, EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(bodyRow);
 		add(scrollingDecorator);
 
 		Column root1 = addRootColumn("Root1");
 		// root1.setColumnWidth(root1.calcMinColumnWidth());
-		root1.setColumnWidth(300);
+		root1.setColumnWidth(100);
 		NestableItem ri1 = addElement(createTextElement("root1 item 1", 16), root1, null);
-		// NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
-		// NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
+		NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
+		NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
 
 		Column nested1 = addNestedColumn("Nested1", root1);
 		nested1.setColumnWidth(nested1.calcMinColumnWidth());
 		NestableItem ni11 = addElement(createTextElement("nested1 item 1_1", 16), nested1, ri1);
 		NestableItem ni12 = addElement(createTextElement("nested1 item 1_2", 16), nested1, ri1);
-		// NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
+		NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
 
-		// NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
-		// NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
-		// NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
-		//
-		// NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
-		// NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
+		NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
+		NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
+		NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
 
-		// Column nested2 = addNestedColumn("Nested2", root1);
-		// // nested2.setColumnWidth(nested2.calcMinColumnWidth());
-		// nested2.setColumnWidth(500);
-		// NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
-		// NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
-		// NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
-		// NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
+		NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
+		NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
+
+		Column nested2 = addNestedColumn("Nested2", root1);
+		// nested2.setColumnWidth(nested2.calcMinColumnWidth());
+		nested2.setColumnWidth(100);
+		NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
+		NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
+		NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
+		NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
 		Column nested3 = addNestedColumn("Nested3", nested1);
 		// nested3.setColumnWidth(nested3.calcMinColumnWidth());
-		nested3.setColumnWidth(200);
+		nested3.setColumnWidth(100);
 		NestableItem nni311 = addElement(createTextElement("nested3 item 1_1", 16), nested3, ni11);
 		NestableItem nni312 = addElement(createTextElement("nested3 item 1_2", 16), nested3, ni11);
 		NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
@@ -558,37 +596,51 @@ public class INestableColumn extends GLElementContainer {
 	}
 
 	public void updateSummaryItems() {
-		for (Column rootColumn : rootColumns) {
-			rootColumn.updateSummaryItems();
+		rootColumn.updateSummaryItems();
+	}
+
+	@Override
+	public void layout(int deltaTimeMs) {
+		float totalWidth = 0;
+		Map<Column, Float> minWidths = new HashMap<>();
+		for (Column column : allColumns) {
+			float minWidth = column.calcMinColumnWidth();
+			totalWidth += minWidth;
+			minWidths.put(column, minWidth);
 		}
+		for (Column column : allColumns) {
+			column.setColumnWidth((minWidths.get(column) / totalWidth)
+					* (getSize().x() - (allColumns.size() - 1) * HORIZONTAL_SPACING));
+		}
+		updateSizes();
+
+		super.layout(deltaTimeMs);
 	}
 
 	public void updateSizes() {
-		for (Column rootColumn : rootColumns) {
-			rootColumn.updateSizeRec();
-		}
-
+		rootColumn.updateSizeRec();
 		headerRow.setSize(Float.NaN, headerRow.getMinSize().y());
 	}
 
 	public Column addRootColumn(String caption) {
-		Column column = new Column();
-		column.header = new ColumnHeader(column, caption, headerRow);
-		rootColumns.add(column);
-		addRootContainer(column);
-		return column;
+		rootColumn = new Column();
+		rootColumn.header = new ColumnHeader(rootColumn, caption, headerRow);
+		rootContainer = new CollapsableItemContainer(rootColumn, null);
+		allColumns.add(rootColumn);
+		bodyRow.add(rootContainer);
+		return rootColumn;
 	}
 
-	private void addRootContainer(Column column) {
-		CollapsableItemContainer itemContainer = new CollapsableItemContainer(column, null);
-		// GLElementContainer nestedList = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false,
-		// VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
-		// nestedList.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(nestedList,
-		// VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
-		// nestedList.setRenderer(GLRenderers.drawRect(Color.RED));
-		rootContainers.put(column, itemContainer);
-		bodyRow.add(itemContainer);
-	}
+	// private void addRootContainer(Column column) {
+	// CollapsableItemContainer itemContainer = new CollapsableItemContainer(column, null);
+	// // GLElementContainer nestedList = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false,
+	// // VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
+	// // nestedList.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(nestedList,
+	// // VERTICAL_SPACING, new GLPadding(HORIZONTAL_PADDING, 0)));
+	// // nestedList.setRenderer(GLRenderers.drawRect(Color.RED));
+	// rootContainers.put(column, itemContainer);
+	// bodyRow.add(itemContainer);
+	// }
 
 	// private GLElementContainer createHeader(String caption, GLElementContainer headerParent) {
 	// GLElementContainer header = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 4, new GLPadding(4,
@@ -642,6 +694,7 @@ public class INestableColumn extends GLElementContainer {
 		Column column = new Column();
 		column.header = new ColumnHeader(column, caption, parent.header);
 		parent.children.add(column);
+		allColumns.add(column);
 		column.parent = parent;
 		// for (CollapsableItemContainer container : parent.itemContainers) {
 		// for (NestableItem item : container.getItems()) {
@@ -655,7 +708,7 @@ public class INestableColumn extends GLElementContainer {
 		NestableItem item = new NestableItem(element, column, parentItem);
 		// column.items.add(item);
 		if (parentItem == null) {
-			rootContainers.get(column).addItem(item);
+			rootContainer.addItem(item);
 		} else {
 			parentItem.addItem(item, column);
 			// parentItem.updateSize();

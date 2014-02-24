@@ -15,7 +15,10 @@ import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.serialize.ASerializedView;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
+import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
@@ -41,7 +44,10 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 		super.init(drawable);
 		// HCSRelationshipExplorerElementFactory factory = new HCSRelationshipExplorerElementFactory();
 		// getRootDecorator().setContent(factory.create(null));
-		getRootDecorator().setContent(new INestableColumn());
+		GLElementContainer row = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10, GLPadding.ZERO));
+		row.add(new INestableColumn());
+		row.add(new INestableColumn());
+		getRootDecorator().setContent(row);
 	}
 
 	@Override

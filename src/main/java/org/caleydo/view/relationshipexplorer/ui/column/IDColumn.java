@@ -20,7 +20,11 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.Column;
+import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
+import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
 import com.google.common.collect.Sets;
 
@@ -28,7 +32,7 @@ import com.google.common.collect.Sets;
  * @author Christian
  *
  */
-public class IDColumn extends ATextColumn implements ILabelHolder {
+public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel {
 
 	protected final IDType idType;
 	protected final IDType displayedIDType;
@@ -141,6 +145,32 @@ public class IDColumn extends ATextColumn implements ILabelHolder {
 
 		relationshipExplorer.showDetailView(this, dummy, this);
 
+	}
+
+	@Override
+	public void fill(Column column, Column parentColumn) {
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
+		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
+
+		for (final Object id : mappingManager.getAllMappedIDs(idType)) {
+			Set<Object> idsToDisplay = mapper.apply(id);
+			if (idsToDisplay != null) {
+				for (Object name : idsToDisplay) {
+					addTextElement(name.toString(), id, column, null);
+					break;
+				}
+			} else {
+				addTextElement(id.toString(), id, column, null);
+			}
+		}
+
+	}
+
+	@Override
+	public GLElement getSummaryElement(Set<NestableItem> items) {
+		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
+		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(items.size());
+		return layeredRenderer;
 	}
 
 }

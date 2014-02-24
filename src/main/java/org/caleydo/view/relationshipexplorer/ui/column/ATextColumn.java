@@ -25,6 +25,8 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.Column;
+import org.caleydo.view.relationshipexplorer.ui.list.INestableColumn.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
@@ -130,6 +132,14 @@ public abstract class ATextColumn extends AEntityColumn {
 		MinSizeTextElement el = new MinSizeTextElement(text);
 		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
 		addElement(el, elementID);
+		return el;
+	}
+
+	public MinSizeTextElement addTextElement(String text, Object elementID, Column column, NestableItem parentItem) {
+		MinSizeTextElement el = new MinSizeTextElement(text);
+		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
+		column.addElement(el, parentItem);
+		// addElement(el, elementID);
 		return el;
 	}
 

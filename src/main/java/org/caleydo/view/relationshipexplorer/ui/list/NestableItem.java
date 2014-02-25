@@ -7,14 +7,13 @@ package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
@@ -27,6 +26,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 	protected GLElement element;
 	protected final NestableColumn column;
 	protected final ColumnTree columnTree;
+	protected Set<Object> elementData;
 
 	public NestableItem(GLElement item, NestableColumn column, NestableItem parentItem, ColumnTree columnTree) {
 		this.columnTree = columnTree;
@@ -34,7 +34,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 		setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(this,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		this.column = column;
-		setRenderer(GLRenderers.drawRect(Color.BLUE));
+		// setRenderer(GLRenderers.drawRect(Color.BLUE));
 		add(item);
 		this.element = item;
 
@@ -115,5 +115,27 @@ public class NestableItem extends AnimatedGLElementContainer {
 		for (CollapsableItemContainer container : itemContainers.values()) {
 			container.updateSummaryItems();
 		}
+	}
+
+	/**
+	 * @param elementData
+	 *            setter, see {@link elementData}
+	 */
+	public void setElementData(Set<Object> elementData) {
+		this.elementData = elementData;
+	}
+
+	/**
+	 * @return the element, see {@link #element}
+	 */
+	public GLElement getElement() {
+		return element;
+	}
+
+	/**
+	 * @return the elementData, see {@link #elementData}
+	 */
+	public Set<Object> getElementData() {
+		return elementData;
 	}
 }

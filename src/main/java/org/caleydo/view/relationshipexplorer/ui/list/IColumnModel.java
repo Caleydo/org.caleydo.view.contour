@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.Set;
 
+import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 
@@ -19,5 +20,9 @@ public interface IColumnModel extends ILabeled {
 	public void fill(NestableColumn column, NestableColumn parentColumn);
 
 	public GLElement getSummaryElement(Set<NestableItem> items);
+
+	public Set<NestableItem> getItems(Set<Object> elementIDs);
+
+	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType);
 
 }

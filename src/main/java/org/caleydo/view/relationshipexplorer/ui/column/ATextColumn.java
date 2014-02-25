@@ -33,12 +33,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
  *
  */
 public abstract class ATextColumn extends AEntityColumn {
+
+	// protected Map<Object, Set<NestableItem>> mapIDToItems = new HashMap<>();
+	protected Map<Object, Set<NestableItem>> mapIDToFilteredItems = new HashMap<>();
 
 	/**
 	 * @param relationshipExplorer
@@ -139,7 +143,14 @@ public abstract class ATextColumn extends AEntityColumn {
 			NestableItem parentItem) {
 		MinSizeTextElement el = new MinSizeTextElement(text);
 		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
-		column.addElement(el, parentItem);
+		NestableItem item = column.addElement(el, parentItem);
+		Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
+		if (items == null) {
+			items = new HashSet<>();
+			mapIDToFilteredItems.put(elementID, items);
+		}
+		items.add(item);
+		item.setElementData(Sets.newHashSet(elementID));
 		// addElement(el, elementID);
 		return el;
 	}

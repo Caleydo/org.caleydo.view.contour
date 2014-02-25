@@ -116,118 +116,119 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		// bodyRow.setRenderer(GLRenderers.drawRect(Color.RED));
 
 		// add(bodyRow);
-		NestableColumn root1 = addRootColumn("root1", new IColumnModel() {
-
-			@Override
-			public String getLabel() {
-				// TODO Auto-generated method stub
-				return "root";
-			}
-
-			@Override
-			public GLElement getSummaryElement(Set<NestableItem> items) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public void fill(NestableColumn column, NestableColumn parentColumn) {
-				// TODO Auto-generated method stub
-
-			}
-		});
+		// NestableColumn root1 = addRootColumn("root1", new IColumnModel() {
+		//
+		// @Override
+		// public String getLabel() {
+		// // TODO Auto-generated method stub
+		// return "root";
+		// }
+		//
+		// @Override
+		// public GLElement getSummaryElement(Set<NestableItem> items) {
+		// // TODO Auto-generated method stub
+		// return null;
+		// }
+		//
+		// @Override
+		// public void fill(NestableColumn column, NestableColumn parentColumn) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// });
 		// root1.setColumnWidth(root1.calcMinColumnWidth());
-		root1.setColumnWidth(100);
-		NestableItem ri1 = addElement(createTextElement("root1 item 1", 16), root1, null);
-		NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
-		NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
-
-		NestableColumn nested1 = addNestedColumn(new IColumnModel() {
-
-			@Override
-			public String getLabel() {
-				// TODO Auto-generated method stub
-				return "nested 1";
-			}
-
-			@Override
-			public GLElement getSummaryElement(Set<NestableItem> items) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public void fill(NestableColumn column, NestableColumn parentColumn) {
-				// TODO Auto-generated method stub
-
-			}
-		}, root1);
-		nested1.setColumnWidth(nested1.calcMinColumnWidth());
-		NestableItem ni11 = addElement(createTextElement("nested1 item 1_1", 16), nested1, ri1);
-		NestableItem ni12 = addElement(createTextElement("nested1 item 1_2", 16), nested1, ri1);
-		NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
-
-		NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
-		NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
-		NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
-
-		NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
-		NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
-
-		NestableColumn nested2 = addNestedColumn(new IColumnModel() {
-
-			@Override
-			public String getLabel() {
-				// TODO Auto-generated method stub
-				return "nested 2";
-			}
-
-			@Override
-			public GLElement getSummaryElement(Set<NestableItem> items) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public void fill(NestableColumn column, NestableColumn parentColumn) {
-				// TODO Auto-generated method stub
-
-			}
-		}, root1);
+		// root1.setColumnWidth(100);
+		// NestableItem ri1 = addElement(createTextElement("root1 item 1", 16), root1, null);
+		// NestableItem ri2 = addElement(createTextElement("root1 item 2", 16), root1, null);
+		// NestableItem ri3 = addElement(createTextElement("root1 item 3", 16), root1, null);
+		//
+		// NestableColumn nested1 = addNestedColumn(new IColumnModel() {
+		//
+		// @Override
+		// public String getLabel() {
+		// // TODO Auto-generated method stub
+		// return "nested 1";
+		// }
+		//
+		// @Override
+		// public GLElement getSummaryElement(Set<NestableItem> items) {
+		// // TODO Auto-generated method stub
+		// return null;
+		// }
+		//
+		// @Override
+		// public void fill(NestableColumn column, NestableColumn parentColumn) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// }, root1);
+		// nested1.setColumnWidth(nested1.calcMinColumnWidth());
+		// NestableItem ni11 = addElement(createTextElement("nested1 item 1_1", 16), nested1, ri1);
+		// NestableItem ni12 = addElement(createTextElement("nested1 item 1_2", 16), nested1, ri1);
+		// NestableItem ni13 = addElement(createTextElement("nested1 item 1_3", 16), nested1, ri1);
+		//
+		// NestableItem ni21 = addElement(createTextElement("nested1 item 2_1", 16), nested1, ri2);
+		// NestableItem ni22 = addElement(createTextElement("nested1 item 2_2", 16), nested1, ri2);
+		// NestableItem ni23 = addElement(createTextElement("nested1 item 2_3", 16), nested1, ri2);
+		//
+		// NestableItem ni31 = addElement(createTextElement("nested1 item 3_1", 16), nested1, ri3);
+		// NestableItem ni32 = addElement(createTextElement("nested1 item 3_2", 16), nested1, ri3);
+		//
+		// NestableColumn nested2 = addNestedColumn(new IColumnModel() {
+		//
+		// @Override
+		// public String getLabel() {
+		// // TODO Auto-generated method stub
+		// return "nested 2";
+		// }
+		//
+		// @Override
+		// public GLElement getSummaryElement(Set<NestableItem> items) {
+		// // TODO Auto-generated method stub
+		// return null;
+		// }
+		//
+		// @Override
+		// public void fill(NestableColumn column, NestableColumn parentColumn) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// }, root1);
 		// nested2.setColumnWidth(nested2.calcMinColumnWidth());
-		nested2.setColumnWidth(100);
-		NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
-		NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
-		NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
-		NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
-		NestableColumn nested3 = addNestedColumn(new IColumnModel() {
-
-			@Override
-			public String getLabel() {
-				// TODO Auto-generated method stub
-				return "nested 3";
-			}
-
-			@Override
-			public GLElement getSummaryElement(Set<NestableItem> items) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public void fill(NestableColumn column, NestableColumn parentColumn) {
-				// TODO Auto-generated method stub
-
-			}
-		}, nested1);
+		// nested2.setColumnWidth(100);
+		// NestableItem ni211 = addElement(createTextElement("nested2 item 1_1", 16), nested2, ri1);
+		// NestableItem ni212 = addElement(createTextElement("nested2 item 1_2", 16), nested2, ri1);
+		// NestableItem ni213 = addElement(createTextElement("nested2 item 1_3", 16), nested2, ri1);
+		// NestableItem ni214 = addElement(createTextElement("nested2 item 1_4", 16), nested2, ri1);
+		// NestableColumn nested3 = addNestedColumn(new IColumnModel() {
+		//
+		// @Override
+		// public String getLabel() {
+		// // TODO Auto-generated method stub
+		// return "nested 3";
+		// }
+		//
+		// @Override
+		// public GLElement getSummaryElement(Set<NestableItem> items) {
+		// // TODO Auto-generated method stub
+		// return null;
+		// }
+		//
+		// @Override
+		// public void fill(NestableColumn column, NestableColumn parentColumn) {
+		// // TODO Auto-generated method stub
+		//
+		// }
+		// }, nested1);
 		// nested3.setColumnWidth(nested3.calcMinColumnWidth());
-		nested3.setColumnWidth(100);
-		NestableItem nni311 = addElement(createTextElement("nested3 item 1_1", 16), nested3, ni11);
-		NestableItem nni312 = addElement(createTextElement("nested3 item 1_2", 16), nested3, ni11);
-		NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
-		NestableItem nni324 = addElement(createTextElement("nested3 item 2_2", 16), nested3, ni12);
+		// nested3.setColumnWidth(100);
+		// NestableItem nni311 = addElement(createTextElement("nested3 item 1_1", 16), nested3, ni11);
+		// NestableItem nni312 = addElement(createTextElement("nested3 item 1_2", 16), nested3, ni11);
+		// NestableItem nni323 = addElement(createTextElement("nested3 item 2_1", 16), nested3, ni12);
+		// NestableItem nni324 = addElement(createTextElement("nested3 item 2_2", 16), nested3, ni12);
 
-		// columnModel.fill(rootColumn, null);
+		addRootColumn(columnModel);
+		columnModel.fill(rootColumn, null);
 		updateSummaryItems();
 		// updateSizes();
 		relayout();
@@ -263,11 +264,11 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		// headerRow.setSize(Float.NaN, headerRow.getMinSize().y());
 	}
 
-	public NestableColumn addRootColumn(String caption, IColumnModel model) {
+	public NestableColumn addRootColumn(IColumnModel model) {
 		rootColumn = new NestableColumn(model, null, this);
-		rootColumn.header = new ColumnHeader(rootColumn, caption, headerRow);
+		rootColumn.header = new ColumnHeader(rootColumn, model.getLabel(), headerRow);
 		rootContainer = new ScrollableItemList();
-		rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
+		// rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 		rootColumn.itemContainers.add(rootContainer);
 		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8, EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(rootContainer);
@@ -297,6 +298,10 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		allColumns.add(column);
 		column.parent = parent;
 		model.fill(column, parent);
+		updateSummaryItems();
+		column.setCollapsed(true);
+		// updateSizes();
+		relayout();
 		// for (CollapsableItemContainer container : parent.itemContainers) {
 		// for (NestableItem item : container.getItems()) {
 		// item.addNestedContainer(column);

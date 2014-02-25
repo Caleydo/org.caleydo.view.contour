@@ -11,6 +11,7 @@ import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
@@ -21,10 +22,11 @@ import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
  * @author Christian
  *
  */
-public class ColumnHeader extends AnimatedGLElementContainer {
+public class ColumnHeader extends AnimatedGLElementContainer implements ISelectionCallback {
 
 	protected GLElement headerItem;
 	protected NestableColumn column;
+	protected GLButton collapseButton;
 
 	public ColumnHeader(NestableColumn column, String caption, AnimatedGLElementContainer headerParent) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(
@@ -41,15 +43,15 @@ public class ColumnHeader extends AnimatedGLElementContainer {
 		captionContainer.setSize(Float.NaN, ColumnTreeRenderStyle.CAPTION_HEIGHT);
 
 		if (!column.isRoot()) {
-			GLButton collapseButton = new GLButton(EButtonMode.CHECKBOX);
+			collapseButton = new GLButton(EButtonMode.CHECKBOX);
 			collapseButton.setSelected(false);
 			collapseButton.setRenderer(GLRenderers.fillImage("resources/icons/general/minus.png"));
 			collapseButton.setSelectedRenderer(GLRenderers.fillImage("resources/icons/general/plus.png"));
 			collapseButton.setSize(ColumnTreeRenderStyle.CAPTION_HEIGHT, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+			collapseButton.setCallback(this);
 
 			captionContainer.add(collapseButton);
 		}
-
 		this.column = column;
 		headerItem = ColumnTree.createTextElement(caption, ColumnTreeRenderStyle.CAPTION_HEIGHT);
 
@@ -85,6 +87,12 @@ public class ColumnHeader extends AnimatedGLElementContainer {
 		// setSize(width, Float.NaN);
 		// }
 		// }
+	}
+
+	@Override
+	public void onSelectionChanged(GLButton button, boolean selected) {
+		column.collapseAll(selected);
+
 	}
 
 }

@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDataType;
@@ -39,6 +40,10 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 
 	protected String label;
 
+	protected Set<Object> filteredElementIDs = new HashSet<>();
+	protected IIDTypeMapper<Object, Object> elementIDToDisplayedIDMapper;
+	protected IDMappingManager mappingManager;
+
 	public static final Comparator<GLElement> ID_NUMBER_COMPARATOR = new Comparator<GLElement>() {
 
 		@Override
@@ -54,6 +59,10 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;
 		this.label = idType.getIDCategory().getDenominationPlural(true);
+
+		mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
+		elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
+		filteredElementIDs.addAll(mappingManager.getAllMappedIDs(idType));
 	}
 
 	// @ListenTo
@@ -89,6 +98,16 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 			}
 		}
 
+	}
+
+	protected String getDisplayedID(Object id) {
+		Set<Object> idsToDisplay = elementIDToDisplayedIDMapper.apply(id);
+		if (idsToDisplay != null) {
+			for (Object name : idsToDisplay) {
+				return name.toString();
+			}
+		}
+		return id.toString();
 	}
 
 	@Override
@@ -149,18 +168,21 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 
 	@Override
 	public void fill(NestableColumn column, NestableColumn parentColumn) {
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
 
-		for (final Object id : mappingManager.getAllMappedIDs(idType)) {
-			Set<Object> idsToDisplay = mapper.apply(id);
-			if (idsToDisplay != null) {
-				for (Object name : idsToDisplay) {
-					addTextElement(name.toString(), id, column, null);
-					break;
+		if (parentColumn == null) {
+			for (Object id : filteredElementIDs) {
+				addTextElement(getDisplayedID(id), id, column, null);
+			}
+		} else {
+
+			for (Object id : filteredElementIDs) {
+				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
+						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
+
+				for (NestableItem parentItem : parentItems) {
+					addTextElement(getDisplayedID(id), id, column, parentItem);
 				}
-			} else {
-				addTextElement(id.toString(), id, column, null);
 			}
 		}
 
@@ -169,8 +191,21 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 	@Override
 	public GLElement getSummaryElement(Set<NestableItem> items) {
 		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
+		layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));
 		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(items.size());
 		return layeredRenderer;
+	}
+
+	@Override
+	public Set<NestableItem> getItems(Set<Object> elementIDs) {
+		Set<NestableItem> allItems = new HashSet<>();
+		for (Object elementID : elementIDs) {
+			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
+			if (items != null) {
+				allItems.addAll(items);
+			}
+		}
+		return allItems;
 	}
 
 }

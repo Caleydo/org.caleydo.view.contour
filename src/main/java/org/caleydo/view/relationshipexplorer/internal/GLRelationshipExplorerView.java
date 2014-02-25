@@ -53,10 +53,25 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 				GLPadding.ZERO));
 		ColumnTree columnTree = new ColumnTree(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()),
 				IDCategory.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), null));
+
 		NestableColumn rootColumn = columnTree.getRootColumn();
+
+		// IDColumn activityColumn = new IDColumn(IDType.getIDType("INTERACTION_ID"),
+		// IDType.getIDType("INTERACTION_ID"),
+		// null);
+		// activityColumn.setLabel("Activity");
+		// NestableColumn actiColumn = columnTree.addNestedColumn(activityColumn, rootColumn);
+
 		IDColumn compoundColumn = new IDColumn(IDType.getIDType("COMPOUND_ID"), IDType.getIDType("COMPOUND_ID"), null);
 		compoundColumn.setLabel("Compounds");
-		// columnTree.addNestedColumn(compoundColumn, rootColumn);
+		NestableColumn compColumn = columnTree.addNestedColumn(compoundColumn, rootColumn);
+
+		IDColumn fingerprintColumn = new IDColumn(IDType.getIDType("FINGERPRINT_ID"),
+				IDType.getIDType("FINGERPRINT_ID"), null);
+		fingerprintColumn.setLabel("HCS Fingerprints");
+		NestableColumn fingerColumn = columnTree.addNestedColumn(fingerprintColumn, compColumn);
+
+
 
 		row.add(columnTree);
 		// row.add(new ColumnTree());

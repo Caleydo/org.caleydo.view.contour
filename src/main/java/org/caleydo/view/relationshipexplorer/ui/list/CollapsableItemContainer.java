@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
@@ -57,7 +56,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 				ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE, ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE));
 		column.itemContainers.add(this);
 		// add(collapseButton);
-		setRenderer(GLRenderers.drawRect(Color.CYAN));
+		// setRenderer(GLRenderers.drawRect(Color.CYAN));
 		if (parentItem != null)
 			add(collapseButton);
 
@@ -80,6 +79,16 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 	public boolean isCollapsed() {
 		return collapseButton.isSelected();
+	}
+
+	public void setCollapsed(boolean isCollapsed) {
+		if (isCollapsed == isCollapsed())
+			return;
+		collapseButton.setSelected(isCollapsed);
+	}
+
+	public boolean isVisible() {
+		return findParent(ColumnTree.class) != null;
 	}
 
 	@Override

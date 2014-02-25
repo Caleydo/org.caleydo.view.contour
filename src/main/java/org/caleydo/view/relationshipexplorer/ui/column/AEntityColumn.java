@@ -244,7 +244,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		KeyBasedGLElementContainer<SimpleBarRenderer> barLayerRenderer = new KeyBasedGLElementContainer<>(
 				GLLayouts.LAYERS);
 
-		barLayerRenderer.setSize(80, Float.NaN);
+		// barLayerRenderer.setSize(80, Float.NaN);
 		barLayerRenderer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(barLayerRenderer));
 		barLayerRenderer.setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.1f));
 		barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.2f));
@@ -255,8 +255,8 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	protected SimpleBarRenderer createDefaultBarRenderer(Color color, float zDelta) {
 		SimpleBarRenderer renderer = new SimpleBarRenderer(0, true);
-		renderer.setMinSize(new Vec2f(80, 0));
-		renderer.setSize(80, Float.NaN);
+		renderer.setMinSize(new Vec2f(80, 16));
+		// renderer.setSize(80, Float.NaN);
 		renderer.setColor(color);
 		renderer.setBarWidth(12);
 		renderer.setzDelta(zDelta);

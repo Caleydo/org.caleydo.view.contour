@@ -111,6 +111,21 @@ public class NestableColumn {
 		// parent.updateSizes();
 	}
 
+	public void setCollapsed(boolean isCollapsed) {
+		if (isRoot())
+			return;
+		header.collapseButton.setSelected(isCollapsed);
+	}
+
+	protected void collapseAll(boolean isCollapsed) {
+		for (ItemContainer container : itemContainers) {
+			CollapsableItemContainer c = (CollapsableItemContainer) container;
+			if (c.isVisible()) {
+				c.setCollapsed(isCollapsed);
+			}
+		}
+	}
+
 	public float getItemWidth() {
 		if (parent == null) {
 			return columnWidth - 2 * ColumnTreeRenderStyle.HORIZONTAL_PADDING;
@@ -168,8 +183,8 @@ public class NestableColumn {
 	}
 
 	public GLElement getSummaryElement(Set<NestableItem> items) {
-		// return model.getSummaryElement(items);
-		return ColumnTree.createTextElement("summary of " + items.size(), 16);
+		return model.getSummaryElement(items);
+		// return ColumnTree.createTextElement("summary of " + items.size(), 16);
 	}
 
 	public boolean isRoot() {

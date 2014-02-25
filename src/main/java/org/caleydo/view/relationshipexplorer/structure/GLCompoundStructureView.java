@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.structure;
 
+import org.caleydo.core.serialize.ASerializedView;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -30,6 +31,11 @@ public class GLCompoundStructureView extends AGLElementView {
 	@Override
 	protected GLElement createRoot() {
 		return new CompoundStructureElement();
+	}
+
+	@Override
+	public ASerializedView getSerializableRepresentation() {
+		return new SerializedCompoundStructureView();
 	}
 
 }

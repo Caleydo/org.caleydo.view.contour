@@ -5,12 +5,17 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.structure;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 import org.caleydo.core.serialize.ASerializedView;
 
 /**
  * @author Christian
  *
  */
+@XmlRootElement
+@XmlType
 public class SerializedCompoundStructureView extends ASerializedView {
 
 	@Override

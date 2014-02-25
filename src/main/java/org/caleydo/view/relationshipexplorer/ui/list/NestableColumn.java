@@ -121,9 +121,35 @@ public class NestableColumn {
 		for (ItemContainer container : itemContainers) {
 			CollapsableItemContainer c = (CollapsableItemContainer) container;
 			if (c.isVisible()) {
-				c.setCollapsed(isCollapsed);
+				c.setCollapsed(isCollapsed, false);
 			}
 		}
+
+		for (NestableColumn col : children) {
+			col.getColumnModel().updateMappings();
+		}
+	}
+
+	public Set<NestableItem> getVisibleItems() {
+		Set<NestableItem> items = new HashSet<>();
+		if (isRoot()) {
+			for (ItemContainer container : itemContainers) {
+				for (NestableItem item : container.getCurrentItems()) {
+					items.add(item);
+				}
+			}
+		} else {
+			for (ItemContainer container : itemContainers) {
+				CollapsableItemContainer c = (CollapsableItemContainer) container;
+				if (c.isVisible()) {
+					for (NestableItem item : c.getCurrentItems()) {
+						items.add(item);
+					}
+				}
+			}
+		}
+		return items;
+
 	}
 
 	public float getItemWidth() {
@@ -148,6 +174,7 @@ public class NestableColumn {
 	}
 
 	public void updateSummaryItems() {
+		model.updateMappings();
 		for (ItemContainer container : itemContainers) {
 			container.updateSummaryItems();
 			// for (NestableItem item : container.getItems()) {

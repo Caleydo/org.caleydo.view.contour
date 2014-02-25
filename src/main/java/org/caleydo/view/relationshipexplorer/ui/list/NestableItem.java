@@ -22,7 +22,7 @@ import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
  */
 public class NestableItem extends AnimatedGLElementContainer {
 	protected Map<NestableColumn, CollapsableItemContainer> itemContainers = new HashMap<>();
-	protected NestableItem parentItem;
+	protected final NestableItem parentItem;
 	protected GLElement element;
 	protected final NestableColumn column;
 	protected final ColumnTree columnTree;
@@ -30,6 +30,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 
 	public NestableItem(GLElement item, NestableColumn column, NestableItem parentItem, ColumnTree columnTree) {
 		this.columnTree = columnTree;
+		this.parentItem = parentItem;
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(this,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
@@ -137,5 +138,12 @@ public class NestableItem extends AnimatedGLElementContainer {
 	 */
 	public Set<Object> getElementData() {
 		return elementData;
+	}
+
+	/**
+	 * @return the parentItem, see {@link #parentItem}
+	 */
+	public NestableItem getParentItem() {
+		return parentItem;
 	}
 }

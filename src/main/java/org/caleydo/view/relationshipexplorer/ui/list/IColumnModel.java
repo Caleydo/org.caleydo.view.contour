@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
@@ -24,5 +25,17 @@ public interface IColumnModel extends ILabeled {
 	public Set<NestableItem> getItems(Set<Object> elementIDs);
 
 	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType);
+
+	public IDType getBroadcastingIDType();
+
+	public Set<Object> getBroadcastingIDsFromElementID(Object elementID);
+
+	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs);
+
+	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
+
+	public Set<Object> getFilteredElementIDs();
+
+	public void updateMappings();
 
 }

@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,9 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
 
 import com.google.common.collect.Lists;
 
@@ -70,21 +74,63 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 		summaryItem = new NestableItem(ColumnTree.createTextElement("Default Summary", 16), column, parentItem,
 				columnTree);
+		summaryItem.setElementData(new HashSet<>());
 		// column.summaryItems.add(summaryItem);
 
 		collapseButton.setVisibility(EVisibility.HIDDEN);
 
 		collapseButton.setCallback(this);
+		collapseButton.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+				if (pick.getPickingMode() == PickingMode.CLICKED) {
+
+				}
+			}
+		});
 	}
 
 	public boolean isCollapsed() {
 		return collapseButton.isSelected();
 	}
 
-	public void setCollapsed(boolean isCollapsed) {
+	public void setCollapsed(boolean isCollapsed, boolean updateMappings) {
 		if (isCollapsed == isCollapsed())
 			return;
-		collapseButton.setSelected(isCollapsed);
+		collapseButton.setSelectedSilent(isCollapsed);
+		updateCollapseState(updateMappings);
+	}
+
+	protected void updateCollapseState(boolean updateMappings) {
+		itemContainer.clear(0);
+		if (isCollapsed()) {
+
+			itemContainer.add(summaryItem);
+
+			for (NestableColumn col : column.children) {
+
+				CollapsableItemContainer container = summaryItem.getNestedContainer(col);
+				container.updateCollapseState(updateMappings);
+			}
+
+		} else {
+			for (NestableItem item : items) {
+				itemContainer.add(item);
+				for (NestableColumn col : column.children) {
+					CollapsableItemContainer container = item.getNestedContainer(col);
+					container.updateCollapseState(updateMappings);
+				}
+			}
+		}
+
+		columnTree.relayout();
+
+		if (updateMappings) {
+			for (NestableColumn col : column.children) {
+				col.getColumnModel().updateMappings();
+			}
+		}
 	}
 
 	public boolean isVisible() {
@@ -104,10 +150,14 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 					childItems = new HashSet<>();
 					childColumnItems.put(col, childItems);
 				}
-				childItems.addAll(item.getNestedContainer(col).getItems());
+				for (NestableItem i : item.getNestedContainer(col).getItems()) {
+					if (!containsItemWithID(i, childItems))
+						childItems.add(i);
+				}
 			}
 			// }
 		}
+		updateSummaryData(summaryItem, items);
 		summaryItem.setElement(column.getSummaryElement(new HashSet<>(items)));
 		for (NestableColumn col : column.children) {
 			// NestableItem childSummaryItem = new NestableItem(col.getSummaryElement(childColumnItems.get(col)),
@@ -117,6 +167,8 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 			Set<NestableItem> i = childColumnItems.get(col);
 			if (i != null) {
 				CollapsableItemContainer container = summaryItem.getNestedContainer(col);
+
+				updateSummaryData(container.summaryItem, i);
 				container.summaryItem.setElement(col.getSummaryElement(i));
 				container.collapseButton.setSelected(true);
 				container.items.clear();
@@ -126,6 +178,17 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 			// col.summaryItems.add(childSummaryItem);
 		}
 
+	}
+
+	protected void updateSummaryData(NestableItem summaryItem, Collection<NestableItem> items) {
+		Set<Object> summaryData = summaryItem.getElementData();
+		summaryData.clear();
+		for (NestableItem item : items) {
+			Set<Object> d = item.getElementData();
+			if (d != null) {
+				summaryData.addAll(d);
+			}
+		}
 	}
 
 	@Override
@@ -143,10 +206,20 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 	}
 
 	public void addItem(NestableItem item) {
+		// if (containsItemWithID(item, items))
+		// return;
 		items.add(item);
 		if (!isCollapsed())
 			itemContainer.add(item);
 		updateButtonVisibility();
+	}
+
+	protected boolean containsItemWithID(NestableItem item, Collection<NestableItem> items) {
+		for (NestableItem i : items) {
+			if (i.getElementData().containsAll(item.getElementData()))
+				return true;
+		}
+		return false;
 	}
 
 	protected void updateButtonVisibility() {
@@ -158,51 +231,9 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 	@Override
 	public void onSelectionChanged(GLButton button, boolean selected) {
-		itemContainer.clear(0);
-		if (selected) {
-			// setItemVisibility(EVisibility.NONE);
-
-			itemContainer.add(summaryItem);
-
-			for (NestableColumn col : column.children) {
-				// NestableItem childSummaryItem = new
-				// NestableItem(col.getSummaryElement(childColumnItems.get(col)),
-				// col,
-				// summaryItem);
-				// summaryItem.addItem(childSummaryItem, col);
-
-				CollapsableItemContainer container = summaryItem.getNestedContainer(col);
-				container.onSelectionChanged(container.collapseButton, container.collapseButton.isSelected());
-
-				// col.summaryItems.add(childSummaryItem);
-			}
-
-			// summaryItem.element.setSize(column.getItemWidth(), summaryItem.element.getMinSize().y());
-			// summaryItem.updateSize();
-
-			// summaryItem.setVisibility(EVisibility.PICKABLE);
-		} else {
-			for (NestableItem item : items) {
-				itemContainer.add(item);
-				for (NestableColumn col : column.children) {
-					// NestableItem childSummaryItem = new
-					// NestableItem(col.getSummaryElement(childColumnItems.get(col)),
-					// col,
-					// summaryItem);
-					// summaryItem.addItem(childSummaryItem, col);
-
-					CollapsableItemContainer container = item.getNestedContainer(col);
-					container.onSelectionChanged(container.collapseButton, container.collapseButton.isSelected());
-
-					// col.summaryItems.add(childSummaryItem);
-				}
-			}
-			// setItemVisibility(EVisibility.PICKABLE);
-			// summaryItem.setVisibility(EVisibility.NONE);
-		}
-
-		columnTree.relayout();
+		updateCollapseState(true);
 	}
+
 
 	// private void setItemVisibility(EVisibility visibility) {
 	// for (GLElement element : itemContainer) {

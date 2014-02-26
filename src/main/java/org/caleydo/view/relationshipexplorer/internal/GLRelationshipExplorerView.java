@@ -12,22 +12,13 @@ import javax.media.opengl.GLAutoDrawable;
 import org.caleydo.core.data.datadomain.DataSupportDefinitions;
 import org.caleydo.core.data.datadomain.IDataSupportDefinition;
 import org.caleydo.core.data.perspective.table.TablePerspective;
-import org.caleydo.core.id.IDCategory;
-import org.caleydo.core.id.IDType;
 import org.caleydo.core.serialize.ASerializedView;
 import org.caleydo.core.util.logging.Logger;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
-import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
-import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
-import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
-import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
-import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 
 /**
  *
@@ -47,35 +38,36 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
-		// HCSRelationshipExplorerElementFactory factory = new HCSRelationshipExplorerElementFactory();
-		// getRootDecorator().setContent(factory.create(null));
-		AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,
-				GLPadding.ZERO));
-		ColumnTree columnTree = new ColumnTree(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()),
-				IDCategory.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), null));
-
-		NestableColumn rootColumn = columnTree.getRootColumn();
-
-		// IDColumn activityColumn = new IDColumn(IDType.getIDType("INTERACTION_ID"),
-		// IDType.getIDType("INTERACTION_ID"),
+		HCSRelationshipExplorerElementFactory2 factory = new HCSRelationshipExplorerElementFactory2();
+		getRootDecorator().setContent(factory.create(null));
+		// AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,
+		// GLPadding.ZERO));
+		// ColumnTree columnTree = new ColumnTree(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()),
+		// IDCategory.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), null));
+		//
+		// NestableColumn rootColumn = columnTree.getRootColumn();
+		//
+		// // IDColumn activityColumn = new IDColumn(IDType.getIDType("INTERACTION_ID"),
+		// // IDType.getIDType("INTERACTION_ID"),
+		// // null);
+		// // activityColumn.setLabel("Activity");
+		// // NestableColumn actiColumn = columnTree.addNestedColumn(activityColumn, rootColumn);
+		//
+		// IDColumn compoundColumn = new IDColumn(IDType.getIDType("COMPOUND_ID"), IDType.getIDType("COMPOUND_ID"),
 		// null);
-		// activityColumn.setLabel("Activity");
-		// NestableColumn actiColumn = columnTree.addNestedColumn(activityColumn, rootColumn);
-
-		IDColumn compoundColumn = new IDColumn(IDType.getIDType("COMPOUND_ID"), IDType.getIDType("COMPOUND_ID"), null);
-		compoundColumn.setLabel("Compounds");
-		NestableColumn compColumn = columnTree.addNestedColumn(compoundColumn, rootColumn);
-
-		IDColumn fingerprintColumn = new IDColumn(IDType.getIDType("FINGERPRINT_ID"),
-				IDType.getIDType("FINGERPRINT_ID"), null);
-		fingerprintColumn.setLabel("HCS Fingerprints");
-		NestableColumn fingerColumn = columnTree.addNestedColumn(fingerprintColumn, compColumn);
-
-
-
-		row.add(columnTree);
-		// row.add(new ColumnTree());
-		getRootDecorator().setContent(row);
+		// compoundColumn.setLabel("Compounds");
+		// NestableColumn compColumn = columnTree.addNestedColumn(compoundColumn, rootColumn);
+		//
+		// IDColumn fingerprintColumn = new IDColumn(IDType.getIDType("FINGERPRINT_ID"),
+		// IDType.getIDType("FINGERPRINT_ID"), null);
+		// fingerprintColumn.setLabel("HCS Fingerprints");
+		// NestableColumn fingerColumn = columnTree.addNestedColumn(fingerprintColumn, compColumn);
+		//
+		//
+		//
+		// row.add(columnTree);
+		// // row.add(new ColumnTree());
+		// getRootDecorator().setContent(row);
 	}
 
 	@Override

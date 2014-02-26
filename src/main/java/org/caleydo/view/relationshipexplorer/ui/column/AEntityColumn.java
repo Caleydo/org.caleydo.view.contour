@@ -55,6 +55,9 @@ import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.GLElementList;
 import org.caleydo.view.relationshipexplorer.ui.list.GLElementList.IElementSelectionListener;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
@@ -62,13 +65,14 @@ import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
  *
  */
 public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled,
-		IEntityCollection {
+		IEntityCollection, IColumnModel {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
@@ -81,6 +85,17 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	protected static final URL FILTER_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
+
+	// -----------------
+
+	protected Set<Object> filteredElementIDs = new HashSet<>();
+	protected Map<Object, Set<NestableItem>> mapIDToFilteredItems = new HashMap<>();
+	protected NestableColumn column;
+	protected NestableColumn parentColumn;
+
+	protected int maxParentMappings = 0;
+
+	// -----------------
 
 	protected KeyBasedGLElementContainer<GLElement> header;
 	protected GLElementContainer buttonBar;
@@ -116,6 +131,21 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 					.getNormalizedValue());
 		}
 	}
+
+	public final Comparator<NestableItem> SELECTED_ITEMS_COMPARATOR = new Comparator<NestableItem>() {
+
+		@Override
+		public int compare(NestableItem o1, NestableItem o2) {
+			if (o1.isSelected() && !o2.isSelected()) {
+				return -1;
+			}
+			if (!o1.isSelected() && o2.isSelected()) {
+				return 1;
+			}
+
+			return 0;
+		}
+	};
 
 	public static final MappingBarComparator SELECTED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
 			SELECTED_ELEMENTS_KEY);
@@ -238,6 +268,17 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		row.setElement(DATA_KEY, element);
 		mapIDToElement.put(elementID, row);
 		itemList.add(row);
+	}
+
+	protected void addItem(GLElement element, Object elementID, NestableColumn column, NestableItem parentItem) {
+		NestableItem item = column.addElement(element, parentItem);
+		Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
+		if (items == null) {
+			items = new HashSet<>();
+			mapIDToFilteredItems.put(elementID, items);
+		}
+		items.add(item);
+		item.setElementData(Sets.newHashSet(elementID));
 	}
 
 	protected KeyBasedGLElementContainer<SimpleBarRenderer> createLayeredBarRenderer() {
@@ -608,6 +649,92 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public void updateSorting() {
 		sort(currentComparator);
 	}
+
+	@Override
+	public void updateMappings() {
+		updateMaxParentMappings();
+	}
+
+	protected void updateMaxParentMappings() {
+		maxParentMappings = 0;
+		if (parentColumn == null)
+			return;
+		for (NestableItem parentItem : parentColumn.getVisibleItems()) {
+			Set<Object> parentBCIDs = parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(
+					parentItem.getElementData());
+			Set<Object> mappedElementIDs = getElementIDsFromForeignIDs(parentBCIDs, parentColumn.getColumnModel()
+					.getBroadcastingIDType());
+			if (mappedElementIDs.size() > maxParentMappings)
+				maxParentMappings = mappedElementIDs.size();
+		}
+	}
+
+	@Override
+	public GLElement getSummaryElement(Set<NestableItem> items) {
+		if (parentColumn == null)
+			return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
+
+		Set<Object> parentElementIDs = new HashSet<>();
+		for (NestableItem item : items) {
+			parentElementIDs.addAll(item.getParentItem().getElementData());
+		}
+
+		Set<Object> parentBCIDs = parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(parentElementIDs);
+		Set<Object> mappedElementIDs = getElementIDsFromForeignIDs(parentBCIDs, parentColumn.getColumnModel()
+				.getBroadcastingIDType());
+
+		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
+		// layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));
+		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(items.size());
+		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setNormalizedValue((float) items.size() / maxParentMappings);
+		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setValue(mappedElementIDs.size());
+		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setNormalizedValue(
+				(float) mappedElementIDs.size() / maxParentMappings);
+		return layeredRenderer;
+	}
+
+	@Override
+	public void fill(NestableColumn column, NestableColumn parentColumn) {
+		this.column = column;
+		this.parentColumn = parentColumn;
+
+		if (parentColumn == null) {
+			for (Object id : filteredElementIDs) {
+				GLElement element = createElement(id);
+				if (element != null) {
+					addItem(element, id, column, null);
+				}
+			}
+		} else {
+			for (Object id : filteredElementIDs) {
+				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
+						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
+
+				for (NestableItem parentItem : parentItems) {
+					GLElement element = createElement(id);
+					if (element != null) {
+						addItem(element, id, column, parentItem);
+					}
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public Set<NestableItem> getItems(Set<Object> elementIDs) {
+		Set<NestableItem> allItems = new HashSet<>();
+		for (Object elementID : elementIDs) {
+			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
+			if (items != null) {
+				allItems.addAll(items);
+			}
+		}
+		return allItems;
+	}
+
+	protected abstract GLElement createElement(Object elementID);
 
 	protected abstract void setContent();
 

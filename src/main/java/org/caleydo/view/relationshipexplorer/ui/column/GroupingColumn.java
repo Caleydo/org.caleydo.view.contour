@@ -27,8 +27,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleAggregateDataRenderer;
 
@@ -61,6 +59,7 @@ public class GroupingColumn extends ATextColumn {
 		this.perspective = perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
+		filteredElementIDs.addAll(groupList.getGroups());
 	}
 
 	@Override
@@ -183,27 +182,8 @@ public class GroupingColumn extends ATextColumn {
 	}
 
 	@Override
-	public void fill(NestableColumn column, NestableColumn parentColumn) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public GLElement getSummaryElement(Set<NestableItem> items) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<NestableItem> getItems(Set<Object> elementIDs) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateMappings() {
-		// TODO Auto-generated method stub
-
+	protected GLElement createElement(Object elementID) {
+		return createTextItem(((Group) elementID).getLabel());
 	}
 
 }

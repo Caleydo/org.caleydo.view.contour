@@ -8,7 +8,6 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDataType;
@@ -22,10 +21,8 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
-import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.collect.Lists;
@@ -42,12 +39,8 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 
 	protected String label;
 
-	protected Set<Object> filteredElementIDs = new HashSet<>();
 	protected IIDTypeMapper<Object, Object> elementIDToDisplayedIDMapper;
 	protected IDMappingManager mappingManager;
-	protected NestableColumn column;
-	protected NestableColumn parentColumn;
-	protected int maxParentMappings = 0;
 
 	public static final Comparator<GLElement> ID_NUMBER_COMPARATOR = new Comparator<GLElement>() {
 
@@ -192,83 +185,34 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 
 	}
 
-	@Override
-	public void fill(NestableColumn column, NestableColumn parentColumn) {
-		this.column = column;
-		this.parentColumn = parentColumn;
+	// @Override
+	// public void fill(NestableColumn column, NestableColumn parentColumn) {
+	// this.column = column;
+	// this.parentColumn = parentColumn;
+	//
+	// if (parentColumn == null) {
+	// for (Object id : filteredElementIDs) {
+	// addTextItem(getDisplayedID(id), id, column, null);
+	// }
+	// } else {
+	//
+	// for (Object id : filteredElementIDs) {
+	// Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
+	// getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+	// Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
+	//
+	// for (NestableItem parentItem : parentItems) {
+	// addTextItem(getDisplayedID(id), id, column, parentItem);
+	// }
+	// }
+	// }
+	//
+	// }
 
-		if (parentColumn == null) {
-			for (Object id : filteredElementIDs) {
-				addTextElement(getDisplayedID(id), id, column, null);
-			}
-		} else {
-
-			for (Object id : filteredElementIDs) {
-				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
-						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
-				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
-
-				for (NestableItem parentItem : parentItems) {
-					addTextElement(getDisplayedID(id), id, column, parentItem);
-				}
-			}
-		}
-
-	}
-
-	@Override
-	public void updateMappings() {
-		updateMaxParentMappings();
-	}
-
-	protected void updateMaxParentMappings() {
-		maxParentMappings = 0;
-		if (parentColumn == null)
-			return;
-		for (NestableItem parentItem : parentColumn.getVisibleItems()) {
-			Set<Object> parentBCIDs = parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(
-					parentItem.getElementData());
-			Set<Object> mappedElementIDs = getElementIDsFromForeignIDs(parentBCIDs, parentColumn.getColumnModel()
-					.getBroadcastingIDType());
-			if (mappedElementIDs.size() > maxParentMappings)
-				maxParentMappings = mappedElementIDs.size();
-		}
-	}
 
 	@Override
-	public GLElement getSummaryElement(Set<NestableItem> items) {
-		if (parentColumn == null)
-			return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
-
-		Set<Object> parentElementIDs = new HashSet<>();
-		for (NestableItem item : items) {
-			parentElementIDs.addAll(item.getParentItem().getElementData());
-		}
-
-		Set<Object> parentBCIDs = parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(parentElementIDs);
-		Set<Object> mappedElementIDs = getElementIDsFromForeignIDs(parentBCIDs, parentColumn.getColumnModel()
-				.getBroadcastingIDType());
-
-		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
-		// layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));
-		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(items.size());
-		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setNormalizedValue((float) items.size() / maxParentMappings);
-		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setValue(mappedElementIDs.size());
-		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setNormalizedValue(
-				(float) mappedElementIDs.size() / maxParentMappings);
-		return layeredRenderer;
-	}
-
-	@Override
-	public Set<NestableItem> getItems(Set<Object> elementIDs) {
-		Set<NestableItem> allItems = new HashSet<>();
-		for (Object elementID : elementIDs) {
-			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
-			if (items != null) {
-				allItems.addAll(items);
-			}
-		}
-		return allItems;
+	protected GLElement createElement(Object elementID) {
+		return createTextItem(getDisplayedID(elementID));
 	}
 
 }

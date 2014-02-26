@@ -24,10 +24,14 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementS
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
+import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -59,6 +63,18 @@ public class TabularDataColumn extends AEntityColumn {
 		}
 	};
 
+	public static final Comparator<NestableItem> ITEM_ID_COMPARATOR = new Comparator<NestableItem>() {
+
+		@Override
+		public int compare(NestableItem arg0, NestableItem arg1) {
+
+			SimpleDataRenderer r1 = (SimpleDataRenderer) arg0.getElement();
+			SimpleDataRenderer r2 = (SimpleDataRenderer) arg1.getElement();
+
+			return r1.getRecordID() - r2.getRecordID();
+		}
+	};
+
 	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory,
 			RelationshipExplorerElement relationshipExplorer) {
 
@@ -80,6 +96,7 @@ public class TabularDataColumn extends AEntityColumn {
 			perspective = tablePerspective.getDimensionPerspective();
 		}
 
+		filteredElementIDs.addAll(va.getIDs());
 	}
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
@@ -87,6 +104,27 @@ public class TabularDataColumn extends AEntityColumn {
 		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
 
 		addElement(renderer, recordID);
+		// IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
+		// IDType origIDType;
+		// IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
+		// if (spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
+		// origIDType = IDType.getIDType(spec.getIdType());
+		// } else {
+		// origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
+		// }
+
+		// itemList.add(renderer);
+		// Object origID = m.getID(recordIDType, origIDType, recordID);
+
+		// itemList.setElementTooltip(renderer, origID.toString());
+
+	}
+
+	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
+			Perspective dimensionPerspective, NestableItem parentItem, NestableColumn column) {
+		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
+
+		addItem(renderer, recordID, column, parentItem);
 		// IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
 		// IDType origIDType;
 		// IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
@@ -168,6 +206,42 @@ public class TabularDataColumn extends AEntityColumn {
 
 		relationshipExplorer.showDetailView(this, detailView, this);
 
+	}
+
+	@Override
+	public void fill(NestableColumn column, NestableColumn parentColumn) {
+		this.column = column;
+		this.parentColumn = parentColumn;
+
+		if (parentColumn == null) {
+			for (Object id : filteredElementIDs) {
+				addItem(dataDomain, itemIDType, (Integer) id, perspective, null, column);
+			}
+		} else {
+			for (Object id : filteredElementIDs) {
+				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
+						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
+
+				for (NestableItem parentItem : parentItems) {
+					addItem(dataDomain, itemIDType, (Integer) id, perspective, parentItem, column);
+
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public GLElement createElement(Object elementID) {
+		return new SimpleDataRenderer(dataDomain, itemIDType, (Integer) elementID, perspective);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Comparator<NestableItem> getDefaultComparator() {
+		return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
+				ITEM_ID_COMPARATOR));
 	}
 
 }

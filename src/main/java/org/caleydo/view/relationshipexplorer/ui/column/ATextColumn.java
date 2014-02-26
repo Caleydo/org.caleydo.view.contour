@@ -25,7 +25,6 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
@@ -36,16 +35,14 @@ import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * @author Christian
  *
  */
-public abstract class ATextColumn extends AEntityColumn implements IColumnModel {
+public abstract class ATextColumn extends AEntityColumn {
 
 	// protected Map<Object, Set<NestableItem>> mapIDToItems = new HashMap<>();
-	protected Map<Object, Set<NestableItem>> mapIDToFilteredItems = new HashMap<>();
 
 	/**
 	 * @param relationshipExplorer
@@ -83,21 +80,6 @@ public abstract class ATextColumn extends AEntityColumn implements IColumnModel 
 			MinSizeTextElement r1 = (MinSizeTextElement) o1.getElement();
 			MinSizeTextElement r2 = (MinSizeTextElement) o2.getElement();
 			return r1.getLabel().compareTo(r2.getLabel());
-		}
-	};
-
-	public final Comparator<NestableItem> SELECTED_ITEMS_COMPARATOR = new Comparator<NestableItem>() {
-
-		@Override
-		public int compare(NestableItem o1, NestableItem o2) {
-			if (o1.isSelected() && !o2.isSelected()) {
-				return -1;
-			}
-			if (!o1.isSelected() && o2.isSelected()) {
-				return 1;
-			}
-
-			return 0;
 		}
 	};
 
@@ -167,19 +149,18 @@ public abstract class ATextColumn extends AEntityColumn implements IColumnModel 
 		return el;
 	}
 
-	public MinSizeTextElement addTextElement(String text, Object elementID, NestableColumn column,
+	public MinSizeTextElement addTextItem(String text, Object elementID, NestableColumn column,
 			NestableItem parentItem) {
 		MinSizeTextElement el = new MinSizeTextElement(text);
 		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
-		NestableItem item = column.addElement(el, parentItem);
-		Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
-		if (items == null) {
-			items = new HashSet<>();
-			mapIDToFilteredItems.put(elementID, items);
-		}
-		items.add(item);
-		item.setElementData(Sets.newHashSet(elementID));
+		addItem(el, elementID, column, parentItem);
 		// addElement(el, elementID);
+		return el;
+	}
+
+	public MinSizeTextElement createTextItem(String text) {
+		MinSizeTextElement el = new MinSizeTextElement(text);
+		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
 		return el;
 	}
 

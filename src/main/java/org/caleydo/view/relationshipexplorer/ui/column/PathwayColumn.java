@@ -18,8 +18,6 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.pathway.CompoundAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugmentation;
 
@@ -34,6 +32,7 @@ public class PathwayColumn extends ATextColumn {
 	 */
 	public PathwayColumn(RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
+		filteredElementIDs.addAll(PathwayManager.get().getAllItems());
 	}
 
 	// @ListenTo
@@ -84,42 +83,6 @@ public class PathwayColumn extends ATextColumn {
 		}
 
 	}
-
-	// @Override
-	// protected AContextMenuItem getFilterContextMenuItem() {
-	// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new Runnable() {
-	// @Override
-	// public void run() {
-	// Set<Object> ids = new HashSet<>();
-	// Set<Object> pathways = new HashSet<>();
-	// for (GLElement element : itemList.getSelectedElements()) {
-	// PathwayGraph pw = (PathwayGraph) mapIDToElement.inverse().get(element);
-	// ids.addAll(getBroadcastingIDsFromElementID(pw));
-	// pathways.add(pw);
-	// }
-	//
-	//
-	// IDUpdateEvent event = new IDUpdateEvent(ids, getBroadcastingIDType(), EUpdateType.FILTER);
-	// event.setSender(PathwayColumn.this);
-	// EventPublisher.trigger(event);
-	// setFilteredItems(pathways);
-	//
-	//
-	// Set<Object> broadcastIDs = new HashSet<>();
-	// Set<Object> elementIDs = new HashSet<>();
-	// for (GLElement element : itemList.getSelectedElements()) {
-	// Object elementID = mapIDToElement.inverse().get(element);
-	// elementIDs.add(elementID);
-	// broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-	// }
-	// // Avoid direct calling of setFilteredItems due to synchronization issues
-	// EventPublisher.trigger(new FilterEvent(elementIDs).to(AEntityColumn.this));
-	//
-	// triggerIDUpdate(broadcastIDs, EUpdateType.FILTER);
-	// }
-	// });
-	// return contextMenuItem;
-	// }
 
 	@Override
 	public IDType getBroadcastingIDType() {
@@ -183,26 +146,7 @@ public class PathwayColumn extends ATextColumn {
 	}
 
 	@Override
-	public void fill(NestableColumn column, NestableColumn parentColumn) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public GLElement getSummaryElement(Set<NestableItem> items) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Set<NestableItem> getItems(Set<Object> elementIDs) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateMappings() {
-		// TODO Auto-generated method stub
-
+	protected GLElement createElement(Object elementID) {
+		return createTextItem(((PathwayGraph) elementID).getLabel());
 	}
 }

@@ -25,21 +25,24 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
+import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
  * @author Christian
  *
  */
-public abstract class ATextColumn extends AEntityColumn {
+public abstract class ATextColumn extends AEntityColumn implements IColumnModel {
 
 	// protected Map<Object, Set<NestableItem>> mapIDToItems = new HashMap<>();
 	protected Map<Object, Set<NestableItem>> mapIDToFilteredItems = new HashMap<>();
@@ -72,6 +75,31 @@ public abstract class ATextColumn extends AEntityColumn {
 	}
 
 	protected final TextComparator TEXT_COMPARATOR = new TextComparator(this);
+
+	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
+
+		@Override
+		public int compare(NestableItem o1, NestableItem o2) {
+			MinSizeTextElement r1 = (MinSizeTextElement) o1.getElement();
+			MinSizeTextElement r2 = (MinSizeTextElement) o2.getElement();
+			return r1.getLabel().compareTo(r2.getLabel());
+		}
+	};
+
+	public final Comparator<NestableItem> SELECTED_ITEMS_COMPARATOR = new Comparator<NestableItem>() {
+
+		@Override
+		public int compare(NestableItem o1, NestableItem o2) {
+			if (o1.isSelected() && !o2.isSelected()) {
+				return -1;
+			}
+			if (!o1.isSelected() && o2.isSelected()) {
+				return 1;
+			}
+
+			return 0;
+		}
+	};
 
 	public class MinSizeTextElement extends GLElement implements ILabeled {
 
@@ -158,6 +186,13 @@ public abstract class ATextColumn extends AEntityColumn {
 	@Override
 	public Comparator<GLElement> getDefaultElementComparator() {
 		return TEXT_COMPARATOR;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Comparator<NestableItem> getDefaultComparator() {
+		return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
+				TEXT_ITEM_COMPARATOR));
 	}
 
 	@ListenTo(sendToMe = true)

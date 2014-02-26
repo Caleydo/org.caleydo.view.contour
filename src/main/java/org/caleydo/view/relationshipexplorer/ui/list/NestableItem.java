@@ -183,4 +183,12 @@ public class NestableItem extends AnimatedGLElementContainer {
 	public void setHighlight(boolean isHighlight) {
 		listElement.setHighlight(isHighlight);
 	}
+
+	public boolean isSelected() {
+		return listElement.isSelected();
+	}
+
+	public boolean isHighlight() {
+		return listElement.isHighlight();
+	}
 }

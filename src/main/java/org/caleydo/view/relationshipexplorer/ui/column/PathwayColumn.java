@@ -18,6 +18,8 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.pathway.CompoundAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugmentation;
 
@@ -178,5 +180,29 @@ public class PathwayColumn extends ATextColumn {
 				getForeignColumnWithBroadcastIDType(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()))));
 
 		relationshipExplorer.showDetailView(this, pathwayElement, pathway);
+	}
+
+	@Override
+	public void fill(NestableColumn column, NestableColumn parentColumn) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public GLElement getSummaryElement(Set<NestableItem> items) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<NestableItem> getItems(Set<Object> elementIDs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateMappings() {
+		// TODO Auto-generated method stub
+
 	}
 }

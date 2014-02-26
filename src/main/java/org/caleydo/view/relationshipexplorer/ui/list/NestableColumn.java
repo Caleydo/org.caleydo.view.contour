@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,26 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 
 	protected Set<NestableItem> selectedItems = new HashSet<>();
 	protected Set<NestableItem> highlightedItems = new HashSet<>();
+
+	private class ItemComparatorWrapper implements Comparator<GLElement> {
+
+		private final Comparator<NestableItem> wrappee;
+
+		public ItemComparatorWrapper(Comparator<NestableItem> wrappee) {
+			this.wrappee = wrappee;
+		}
+
+		@Override
+		public int compare(GLElement o1, GLElement o2) {
+			if (wrappee == null) {
+				System.out.println("wrappee null");
+			}
+
+			return wrappee.compare((NestableItem) o1, (NestableItem) o2);
+		}
+	}
+
+	protected Comparator<GLElement> comparator;
 
 	/**
 	 *
@@ -291,5 +312,28 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 			item.setHighlight(false);
 		}
 		highlightedItems.clear();
+	}
+
+	public void sortBy(Comparator<NestableItem> comparator) {
+		this.comparator = new ItemComparatorWrapper(comparator);
+		if (isRoot()) {
+			for (ItemContainer container : itemContainers) {
+				container.sortBy(this.comparator);
+			}
+		} else {
+			for (ItemContainer container : itemContainers) {
+				CollapsableItemContainer c = (CollapsableItemContainer) container;
+				c.sortItems(this.comparator);
+				// if (c.isVisible()) {
+				// for (NestableItem item : c.getCurrentItems()) {
+				// items.add(item);
+				// }
+				// }
+			}
+		}
+	}
+
+	protected Comparator<GLElement> getComparator() {
+		return comparator;
 	}
 }

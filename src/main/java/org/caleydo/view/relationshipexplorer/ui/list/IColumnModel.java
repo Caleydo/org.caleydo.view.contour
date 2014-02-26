@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
@@ -37,5 +38,7 @@ public interface IColumnModel extends ILabeled {
 	public Set<Object> getFilteredElementIDs();
 
 	public void updateMappings();
+
+	public Comparator<NestableItem> getDefaultComparator();
 
 }

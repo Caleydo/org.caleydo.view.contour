@@ -16,6 +16,8 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.picking.APickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
@@ -64,11 +66,39 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 
 		GLElement spacing = new GLElement();
 		spacing.setSize(0, Float.NaN);
+		spacingContainer.setVisibility(EVisibility.PICKABLE);
 		spacingContainer.add(spacing);
 		spacingContainer.add(captionContainer);
 		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 
 		add(spacingContainer);
+
+
+		spacingContainer.onPick(new APickingListener() {
+			@Override
+			protected void doubleClicked(Pick pick) {
+				ColumnHeader.this.column.sortBy(ColumnHeader.this.column.getColumnModel().getDefaultComparator());
+
+				// @SuppressWarnings("unchecked")
+				// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
+				// SELECTED_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
+				// ColumnSortingCommand c = new ColumnSortingCommand(AEntityColumn.this, chain);
+				// c.execute();
+				// AEntityColumn.this.relationshipExplorer.getHistory().addHistoryCommand(c,
+				// ColorBrewer.Purples.getColors(3).get(1));
+			}
+
+			@Override
+			protected void mouseOver(Pick pick) {
+				// buttonBar.setVisibility(EVisibility.PICKABLE);
+			}
+
+			@Override
+			protected void mouseOut(Pick pick) {
+				// buttonBar.setVisibility(EVisibility.HIDDEN);
+			}
+		});
+
 		setRenderer(GLRenderers.drawRect(Color.GRAY));
 
 		headerParent.add(this);

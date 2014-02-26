@@ -27,6 +27,8 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleAggregateDataRenderer;
 
@@ -177,6 +179,30 @@ public class GroupingColumn extends ATextColumn {
 		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 
 		relationshipExplorer.showDetailView(this, dummy, this);
+
+	}
+
+	@Override
+	public void fill(NestableColumn column, NestableColumn parentColumn) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public GLElement getSummaryElement(Set<NestableItem> items) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Set<NestableItem> getItems(Set<Object> elementIDs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateMappings() {
+		// TODO Auto-generated method stub
 
 	}
 

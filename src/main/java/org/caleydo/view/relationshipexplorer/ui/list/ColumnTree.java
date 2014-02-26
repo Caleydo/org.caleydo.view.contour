@@ -228,10 +228,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		// NestableItem nni324 = addElement(createTextElement("nested3 item 2_2", 16), nested3, ni12);
 
 		addRootColumn(columnModel);
-		columnModel.fill(rootColumn, null);
-		updateSummaryItems();
-		// updateSizes();
-		relayout();
+
 	}
 
 	public void updateSummaryItems() {
@@ -275,6 +272,12 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		allColumns.add(rootColumn);
 
 		add(scrollingDecorator);
+		model.fill(rootColumn, null);
+		updateSummaryItems();
+		rootColumn.sortBy(model.getDefaultComparator());
+		// updateSizes();
+		relayout();
+
 		// bodyRow.add(scrollingDecorator);
 		return rootColumn;
 	}
@@ -300,6 +303,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		model.fill(column, parent);
 		updateSummaryItems();
 		column.setCollapsed(true);
+		column.sortBy(model.getDefaultComparator());
 		// updateSizes();
 		relayout();
 		// for (CollapsableItemContainer container : parent.itemContainers) {

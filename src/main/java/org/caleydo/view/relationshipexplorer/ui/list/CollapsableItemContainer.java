@@ -7,12 +7,14 @@ package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
@@ -232,6 +234,10 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 	@Override
 	public void onSelectionChanged(GLButton button, boolean selected) {
 		updateCollapseState(true);
+	}
+
+	public void sortItems(Comparator<GLElement> comparator) {
+		itemContainer.sortBy(comparator);
 	}
 
 

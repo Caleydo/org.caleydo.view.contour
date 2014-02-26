@@ -26,7 +26,9 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
+import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -56,6 +58,18 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
 		}
 	};
+
+	public static final Comparator<NestableItem> ID_NUMBER_ITEM_COMPARATOR = new Comparator<NestableItem>() {
+
+		@Override
+		public int compare(NestableItem arg0, NestableItem arg1) {
+			MinSizeTextElement r1 = (MinSizeTextElement) arg0.getElement();
+			MinSizeTextElement r2 = (MinSizeTextElement) arg1.getElement();
+			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
+		}
+	};
+
+
 
 	public IDColumn(IDType idType, IDType displayedIDType, RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
@@ -148,6 +162,15 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 		if (displayedIDType.getDataType() == EDataType.INTEGER)
 			return ID_NUMBER_COMPARATOR;
 		return super.getDefaultElementComparator();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Comparator<NestableItem> getDefaultComparator() {
+		if (displayedIDType.getDataType() == EDataType.INTEGER)
+			return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
+					ID_NUMBER_ITEM_COMPARATOR));
+		return super.getDefaultComparator();
 	}
 
 	@Override

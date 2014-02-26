@@ -5,6 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
+import gleem.linalg.Vec2f;
+
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDimension;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementAccessor;
@@ -48,6 +49,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 					ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
 			setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
 					ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
+
+			// setRenderer(GLRenderers.drawRect(Color.RED));
 		}
 
 		@Override
@@ -72,6 +75,15 @@ public class ColumnTree extends AnimatedGLElementContainer {
 				}
 			}
 		}
+
+		@Override
+		public Vec2f getMinSize() {
+			// TODO Auto-generated method stub
+			// Vec2f minSize = super.getMinSize();
+			// minSize.setX(getSize().x());
+			return super.getMinSize();
+		}
+
 	}
 
 	// protected class ColumnTreeLayout extends GLSizeRestrictiveFlowLayout2 {
@@ -104,7 +116,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		headerRow.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(headerRow,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
-		headerRow.setRenderer(GLRenderers.drawRect(Color.RED));
+		// setRenderer(GLRenderers.drawRect(Color.RED));
 		add(headerRow);
 
 		// addRootColumn(columnModel.getLabel(), columnModel);
@@ -238,21 +250,25 @@ public class ColumnTree extends AnimatedGLElementContainer {
 	@Override
 	public void layout(int deltaTimeMs) {
 		if (GLElementAccessor.isLayoutDirty(this)) {
-			float totalWidth = 0;
-			Map<NestableColumn, Float> minWidths = new HashMap<>();
-			for (NestableColumn column : allColumns) {
-				float minWidth = column.calcMinColumnWidth();
-				totalWidth += minWidth;
-				minWidths.put(column, minWidth);
-			}
-			for (NestableColumn column : allColumns) {
-				column.setColumnWidth((minWidths.get(column) / totalWidth)
-						* (getSize().x() - (allColumns.size() - 1) * ColumnTreeRenderStyle.HORIZONTAL_SPACING));
-			}
-			updateSizes();
+			updateWidths(getSize().x());
 		}
 
 		super.layout(deltaTimeMs);
+	}
+
+	protected void updateWidths(float parentWidth) {
+		float totalWidth = 0;
+		Map<NestableColumn, Float> minWidths = new HashMap<>();
+		for (NestableColumn column : allColumns) {
+			float minWidth = column.calcMinColumnWidth();
+			totalWidth += minWidth;
+			minWidths.put(column, minWidth);
+		}
+		for (NestableColumn column : allColumns) {
+			column.setColumnWidth((minWidths.get(column) / totalWidth)
+					* (parentWidth - (allColumns.size() - 1) * ColumnTreeRenderStyle.HORIZONTAL_SPACING));
+		}
+		updateSizes();
 	}
 
 	public void updateSizes() {
@@ -267,7 +283,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		rootContainer = new ScrollableItemList();
 		// rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 		rootColumn.itemContainers.add(rootContainer);
-		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8, EDimension.RECORD);
+		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8,
+				EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(rootContainer);
 		allColumns.add(rootColumn);
 

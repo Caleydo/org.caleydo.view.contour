@@ -15,12 +15,10 @@ import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.DataSetDescription;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
-import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
-import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.GroupingColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.PathwayColumn;
@@ -40,52 +38,53 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
 
-		AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,
-				GLPadding.ZERO));
+		RelationshipExplorerElement relationshipExplorer = new RelationshipExplorerElement();
 
 		ColumnTree pathwayColumn = new ColumnTree(new PathwayColumn(null));
 
-		row.add(pathwayColumn);
+		relationshipExplorer.addColumn(pathwayColumn);
 
 		ColumnTree geneColumn = new ColumnTree(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()),
 				IDCategory.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), null));
 
-		row.add(geneColumn);
+		relationshipExplorer.addColumn(geneColumn);
 
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
 			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Activity")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
-					ColumnTree activityColumn = new ColumnTree(new TabularDataColumn(
+					// ColumnTree activityColumn = new ColumnTree();
+					geneColumn.addNestedColumn(new TabularDataColumn(
 							dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null));
-					row.add(activityColumn);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null), geneColumn.getRootColumn());
+					// row.add(activityColumn);
 				}
 				break;
 			}
 		}
 
-		ColumnTree compoundColumn = new ColumnTree(new IDColumn(IDType.getIDType("COMPOUND_ID"),
-				IDType.getIDType("COMPOUND_ID"), null));
+		IDColumn compColumn = new IDColumn(IDType.getIDType("COMPOUND_ID"), IDType.getIDType("COMPOUND_ID"), null);
+		compColumn.setLabel("Compounds");
+		ColumnTree compoundColumn = new ColumnTree(compColumn);
 
-		row.add(compoundColumn);
+		relationshipExplorer.addColumn(compoundColumn);
+
+		ColumnTree clusterColumn = getClusterColumn();
 
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
 			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Finger")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
-					ColumnTree fingerpringColumn = new ColumnTree(new TabularDataColumn(
+					clusterColumn.addNestedColumn(new TabularDataColumn(
 							dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null));
-					row.add(fingerpringColumn);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null), clusterColumn.getRootColumn());
 				}
 				break;
 			}
 		}
 
-		ColumnTree clusterColumn = getClusterColumn();
 		if (clusterColumn != null)
-			row.add(clusterColumn);
+			relationshipExplorer.addColumn(clusterColumn);
 
 		// float totalMinSize = 0;
 		// for (AEntityColumn column : columns) {
@@ -105,7 +104,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		// // }
 		// }
 
-		return row;
+		return relationshipExplorer;
 	}
 
 	protected ColumnTree getClusterColumn() {

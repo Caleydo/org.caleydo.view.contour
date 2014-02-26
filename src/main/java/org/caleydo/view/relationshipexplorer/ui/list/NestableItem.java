@@ -115,24 +115,31 @@ public class NestableItem extends AnimatedGLElementContainer {
 	}
 
 	public void updateSize(float elementWidth, float elementHeight) {
+
 		if (getParent() == null)
 			return;
 		AnimationUtil.resizeElement(listElement, elementWidth, Float.NaN);
 		AnimationUtil.resizeElement(getElement(), elementWidth, elementHeight);
+		getElement().relayout();
 		float width = elementWidth;
 		width += column.calcNestingWidth();
+		// TODO: completely consider scrollbar
 		AnimationUtil.resizeElement(this, width, getMinSize().y());
+		// AnimationUtil.resizeElement(this, column.isRoot() ? width - 4 : width, getMinSize().y());
 
 		// setSize(width, getMinSize().y());
 
 		// if (column == rootColumn)
 		// return;
 		// ((GLElementContainer) getParent()).setSize(width, Float.NaN);
-		AnimationUtil.resizeElement((GLElement) getParent().getParent(), width
-				+ 2
-				* ColumnTreeRenderStyle.HORIZONTAL_PADDING
-				+ (column.parent != null ? ColumnTreeRenderStyle.HORIZONTAL_SPACING
-						+ ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
+		if (column.isRoot()) {
+			AnimationUtil.resizeElement((GLElement) getParent().getParent(), width + 2
+					* ColumnTreeRenderStyle.HORIZONTAL_PADDING, Float.NaN);
+		} else {
+			AnimationUtil.resizeElement((GLElement) getParent().getParent(), width + 2
+					* ColumnTreeRenderStyle.HORIZONTAL_PADDING + ColumnTreeRenderStyle.HORIZONTAL_SPACING
+					+ ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE, Float.NaN);
+		}
 
 		// ((GLElement) getParent().getParent()).setSize(width
 		// + 2

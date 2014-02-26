@@ -291,6 +291,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.2f));
 		barLayerRenderer.setElement(SELECTED_ELEMENTS_KEY,
 				createDefaultBarRenderer(SelectionType.SELECTION.getColor(), 0.3f));
+		// barLayerRenderer.setRenderer(GLRenderers.drawRect(Color.BLUE));
 		return barLayerRenderer;
 	}
 

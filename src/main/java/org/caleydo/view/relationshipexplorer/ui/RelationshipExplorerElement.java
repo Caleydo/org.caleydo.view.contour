@@ -40,6 +40,7 @@ import org.caleydo.view.relationshipexplorer.internal.Activator;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.BiMap;
@@ -56,6 +57,11 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	protected final static int MIN_HISTORY_HEIGHT = 30;
 	protected final static int MIN_COLUMN_HEIGHT = 200;
+
+	// ------------
+	protected List<ColumnTree> cols = new ArrayList<>();
+
+	// ------------
 
 	protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
@@ -125,6 +131,17 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		columnContainer.add(column);
 		columns.add(column);
 		registerEntityCollection(column);
+	}
+
+	public void addColumn(ColumnTree column) {
+		if (cols.size() > 0) {
+			GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
+			columnSpacer.setSize(2, Float.NaN);
+			columnContainer.add(columnSpacer);
+		}
+		columnContainer.add(column);
+		cols.add(column);
+		// registerEntityCollection(column);
 	}
 
 	public void registerEntityCollection(IEntityCollection collection) {

@@ -11,16 +11,19 @@ import javax.media.opengl.GL2GL3;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
-import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
+import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 
 /**
  * @author Christian
  *
  */
-public class ListElement extends AnimatedGLElementContainer {
+public class ListElement extends GLElementContainer {
 
 	protected class HighlightRenderer extends GLElement {
 
@@ -60,6 +63,7 @@ public class ListElement extends AnimatedGLElementContainer {
 
 	protected HighlightRenderer highlightRenderer;
 	protected GLElement content;
+	protected GLElementContainer contentContainer;
 	protected String tooltip;
 
 	//
@@ -71,10 +75,15 @@ public class ListElement extends AnimatedGLElementContainer {
 	public ListElement() {
 		setLayout(GLLayouts.LAYERS);
 		setVisibility(EVisibility.PICKABLE);
+		setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(this));
 		highlightRenderer = new HighlightRenderer();
 		add(highlightRenderer);
-	}
 
+		contentContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 0, GLPadding.ZERO));
+		contentContainer.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(contentContainer, 0,
+				GLPadding.ZERO));
+		add(contentContainer);
+	}
 
 	/**
 	 * @param highlightColor
@@ -100,7 +109,8 @@ public class ListElement extends AnimatedGLElementContainer {
 	 */
 	public void setContent(GLElement content) {
 		this.content = content;
-		add(content);
+		contentContainer.clear();
+		contentContainer.add(content);
 	}
 
 	@Override

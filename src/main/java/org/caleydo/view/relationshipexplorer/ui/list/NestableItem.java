@@ -9,12 +9,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
+import org.caleydo.core.view.opengl.picking.IPickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
+import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 
 /**
  * @author Christian
@@ -23,21 +27,42 @@ import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 public class NestableItem extends AnimatedGLElementContainer {
 	protected Map<NestableColumn, CollapsableItemContainer> itemContainers = new HashMap<>();
 	protected final NestableItem parentItem;
-	protected GLElement element;
+	// protected GLElement element;
+	protected ListElement listElement;
 	protected final NestableColumn column;
 	protected final ColumnTree columnTree;
 	protected Set<Object> elementData;
 
-	public NestableItem(GLElement item, NestableColumn column, NestableItem parentItem, ColumnTree columnTree) {
+	public NestableItem(GLElement element, NestableColumn column, NestableItem parentItem, ColumnTree columnTree) {
 		this.columnTree = columnTree;
 		this.parentItem = parentItem;
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(this,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		this.column = column;
+		this.listElement = new ListElement();
+
+		listElement.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
+		listElement.setSelectionColor(SelectionType.SELECTION.getColor());
+		listElement.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+
+				boolean update = MultiSelectionUtil.handleSelection(pick, NestableItem.this, NestableItem.this.column);
+				if (update) {
+					NestableItem.this.column.notifyOfSelectionUpdate();
+				}
+				update = MultiSelectionUtil.handleHighlight(pick, NestableItem.this, NestableItem.this.column);
+				if (update) {
+					NestableItem.this.column.notifyOfHighlightUpdate();
+				}
+			}
+		});
+
 		// setRenderer(GLRenderers.drawRect(Color.BLUE));
-		add(item);
-		this.element = item;
+		add(listElement);
+		setElement(element);
 
 		// setSize(Float.NaN, getMinSize().y());
 		// for (Column col : column.children) {
@@ -48,13 +73,14 @@ public class NestableItem extends AnimatedGLElementContainer {
 	}
 
 	/**
-	 * @param item
+	 * @param element
 	 *            setter, see {@link item}
 	 */
-	public void setElement(GLElement item) {
-		remove(this.element);
-		this.element = item;
-		add(0, item);
+	public void setElement(GLElement element) {
+		listElement.setContent(element);
+		// remove(this.element);
+		// this.element = element;
+		// add(0, element);
 	}
 
 	public CollapsableItemContainer getNestedContainer(NestableColumn column) {
@@ -88,12 +114,15 @@ public class NestableItem extends AnimatedGLElementContainer {
 		return container;
 	}
 
-	public void updateSize() {
+	public void updateSize(float elementWidth, float elementHeight) {
 		if (getParent() == null)
 			return;
-		float width = element.getSize().x();
+		AnimationUtil.resizeElement(listElement, elementWidth, Float.NaN);
+		AnimationUtil.resizeElement(getElement(), elementWidth, elementHeight);
+		float width = elementWidth;
 		width += column.calcNestingWidth();
 		AnimationUtil.resizeElement(this, width, getMinSize().y());
+
 		// setSize(width, getMinSize().y());
 
 		// if (column == rootColumn)
@@ -130,7 +159,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 	 * @return the element, see {@link #element}
 	 */
 	public GLElement getElement() {
-		return element;
+		return listElement.getContent();
 	}
 
 	/**
@@ -145,5 +174,13 @@ public class NestableItem extends AnimatedGLElementContainer {
 	 */
 	public NestableItem getParentItem() {
 		return parentItem;
+	}
+
+	public void setSelected(boolean isSelected) {
+		listElement.setSelected(isSelected);
+	}
+
+	public void setHighlight(boolean isHighlight) {
+		listElement.setHighlight(isHighlight);
 	}
 }

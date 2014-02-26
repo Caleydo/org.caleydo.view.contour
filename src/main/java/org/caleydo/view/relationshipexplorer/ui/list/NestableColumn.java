@@ -12,12 +12,13 @@ import java.util.Set;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
+import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
 /**
  * @author Christian
  *
  */
-public class NestableColumn {
+public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 	protected final IColumnModel model;
 	protected final ColumnTree columnTree;
 
@@ -30,6 +31,9 @@ public class NestableColumn {
 	// protected Set<NestableItem> summaryItems = new HashSet<>();
 	protected float columnWidth = 0;
 	protected float relColumnWidth = 0;
+
+	protected Set<NestableItem> selectedItems = new HashSet<>();
+	protected Set<NestableItem> highlightedItems = new HashSet<>();
 
 	/**
 	 *
@@ -45,7 +49,7 @@ public class NestableColumn {
 		float maxItemWidth = Float.MIN_VALUE;
 		for (ItemContainer container : itemContainers) {
 			for (NestableItem item : container.getCurrentItems()) {
-				float itemWidth = item.element.getMinSize().x();
+				float itemWidth = item.getElement().getMinSize().x();
 				if (itemWidth > maxItemWidth)
 					maxItemWidth = itemWidth;
 			}
@@ -95,8 +99,8 @@ public class NestableColumn {
 
 		for (ItemContainer container : itemContainers) {
 			for (NestableItem item : container.getCurrentItems()) {
-				item.element.setSize(itemWidth, item.element.getMinSize().y());
-				item.updateSize();
+				// item.getElement().setSize(itemWidth, item.getElement().getMinSize().y());
+				item.updateSize(itemWidth, item.getElement().getMinSize().y());
 			}
 		}
 		// for (NestableItem item : items) {
@@ -220,5 +224,72 @@ public class NestableColumn {
 
 	public NestableItem addElement(GLElement element, NestableItem parentItem) {
 		return columnTree.addElement(element, this, parentItem);
+	}
+
+	public void notifyOfSelectionUpdate() {
+
+	}
+
+	public void notifyOfHighlightUpdate() {
+
+	}
+
+	@Override
+	public boolean isSelected(NestableItem item) {
+		return selectedItems.contains(item);
+	}
+
+	@Override
+	public void removeFromSelection(NestableItem item) {
+		selectedItems.remove(item);
+		item.setSelected(false);
+	}
+
+	@Override
+	public void addToSelection(NestableItem item) {
+		selectedItems.add(item);
+		item.setSelected(true);
+	}
+
+	@Override
+	public void setSelection(NestableItem item) {
+		clearSelection();
+		addToSelection(item);
+	}
+
+	public void addToHighlight(NestableItem item) {
+		highlightedItems.add(item);
+		item.setHighlight(true);
+	}
+
+	@Override
+	public boolean isHighlight(NestableItem item) {
+		return highlightedItems.contains(item);
+	}
+
+	@Override
+	public void setHighlight(NestableItem item) {
+		clearHighlight();
+		addToHighlight(item);
+	}
+
+	@Override
+	public void removeHighlight(NestableItem item) {
+		highlightedItems.remove(item);
+		item.setHighlight(false);
+	}
+
+	public void clearSelection() {
+		for (NestableItem item : selectedItems) {
+			item.setSelected(false);
+		}
+		selectedItems.clear();
+	}
+
+	public void clearHighlight() {
+		for (NestableItem item : highlightedItems) {
+			item.setHighlight(false);
+		}
+		highlightedItems.clear();
 	}
 }

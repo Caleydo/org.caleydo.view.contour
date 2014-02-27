@@ -230,14 +230,16 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	protected void init(IGLElementContext context) {
 		super.init(context);
 
-		setContent();
+
+
+		// setContent();
 
 		// itemList.addContextMenuItems(getContextMenuItems());
 
-		header.setElement(DATA_KEY, new GLElement(GLRenderers.drawText(getLabel(), VAlign.CENTER)));
+		// header.setElement(DATA_KEY, new GLElement(GLRenderers.drawText(getLabel(), VAlign.CENTER)));
 		// itemList.addElementSelectionListener(this);
-		sort(getDefaultElementComparator());
-		mapFilteredElements.putAll(mapIDToElement);
+		// sort(getDefaultElementComparator());
+		// mapFilteredElements.putAll(mapIDToElement);
 	}
 
 	protected List<AContextMenuItem> getContextMenuItems() {
@@ -739,6 +741,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 	public void fill(NestableColumn column, NestableColumn parentColumn) {
 		this.column = column;
 		this.parentColumn = parentColumn;
+		column.addContextMenuItems(getContextMenuItems());
 
 		if (parentColumn == null) {
 			for (Object id : entityCollection.getFilteredElementIDs()) {
@@ -820,7 +823,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// TODO Auto-generated method stub
+
+		mapIDToFilteredItems.clear();
+
+		updateSelections();
 
 	}
 

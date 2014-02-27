@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
+import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
@@ -35,6 +37,8 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 
 	protected Set<NestableItem> selectedItems = new HashSet<>();
 	protected Set<NestableItem> highlightedItems = new HashSet<>();
+
+	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 	protected Set<ISelectionUpdateListener> selectionListeners = new HashSet<>();
 
@@ -377,5 +381,20 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @return the contextMenuCreator, see {@link #contextMenuCreator}
+	 */
+	protected ContextMenuCreator getContextMenuCreator() {
+		return contextMenuCreator;
+	}
+
+	public void addContextMenuItem(AContextMenuItem item) {
+		contextMenuCreator.add(item);
+	}
+
+	public void addContextMenuItems(List<AContextMenuItem> items) {
+		contextMenuCreator.addAll(items);
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.caleydo.core.data.selection.SelectionType;
+import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
@@ -17,6 +18,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.core.view.opengl.picking.PickingMode;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 
@@ -57,6 +59,18 @@ public class NestableItem extends AnimatedGLElementContainer {
 				if (update) {
 					NestableItem.this.column.notifyOfHighlightUpdate();
 				}
+			}
+		});
+
+		listElement.onPick(new IPickingListener() {
+
+			@Override
+			public void pick(Pick pick) {
+				ContextMenuCreator contextMenuCreator = NestableItem.this.column.getContextMenuCreator();
+				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
+					context.getSWTLayer().showContextMenu(contextMenuCreator);
+				}
+
 			}
 		});
 

@@ -58,7 +58,6 @@ public abstract class AEntityCollection implements IEntityCollection {
 	public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
 		this.filteredElementIDs = elementIDs;
 		notifyFilterUpdate(updateSource);
-		// TODO
 	}
 
 	protected void notifyFilterUpdate(IEntityRepresentation updateSource) {

@@ -8,7 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 
 /**
  * @author Christian
@@ -16,18 +16,20 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
  */
 public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 
+	protected IEntityRepresentation representation;
+
 	/**
 	 * @param selectedElementIDs
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedFilterOperation(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
-			ESetOperation op, RelationshipExplorerElement relationshipExplorer) {
+	public SelectionBasedFilterOperation(IEntityRepresentation representation, Set<Object> selectedElementIDs,
+			Set<Object> selectedBroadcastIDs, ESetOperation op, RelationshipExplorerElement relationshipExplorer) {
 		super(selectedElementIDs, selectedBroadcastIDs, op, relationshipExplorer);
+		this.representation = representation;
 	}
 
-	@Override
-	public void execute(IEntityCollection collection) {
+	public void execute() {
 		// Set<Object> broadcastIDs = new HashSet<>();
 		// Set<Object> elementIDs = new HashSet<>();
 		// for (GLElement element : column.itemList.getSelectedElements()) {
@@ -36,12 +38,14 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 		// broadcastIDs.addAll(column.getBroadcastingIDsFromElementID(elementID));
 		// }
 
-		collection.setFilteredItems(setOperation.apply(selectedElementIDs, collection.getFilteredElementIDs()));
-		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs, collection,
-				setOperation), true);
-		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
+		representation.getCollection().setFilteredItems(
+				setOperation.apply(selectedElementIDs, representation.getCollection().getFilteredElementIDs()),
+				representation);
+		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs,
+				representation, setOperation), true);
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(representation, selectedElementIDs,
 				selectedBroadcastIDs, relationshipExplorer);
-		o.execute(collection);
+		o.execute();
 	}
 
 }

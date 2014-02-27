@@ -33,8 +33,8 @@ import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
@@ -54,7 +54,7 @@ import com.google.common.collect.Lists;
  *
  */
 public class MultiVertexHighlightAugmentation extends APerVertexAugmentation implements IVertexRepSelectionListener,
-		IMultiSelectionHandler<PathwayVertexRep>, IEntityCollection {
+		IMultiSelectionHandler<PathwayVertexRep>, IEntityCollection, IEntityRepresentation {
 
 	protected Set<PathwayVertexRep> selectedVertexReps = new HashSet<>();
 	protected Set<PathwayVertexRep> highlightedVertexReps = new HashSet<>();
@@ -169,10 +169,11 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		// .getBroadcastingIDsFromElementIDs(selectedFilteredElementIDs);
 		Set<Object> selectedBroadcastIDs = referenceColumn.getBroadcastingIDsFromElementIDs(selectedElementIDs);
 		updateIsFromMe = true;
-		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(selectedElementIDs,
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(referenceColumn, selectedElementIDs,
 				selectedBroadcastIDs, referenceColumn.getRelationshipExplorer());
-		o.execute(referenceColumn);
-		referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
+		o.execute();
+
+		// referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
 		@SuppressWarnings("unchecked")
 		ColumnSortingCommand c = new ColumnSortingCommand(referenceColumn, new ComparatorChain<>(Lists.newArrayList(
 				referenceColumn.SELECTED_ELEMENTS_COMPARATOR, referenceColumn.getDefaultElementComparator())));
@@ -227,7 +228,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	@Override
-	public void updateSelectionMappings(IEntityCollection srcCollection) {
+	public void updateSelectionMappings(IEntityRepresentation srcRep) {
 		// nothing to do
 	}
 
@@ -293,34 +294,34 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		return getReferenceColumnElementIDs(highlightedVertexReps);
 	}
 
-	@Override
-	public void setFilteredItems(Set<Object> elementIDs) {
-		// nothing to do
-
-	}
-
-	@Override
-	public void setHighlightItems(Set<Object> elementIDs) {
-		// FIXME: Hack to prevent filtered elements of own selection to be received
-		if (updateIsFromMe) {
-			updateIsFromMe = false;
-			return;
-		}
-		selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
-				highlightedVertexReps);
-	}
-
-	@Override
-	public void setSelectedItems(Set<Object> elementIDs) {
-		// FIXME: Hack to prevent filtered elements of own selection to be received
-		if (updateIsFromMe) {
-			updateIsFromMe = false;
-			return;
-		}
-
-		selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
-				selectedVertexReps);
-	}
+	// @Override
+	// public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation srcRep) {
+	// // nothing to do
+	//
+	// }
+	//
+	// @Override
+	// public void setHighlightItems(Set<Object> elementIDs) {
+	// // FIXME: Hack to prevent filtered elements of own selection to be received
+	// if (updateIsFromMe) {
+	// updateIsFromMe = false;
+	// return;
+	// }
+	// selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
+	// highlightedVertexReps);
+	// }
+	//
+	// @Override
+	// public void setSelectedItems(Set<Object> elementIDs) {
+	// // FIXME: Hack to prevent filtered elements of own selection to be received
+	// if (updateIsFromMe) {
+	// updateIsFromMe = false;
+	// return;
+	// }
+	//
+	// selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
+	// selectedVertexReps);
+	// }
 
 	@Override
 	public IDType getBroadcastingIDType() {
@@ -353,21 +354,33 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	@Override
-	public void updateFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-		// TODO Auto-generated method stub
+	public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// nothing to do
 
 	}
 
 	@Override
-	public void updateHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-		// TODO Auto-generated method stub
+	public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// FIXME: Hack to prevent filtered elements of own selection to be received
+		if (updateIsFromMe) {
+			updateIsFromMe = false;
+			return;
+		}
+		selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
+				highlightedVertexReps);
 
 	}
 
 	@Override
-	public void updateSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-		// TODO Auto-generated method stub
+	public void setSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// FIXME: Hack to prevent filtered elements of own selection to be received
+		if (updateIsFromMe) {
+			updateIsFromMe = false;
+			return;
+		}
 
+		selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
+				selectedVertexReps);
 	}
 
 	@Override
@@ -378,6 +391,54 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 	@Override
 	public void removeEntityRepresentation(IEntityRepresentation rep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	// @Override
+	// public void selectionChanged(Set<Object> selectedElementIDs) {
+	// // TODO Auto-generated method stub
+	//
+	// }
+	//
+	// @Override
+	// public void highlightChanged(Set<Object> highlightElementIDs) {
+	// // TODO Auto-generated method stub
+	//
+	// }
+	//
+	// @Override
+	// public void filterChanged(Set<Object> filteredElementIDs) {
+	// // TODO Auto-generated method stub
+	//
+	// }
+
+	@Override
+	public void updateMappings(IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public IEntityCollection getCollection() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
 		// TODO Auto-generated method stub
 
 	}

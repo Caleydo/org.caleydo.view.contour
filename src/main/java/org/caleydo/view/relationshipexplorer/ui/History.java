@@ -8,7 +8,6 @@ package org.caleydo.view.relationshipexplorer.ui;
 import gleem.linalg.Vec2f;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.media.opengl.GL2;
@@ -90,7 +89,7 @@ public class History extends AnimatedGLElementContainer {
 			relationshipExplorer.removeAllDetailViews();
 			for (AEntityColumn column : relationshipExplorer.getColumns()) {
 				column.showAllItems();
-				column.setSelectedItems(new HashSet<>());
+				// column.setSelectedItems(new HashSet<>());
 				column.hideMappings();
 				column.sort(column.getDefaultElementComparator());
 			}

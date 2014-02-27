@@ -39,6 +39,7 @@ import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowLis
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
@@ -87,7 +88,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
 			executeMappingUpdateOperation(operation);
 			if (updateSelectionMappings)
-				updateSelectionMappings(operation.getSrcCollection());
+				updateSelectionMappings(operation.getSrcRepresentation());
 		}
 
 	};
@@ -214,14 +215,14 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public void executeMappingUpdateOperation(AMappingUpdateOperation operation) {
 		for (IEntityCollection collection : entityCollections) {
-			if (operation.getSrcCollection() != collection)
+			if (operation.getSrcRepresentation().getCollection() != collection)
 				operation.execute(collection);
 		}
 	}
 
-	public void updateSelectionMappings(IEntityCollection srcCollection) {
+	public void updateSelectionMappings(IEntityRepresentation srcRep) {
 		for (IEntityCollection collection : entityCollections) {
-			collection.updateSelectionMappings(srcCollection);
+			collection.updateSelectionMappings(srcRep);
 		}
 	}
 

@@ -8,7 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 
 /**
  * @author Christian
@@ -16,22 +16,24 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
  */
 public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 
+	protected IEntityRepresentation representation;
+
 	/**
 	 * @param selectedElementIDs
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedHighlightOperation(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
-			RelationshipExplorerElement relationshipExplorer) {
+	public SelectionBasedHighlightOperation(IEntityRepresentation representation, Set<Object> selectedElementIDs,
+			Set<Object> selectedBroadcastIDs, RelationshipExplorerElement relationshipExplorer) {
 		super(selectedElementIDs, selectedBroadcastIDs, ESetOperation.INTERSECTION, relationshipExplorer);
+		this.representation = representation;
 	}
 
-	@Override
-	public void execute(IEntityCollection collection) {
-		collection.setSelectedItems(selectedElementIDs);
+	public void execute() {
+		representation.getCollection().setSelectedItems(selectedElementIDs, representation);
 
-		relationshipExplorer.applyIDMappingUpdate(
-				new MappingSelectionUpdateOperation(selectedBroadcastIDs, collection), true);
+		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
+				representation), true);
 	}
 
 }

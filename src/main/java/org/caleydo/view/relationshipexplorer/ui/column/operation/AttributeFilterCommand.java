@@ -26,7 +26,7 @@ public class AttributeFilterCommand implements IHistoryCommand {
 
 	@Override
 	public void execute() {
-		column.setFilteredItems(filteredElementIDs);
+		column.getCollection().setFilteredItems(filteredElementIDs, column);
 		column.updateSorting();
 
 		// column.getRelationshipExplorer().applyIDMappingUpdate(

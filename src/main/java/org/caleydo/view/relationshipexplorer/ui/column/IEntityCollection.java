@@ -25,17 +25,17 @@ public interface IEntityCollection extends ILabeled {
 
 	public Set<Object> getHighlightElementIDs();
 
-	public void setFilteredItems(Set<Object> elementIDs);
+	// public void setFilteredItems(Set<Object> elementIDs);
+	//
+	// public void setHighlightItems(Set<Object> elementIDs);
+	//
+	// public void setSelectedItems(Set<Object> elementIDs);
 
-	public void setHighlightItems(Set<Object> elementIDs);
+	public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
 
-	public void setSelectedItems(Set<Object> elementIDs);
+	public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
 
-	public void updateFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
-
-	public void updateHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
-
-	public void updateSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
+	public void setSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
 
 	public IDType getBroadcastingIDType();
 
@@ -47,7 +47,7 @@ public interface IEntityCollection extends ILabeled {
 
 	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType);
 
-	public void updateSelectionMappings(IEntityCollection srcCollection);
+	public void updateSelectionMappings(IEntityRepresentation srcRep);
 
 	public void addEntityRepresentation(IEntityRepresentation rep);
 

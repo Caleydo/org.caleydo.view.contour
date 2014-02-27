@@ -130,7 +130,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 		if (updateMappings) {
 			for (NestableColumn col : column.children) {
-				col.getColumnModel().updateMappings();
+				col.updateSummaryItems();
 			}
 		}
 

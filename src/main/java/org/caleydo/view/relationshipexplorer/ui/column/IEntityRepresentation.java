@@ -13,10 +13,14 @@ import java.util.Set;
  */
 public interface IEntityRepresentation {
 
-	public void selectionChanged(Set<Object> selectedElementIDs);
+	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep);
 
-	public void highlightChanged(Set<Object> highlightElementIDs);
+	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep);
 
-	public void filterChanged(Set<Object> filteredElementIDs);
+	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep);
+
+	public void updateMappings(IEntityRepresentation srcRep);
+
+	public IEntityCollection getCollection();
 
 }

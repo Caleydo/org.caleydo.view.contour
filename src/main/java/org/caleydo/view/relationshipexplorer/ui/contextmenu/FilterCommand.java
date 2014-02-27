@@ -8,8 +8,8 @@ package org.caleydo.view.relationshipexplorer.ui.contextmenu;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedFilterOperation;
 
 /**
@@ -19,25 +19,25 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedF
 public class FilterCommand implements IContextMenuCommand {
 
 	protected final ESetOperation setOperation;
-	protected final IEntityCollection collection;
+	protected final IEntityRepresentation representation;
 	protected final RelationshipExplorerElement relationshipExplorer;
 
-	public FilterCommand(ESetOperation setOperation, IEntityCollection collection,
+	public FilterCommand(ESetOperation setOperation, IEntityRepresentation representation,
 			RelationshipExplorerElement relationshipExplorer) {
 		this.setOperation = setOperation;
-		this.collection = collection;
+		this.representation = representation;
 		this.relationshipExplorer = relationshipExplorer;
 	}
 
 	@Override
 	public void execute() {
-		Set<Object> elementIDs = collection.getSelectedElementIDs();
-		Set<Object> broadcastIDs = collection.getBroadcastingIDsFromElementIDs(elementIDs);
+		Set<Object> elementIDs = representation.getCollection().getSelectedElementIDs();
+		Set<Object> broadcastIDs = representation.getCollection().getBroadcastingIDsFromElementIDs(elementIDs);
 
-		SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(elementIDs, broadcastIDs, setOperation,
-				relationshipExplorer);
-		o.execute(collection);
-		relationshipExplorer.getHistory().addColumnOperation(collection, o);
+		SelectionBasedFilterOperation o = new SelectionBasedFilterOperation(representation, elementIDs, broadcastIDs,
+				setOperation, relationshipExplorer);
+		o.execute();
+		// relationshipExplorer.getHistory().addColumnOperation(representation.getCollection(), o);
 	}
 
 }

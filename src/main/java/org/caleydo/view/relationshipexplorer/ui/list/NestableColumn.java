@@ -160,7 +160,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		}
 
 		for (NestableColumn col : children) {
-			col.getColumnModel().updateMappings();
+			col.updateSummaryItems();
 		}
 	}
 
@@ -183,7 +183,6 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 			}
 		}
 		return items;
-
 	}
 
 	public float getItemWidth() {
@@ -370,5 +369,13 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 	 */
 	public Set<NestableItem> getHighlightedItems() {
 		return highlightedItems;
+	}
+
+	public boolean isChild(IColumnModel m) {
+		for (NestableColumn col : children) {
+			if (col.getColumnModel() == m || col.isChild(m))
+				return true;
+		}
+		return false;
 	}
 }

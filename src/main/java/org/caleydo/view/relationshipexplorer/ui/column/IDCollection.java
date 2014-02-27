@@ -50,13 +50,6 @@ public class IDCollection extends AEntityCollection {
 		return Sets.newHashSet((Object) broadcastingID);
 	}
 
-
-	@Override
-	public void updateSelectionMappings(IEntityCollection srcCollection) {
-		// TODO Auto-generated method stub
-
-	}
-
 	@Override
 	public IColumnModel createColumnModel() {
 		return new IDColumn(this, relationshipExplorer);

@@ -72,12 +72,6 @@ public class TabularDataCollection extends AEntityCollection {
 	}
 
 	@Override
-	public void updateSelectionMappings(IEntityCollection srcCollection) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public IColumnModel createColumnModel() {
 		return new TabularDataColumn(this, relationshipExplorer);
 	}

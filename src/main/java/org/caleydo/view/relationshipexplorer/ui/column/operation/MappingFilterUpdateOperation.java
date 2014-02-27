@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 
 /**
  * @author Christian
@@ -20,13 +21,13 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, IEntityCollection srcCollection, ESetOperation op) {
-		super(srcBroadcastIDs, srcCollection, op);
+	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep, ESetOperation op) {
+		super(srcBroadcastIDs, srcRep, op);
 	}
 
 	@Override
 	protected void execute(IEntityCollection collection, Set<Object> elementIDs) {
-		collection.setFilteredItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
+		collection.setFilteredItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()), srcRep);
 	}
 
 }

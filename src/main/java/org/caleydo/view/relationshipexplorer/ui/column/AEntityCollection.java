@@ -13,8 +13,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingSelectionUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
@@ -57,13 +55,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public void setFilteredItems(Set<Object> elementIDs) {
-		this.filteredElementIDs = elementIDs;
-		notifyFilterUpdate(null);
-	}
-
-	@Override
-	public void updateFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+	public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
 		this.filteredElementIDs = elementIDs;
 		notifyFilterUpdate(updateSource);
 		// TODO
@@ -72,53 +64,32 @@ public abstract class AEntityCollection implements IEntityCollection {
 	protected void notifyFilterUpdate(IEntityRepresentation updateSource) {
 
 		for (IEntityRepresentation rep : representations) {
-			if (rep != updateSource)
-				rep.filterChanged(filteredElementIDs);
+			rep.filterChanged(filteredElementIDs, updateSource);
 		}
 
 	}
 
 	@Override
-	public void setHighlightItems(Set<Object> elementIDs) {
-		notifyHighlightUpdate(null, elementIDs);
-	}
-
-	@Override
-	public void updateHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+	public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
 		notifyHighlightUpdate(updateSource, elementIDs);
-
-		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(
-				getBroadcastingIDsFromElementIDs(elementIDs), this), false);
 	}
 
 	protected void notifyHighlightUpdate(IEntityRepresentation updateSource, Set<Object> highlightElementIDs) {
-
 		for (IEntityRepresentation rep : representations) {
-			if (rep != updateSource)
-				rep.highlightChanged(highlightElementIDs);
+			rep.highlightChanged(highlightElementIDs, updateSource);
 		}
-
 	}
 
 	@Override
-	public void setSelectedItems(Set<Object> elementIDs) {
-		this.selectedElementIDs = elementIDs;
-		notifySelectionUpdate(null);
-	}
-
-	@Override
-	public void updateSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+	public void setSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
 		this.selectedElementIDs = elementIDs;
 		notifySelectionUpdate(updateSource);
-		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(
-				getBroadcastingIDsFromElementIDs(elementIDs), this), false);
 	}
 
 	protected void notifySelectionUpdate(IEntityRepresentation updateSource) {
 
 		for (IEntityRepresentation rep : representations) {
-			if (rep != updateSource)
-				rep.selectionChanged(selectedElementIDs);
+			rep.selectionChanged(selectedElementIDs, updateSource);
 		}
 
 	}
@@ -168,6 +139,14 @@ public abstract class AEntityCollection implements IEntityCollection {
 	@Override
 	public void removeEntityRepresentation(IEntityRepresentation rep) {
 		representations.remove(rep);
+	}
+
+	@Override
+	public void updateSelectionMappings(IEntityRepresentation srcRep) {
+		for (IEntityRepresentation rep : representations) {
+			rep.updateMappings(srcRep);
+		}
+
 	}
 
 	public abstract IColumnModel createColumnModel();

@@ -24,6 +24,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.IIDMappingUpdateHandler;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.IColumnOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedFilterOperation;

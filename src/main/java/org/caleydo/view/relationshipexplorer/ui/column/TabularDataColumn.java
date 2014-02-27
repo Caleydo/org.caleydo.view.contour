@@ -75,28 +75,31 @@ public class TabularDataColumn extends AEntityColumn {
 		}
 	};
 
-	public TabularDataColumn(TablePerspective tablePerspective, IDCategory itemIDCategory,
+	public TabularDataColumn(TabularDataCollection tabularDataCollection,
 			RelationshipExplorerElement relationshipExplorer) {
 
-		super(relationshipExplorer);
+		super(tabularDataCollection, relationshipExplorer);
+		this.itemIDCategory = tabularDataCollection.itemIDCategory;
+		this.tablePerspective = tabularDataCollection.tablePerspective;
 		dataDomain = tablePerspective.getDataDomain();
+		this.mappingIDType = tabularDataCollection.mappingIDType;
+		this.va = tabularDataCollection.va;
+		this.itemIDType = tabularDataCollection.itemIDType;
+		this.perspective = tabularDataCollection.perspective;
+		// this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
+		//
+		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
+		// va = tablePerspective.getDimensionPerspective().getVirtualArray();
+		// itemIDType = tablePerspective.getDimensionPerspective().getIdType();
+		// perspective = tablePerspective.getRecordPerspective();
+		//
+		// } else {
+		// va = tablePerspective.getRecordPerspective().getVirtualArray();
+		// itemIDType = tablePerspective.getRecordPerspective().getIdType();
+		// perspective = tablePerspective.getDimensionPerspective();
+		// }
 
-		this.itemIDCategory = itemIDCategory;
-		this.tablePerspective = tablePerspective;
-		this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
-
-		if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
-			va = tablePerspective.getDimensionPerspective().getVirtualArray();
-			itemIDType = tablePerspective.getDimensionPerspective().getIdType();
-			perspective = tablePerspective.getRecordPerspective();
-
-		} else {
-			va = tablePerspective.getRecordPerspective().getVirtualArray();
-			itemIDType = tablePerspective.getRecordPerspective().getIdType();
-			perspective = tablePerspective.getDimensionPerspective();
-		}
-
-		filteredElementIDs.addAll(va.getIDs());
+		// filteredElementIDs.addAll(va.getIDs());
 	}
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
@@ -139,11 +142,6 @@ public class TabularDataColumn extends AEntityColumn {
 
 		// itemList.setElementTooltip(renderer, origID.toString());
 
-	}
-
-	@Override
-	public String getLabel() {
-		return dataDomain.getLabel();
 	}
 
 	@Override
@@ -208,29 +206,29 @@ public class TabularDataColumn extends AEntityColumn {
 
 	}
 
-	@Override
-	public void fill(NestableColumn column, NestableColumn parentColumn) {
-		this.column = column;
-		this.parentColumn = parentColumn;
-
-		if (parentColumn == null) {
-			for (Object id : filteredElementIDs) {
-				addItem(dataDomain, itemIDType, (Integer) id, perspective, null, column);
-			}
-		} else {
-			for (Object id : filteredElementIDs) {
-				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
-						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
-				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
-
-				for (NestableItem parentItem : parentItems) {
-					addItem(dataDomain, itemIDType, (Integer) id, perspective, parentItem, column);
-
-				}
-			}
-		}
-
-	}
+	// @Override
+	// public void fill(NestableColumn column, NestableColumn parentColumn) {
+	// this.column = column;
+	// this.parentColumn = parentColumn;
+	//
+	// if (parentColumn == null) {
+	// for (Object id : filteredElementIDs) {
+	// addItem(dataDomain, itemIDType, (Integer) id, perspective, null, column);
+	// }
+	// } else {
+	// for (Object id : filteredElementIDs) {
+	// Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
+	// getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+	// Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
+	//
+	// for (NestableItem parentItem : parentItems) {
+	// addItem(dataDomain, itemIDType, (Integer) id, perspective, parentItem, column);
+	//
+	// }
+	// }
+	// }
+	//
+	// }
 
 	@Override
 	public GLElement createElement(Object elementID) {

@@ -30,8 +30,9 @@ import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
@@ -344,6 +345,41 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	@Override
 	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
 		return referenceColumn.getElementIDsFromForeignIDs(foreignIDs, foreignIDType);
+	}
+
+	@Override
+	public String getLabel() {
+		return "";
+	}
+
+	@Override
+	public void updateFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addEntityRepresentation(IEntityRepresentation rep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void removeEntityRepresentation(IEntityRepresentation rep) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

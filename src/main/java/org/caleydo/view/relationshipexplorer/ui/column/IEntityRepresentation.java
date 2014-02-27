@@ -3,16 +3,20 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column.operation;
+package org.caleydo.view.relationshipexplorer.ui.column;
 
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import java.util.Set;
 
 /**
  * @author Christian
  *
  */
-public interface IColumnOperation {
+public interface IEntityRepresentation {
 
-	public void execute(IEntityCollection collection);
+	public void selectionChanged(Set<Object> selectedElementIDs);
+
+	public void highlightChanged(Set<Object> highlightElementIDs);
+
+	public void filterChanged(Set<Object> filteredElementIDs);
 
 }

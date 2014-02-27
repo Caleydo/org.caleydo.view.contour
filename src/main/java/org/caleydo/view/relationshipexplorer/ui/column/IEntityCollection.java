@@ -3,18 +3,19 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui;
+package org.caleydo.view.relationshipexplorer.ui.column;
 
 import java.util.Collection;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 
 /**
  * @author Christian
  *
  */
-public interface IEntityCollection {
+public interface IEntityCollection extends ILabeled {
 
 	public Set<Object> getAllElementIDs();
 
@@ -30,6 +31,12 @@ public interface IEntityCollection {
 
 	public void setSelectedItems(Set<Object> elementIDs);
 
+	public void updateFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
+
+	public void updateHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
+
+	public void updateSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource);
+
 	public IDType getBroadcastingIDType();
 
 	public Set<Object> getBroadcastingIDsFromElementID(Object elementID);
@@ -41,5 +48,9 @@ public interface IEntityCollection {
 	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType);
 
 	public void updateSelectionMappings(IEntityCollection srcCollection);
+
+	public void addEntityRepresentation(IEntityRepresentation rep);
+
+	public void removeEntityRepresentation(IEntityRepresentation rep);
 
 }

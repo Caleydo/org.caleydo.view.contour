@@ -15,7 +15,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
-import org.caleydo.core.util.base.ILabelHolder;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
@@ -32,12 +31,12 @@ import com.google.common.collect.Sets;
  * @author Christian
  *
  */
-public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel {
+public class IDColumn extends ATextColumn implements IColumnModel {
 
 	protected final IDType idType;
 	protected final IDType displayedIDType;
 
-	protected String label;
+	protected final IDCollection idCollection;
 
 	protected IIDTypeMapper<Object, Object> elementIDToDisplayedIDMapper;
 	protected IDMappingManager mappingManager;
@@ -64,15 +63,14 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 
 
 
-	public IDColumn(IDType idType, IDType displayedIDType, RelationshipExplorerElement relationshipExplorer) {
-		super(relationshipExplorer);
-		this.idType = idType;
-		this.displayedIDType = displayedIDType;
-		this.label = idType.getIDCategory().getDenominationPlural(true);
+	public IDColumn(IDCollection idCollection, RelationshipExplorerElement relationshipExplorer) {
+		super(idCollection, relationshipExplorer);
+		this.idCollection = idCollection;
+		this.idType = idCollection.idType;
+		this.displayedIDType = idCollection.displayedIDType;
 
 		mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
-		filteredElementIDs.addAll(mappingManager.getAllMappedIDs(idType));
 	}
 
 	// @ListenTo
@@ -120,20 +118,6 @@ public class IDColumn extends ATextColumn implements ILabelHolder, IColumnModel 
 		return id.toString();
 	}
 
-	@Override
-	public String getProviderName() {
-		return "ID Column";
-	}
-
-	@Override
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	@Override
-	public String getLabel() {
-		return label;
-	}
 
 	@Override
 	public IDType getBroadcastingIDType() {

@@ -38,6 +38,7 @@ import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;

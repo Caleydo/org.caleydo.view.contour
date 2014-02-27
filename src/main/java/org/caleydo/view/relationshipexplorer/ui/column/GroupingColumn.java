@@ -42,6 +42,7 @@ public class GroupingColumn extends ATextColumn {
 	protected final ATableBasedDataDomain dataDomain;
 	protected final Perspective perspective;
 	protected final GroupList groupList;
+	protected final GroupCollection groupCollection;
 
 	public final Comparator<GLElement> GROUP_COMPARATOR = new Comparator<GLElement>() {
 
@@ -54,17 +55,12 @@ public class GroupingColumn extends ATextColumn {
 		}
 	};
 
-	public GroupingColumn(Perspective perspective, RelationshipExplorerElement relationshipExplorer) {
-		super(relationshipExplorer);
-		this.perspective = perspective;
+	public GroupingColumn(GroupCollection groupCollection, RelationshipExplorerElement relationshipExplorer) {
+		super(groupCollection, relationshipExplorer);
+		this.groupCollection = groupCollection;
+		this.perspective = groupCollection.perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
-		filteredElementIDs.addAll(groupList.getGroups());
-	}
-
-	@Override
-	public String getLabel() {
-		return perspective.getLabel();
 	}
 
 	@Override
@@ -185,5 +181,6 @@ public class GroupingColumn extends ATextColumn {
 	protected GLElement createElement(Object elementID) {
 		return createTextItem(((Group) elementID).getLabel());
 	}
+
 
 }

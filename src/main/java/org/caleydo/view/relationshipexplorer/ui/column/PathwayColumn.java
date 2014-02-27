@@ -27,12 +27,14 @@ import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugm
  */
 public class PathwayColumn extends ATextColumn {
 
+	protected final PathwayCollection pathwayCollection;
+
 	/**
 	 * @param relationshipExplorer
 	 */
-	public PathwayColumn(RelationshipExplorerElement relationshipExplorer) {
-		super(relationshipExplorer);
-		filteredElementIDs.addAll(PathwayManager.get().getAllItems());
+	public PathwayColumn(PathwayCollection pathwayCollection, RelationshipExplorerElement relationshipExplorer) {
+		super(pathwayCollection, relationshipExplorer);
+		this.pathwayCollection = pathwayCollection;
 	}
 
 	// @ListenTo
@@ -52,11 +54,6 @@ public class PathwayColumn extends ATextColumn {
 	//
 	// setFilteredItems(mappedPathways);
 	// }
-
-	@Override
-	public String getLabel() {
-		return "Pathways";
-	}
 
 	@Override
 	protected void setContent() {

@@ -36,6 +36,14 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 	protected Set<NestableItem> selectedItems = new HashSet<>();
 	protected Set<NestableItem> highlightedItems = new HashSet<>();
 
+	protected Set<ISelectionUpdateListener> selectionListeners = new HashSet<>();
+
+	public interface ISelectionUpdateListener {
+		public void onSelectionChanged(NestableColumn column);
+
+		public void onHighlightChanged(NestableColumn column);
+	}
+
 	private class ItemComparatorWrapper implements Comparator<GLElement> {
 
 		private final Comparator<NestableItem> wrappee;
@@ -63,6 +71,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		this.model = model;
 		this.parent = parent;
 		this.columnTree = columnTree;
+		addSelectionUpdateListener(model);
 	}
 
 	public float calcMinColumnWidth() {
@@ -248,11 +257,15 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 	}
 
 	public void notifyOfSelectionUpdate() {
-
+		for (ISelectionUpdateListener listener : selectionListeners) {
+			listener.onSelectionChanged(this);
+		}
 	}
 
 	public void notifyOfHighlightUpdate() {
-
+		for (ISelectionUpdateListener listener : selectionListeners) {
+			listener.onHighlightChanged(this);
+		}
 	}
 
 	@Override
@@ -335,5 +348,27 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 
 	protected Comparator<GLElement> getComparator() {
 		return comparator;
+	}
+
+	public void addSelectionUpdateListener(ISelectionUpdateListener listener) {
+		selectionListeners.add(listener);
+	}
+
+	public void removeSelectionUpdateListener(ISelectionUpdateListener listener) {
+		selectionListeners.remove(listener);
+	}
+
+	/**
+	 * @return the selectedItems, see {@link #selectedItems}
+	 */
+	public Set<NestableItem> getSelectedItems() {
+		return selectedItems;
+	}
+
+	/**
+	 * @return the highlightedItems, see {@link #highlightedItems}
+	 */
+	public Set<NestableItem> getHighlightedItems() {
+		return highlightedItems;
 	}
 }

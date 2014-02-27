@@ -7,8 +7,8 @@ package org.caleydo.view.relationshipexplorer.ui.contextmenu;
 
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedFilterOperation;
 

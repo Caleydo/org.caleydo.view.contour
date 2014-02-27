@@ -47,8 +47,8 @@ public abstract class ATextColumn extends AEntityColumn {
 	/**
 	 * @param relationshipExplorer
 	 */
-	public ATextColumn(RelationshipExplorerElement relationshipExplorer) {
-		super(relationshipExplorer);
+	public ATextColumn(IEntityCollection entityCollection, RelationshipExplorerElement relationshipExplorer) {
+		super(entityCollection, relationshipExplorer);
 	}
 
 	protected static final int MIN_TEXT_WIDTH = 150;

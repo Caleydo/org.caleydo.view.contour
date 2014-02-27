@@ -43,7 +43,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ASetBasedColumnOperation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
@@ -72,7 +71,7 @@ import com.google.common.collect.Sets;
  *
  */
 public abstract class AEntityColumn extends AnimatedGLElementContainer implements IElementSelectionListener, ILabeled,
-		IEntityCollection, IColumnModel {
+		IEntityCollection, IColumnModel, IEntityRepresentation {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
@@ -88,7 +87,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	// -----------------
 
-	protected Set<Object> filteredElementIDs = new HashSet<>();
+	protected final IEntityCollection entityCollection;
 	protected Map<Object, Set<NestableItem>> mapIDToFilteredItems = new HashMap<>();
 	protected NestableColumn column;
 	protected NestableColumn parentColumn;
@@ -172,8 +171,10 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		}
 	};
 
-	public AEntityColumn(RelationshipExplorerElement relationshipExplorer) {
+	public AEntityColumn(IEntityCollection entityCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
+		this.entityCollection = entityCollection;
+		entityCollection.addEntityRepresentation(this);
 		this.relationshipExplorer = relationshipExplorer;
 		header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
 		header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
@@ -307,7 +308,7 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 
 	@Override
 	public String getLabel() {
-		return "Column";
+		return entityCollection.getLabel();
 	}
 
 	@Override
@@ -391,6 +392,32 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		highlightElementIDs = elementIDs;
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(broadcastIDs, this), false);
+	}
+
+	@Override
+	public void onSelectionChanged(NestableColumn column) {
+		Set<Object> elementIDs = new HashSet<>();
+		for (NestableItem item : column.getSelectedItems()) {
+			Set<Object> ids = item.getElementData();
+			if (ids != null)
+				elementIDs.addAll(ids);
+		}
+
+		entityCollection.updateSelectedItems(elementIDs, this);
+
+	}
+
+	@Override
+	public void onHighlightChanged(NestableColumn column) {
+		Set<Object> elementIDs = new HashSet<>();
+		for (NestableItem item : column.getHighlightedItems()) {
+			Set<Object> ids = item.getElementData();
+			if (ids != null)
+				elementIDs.addAll(ids);
+		}
+
+		entityCollection.updateHighlightItems(elementIDs, this);
+
 	}
 
 	private void fillSelectedElementAndBroadcastIDs(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
@@ -700,14 +727,14 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 		this.parentColumn = parentColumn;
 
 		if (parentColumn == null) {
-			for (Object id : filteredElementIDs) {
+			for (Object id : entityCollection.getFilteredElementIDs()) {
 				GLElement element = createElement(id);
 				if (element != null) {
 					addItem(element, id, column, null);
 				}
 			}
 		} else {
-			for (Object id : filteredElementIDs) {
+			for (Object id : entityCollection.getFilteredElementIDs()) {
 				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
 						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
@@ -733,6 +760,69 @@ public abstract class AEntityColumn extends AnimatedGLElementContainer implement
 			}
 		}
 		return allItems;
+	}
+
+	@Override
+	public void selectionChanged(Set<Object> selectedElementIDs) {
+		column.clearSelection();
+		for (Object elementID : selectedElementIDs) {
+			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
+			if (items != null) {
+				for (NestableItem item : items) {
+					column.addToSelection(item);
+				}
+			}
+		}
+		column.sortBy(getDefaultComparator());
+	}
+
+	@Override
+	public void highlightChanged(Set<Object> highlightElementIDs) {
+		column.clearHighlight();
+		for (Object elementID : highlightElementIDs) {
+			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
+			if (items != null) {
+				for (NestableItem item : items) {
+					column.addToHighlight(item);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void filterChanged(Set<Object> filteredElementIDs) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void addEntityRepresentation(IEntityRepresentation rep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void removeEntityRepresentation(IEntityRepresentation rep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+		// TODO Auto-generated method stub
+
 	}
 
 	protected abstract GLElement createElement(Object elementID);

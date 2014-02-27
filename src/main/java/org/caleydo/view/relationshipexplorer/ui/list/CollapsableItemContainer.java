@@ -133,6 +133,8 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 				col.getColumnModel().updateMappings();
 			}
 		}
+
+		sortItems(column.getComparator());
 	}
 
 	public boolean isVisible() {

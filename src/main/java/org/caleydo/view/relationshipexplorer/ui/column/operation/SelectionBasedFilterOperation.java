@@ -7,8 +7,8 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 
 /**
  * @author Christian

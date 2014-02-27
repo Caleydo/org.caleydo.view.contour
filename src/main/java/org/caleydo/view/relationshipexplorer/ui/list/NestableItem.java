@@ -35,6 +35,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 	protected final NestableColumn column;
 	protected final ColumnTree columnTree;
 	protected Set<Object> elementData;
+	boolean removed = false;
 
 	public NestableItem(GLElement element, NestableColumn column, NestableItem parentItem, ColumnTree columnTree) {
 		this.columnTree = columnTree;
@@ -217,5 +218,12 @@ public class NestableItem extends AnimatedGLElementContainer {
 
 	public boolean isHighlight() {
 		return listElement.isHighlight();
+	}
+
+	/**
+	 * @return the removed, see {@link #removed}
+	 */
+	public boolean isRemoved() {
+		return removed;
 	}
 }

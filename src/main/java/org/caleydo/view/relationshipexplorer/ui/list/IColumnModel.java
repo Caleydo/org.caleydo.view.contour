@@ -42,4 +42,6 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener {
 
 	public Comparator<NestableItem> getDefaultComparator();
 
+	public void updateFilteredItems();
+
 }

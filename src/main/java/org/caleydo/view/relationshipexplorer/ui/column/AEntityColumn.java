@@ -798,28 +798,8 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 		if (!column.isRoot())
 			return;
 
+		updateFilteredItems();
 		// mapIDToFilteredItems.clear();
-
-		Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
-
-		Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
-				Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
-		Set<Object> elementsToRemove = new HashSet<>(Sets.difference(mapIDToFilteredItems.keySet(),
-				Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
-
-		for (Object elementID : elementsToRemove) {
-			Set<NestableItem> items = mapIDToFilteredItems.remove(elementID);
-			for (NestableItem item : items) {
-				column.removeItem(item);
-			}
-
-		}
-		for (Object elementID : elementsToAdd) {
-			GLElement element = createElement(elementID);
-			if (element != null) {
-				addItem(element, elementID, column, null);
-			}
-		}
 
 		// mapFilteredElements = new HashMap<>(elementIDs.size());
 		// for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
@@ -856,6 +836,86 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 		// }
 		// }
 
+	}
+
+	protected void updateChildColumnFilters() {
+		for (NestableColumn col : column.getChildren()) {
+			col.getColumnModel().updateFilteredItems();
+			((AEntityColumn) col.getColumnModel()).updateChildColumnFilters();
+		}
+	}
+
+	@Override
+	public void updateFilteredItems() {
+
+		if (column.isRoot()) {
+			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
+
+			Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
+					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
+			Set<Object> elementsToRemove = new HashSet<>(Sets.difference(mapIDToFilteredItems.keySet(),
+					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
+
+			for (Object elementID : elementsToRemove) {
+				Set<NestableItem> items = mapIDToFilteredItems.remove(elementID);
+				for (NestableItem item : items) {
+					column.removeItem(item);
+				}
+
+			}
+			for (Object elementID : elementsToAdd) {
+				GLElement element = createElement(elementID);
+				if (element != null) {
+					addItem(element, elementID, column, null);
+				}
+			}
+		} else {
+
+			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
+
+			Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
+					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
+			Set<Object> elementsToRemove = new HashSet<>(Sets.difference(mapIDToFilteredItems.keySet(),
+					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
+
+			// First remove items that are filtered for this column
+			for (Object elementID : elementsToRemove) {
+				Set<NestableItem> items = mapIDToFilteredItems.remove(elementID);
+				for (NestableItem item : items) {
+					column.removeItem(item);
+				}
+
+			}
+
+			// Second remove remaining items that have no parent
+			for (Entry<Object, Set<NestableItem>> entry : mapIDToFilteredItems.entrySet()) {
+
+				for (NestableItem item : new HashSet<>(entry.getValue())) {
+					// FIXME: This is so ugly...
+					if (item.getParentItem().isRemoved()) {
+						column.removeItem(item);
+						entry.getValue().remove(item);
+					}
+				}
+			}
+
+			// Third add items that are present in the filter and where there's a parent
+			for (Object id : elementsToAdd) {
+				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
+						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
+
+				for (NestableItem parentItem : parentItems) {
+					GLElement element = createElement(id);
+					if (element != null) {
+						addItem(element, id, column, parentItem);
+					}
+				}
+			}
+
+		}
+
+		updateChildColumnFilters();
 		column.updateSummaryItems();
 	}
 

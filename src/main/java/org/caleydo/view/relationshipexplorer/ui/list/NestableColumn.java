@@ -271,21 +271,26 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		} else {
 			for (ItemContainer container : itemContainers) {
 				CollapsableItemContainer c = (CollapsableItemContainer) container;
-				c.itemContainer.remove(item);
+				if (c.items.contains(item)) {
+					c.itemContainer.remove(item);
+					c.items.remove(item);
+				}
 			}
 		}
 		removeItemContainers(item);
+		item.removed = true;
 	}
 
 	protected void removeContainer(CollapsableItemContainer container) {
 		itemContainers.remove(container);
 		for (NestableItem item : container.items) {
 			removeItemContainers(item);
+			item.removed = true;
 			// removeItem(item);
 		}
 		container.items.clear();
 		removeItemContainers(container.summaryItem);
-
+		container.summaryItem.removed = true;
 	}
 
 	protected void removeItemContainers(NestableItem item) {

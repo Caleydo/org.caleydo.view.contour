@@ -6,7 +6,8 @@
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 
 /**
  * @author Christian
@@ -14,15 +15,17 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
  */
 public class HideDetailOperation implements IHistoryCommand {
 
-	protected AEntityColumn column;
+	protected IEntityCollection collection;
+	protected RelationshipExplorerElement relationshipExplorer;
 
-	public HideDetailOperation(AEntityColumn column) {
-		this.column = column;
+	public HideDetailOperation(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
+		this.collection = collection;
+		this.relationshipExplorer = relationshipExplorer;
 	}
 
 	@Override
 	public void execute() {
-		column.getRelationshipExplorer().removeDetailViewOfColumn(column);
+		relationshipExplorer.removeDetailViewOfColumn(collection);
 	}
 
 }

@@ -65,7 +65,7 @@ import com.google.common.collect.Sets;
  * @author Christian
  *
  */
-public abstract class AEntityColumn implements ILabeled, IEntityCollection, IColumnModel, IEntityRepresentation {
+public abstract class AEntityColumn implements ILabeled, IEntityCollection, IColumnModel {
 	protected static final int HEADER_HEIGHT = 20;
 	protected static final int HEADER_BODY_SPACING = 5;
 
@@ -491,7 +491,8 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	@Override
 	public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation srcRep) {
-		highlightElementIDs = elementIDs;
+		if (srcRep == this)
+			highlightElementIDs = elementIDs;
 		itemList.clearHighlight();
 
 		for (Object elementID : elementIDs) {
@@ -872,12 +873,12 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 		} else {
 
 			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
-
+			// TODO: when adding, some parents might have items already, but new parents might not although they would
+			// need it as child
 			Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
 					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
 			Set<Object> elementsToRemove = new HashSet<>(Sets.difference(mapIDToFilteredItems.keySet(),
 					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
-
 			// First remove items that are filtered for this column
 			for (Object elementID : elementsToRemove) {
 				Set<NestableItem> items = mapIDToFilteredItems.remove(elementID);
@@ -888,13 +889,17 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 			}
 
 			// Second remove remaining items that have no parent
-			for (Entry<Object, Set<NestableItem>> entry : mapIDToFilteredItems.entrySet()) {
+			Map<Object, Set<NestableItem>> tempMap = new HashMap<>(mapIDToFilteredItems);
+			for (Entry<Object, Set<NestableItem>> entry : tempMap.entrySet()) {
 
 				for (NestableItem item : new HashSet<>(entry.getValue())) {
 					// FIXME: This is so ugly...
 					if (item.getParentItem().isRemoved()) {
 						column.removeItem(item);
 						entry.getValue().remove(item);
+						if (entry.getValue().isEmpty()) {
+							mapIDToFilteredItems.remove(entry.getKey());
+						}
 					}
 				}
 			}

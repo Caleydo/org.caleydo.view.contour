@@ -17,8 +17,9 @@ import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
+import org.caleydo.view.pathway.v2.ui.augmentation.CompoundAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.pathway.CompoundAugmentation;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugmentation;
 
 /**
@@ -124,20 +125,26 @@ public class PathwayColumn extends ATextColumn {
 
 	@Override
 	public void showDetailView() {
-		Set<GLElement> elements = itemList.getSelectedElements();
+		Set<NestableItem> selectedItems = column.getSelectedItems();
 
-		if (elements.size() != 1)
+		if (selectedItems.size() != 1)
 			return;
 
-		PathwayGraph pathway = (PathwayGraph) mapIDToElement.inverse().get(elements.iterator().next());
+		PathwayGraph pathway = (PathwayGraph) selectedItems.iterator().next().getElementData().iterator().next();
 
 		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
 		pathwayElement.setPathwayRepresentation(representation);
 		pathwayElement.addForegroundAugmentation(new CompoundAugmentation(representation));
+
 		// FIXME: hacky, we do not know what id type the gene column has...
-		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation,
-				getForeignColumnWithBroadcastIDType(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()))));
+		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType
+				.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()));
+		if (geneCollections.isEmpty())
+			return;
+
+		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
+				.iterator().next(), relationshipExplorer));
 
 		relationshipExplorer.showDetailView(this, pathwayElement, pathway);
 	}

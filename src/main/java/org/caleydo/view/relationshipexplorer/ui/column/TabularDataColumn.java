@@ -202,7 +202,7 @@ public class TabularDataColumn extends AEntityColumn {
 			detailView = suppliers.get(0).get();
 		}
 
-		relationshipExplorer.showDetailView(this, detailView, this);
+		relationshipExplorer.showDetailView(entityCollection, detailView, this);
 
 	}
 

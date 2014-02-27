@@ -9,6 +9,7 @@ import gleem.linalg.Vec2f;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected AnimatedGLElementContainer columnContainer;
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
-	protected BiMap<AEntityColumn, GLElementWindow> detailMap = HashBiMap.create(2);
+	protected BiMap<IEntityCollection, GLElementWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
 	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
@@ -199,6 +200,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return list;
 	}
 
+
 	public List<AEntityColumn> getColumnsWithMappingIDType(IDType idType) {
 		List<AEntityColumn> list = new ArrayList<>();
 		for (AEntityColumn column : columns) {
@@ -207,6 +209,16 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			}
 		}
 		return list;
+	}
+
+	public Set<IEntityCollection> getCollectionsWithBroadcastIDType(IDType idType) {
+		Set<IEntityCollection> collections = new HashSet<>();
+		for (IEntityCollection collection : entityCollections) {
+			if (collection.getBroadcastingIDType() == idType) {
+				collections.add(collection);
+			}
+		}
+		return collections;
 	}
 
 	public void applyIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
@@ -244,24 +256,24 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return idMappingUpdateHandler;
 	}
 
-	public void showDetailView(AEntityColumn srcColumn, final GLElement detailView, ILabeled labeled) {
+	public void showDetailView(IEntityCollection srcCollection, final GLElement detailView, ILabeled labeled) {
 
-		GLElementWindow window = detailMap.get(srcColumn);
+		GLElementWindow window = detailMap.get(srcCollection);
 		if (window == null) {
 			window = new GLElementWindow(labeled);
 			window.onClose(new ICloseWindowListener() {
 
 				@Override
 				public void onWindowClosed(GLElementWindow window) {
-					AEntityColumn column = detailMap.inverse().get(window);
-					HideDetailOperation o = new HideDetailOperation(column);
+					IEntityCollection collection = detailMap.inverse().get(window);
+					HideDetailOperation o = new HideDetailOperation(collection, RelationshipExplorerElement.this);
 
 					o.execute();
 					getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(2));
 				}
 			});
 
-			detailMap.put(srcColumn, window);
+			detailMap.put(srcCollection, window);
 		}
 
 		if (detailContainer.indexOf(window) == -1) {
@@ -288,9 +300,21 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 			@Override
 			public int compare(GLElement arg0, GLElement arg1) {
-				// int index1 = columnContainer.indexOf(detailMap.inverse().get(arg0));
-				// int index2 = columnContainer.indexOf(detailMap.inverse().get(arg1));
-				return 0;// index1 - index2;
+				int index1 = getIndexOfFirstColumn(detailMap.inverse().get(arg0));
+				int index2 = getIndexOfFirstColumn(detailMap.inverse().get(arg1));
+				return index1 - index2;
+			}
+
+			private int getIndexOfFirstColumn(IEntityCollection collection) {
+				// TODO: Probably save the column where the detail view was triggered
+				for (int i = 0; i < cols.size(); i++) {
+					GLElement element = cols.get(i);
+					if (element instanceof ColumnTree) {
+						if (((ColumnTree) element).getRootColumn().getColumnModel().getCollection() == collection)
+							return i;
+					}
+				}
+				return -1;
 			}
 		});
 
@@ -306,7 +330,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		updateDetailHeight();
 	}
 
-	public void removeDetailViewOfColumn(AEntityColumn column) {
+	public void removeDetailViewOfColumn(IEntityCollection column) {
 		GLElementWindow window = detailMap.remove(column);
 		if (window != null) {
 			detailContainer.remove(window);

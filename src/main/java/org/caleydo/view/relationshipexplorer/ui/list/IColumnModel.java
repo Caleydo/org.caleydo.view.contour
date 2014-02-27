@@ -12,13 +12,14 @@ import java.util.Set;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn.ISelectionUpdateListener;
 
 /**
  * @author Christian
  *
  */
-public interface IColumnModel extends ILabeled, ISelectionUpdateListener {
+public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntityRepresentation {
 
 	public void fill(NestableColumn column, NestableColumn parentColumn);
 

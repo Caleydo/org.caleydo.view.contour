@@ -24,6 +24,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 
 /**
  * @author Christian
@@ -39,32 +40,27 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 	public GLElement create(GLElementFactoryContext context) {
 
 		RelationshipExplorerElement relationshipExplorer = new RelationshipExplorerElement();
+
 		PathwayCollection pathwayCollection = new PathwayCollection(relationshipExplorer);
 
-		ColumnTree pathwayColumn = new ColumnTree(pathwayCollection.createColumnModel());
-
-		relationshipExplorer.addColumn(pathwayColumn);
 		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
 				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), relationshipExplorer);
 
-		ColumnTree geneColumn = new ColumnTree(geneCollection.createColumnModel());
-
-		relationshipExplorer.addColumn(geneColumn);
+		TabularDataCollection activityCollection = null;
 
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
 			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Activity")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					// ColumnTree activityColumn = new ColumnTree();
-					TabularDataCollection activityCollection = new TabularDataCollection(
-							dataDomain.getDefaultTablePerspective(),
+					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
 
 					// ColumnTree activityColumn = new ColumnTree(activityCollection.createColumnModel());
 					//
 					// relationshipExplorer.addColumn(activityColumn);
 
-					geneColumn.addNestedColumn(activityCollection.createColumnModel(), geneColumn.getRootColumn());
+					// geneColumn.addNestedColumn(activityCollection.createColumnModel(), geneColumn.getRootColumn());
 					// row.add(activityColumn);
 				}
 				break;
@@ -74,18 +70,13 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		IDCollection compoundCollection = new IDCollection(IDType.getIDType("COMPOUND_ID"),
 				IDType.getIDType("COMPOUND_ID"), relationshipExplorer);
 		compoundCollection.setLabel("Compounds");
-		ColumnTree compoundColumn = new ColumnTree(compoundCollection.createColumnModel());
 
-		relationshipExplorer.addColumn(compoundColumn);
-
-		ColumnTree clusterColumn = getClusterColumn(relationshipExplorer);
-
+		TabularDataCollection fingerprintCollection = null;
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
 			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Finger")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
-					TabularDataCollection fingerprintCollection = new TabularDataCollection(
-							dataDomain.getDefaultTablePerspective(),
+					fingerprintCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
 
 					// ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
@@ -93,15 +84,13 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 					// relationshipExplorer.addColumn(fingerprintColumn);
 
 					//
-					clusterColumn.addNestedColumn(fingerprintCollection.createColumnModel(),
-							clusterColumn.getRootColumn());
+
 				}
 				break;
 			}
 		}
 
-		if (clusterColumn != null)
-			relationshipExplorer.addColumn(clusterColumn);
+		GroupCollection clusterCollection = getClusterColumn(relationshipExplorer);
 
 		// float totalMinSize = 0;
 		// for (AEntityColumn column : columns) {
@@ -121,10 +110,57 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		// // }
 		// }
 
+		ColumnTree pathwayColumn = new ColumnTree(pathwayCollection.createColumnModel());
+
+		NestableColumn geneCol = pathwayColumn.addNestedColumn(geneCollection.createColumnModel(),
+				pathwayColumn.getRootColumn());
+
+		relationshipExplorer.addColumn(pathwayColumn);
+
+		// ----
+		ColumnTree geneColumn = new ColumnTree(geneCollection.createColumnModel());
+
+		// geneColumn.addNestedColumn(pathwayCollection.createColumnModel(), geneColumn.getRootColumn());
+
+		geneColumn.addNestedColumn(activityCollection.createColumnModel(), geneColumn.getRootColumn());
+
+		// geneColumn.addNestedColumn(compoundCollection.createColumnModel(), geneColumn.getRootColumn());
+
+		relationshipExplorer.addColumn(geneColumn);
+
+		// ----
+		ColumnTree compoundColumn = new ColumnTree(compoundCollection.createColumnModel());
+
+		// compoundColumn.addNestedColumn(geneCollection.createColumnModel(), compoundColumn.getRootColumn());
+
+		compoundColumn.addNestedColumn(activityCollection.createColumnModel(), compoundColumn.getRootColumn());
+
+		// compoundColumn.addNestedColumn(fingerprintCollection.createColumnModel(), compoundColumn.getRootColumn());
+
+		relationshipExplorer.addColumn(compoundColumn);
+
+		// ----
+
+		ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
+
+		// fingerprintColumn.addNestedColumn(compoundCollection.createColumnModel(), fingerprintColumn.getRootColumn());
+
+		fingerprintColumn.addNestedColumn(clusterCollection.createColumnModel(), fingerprintColumn.getRootColumn());
+
+		relationshipExplorer.addColumn(fingerprintColumn);
+
+		// ----
+
+		ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
+
+		clusterColumn.addNestedColumn(fingerprintCollection.createColumnModel(), clusterColumn.getRootColumn());
+
+		relationshipExplorer.addColumn(clusterColumn);
+
 		return relationshipExplorer;
 	}
 
-	protected ColumnTree getClusterColumn(RelationshipExplorerElement relationshipExplorer) {
+	protected GroupCollection getClusterColumn(RelationshipExplorerElement relationshipExplorer) {
 		for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
 			if (dataDomain instanceof ATableBasedDataDomain) {
 				ATableBasedDataDomain dd = (ATableBasedDataDomain) dataDomain;
@@ -140,10 +176,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getDimensionPerspective(perspectiveID);
-								GroupCollection clusterCollection = new GroupCollection(perspective,
-										relationshipExplorer);
-
-								return new ColumnTree(clusterCollection.createColumnModel());
+								return new GroupCollection(perspective, relationshipExplorer);
 							}
 						}
 
@@ -154,10 +187,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getRecordPerspective(perspectiveID);
-								GroupCollection clusterCollection = new GroupCollection(perspective,
-										relationshipExplorer);
-
-								return new ColumnTree(clusterCollection.createColumnModel());
+								return new GroupCollection(perspective, relationshipExplorer);
 							}
 						}
 					}

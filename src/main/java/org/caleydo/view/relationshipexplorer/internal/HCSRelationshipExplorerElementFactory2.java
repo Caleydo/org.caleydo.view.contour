@@ -60,6 +60,10 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 							dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
 
+					// ColumnTree activityColumn = new ColumnTree(activityCollection.createColumnModel());
+					//
+					// relationshipExplorer.addColumn(activityColumn);
+
 					geneColumn.addNestedColumn(activityCollection.createColumnModel(), geneColumn.getRootColumn());
 					// row.add(activityColumn);
 				}
@@ -84,6 +88,11 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 							dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
 
+					// ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
+					//
+					// relationshipExplorer.addColumn(fingerprintColumn);
+
+					//
 					clusterColumn.addNestedColumn(fingerprintCollection.createColumnModel(),
 							clusterColumn.getRootColumn());
 				}

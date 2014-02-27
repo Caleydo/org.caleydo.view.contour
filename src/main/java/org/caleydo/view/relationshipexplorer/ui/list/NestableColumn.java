@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.caleydo.core.event.EventListenerManager.DeepScan;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -22,6 +24,8 @@ import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSe
  *
  */
 public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
+
+	@DeepScan
 	protected final IColumnModel model;
 	protected final ColumnTree columnTree;
 
@@ -257,6 +261,38 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 
 	public NestableItem addElement(GLElement element, NestableItem parentItem) {
 		return columnTree.addElement(element, this, parentItem);
+	}
+
+	public void removeItem(NestableItem item) {
+		if (isRoot()) {
+			for (ItemContainer container : itemContainers) {
+				container.remove(item);
+			}
+		} else {
+			for (ItemContainer container : itemContainers) {
+				CollapsableItemContainer c = (CollapsableItemContainer) container;
+				c.itemContainer.remove(item);
+			}
+		}
+		removeItemContainers(item);
+	}
+
+	protected void removeContainer(CollapsableItemContainer container) {
+		itemContainers.remove(container);
+		for (NestableItem item : container.items) {
+			removeItemContainers(item);
+			// removeItem(item);
+		}
+		container.items.clear();
+		removeItemContainers(container.summaryItem);
+
+	}
+
+	protected void removeItemContainers(NestableItem item) {
+		for (Entry<NestableColumn, CollapsableItemContainer> entry : item.itemContainers.entrySet()) {
+			entry.getKey().removeContainer(entry.getValue());
+		}
+		item.itemContainers.clear();
 	}
 
 	public void notifyOfSelectionUpdate() {

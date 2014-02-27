@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDimension;
+import org.caleydo.core.event.EventListenerManager.DeepScan;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementAccessor;
@@ -40,6 +41,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 	// protected GLElementContainer bodyRow;
 	protected ScrollingDecorator scrollingDecorator;
 
+	@DeepScan
 	protected Set<NestableColumn> allColumns = new HashSet<>();
 
 	protected class ScrollableItemList extends ItemContainer {

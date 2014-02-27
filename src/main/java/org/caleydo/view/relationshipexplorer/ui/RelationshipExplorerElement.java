@@ -93,20 +93,20 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	};
 
-	private class DetailConnector extends GLElement {
-
-		@Override
-		protected void renderImpl(GLGraphics g, float w, float h) {
-			for (GLElement detailWindow : detailContainer) {
-				AEntityColumn column = detailMap.inverse().get(detailWindow);
-				Vec2f winLoc1 = new Vec2f(detailWindow.getLocation().x(), 0);
-				Vec2f winLoc2 = new Vec2f(winLoc1.x() + detailWindow.getSize().x(), 0);
-				Vec2f colLoc1 = new Vec2f(column.getLocation().x(), h);
-				Vec2f colLoc2 = new Vec2f(colLoc1.x() + column.getSize().x(), h);
-				g.color(Color.RED).drawPath(true, winLoc1, winLoc2, colLoc2, colLoc1);
-			}
-		}
-	}
+	// private class DetailConnector extends GLElement {
+	//
+	// @Override
+	// protected void renderImpl(GLGraphics g, float w, float h) {
+	// for (GLElement detailWindow : detailContainer) {
+	// AEntityColumn column = detailMap.inverse().get(detailWindow);
+	// Vec2f winLoc1 = new Vec2f(detailWindow.getLocation().x(), 0);
+	// Vec2f winLoc2 = new Vec2f(winLoc1.x() + detailWindow.getSize().x(), 0);
+	// Vec2f colLoc1 = new Vec2f(column.getLocation().x(), h);
+	// Vec2f colLoc2 = new Vec2f(colLoc1.x() + column.getSize().x(), h);
+	// g.color(Color.RED).drawPath(true, winLoc1, winLoc2, colLoc2, colLoc1);
+	// }
+	// }
+	// }
 
 	public RelationshipExplorerElement() {
 		super(new GLSizeRestrictiveFlowLayout(false, 5, GLPadding.ZERO));
@@ -130,7 +130,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			columnSpacer.setSize(2, Float.NaN);
 			columnContainer.add(columnSpacer);
 		}
-		columnContainer.add(column);
+		// columnContainer.add(column);
 		columns.add(column);
 		registerEntityCollection(column);
 	}
@@ -288,9 +288,9 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 			@Override
 			public int compare(GLElement arg0, GLElement arg1) {
-				int index1 = columnContainer.indexOf(detailMap.inverse().get(arg0));
-				int index2 = columnContainer.indexOf(detailMap.inverse().get(arg1));
-				return index1 - index2;
+				// int index1 = columnContainer.indexOf(detailMap.inverse().get(arg0));
+				// int index2 = columnContainer.indexOf(detailMap.inverse().get(arg1));
+				return 0;// index1 - index2;
 			}
 		});
 

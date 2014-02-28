@@ -274,6 +274,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 				if (c.items.contains(item)) {
 					c.itemContainer.remove(item);
 					c.items.remove(item);
+					c.summaryItem.getElementData().removeAll(item.getElementData());
 				}
 			}
 		}

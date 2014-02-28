@@ -875,8 +875,8 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
 			// TODO: when adding, some parents might have items already, but new parents might not although they would
 			// need it as child
-			Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
-					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
+			// Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
+			// Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
 			Set<Object> elementsToRemove = new HashSet<>(Sets.difference(mapIDToFilteredItems.keySet(),
 					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
 			// First remove items that are filtered for this column
@@ -905,15 +905,26 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 			}
 
 			// Third add items that are present in the filter and where there's a parent
-			for (Object id : elementsToAdd) {
+			for (Object id : elementIDs) {
 				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
 						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
 
 				for (NestableItem parentItem : parentItems) {
-					GLElement element = createElement(id);
-					if (element != null) {
-						addItem(element, id, column, parentItem);
+
+					List<NestableItem> childItems = parentItem.getChildItems(column);
+					boolean createItem = true;
+					for (NestableItem item : childItems) {
+						if (item.getElementData().contains(id)) {
+							createItem = false;
+							break;
+						}
+					}
+					if (createItem) {
+						GLElement element = createElement(id);
+						if (element != null) {
+							addItem(element, id, column, parentItem);
+						}
 					}
 				}
 			}

@@ -13,7 +13,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
  * @author Christian
@@ -148,6 +147,11 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	}
 
-	public abstract IColumnModel createColumnModel();
+	@Override
+	public void reset() {
+		filteredElementIDs = new HashSet<>(allElementIDs.size());
+		filteredElementIDs.addAll(allElementIDs);
+		representations.clear();
+	}
 
 }

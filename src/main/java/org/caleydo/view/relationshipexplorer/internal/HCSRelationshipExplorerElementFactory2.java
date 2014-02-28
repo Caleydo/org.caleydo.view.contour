@@ -18,13 +18,16 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IDCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.MedianSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AddChildColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.CompositeHistoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 
@@ -112,55 +115,71 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		// // }
 		// }
 
-		ColumnTree pathwayColumn = new ColumnTree(pathwayCollection.createColumnModel());
+		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
-		NestableColumn geneCol = pathwayColumn.addNestedColumn(geneCollection.createColumnModel(),
-				pathwayColumn.getRootColumn());
+		IHistoryCommand c = new AddColumnTreeCommand(pathwayCollection, relationshipExplorer);
+		initCommand.add(c);
+		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
-		relationshipExplorer.addColumn(pathwayColumn);
-
-		// ----
-		ColumnTree geneColumn = new ColumnTree(geneCollection.createColumnModel());
-
-		// geneColumn.addNestedColumn(pathwayCollection.createColumnModel(), geneColumn.getRootColumn());
-
-		geneColumn.addNestedColumn(activityCollection.createColumnModel(), geneColumn.getRootColumn());
-
-		// geneColumn.addNestedColumn(compoundCollection.createColumnModel(), geneColumn.getRootColumn());
-
-		relationshipExplorer.addColumn(geneColumn);
-
-		// ----
-		ColumnTree compoundColumn = new ColumnTree(compoundCollection.createColumnModel());
-
-		// compoundColumn.addNestedColumn(geneCollection.createColumnModel(), compoundColumn.getRootColumn());
-
-		compoundColumn.addNestedColumn(activityCollection.createColumnModel(), compoundColumn.getRootColumn());
-
-		// compoundColumn.addNestedColumn(fingerprintCollection.createColumnModel(), compoundColumn.getRootColumn());
-
-		relationshipExplorer.addColumn(compoundColumn);
+		c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
+				relationshipExplorer.getHistory());
+		initCommand.add(c);
+		c.execute();
 
 		// ----
 
-		ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
+		c = new AddColumnTreeCommand(geneCollection, relationshipExplorer);
+		initCommand.add(c);
+		ColumnTree geneColumn = (ColumnTree) c.execute();
 
-		// fingerprintColumn.addNestedColumn(compoundCollection.createColumnModel(), fingerprintColumn.getRootColumn());
-
-		fingerprintColumn.addNestedColumn(clusterCollection.createColumnModel(), fingerprintColumn.getRootColumn());
-
-		relationshipExplorer.addColumn(fingerprintColumn);
+		c = new AddChildColumnCommand(activityCollection, geneColumn.getRootColumn().getColumnModel().getHistoryID(),
+				relationshipExplorer.getHistory());
+		initCommand.add(c);
+		c.execute();
 
 		// ----
 
-		ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
-		TabularDataColumn fingerCol = (TabularDataColumn) fingerprintCollection.createColumnModel();
-		MedianSummaryItemFactory f = new MedianSummaryItemFactory(fingerCol);
-		fingerCol.addSummaryItemFactory(f);
-		fingerCol.setSummaryItemFactory(f);
-		clusterColumn.addNestedColumn(fingerCol, clusterColumn.getRootColumn());
+		c = new AddColumnTreeCommand(compoundCollection, relationshipExplorer);
+		initCommand.add(c);
+		ColumnTree compoundColumn = (ColumnTree) c.execute();
 
-		relationshipExplorer.addColumn(clusterColumn);
+		c = new AddChildColumnCommand(activityCollection, compoundColumn.getRootColumn().getColumnModel()
+				.getHistoryID(), relationshipExplorer.getHistory());
+		initCommand.add(c);
+		c.execute();
+
+		// ----
+
+		c = new AddColumnTreeCommand(fingerprintCollection, relationshipExplorer);
+		initCommand.add(c);
+		ColumnTree fingerprintColumn = (ColumnTree) c.execute();
+
+		c = new AddChildColumnCommand(clusterCollection, fingerprintColumn.getRootColumn().getColumnModel()
+				.getHistoryID(), relationshipExplorer.getHistory());
+		initCommand.add(c);
+		c.execute();
+
+		// ----
+
+		c = new AddColumnTreeCommand(clusterCollection, relationshipExplorer);
+		initCommand.add(c);
+		ColumnTree clusterColumn = (ColumnTree) c.execute();
+
+		c = new AddChildColumnCommand(fingerprintCollection, clusterColumn.getRootColumn().getColumnModel()
+				.getHistoryID(), relationshipExplorer.getHistory());
+		initCommand.add(c);
+		NestableColumn fCol = (NestableColumn) c.execute();
+
+		// ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
+
+		c = new SetSummaryItemFactoryCommand(fCol.getColumnModel().getHistoryID(), relationshipExplorer.getHistory());
+		initCommand.add(c);
+		c.execute();
+
+		relationshipExplorer.getHistory().setInitCommand(initCommand);
+		// clusterColumn.addNestedColumn(fingerCol, clusterColumn.getRootColumn());
+		//
+		// relationshipExplorer.addColumn(clusterColumn);
 
 		return relationshipExplorer;
 	}

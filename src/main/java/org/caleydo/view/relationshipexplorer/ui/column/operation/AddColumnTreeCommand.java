@@ -8,25 +8,27 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
 /**
  * @author Christian
  *
  */
-public class HideDetailOperation implements IHistoryCommand {
+public class AddColumnTreeCommand implements IHistoryCommand {
 
-	protected IEntityCollection collection;
-	protected RelationshipExplorerElement relationshipExplorer;
+	protected final IEntityCollection collection;
+	protected final RelationshipExplorerElement relationshipExplorer;
 
-	public HideDetailOperation(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
+	public AddColumnTreeCommand(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
 		this.collection = collection;
 		this.relationshipExplorer = relationshipExplorer;
 	}
 
 	@Override
 	public Object execute() {
-		relationshipExplorer.removeDetailViewOfColumn(collection);
-		return null;
+		ColumnTree tree = new ColumnTree(collection.createColumnModel());
+		relationshipExplorer.addColumn(tree);
+		return tree;
 	}
 
 }

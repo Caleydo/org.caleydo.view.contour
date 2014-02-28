@@ -147,6 +147,11 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		// registerEntityCollection(column);
 	}
 
+	public void clearColumns() {
+		columnContainer.clear();
+		cols.clear();
+	}
+
 	public void registerEntityCollection(IEntityCollection collection) {
 		entityCollections.add(collection);
 	}
@@ -346,5 +351,12 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 				Math.min(canvas.getDIPHeight() - (MIN_COLUMN_HEIGHT + MIN_HISTORY_HEIGHT), detailContainerMinSize.y()));
 
 		resizeChild(detailContainer, Float.NaN, detailHeight);
+	}
+
+	/**
+	 * @return the entityCollections, see {@link #entityCollections}
+	 */
+	public Set<IEntityCollection> getEntityCollections() {
+		return entityCollections;
 	}
 }

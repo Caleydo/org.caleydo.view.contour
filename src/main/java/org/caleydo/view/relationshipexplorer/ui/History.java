@@ -8,7 +8,9 @@ package org.caleydo.view.relationshipexplorer.ui;
 import gleem.linalg.Vec2f;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.media.opengl.GL2;
 
@@ -22,7 +24,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.IIDMappingUpdateHandler;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.IColumnOperation;
@@ -44,6 +45,15 @@ public class History extends AnimatedGLElementContainer {
 
 	protected AMappingUpdateOperation lastMappingUpdateOperation;
 
+	protected Map<Integer, Object> historyObjects = new HashMap<>();
+	protected int lastHistoryObjectID = -1;
+
+	protected IHistoryCommand initCommand;
+
+	public interface IHistoryIDOwner {
+		public int getHistoryID();
+	}
+
 	protected class HistoryIDMappingHandler implements IIDMappingUpdateHandler {
 
 		@Override
@@ -57,7 +67,7 @@ public class History extends AnimatedGLElementContainer {
 	protected HistoryIDMappingHandler idMappingHandler = new HistoryIDMappingHandler();
 
 	public static interface IHistoryCommand {
-		public void execute();
+		public Object execute();
 	}
 
 	protected static class ColumnOperationCommand implements IHistoryCommand {
@@ -70,29 +80,30 @@ public class History extends AnimatedGLElementContainer {
 		}
 
 		@Override
-		public void execute() {
+		public Object execute() {
 			columnOperation.execute(collection);
+			return null;
 		}
 
 	}
 
-	protected static class ResetCommand implements IHistoryCommand {
-
-		protected final RelationshipExplorerElement relationshipExplorer;
-
-		public ResetCommand(RelationshipExplorerElement relationshipExplorer) {
-			this.relationshipExplorer = relationshipExplorer;
-		}
+	protected class ResetCommand implements IHistoryCommand {
 
 		@Override
-		public void execute() {
+		public Object execute() {
+			historyObjects.clear();
+			lastHistoryObjectID = -1;
+
 			relationshipExplorer.removeAllDetailViews();
-			for (AEntityColumn column : relationshipExplorer.getColumns()) {
-				column.showAllItems();
-				// column.setSelectedItems(new HashSet<>());
-				column.hideMappings();
-				column.sort(column.getDefaultElementComparator());
+			relationshipExplorer.clearColumns();
+			for (IEntityCollection collection : relationshipExplorer.getEntityCollections()) {
+				collection.reset();
 			}
+
+			if (initCommand != null) {
+				initCommand.execute();
+			}
+			return null;
 		}
 
 	}
@@ -164,7 +175,7 @@ public class History extends AnimatedGLElementContainer {
 	public History(RelationshipExplorerElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		setLayout(new GLSizeRestrictiveFlowLayout(true, 2, new GLPadding(2, 2, 2, 2)));
-		addHistoryCommand(new ResetCommand(relationshipExplorer), Color.GRAY);
+		addHistoryCommand(new ResetCommand(), Color.GRAY);
 	}
 
 	public void addColumnOperation(IEntityCollection collection, IColumnOperation columnOperation) {
@@ -235,5 +246,28 @@ public class History extends AnimatedGLElementContainer {
 			}
 		}
 		return new Vec2f(4 + sumWidth + (numItems - 1) * 2, 4 + maxHeight);
+	}
+
+	public int registerHistoryObject(Object o) {
+		lastHistoryObjectID++;
+		historyObjects.put(lastHistoryObjectID, o);
+		return lastHistoryObjectID;
+	}
+
+	public void unregisterHistoryObject(int id) {
+		historyObjects.remove(id);
+	}
+
+	public <T> T getHistoryObjectAs(Class<T> clazz, int id) {
+		Object o = historyObjects.get(id);
+		return clazz.cast(o);
+	}
+
+	/**
+	 * @param initCommand
+	 *            setter, see {@link initCommand}
+	 */
+	public void setInitCommand(IHistoryCommand initCommand) {
+		this.initCommand = initCommand;
 	}
 }

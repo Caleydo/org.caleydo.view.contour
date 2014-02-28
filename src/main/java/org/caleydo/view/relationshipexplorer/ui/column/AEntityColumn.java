@@ -106,6 +106,8 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 	protected Set<ISummaryItemFactory> summaryItemFactories = new HashSet<>();
 	protected ISummaryItemFactory summaryItemFactory;
 
+	protected int historyID;
+
 	protected static class MappingBarComparator implements Comparator<GLElement> {
 
 		private final Object key;
@@ -176,6 +178,7 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 		summaryItemFactory = new MappingSummaryItemFactory(this);
 		summaryItemFactories.add(summaryItemFactory);
+		historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 
 		// header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
 		// header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
@@ -962,6 +965,24 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	public void setSummaryItemFactory(ISummaryItemFactory factory) {
 		summaryItemFactory = factory;
+		if (column != null)
+		column.updateSummaryItems();
+	}
+
+	@Override
+	public void reset() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public NestableColumn getColumn() {
+		return column;
+	}
+
+	@Override
+	public int getHistoryID() {
+		return historyID;
 	}
 
 	// @Override
@@ -981,6 +1002,12 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 	// // TODO Auto-generated method stub
 	//
 	// }
+
+	@Override
+	public IColumnModel createColumnModel() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	protected abstract GLElement createElement(Object elementID);
 

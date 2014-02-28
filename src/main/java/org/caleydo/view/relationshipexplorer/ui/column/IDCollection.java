@@ -32,7 +32,8 @@ public class IDCollection extends AEntityCollection {
 
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		// elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
-		filteredElementIDs.addAll(mappingManager.getAllMappedIDs(idType));
+		allElementIDs.addAll(mappingManager.getAllMappedIDs(idType));
+		filteredElementIDs.addAll(allElementIDs);
 	}
 
 	@Override

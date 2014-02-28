@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
  * @author Christian
@@ -24,6 +25,8 @@ public interface IEntityCollection extends ILabeled {
 	public Set<Object> getSelectedElementIDs();
 
 	public Set<Object> getHighlightElementIDs();
+
+	public void reset();
 
 	// public void setFilteredItems(Set<Object> elementIDs);
 	//
@@ -52,5 +55,7 @@ public interface IEntityCollection extends ILabeled {
 	public void addEntityRepresentation(IEntityRepresentation rep);
 
 	public void removeEntityRepresentation(IEntityRepresentation rep);
+
+	public IColumnModel createColumnModel();
 
 }

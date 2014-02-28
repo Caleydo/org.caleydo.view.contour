@@ -12,6 +12,7 @@ import java.util.Set;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn.ISelectionUpdateListener;
 
@@ -19,7 +20,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn.ISelectionUp
  * @author Christian
  *
  */
-public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntityRepresentation {
+public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntityRepresentation, IHistoryIDOwner {
 
 	public void fill(NestableColumn column, NestableColumn parentColumn);
 
@@ -44,5 +45,7 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 	public Comparator<NestableItem> getDefaultComparator();
 
 	public void updateFilteredItems();
+
+	public NestableColumn getColumn();
 
 }

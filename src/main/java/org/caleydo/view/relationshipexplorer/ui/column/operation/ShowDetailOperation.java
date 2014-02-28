@@ -21,8 +21,9 @@ public class ShowDetailOperation implements IHistoryCommand {
 	}
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		column.showDetailView();
+		return null;
 
 	}
 

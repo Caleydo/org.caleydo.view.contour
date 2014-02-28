@@ -26,8 +26,9 @@ public class ColumnSortingCommand implements IHistoryCommand {
 	}
 
 	@Override
-	public void execute() {
+	public Object execute() {
 		column.sort(comparator);
+		return null;
 	}
 
 }

@@ -443,4 +443,11 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 	public void addContextMenuItems(List<AContextMenuItem> items) {
 		contextMenuCreator.addAll(items);
 	}
+
+	/**
+	 * @return the columnTree, see {@link #columnTree}
+	 */
+	public ColumnTree getColumnTree() {
+		return columnTree;
+	}
 }

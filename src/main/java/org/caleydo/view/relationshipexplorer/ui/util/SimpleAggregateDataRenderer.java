@@ -9,6 +9,7 @@ import gleem.linalg.Vec2f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.media.opengl.GL2;
 
@@ -36,7 +37,7 @@ public class SimpleAggregateDataRenderer extends GLElement {
 	protected List<Float> aggregatedNormalizedValues = new ArrayList<>();
 	protected float normalizedDataCenter;
 
-	public SimpleAggregateDataRenderer(ATableBasedDataDomain dataDomain, List<Integer> recordIDs, IDType recordIDType,
+	public SimpleAggregateDataRenderer(ATableBasedDataDomain dataDomain, Set<Integer> recordIDs, IDType recordIDType,
 			Perspective dimensionPerspective, float min, float max, float dataCenter) {
 		this.dataDomain = dataDomain;
 		// this.recordIDType = recordIDType;
@@ -46,7 +47,7 @@ public class SimpleAggregateDataRenderer extends GLElement {
 		for (Integer dimensionID : va) {
 			double[] normalizedValues = new double[recordIDs.size()];
 			for (int i = 0; i < recordIDs.size(); i++) {
-				Integer recordID = recordIDs.get(i);
+				Integer recordID = recordIDs.iterator().next();
 				normalizedValues[i] = dataDomain.getNormalizedValue(recordIDType, recordID,
 						dimensionPerspective.getIdType(), dimensionID);
 			}

@@ -21,8 +21,10 @@ import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IDCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.MedianSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 
@@ -152,8 +154,11 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		// ----
 
 		ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
-
-		clusterColumn.addNestedColumn(fingerprintCollection.createColumnModel(), clusterColumn.getRootColumn());
+		TabularDataColumn fingerCol = (TabularDataColumn) fingerprintCollection.createColumnModel();
+		MedianSummaryItemFactory f = new MedianSummaryItemFactory(fingerCol);
+		fingerCol.addSummaryItemFactory(f);
+		fingerCol.setSummaryItemFactory(f);
+		clusterColumn.addNestedColumn(fingerCol, clusterColumn.getRootColumn());
 
 		relationshipExplorer.addColumn(clusterColumn);
 

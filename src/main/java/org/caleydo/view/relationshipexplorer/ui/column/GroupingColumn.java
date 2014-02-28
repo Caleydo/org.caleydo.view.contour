@@ -12,8 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.caleydo.core.data.collection.table.NumericalTable;
-import org.caleydo.core.data.collection.table.Table;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
@@ -22,13 +20,9 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
-import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
-import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
-import org.caleydo.view.relationshipexplorer.ui.util.SimpleAggregateDataRenderer;
 
 /**
  * @author Christian
@@ -65,34 +59,34 @@ public class GroupingColumn extends ATextColumn {
 
 	@Override
 	protected void setContent() {
-		Table table = dataDomain.getTable();
-		if (table instanceof NumericalTable) {
-			NumericalTable numTable = (NumericalTable) table;
-
-			for (final Group group : groupList) {
-				List<Integer> indices = perspective.getVirtualArray().getIDsOfGroup(group.getGroupIndex());
-				IDType dimensionIDType = dataDomain.getOppositeIDType(perspective.getIdType());
-				Perspective dimensionPerspective = dataDomain.getDefaultTablePerspective().getPerspective(
-						dimensionIDType);
-
-				KeyBasedGLElementContainer<GLElement> container = new KeyBasedGLElementContainer<>(
-						GLLayouts.sizeRestrictiveFlowHorizontal(2));
-				MinSizeTextElement textElement = new MinSizeTextElement(group.getLabel());
-				textElement.setMinSize(new Vec2f(40, ITEM_HEIGHT));
-				textElement.setSize(45, 16);
-				container.setElement(GROUP_NAME_KEY, textElement);
-				SimpleAggregateDataRenderer renderer = new SimpleAggregateDataRenderer(dataDomain, indices,
-						perspective.getIdType(), dimensionPerspective, (float) numTable.getMin(),
-						(float) numTable.getMax(), numTable.getDataCenter().floatValue());
-				container.setElement(AGGREGATED_DATA_KEY, renderer);
-				container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 2,
-						GLPadding.ONE));
-
-				addElement(container, group);
-
-				// addTextElement(group.getLabel(), group);
-			}
-		}
+		// Table table = dataDomain.getTable();
+		// if (table instanceof NumericalTable) {
+		// NumericalTable numTable = (NumericalTable) table;
+		//
+		// for (final Group group : groupList) {
+		// List<Integer> indices = perspective.getVirtualArray().getIDsOfGroup(group.getGroupIndex());
+		// IDType dimensionIDType = dataDomain.getOppositeIDType(perspective.getIdType());
+		// Perspective dimensionPerspective = dataDomain.getDefaultTablePerspective().getPerspective(
+		// dimensionIDType);
+		//
+		// KeyBasedGLElementContainer<GLElement> container = new KeyBasedGLElementContainer<>(
+		// GLLayouts.sizeRestrictiveFlowHorizontal(2));
+		// MinSizeTextElement textElement = new MinSizeTextElement(group.getLabel());
+		// textElement.setMinSize(new Vec2f(40, ITEM_HEIGHT));
+		// textElement.setSize(45, 16);
+		// container.setElement(GROUP_NAME_KEY, textElement);
+		// SimpleAggregateDataRenderer renderer = new SimpleAggregateDataRenderer(dataDomain, indices,
+		// perspective.getIdType(), dimensionPerspective, (float) numTable.getMin(),
+		// (float) numTable.getMax(), numTable.getDataCenter().floatValue());
+		// container.setElement(AGGREGATED_DATA_KEY, renderer);
+		// container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 2,
+		// GLPadding.ONE));
+		//
+		// addElement(container, group);
+		//
+		// // addTextElement(group.getLabel(), group);
+		// }
+		// }
 
 	}
 

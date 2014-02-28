@@ -103,6 +103,9 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	protected Comparator<GLElement> currentComparator;
 
+	protected Set<ISummaryItemFactory> summaryItemFactories = new HashSet<>();
+	protected ISummaryItemFactory summaryItemFactory;
+
 	protected static class MappingBarComparator implements Comparator<GLElement> {
 
 		private final Object key;
@@ -170,6 +173,9 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 		this.entityCollection = entityCollection;
 		entityCollection.addEntityRepresentation(this);
 		this.relationshipExplorer = relationshipExplorer;
+
+		summaryItemFactory = new MappingSummaryItemFactory(this);
+		summaryItemFactories.add(summaryItemFactory);
 
 		// header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
 		// header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
@@ -682,31 +688,7 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	@Override
 	public GLElement getSummaryElement(Set<NestableItem> items) {
-		if (parentColumn == null)
-			return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
-
-		Set<Object> parentElementIDs = new HashSet<>();
-		int numSelections = 0;
-		for (NestableItem item : items) {
-			parentElementIDs.addAll(item.getParentItem().getElementData());
-			if (item.isSelected())
-				numSelections++;
-		}
-
-		Set<Object> parentBCIDs = parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(parentElementIDs);
-		Set<Object> mappedElementIDs = getElementIDsFromForeignIDs(parentBCIDs, parentColumn.getColumnModel()
-				.getBroadcastingIDType());
-
-		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
-		// layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));
-		layeredRenderer.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelections);
-		layeredRenderer.getElement(SELECTED_ELEMENTS_KEY).setNormalizedValue((float) numSelections / maxParentMappings);
-		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(items.size());
-		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setNormalizedValue((float) items.size() / maxParentMappings);
-		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setValue(mappedElementIDs.size());
-		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setNormalizedValue(
-				(float) mappedElementIDs.size() / maxParentMappings);
-		return layeredRenderer;
+		return summaryItemFactory.createSummaryItem(items);
 	}
 
 	@Override
@@ -972,6 +954,14 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 	public void removeEntityRepresentation(IEntityRepresentation rep) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void addSummaryItemFactory(ISummaryItemFactory factory) {
+		summaryItemFactories.add(factory);
+	}
+
+	public void setSummaryItemFactory(ISummaryItemFactory factory) {
+		summaryItemFactory = factory;
 	}
 
 	// @Override

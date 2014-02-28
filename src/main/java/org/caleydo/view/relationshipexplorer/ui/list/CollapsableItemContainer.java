@@ -54,7 +54,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
 
 		collapseButton = new GLButton(EButtonMode.CHECKBOX);
-		collapseButton.setSelected(false);
+		collapseButton.setSelected(column.isCollapsed());
 		collapseButton.setRenderer(GLRenderers.fillImage("resources/icons/general/minus.png"));
 		collapseButton.setSelectedRenderer(GLRenderers.fillImage("resources/icons/general/plus.png"));
 		collapseButton.setSize(ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE, ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE);
@@ -77,6 +77,8 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 		summaryItem = new NestableItem(ColumnTree.createTextElement("Default Summary", 16), column, parentItem,
 				columnTree);
 		summaryItem.setElementData(new HashSet<>());
+		if (column.isCollapsed())
+			itemContainer.add(summaryItem);
 		// column.summaryItems.add(summaryItem);
 
 		collapseButton.setVisibility(EVisibility.HIDDEN);

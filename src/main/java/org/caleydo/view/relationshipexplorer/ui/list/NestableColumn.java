@@ -153,6 +153,10 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		// parent.updateSizes();
 	}
 
+	public boolean isCollapsed() {
+		return header.collapseButton.isSelected();
+	}
+
 	public void setCollapsed(boolean isCollapsed) {
 		if (isRoot())
 			return;

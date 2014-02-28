@@ -17,9 +17,9 @@ import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
-import org.caleydo.view.pathway.v2.ui.augmentation.CompoundAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
+import org.caleydo.view.relationshipexplorer.ui.pathway.CompoundAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.pathway.MultiVertexHighlightAugmentation;
 
 /**

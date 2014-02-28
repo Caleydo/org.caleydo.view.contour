@@ -7,11 +7,13 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import java.util.Set;
 
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
+
 /**
  * @author Christian
  *
  */
-public interface IEntityRepresentation {
+public interface IEntityRepresentation extends IHistoryIDOwner {
 
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep);
 

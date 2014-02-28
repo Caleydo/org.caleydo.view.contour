@@ -16,20 +16,21 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
  */
 public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 
-	protected IEntityRepresentation representation;
+	protected final int representationHistoryID;
 
 	/**
 	 * @param selectedElementIDs
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedFilterOperation(IEntityRepresentation representation, Set<Object> selectedElementIDs,
+	public SelectionBasedFilterOperation(int representationHistoryID, Set<Object> selectedElementIDs,
 			Set<Object> selectedBroadcastIDs, ESetOperation op, RelationshipExplorerElement relationshipExplorer) {
 		super(selectedElementIDs, selectedBroadcastIDs, op, relationshipExplorer);
-		this.representation = representation;
+		this.representationHistoryID = representationHistoryID;
 	}
 
-	public void execute() {
+	@Override
+	public Object execute() {
 		// Set<Object> broadcastIDs = new HashSet<>();
 		// Set<Object> elementIDs = new HashSet<>();
 		// for (GLElement element : column.itemList.getSelectedElements()) {
@@ -38,14 +39,18 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 		// broadcastIDs.addAll(column.getBroadcastingIDsFromElementID(elementID));
 		// }
 
+		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
+				IEntityRepresentation.class, representationHistoryID);
+
 		representation.getCollection().setFilteredItems(
 				setOperation.apply(selectedElementIDs, representation.getCollection().getFilteredElementIDs()),
 				representation);
 		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs,
 				representation, setOperation), true);
-		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(representation, selectedElementIDs,
-				selectedBroadcastIDs, relationshipExplorer);
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(representationHistoryID,
+				selectedElementIDs, selectedBroadcastIDs, relationshipExplorer);
 		o.execute();
+		return null;
 	}
 
 }

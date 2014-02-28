@@ -16,24 +16,28 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
  */
 public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 
-	protected IEntityRepresentation representation;
+	protected final int representationHistoryID;
 
 	/**
 	 * @param selectedElementIDs
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedHighlightOperation(IEntityRepresentation representation, Set<Object> selectedElementIDs,
+	public SelectionBasedHighlightOperation(int representationHistoryID, Set<Object> selectedElementIDs,
 			Set<Object> selectedBroadcastIDs, RelationshipExplorerElement relationshipExplorer) {
 		super(selectedElementIDs, selectedBroadcastIDs, ESetOperation.INTERSECTION, relationshipExplorer);
-		this.representation = representation;
+		this.representationHistoryID = representationHistoryID;
 	}
 
-	public void execute() {
+	@Override
+	public Object execute() {
+		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
+				IEntityRepresentation.class, representationHistoryID);
 		representation.getCollection().setSelectedItems(selectedElementIDs, representation);
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
 				representation), true);
+		return null;
 	}
 
 }

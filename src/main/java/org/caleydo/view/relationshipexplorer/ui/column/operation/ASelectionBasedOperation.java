@@ -7,13 +7,14 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 
 /**
  * @author Christian
  *
  */
-public abstract class ASelectionBasedOperation extends ASetBasedColumnOperation {
+public abstract class ASelectionBasedOperation extends ASetBasedColumnOperation implements IHistoryCommand {
 
 	protected final Set<Object> selectedElementIDs;
 	protected final Set<Object> selectedBroadcastIDs;

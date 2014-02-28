@@ -33,7 +33,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingSelectionUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
@@ -56,6 +56,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	protected IEntityCollection geneCollection;
 	protected RelationshipExplorerElement relationshipExplorer;
 	protected boolean updateIsFromMe = false;
+	protected int historyID;
 
 	/**
 	 * @param pathwayRepresentation
@@ -67,6 +68,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		this.relationshipExplorer = relationshipExplorer;
 		geneCollection.addEntityRepresentation(this);
 		pathwayRepresentation.addVertexRepSelectionListener(this);
+		this.historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 	}
 
 	@Override
@@ -158,30 +160,19 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 	public void propagateSelection() {
 		Set<Object> selectedElementIDs = getGeneCollectionElementIDs(selectedVertexReps);
-		// Set<Object> filteredElementIDs = referenceColumn.getFilteredElementIDs();
 
-		// Set<Object> selectedFilteredElementIDs = Sets.intersection(selectedElementIDs, filteredElementIDs);
-		// Set<Object> selectedFilteredbroadcastIDs = referenceColumn
-		// .getBroadcastingIDsFromElementIDs(selectedFilteredElementIDs);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), selectedElementIDs,
+				geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs), relationshipExplorer);
 
-		geneCollection.setSelectedItems(selectedElementIDs, this);
+		c.execute();
 
-		relationshipExplorer.applyIDMappingUpdate(
-				new MappingSelectionUpdateOperation(
-						geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs), this), true);
-		// updateIsFromMe = true;
-		// SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(referenceColumn,
-		// selectedElementIDs,
-		// selectedBroadcastIDs, referenceColumn.getRelationshipExplorer());
-		// o.execute();
+		relationshipExplorer.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
 
-		// referenceColumn.getRelationshipExplorer().getHistory().addColumnOperation(referenceColumn, o);
-		// @SuppressWarnings("unchecked")
-		// ColumnSortingCommand c = new ColumnSortingCommand(referenceColumn, new ComparatorChain<>(Lists.newArrayList(
-		// referenceColumn.SELECTED_ELEMENTS_COMPARATOR, referenceColumn.getDefaultElementComparator())));
-		// c.execute();
-		// referenceColumn.getRelationshipExplorer().getHistory()
-		// .addHistoryCommand(c, ColorBrewer.Purples.getColors(3).get(1));
+		// geneCollection.setSelectedItems(selectedElementIDs, this);
+		//
+		// relationshipExplorer.applyIDMappingUpdate(
+		// new MappingSelectionUpdateOperation(
+		// geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs), this), true);
 	}
 
 	public void propagateHighlight() {
@@ -258,6 +249,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	@Override
 	protected void takeDown() {
 		geneCollection.removeEntityRepresentation(this);
+		relationshipExplorer.getHistory().unregisterHistoryObject(getHistoryID());
 		super.takeDown();
 	}
 
@@ -277,146 +269,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		highlightedVertexReps.remove(vertexRep);
 
 	}
-
-	// @Override
-	// public Set<Object> getAllElementIDs() {
-	// return referenceColumn.getAllElementIDs();
-	// }
-	//
-	// @Override
-	// public Set<Object> getFilteredElementIDs() {
-	// // Get all because we do not want to reduce the set of genes for selections to that of the column
-	// return referenceColumn.getAllElementIDs();
-	// }
-	//
-	// @Override
-	// public Set<Object> getSelectedElementIDs() {
-	// return getReferenceColumnElementIDs(selectedVertexReps);
-	// }
-	//
-	// @Override
-	// public Set<Object> getHighlightElementIDs() {
-	// return getReferenceColumnElementIDs(highlightedVertexReps);
-	// }
-	//
-	// // @Override
-	// // public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation srcRep) {
-	// // // nothing to do
-	// //
-	// // }
-	// //
-	// // @Override
-	// // public void setHighlightItems(Set<Object> elementIDs) {
-	// // // FIXME: Hack to prevent filtered elements of own selection to be received
-	// // if (updateIsFromMe) {
-	// // updateIsFromMe = false;
-	// // return;
-	// // }
-	// // selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
-	// // highlightedVertexReps);
-	// // }
-	// //
-	// // @Override
-	// // public void setSelectedItems(Set<Object> elementIDs) {
-	// // // FIXME: Hack to prevent filtered elements of own selection to be received
-	// // if (updateIsFromMe) {
-	// // updateIsFromMe = false;
-	// // return;
-	// // }
-	// //
-	// // selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
-	// // selectedVertexReps);
-	// // }
-	//
-	// @Override
-	// public IDType getBroadcastingIDType() {
-	// return referenceColumn.getBroadcastingIDType();
-	// }
-	//
-	// @Override
-	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
-	// return referenceColumn.getBroadcastingIDsFromElementID(elementID);
-	// }
-	//
-	// @Override
-	// public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
-	// return referenceColumn.getBroadcastingIDsFromElementIDs(elementIDs);
-	// }
-	//
-	// @Override
-	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-	// return referenceColumn.getElementIDsFromBroadcastingID(broadcastingID);
-	// }
-	//
-	// @Override
-	// public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
-	// return referenceColumn.getElementIDsFromForeignIDs(foreignIDs, foreignIDType);
-	// }
-	//
-	// @Override
-	// public String getLabel() {
-	// return "";
-	// }
-	//
-	// @Override
-	// public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-	// // nothing to do
-	//
-	// }
-
-	// @Override
-	// public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-	// // FIXME: Hack to prevent filtered elements of own selection to be received
-	// if (updateIsFromMe) {
-	// updateIsFromMe = false;
-	// return;
-	// }
-	// selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
-	// highlightedVertexReps);
-	//
-	// }
-	//
-	// @Override
-	// public void setSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-	// // FIXME: Hack to prevent filtered elements of own selection to be received
-	// if (updateIsFromMe) {
-	// updateIsFromMe = false;
-	// return;
-	// }
-	//
-	// selectVerticesFromForeignIDs(getBroadcastingIDsFromElementIDs(elementIDs), getBroadcastingIDType(),
-	// selectedVertexReps);
-	// }
-	//
-	// @Override
-	// public void addEntityRepresentation(IEntityRepresentation rep) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void removeEntityRepresentation(IEntityRepresentation rep) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-
-	// @Override
-	// public void selectionChanged(Set<Object> selectedElementIDs) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void highlightChanged(Set<Object> highlightElementIDs) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void filterChanged(Set<Object> filteredElementIDs) {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 	@Override
 	public void updateMappings(IEntityRepresentation srcRep) {
@@ -452,6 +304,11 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
 		// nothing to do
 
+	}
+
+	@Override
+	public int getHistoryID() {
+		return historyID;
 	}
 
 }

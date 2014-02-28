@@ -43,7 +43,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingSelectionUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
@@ -408,10 +408,17 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 				elementIDs.addAll(ids);
 		}
 
-		entityCollection.setSelectedItems(elementIDs, this);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), elementIDs,
+				entityCollection.getBroadcastingIDsFromElementIDs(elementIDs), relationshipExplorer);
 
-		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(
-				getBroadcastingIDsFromElementIDs(elementIDs), this), true);
+		c.execute();
+
+		relationshipExplorer.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+
+		// entityCollection.setSelectedItems(elementIDs, this);
+		//
+		// relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(
+		// getBroadcastingIDsFromElementIDs(elementIDs), this), true);
 	}
 
 	@Override
@@ -738,8 +745,7 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	@Override
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep == this)
-			return;
+
 		column.clearSelection();
 		for (Object elementID : selectedElementIDs) {
 			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
@@ -749,6 +755,8 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 				}
 			}
 		}
+		if (srcRep == this)
+			return;
 		if (srcRep instanceof IColumnModel) {
 			if (!column.isChild((IColumnModel) srcRep)) {
 				column.sortBy(getDefaultComparator());

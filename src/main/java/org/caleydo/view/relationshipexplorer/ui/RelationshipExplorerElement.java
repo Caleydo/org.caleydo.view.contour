@@ -42,7 +42,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
 import com.google.common.base.Predicates;
@@ -66,7 +66,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	// ------------
 
-	protected List<AEntityColumn> columns = new ArrayList<>();
+	// protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
@@ -125,16 +125,16 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		add(scrollingDecorator);
 	}
 
-	public void addEntityColumn(AEntityColumn column) {
-		if (columns.size() > 0) {
-			GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
-			columnSpacer.setSize(2, Float.NaN);
-			columnContainer.add(columnSpacer);
-		}
-		// columnContainer.add(column);
-		columns.add(column);
-		registerEntityCollection(column);
-	}
+	// public void addEntityColumn(AEntityColumn column) {
+	// if (columns.size() > 0) {
+	// GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
+	// columnSpacer.setSize(2, Float.NaN);
+	// columnContainer.add(columnSpacer);
+	// }
+	// // columnContainer.add(column);
+	// columns.add(column);
+	// registerEntityCollection(column);
+	// }
 
 	public void addColumn(ColumnTree column) {
 		if (cols.size() > 0) {
@@ -181,39 +181,39 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	@Override
 	protected void takeDown() {
-		columns.clear();
+		// columns.clear();
+		cols.clear();
 		entityCollections.clear();
 		detailMap.clear();
 		detailWindowQueue.clear();
 		super.takeDown();
 	}
 
-	/**
-	 * @return the columns, see {@link #columns}
-	 */
-	public List<AEntityColumn> getColumns() {
-		return columns;
-	}
-
+	// /**
+	// * @return the columns, see {@link #columns}
+	// */
+	// public List<AEntityColumn> getColumns() {
+	// return columns;
+	// }
+	//
 	public List<AEntityColumn> getColumnsWithBroadcastIDType(IDType idType) {
-		List<AEntityColumn> list = new ArrayList<>();
-		for (AEntityColumn column : columns) {
-			if (column.getBroadcastingIDType() == idType) {
-				list.add(column);
-			}
-		}
-		return list;
+		// List<AEntityColumn> list = new ArrayList<>();
+		// for (AEntityColumn column : columns) {
+		// if (column.getBroadcastingIDType() == idType) {
+		// list.add(column);
+		// }
+		// }
+		return null;
 	}
-
 
 	public List<AEntityColumn> getColumnsWithMappingIDType(IDType idType) {
-		List<AEntityColumn> list = new ArrayList<>();
-		for (AEntityColumn column : columns) {
-			if (column.getMappingIDType() == idType) {
-				list.add(column);
-			}
-		}
-		return list;
+		// List<AEntityColumn> list = new ArrayList<>();
+		// for (AEntityColumn column : columns) {
+		// if (column.getMappingIDType() == idType) {
+		// list.add(column);
+		// }
+		// }
+		return null;
 	}
 
 	public Set<IEntityCollection> getCollectionsWithBroadcastIDType(IDType idType) {
@@ -271,7 +271,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 				@Override
 				public void onWindowClosed(GLElementWindow window) {
 					IEntityCollection collection = detailMap.inverse().get(window);
-					HideDetailOperation o = new HideDetailOperation(collection, RelationshipExplorerElement.this);
+					HideDetailCommand o = new HideDetailCommand(collection, RelationshipExplorerElement.this);
 
 					o.execute();
 					getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(2));

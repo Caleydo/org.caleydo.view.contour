@@ -218,7 +218,7 @@ public class History extends AnimatedGLElementContainer {
 
 		// IIDMappingUpdateHandler prevIDMappingHandler = relationshipExplorer.getIdMappingUpdateHandler();
 		// relationshipExplorer.setIdMappingUpdateHandler(idMappingHandler);
-		for (int i = currentPosition < index ? currentPosition : 0; i <= index; i++) {
+		for (int i = currentPosition < index ? currentPosition + 1 : 0; i <= index; i++) {
 			commands.get(i).execute();
 		}
 

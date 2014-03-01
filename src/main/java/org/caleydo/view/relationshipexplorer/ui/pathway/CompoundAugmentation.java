@@ -5,15 +5,21 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.pathway;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
@@ -26,10 +32,47 @@ import org.caleydo.view.relationshipexplorer.ui.column.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 
 /**
- * @author Christian
+ * @author Alexander Lex
  *
  */
+
 public class CompoundAugmentation extends GLElement {
+
+	private class GroupData {
+		Set<Object> allCompounds = new HashSet<>();
+		List<Pair<Object, List<Integer>>> containedCompounds = new ArrayList<>();
+
+		Object groupID;
+
+		private GroupData(Set<Object> fingerPrints) {
+
+			// Group group = (Group) groupID;
+			this.groupID = fingerPrints;
+			for (Object fingerPrint : fingerPrints) {
+				Set<Object> compounds = idManager.getIDAsSet(groupIDType, compoundIDType, fingerPrint);
+				if (compounds != null)
+					allCompounds.addAll(compounds);
+			}
+
+			if (allCompounds == null) {
+				System.out.println("blu");
+			}
+			for (Object compoundID : allCompounds) {
+				if (compoundIDs.contains(compoundID)) {
+					Set<Integer> mappedDavids = idManager.getIDAsSet(compoundIDType, davidIDType, compoundID);
+					List<Integer> inPathwayDavidsForCompound = new ArrayList<>();
+					for (Integer david : mappedDavids) {
+						if (davidIDs.contains(david)) {
+							inPathwayDavidsForCompound.add(david);
+						}
+					}
+					containedCompounds.add(new Pair<Object, List<Integer>>(compoundID, inPathwayDavidsForCompound));
+				}
+			}
+		}
+
+	}
+
 	protected IPathwayRepresentation pathwayRepresentation;
 
 	private int padding = 50;
@@ -37,10 +80,20 @@ public class CompoundAugmentation extends GLElement {
 	private IDCategory geneIDCategory = IDCategory.getIDCategory(EGeneIDTypes.GENE.name());
 	private IDType davidIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
 	private IDType compoundIDType = IDType.getIDType("COMPOUND_ID");
+	private IDType groupIDType;
+	private Set<Object> compoundIDs;
 
 	private IDMappingManager idManager = IDMappingManagerRegistry.get().getIDMappingManager(geneIDCategory);
 
 	private RelationshipExplorerElement filteredMapping;
+
+	private List<GroupData> clusterData;
+
+	private Set<Integer> davidIDs;
+
+	private GLElementContainer container;
+
+	private int overallCompoundSize = 0;
 
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
@@ -48,24 +101,25 @@ public class CompoundAugmentation extends GLElement {
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, padding, padding,
 				padding));
 		this.filteredMapping = filteredMapping;
+
+		updateMapping();
+		setUpLayout();
 	}
 
 	private void updateMapping() {
 		// System.out.println("Vertices + " + );
 
-		Set<Integer> davidIDs = new HashSet<>();
+		davidIDs = new HashSet<>();
 		for (PathwayVertexRep vertex : pathwayRepresentation.getPathway().vertexSet()) {
 			davidIDs.addAll(vertex.getDavidIDs());
 		}
 
-		Set<Object> compoundIDs = new HashSet<>();
+		compoundIDs = new HashSet<>();
 		for (Integer davidID : davidIDs) {
 			Set<Object> currentCompounds = idManager.getIDAsSet(davidIDType, compoundIDType, davidID);
 			if (currentCompounds != null)
 				compoundIDs.addAll(currentCompounds);
 		}
-
-		System.out.println(compoundIDs.toString() + compoundIDs.size());
 
 		GroupCollection groupCollection = null;
 
@@ -77,29 +131,63 @@ public class CompoundAugmentation extends GLElement {
 			return;
 
 		Set<Object> groups = groupCollection.getElementIDsFromForeignIDs(compoundIDs, compoundIDType);
+		groupIDType = groupCollection.getBroadcastingIDType();
 
+		clusterData = new ArrayList<>(groups.size());
 
-		System.out.println(groups.size());
+		for (Object group : groups) {
+			GroupData gd = new GroupData(groupCollection.getBroadcastingIDsFromElementID(group));
+			clusterData.add(gd);
+			overallCompoundSize += gd.containedCompounds.size();
+
+		}
+
+	}
+
+	private void setUpLayout() {
+
+		// GLFlowLayout layout = new GLFlowLayout(false, 2, GLPadding.ONE);
+		// container = new GLElementContainer(layout);
+		//
+		// Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
+		//
+		// container.setSize(padding, pathwayBounds.height());
+		// container.setLocation(0, 0);
+		//
+
+		Comparator<GroupData> comparator = new Comparator<GroupData>() {
+			@Override
+			public int compare(GroupData c1, GroupData c2) {
+				return c2.containedCompounds.size() - c1.containedCompounds.size();
+			}
+		};
+
+		Collections.sort(clusterData, comparator);
+		// for (GroupData gd : clusterData) {
+		// // container.add(new GLElement(new CompundGroupRenderer()));
+		//
+		// }
+
+		// for
 
 	}
 
 	@Override
 	protected void renderImpl(GLGraphics g, float w, float h) {
 
-
 		Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
 		g.color(Color.RED)
 				.drawRect(pathwayBounds.x(), pathwayBounds.y(), pathwayBounds.width(), pathwayBounds.height());
 
-		g.color(Color.BLUE).drawRect(0, 0, 20, 20);
+		float currentY = 0;
 
-		// for (PathwayGraph pathway : pathwayRepresentation.getPathways()) {
-		// for (PathwayVertexRep vertexRep : pathway.vertexSet()) {
-		// List<Rect> boundsList = pathwayRepresentation.getVertexRepsBounds(vertexRep);
-		// for (Rect bounds : boundsList) {
-		// g.fillRect(bounds);
-		// }
-		// }
-		// }
+		float heightPerCompound = (pathwayBounds.height() - clusterData.size() * 2) / overallCompoundSize;
+		for (GroupData gd : clusterData) {
+			float height = gd.containedCompounds.size() * heightPerCompound;
+			g.color(Color.BLUE).drawRect(0, currentY, 20, height);
+			currentY += height + 2;
+		}
+		// container.render(g);
+
 	}
 }

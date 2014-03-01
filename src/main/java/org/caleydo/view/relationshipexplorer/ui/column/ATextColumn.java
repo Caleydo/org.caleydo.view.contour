@@ -17,6 +17,8 @@ import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
@@ -41,6 +43,26 @@ public abstract class ATextColumn extends AEntityColumn {
 	 */
 	public ATextColumn(IEntityCollection entityCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(entityCollection, relationshipExplorer);
+
+		final GLButton filterButton = addHeaderButton(FILTER_ICON);
+
+		filterButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				final Vec2f location = filterButton.getAbsoluteLocation();
+
+				// context.getSWTLayer().run(new ISWTLayerRunnable() {
+				// @Override
+				// public void run(Display display, Composite canvas) {
+				// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+				// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+				// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
+				// dialog.open();
+				// }
+				// });
+			}
+		});
 	}
 
 	protected static final int MIN_TEXT_WIDTH = 150;
@@ -104,30 +126,6 @@ public abstract class ATextColumn extends AEntityColumn {
 		}
 
 	}
-
-	// @Override
-	// protected void init(final IGLElementContext context) {
-	// super.init(context);
-	// final GLButton filterButton = addHeaderButton(FILTER_ICON);
-	//
-	// filterButton.setCallback(new ISelectionCallback() {
-	//
-	// @Override
-	// public void onSelectionChanged(GLButton button, boolean selected) {
-	// final Vec2f location = filterButton.getAbsoluteLocation();
-	//
-	// context.getSWTLayer().run(new ISWTLayerRunnable() {
-	// @Override
-	// public void run(Display display, Composite canvas) {
-	// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
-	// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
-	// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
-	// dialog.open();
-	// }
-	// });
-	// }
-	// });
-	// }
 
 	@SuppressWarnings("unchecked")
 	protected MinSizeTextElement asMinSizeTextElement(GLElement element) {

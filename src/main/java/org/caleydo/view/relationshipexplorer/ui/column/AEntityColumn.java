@@ -44,7 +44,7 @@ import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
@@ -256,7 +256,8 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 				new IContextMenuCommand() {
 					@Override
 					public void execute() {
-						ShowDetailOperation o = new ShowDetailOperation(AEntityColumn.this);
+						ShowDetailCommand o = new ShowDetailCommand(AEntityColumn.this,
+								relationshipExplorer.getHistory());
 						o.execute();
 						relationshipExplorer.getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(1));
 					}

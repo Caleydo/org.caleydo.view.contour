@@ -146,7 +146,7 @@ public class PathwayColumn extends ATextColumn {
 		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
 				.iterator().next(), relationshipExplorer));
 
-		relationshipExplorer.showDetailView(this, pathwayElement, pathway);
+		relationshipExplorer.showDetailView(entityCollection, pathwayElement, pathway);
 	}
 
 	@Override

@@ -5,27 +5,28 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 
 /**
  * @author Christian
  *
  */
-public class HideDetailOperation implements IHistoryCommand {
+public class ShowDetailCommand implements IHistoryCommand {
 
-	protected IEntityCollection collection;
-	protected RelationshipExplorerElement relationshipExplorer;
+	protected final int entityColumnHistoryID;
+	protected final History history;
 
-	public HideDetailOperation(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
-		this.collection = collection;
-		this.relationshipExplorer = relationshipExplorer;
+	public ShowDetailCommand(AEntityColumn column, History history) {
+		this.entityColumnHistoryID = column.getHistoryID();
+		this.history = history;
 	}
 
 	@Override
 	public Object execute() {
-		relationshipExplorer.removeDetailViewOfColumn(collection);
+		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, entityColumnHistoryID);
+		column.showDetailView();
 		return null;
 	}
 

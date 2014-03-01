@@ -135,7 +135,7 @@ public class PathwayColumn extends ATextColumn {
 		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
 		pathwayElement.setPathwayRepresentation(representation);
-		pathwayElement.addForegroundAugmentation(new CompoundAugmentation(representation));
+		pathwayElement.addForegroundAugmentation(new CompoundAugmentation(representation, getRelationshipExplorer()));
 
 		// FIXME: hacky, we do not know what id type the gene column has...
 		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType

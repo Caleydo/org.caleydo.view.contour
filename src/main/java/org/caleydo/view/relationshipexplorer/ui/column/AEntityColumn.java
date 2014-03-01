@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import gleem.linalg.Vec2f;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,7 +34,6 @@ import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
-import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
@@ -88,10 +88,17 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	protected int maxParentMappings = 0;
 
+	protected List<GLElement> headerButtons = new ArrayList<>();
+
+	protected Set<ISummaryItemFactory> summaryItemFactories = new HashSet<>();
+	protected ISummaryItemFactory summaryItemFactory;
+
+	protected int historyID;
+
 	// -----------------
 
 	protected KeyBasedGLElementContainer<GLElement> header;
-	protected GLElementContainer buttonBar;
+	// protected GLElementContainer buttonBar;
 
 	protected GLElementList itemList = new GLElementList();
 	protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
@@ -103,10 +110,7 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 	protected Comparator<GLElement> currentComparator;
 
-	protected Set<ISummaryItemFactory> summaryItemFactories = new HashSet<>();
-	protected ISummaryItemFactory summaryItemFactory;
 
-	protected int historyID;
 
 	protected static class MappingBarComparator implements Comparator<GLElement> {
 
@@ -180,54 +184,15 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 
 		historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 
-		// header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
-		// header.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(header, 2, GLPadding.ZERO));
-		// header.setSize(Float.NaN, HEADER_HEIGHT);
-		// header.setVisibility(EVisibility.PICKABLE);
-		// buttonBar = new GLElementContainer(GLLayouts.sizeRestrictiveFlowHorizontal(1));
-		//
-		// GLElementContainer headerContainer = new GLElementContainer();
-		// headerContainer.setLayout(GLLayouts.LAYERS);
-		// headerContainer.add(header);
-		// headerContainer.add(buttonBar);
-		// buttonBar.setzDelta(0.1f);
-		// buttonBar.setVisibility(EVisibility.HIDDEN);
-		// headerContainer.setSize(Float.NaN, HEADER_HEIGHT);
-		// headerContainer.setVisibility(EVisibility.PICKABLE);
-		//
-		// add(headerContainer);
-		// add(itemList.asGLElement());
-		//
-		// headerContainer.onPick(new APickingListener() {
-		// @Override
-		// protected void doubleClicked(Pick pick) {
-		// @SuppressWarnings("unchecked")
-		// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
-		// SELECTED_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
-		// ColumnSortingCommand c = new ColumnSortingCommand(AEntityColumn.this, chain);
-		// c.execute();
-		// AEntityColumn.this.relationshipExplorer.getHistory().addHistoryCommand(c,
-		// ColorBrewer.Purples.getColors(3).get(1));
-		// }
-		//
-		// @Override
-		// protected void mouseOver(Pick pick) {
-		// buttonBar.setVisibility(EVisibility.PICKABLE);
-		// }
-		//
-		// @Override
-		// protected void mouseOut(Pick pick) {
-		// buttonBar.setVisibility(EVisibility.HIDDEN);
-		// }
-		// });
 
 	}
 
 	protected GLButton addHeaderButton(URL iconURL) {
 		GLButton button = new GLButton(EButtonMode.BUTTON);
+		button.setVisibility(EVisibility.PICKABLE);
 		button.setRenderer(GLRenderers.fillImage(iconURL));
 		button.setSize(16, 16);
-		buttonBar.add(button);
+		headerButtons.add(button);
 		return button;
 	}
 
@@ -1016,6 +981,11 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 	public IColumnModel createColumnModel() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<GLElement> getHeaderOverlayElements() {
+		return headerButtons;
 	}
 
 	protected abstract GLElement createElement(Object elementID);

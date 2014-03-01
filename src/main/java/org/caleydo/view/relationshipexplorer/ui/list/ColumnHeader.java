@@ -12,6 +12,7 @@ import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
@@ -44,20 +45,11 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		captionContainer.setSize(Float.NaN, ColumnTreeRenderStyle.CAPTION_HEIGHT);
 
-		if (!column.isRoot()) {
-			collapseButton = new GLButton(EButtonMode.CHECKBOX);
-			collapseButton.setSelected(false);
-			collapseButton.setRenderer(GLRenderers.fillImage("resources/icons/general/minus.png"));
-			collapseButton.setSelectedRenderer(GLRenderers.fillImage("resources/icons/general/plus.png"));
-			collapseButton.setSize(ColumnTreeRenderStyle.CAPTION_HEIGHT, ColumnTreeRenderStyle.CAPTION_HEIGHT);
-			collapseButton.setCallback(this);
+		GLElementContainer headerContainer = new GLElementContainer(GLLayouts.LAYERS);
+		headerContainer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(headerContainer));
+		// headerContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 
-			captionContainer.add(collapseButton);
-		}
-		this.column = column;
-		headerItem = ColumnTree.createTextElement(caption, ColumnTreeRenderStyle.CAPTION_HEIGHT);
-
-		captionContainer.add(headerItem);
+		add(headerContainer);
 
 		GLElementContainer spacingContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 0,
 				new GLPadding(0, 0, 0, 4)));
@@ -69,33 +61,59 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		spacingContainer.setVisibility(EVisibility.PICKABLE);
 		spacingContainer.add(spacing);
 		spacingContainer.add(captionContainer);
+		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.BLUE));
+
+		final GLElementContainer buttonBar = new GLElementContainer(GLLayouts.sizeRestrictiveFlowHorizontal(1));
+		// buttonBar.setRenderer(GLRenderers.drawRect(Color.RED));
+
+		headerContainer.add(spacingContainer);
+		headerContainer.add(buttonBar);
+		buttonBar.setzDelta(0.5f);
+		buttonBar.setVisibility(EVisibility.HIDDEN);
+		headerContainer.setVisibility(EVisibility.PICKABLE);
+
+		if (!column.isRoot()) {
+			collapseButton = new GLButton(EButtonMode.CHECKBOX);
+			collapseButton.setSelected(false);
+			collapseButton.setRenderer(GLRenderers.fillImage("resources/icons/general/minus.png"));
+			collapseButton.setSelectedRenderer(GLRenderers.fillImage("resources/icons/general/plus.png"));
+			collapseButton.setSize(ColumnTreeRenderStyle.CAPTION_HEIGHT, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+			collapseButton.setCallback(this);
+
+			captionContainer.add(collapseButton);
+			GLElement collapseSpacing = new GLElement();
+			collapseSpacing.setSize(ColumnTreeRenderStyle.CAPTION_HEIGHT, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+			buttonBar.add(collapseSpacing);
+		}
+		for (GLElement element : column.getColumnModel().getHeaderOverlayElements()) {
+			buttonBar.add(element);
+		}
+
+		this.column = column;
+		headerItem = ColumnTree.createTextElement(caption, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+
+		captionContainer.add(headerItem);
+
 		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 
-		add(spacingContainer);
-
-
-		spacingContainer.onPick(new APickingListener() {
+		// add(headerContainer);
+		// add(itemList.asGLElement());
+		//
+		headerContainer.onPick(new APickingListener() {
 			@Override
 			protected void doubleClicked(Pick pick) {
 				ColumnHeader.this.column.sortBy(ColumnHeader.this.column.getColumnModel().getDefaultComparator());
-
-				// @SuppressWarnings("unchecked")
-				// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(
-				// SELECTED_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
-				// ColumnSortingCommand c = new ColumnSortingCommand(AEntityColumn.this, chain);
-				// c.execute();
-				// AEntityColumn.this.relationshipExplorer.getHistory().addHistoryCommand(c,
-				// ColorBrewer.Purples.getColors(3).get(1));
 			}
 
 			@Override
 			protected void mouseOver(Pick pick) {
-				// buttonBar.setVisibility(EVisibility.PICKABLE);
+				buttonBar.setVisibility(EVisibility.VISIBLE);
+				buttonBar.repaintAll();
 			}
 
 			@Override
 			protected void mouseOut(Pick pick) {
-				// buttonBar.setVisibility(EVisibility.HIDDEN);
+				buttonBar.setVisibility(EVisibility.HIDDEN);
 			}
 		});
 

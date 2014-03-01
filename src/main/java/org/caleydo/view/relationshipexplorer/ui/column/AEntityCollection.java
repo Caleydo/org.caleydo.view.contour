@@ -154,4 +154,5 @@ public abstract class AEntityCollection implements IEntityCollection {
 		representations.clear();
 	}
 
+
 }

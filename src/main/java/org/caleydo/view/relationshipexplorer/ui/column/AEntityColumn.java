@@ -175,9 +175,9 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 		this.entityCollection = entityCollection;
 		entityCollection.addEntityRepresentation(this);
 		this.relationshipExplorer = relationshipExplorer;
-
-		summaryItemFactory = new MappingSummaryItemFactory(this);
+		this.summaryItemFactory = new MappingSummaryItemFactory(this);
 		summaryItemFactories.add(summaryItemFactory);
+
 		historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 
 		// header = new KeyBasedGLElementContainer<>(GLLayouts.sizeRestrictiveFlowHorizontal(2));
@@ -975,7 +975,7 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 	public void setSummaryItemFactory(ISummaryItemFactory factory) {
 		summaryItemFactory = factory;
 		if (column != null)
-		column.updateSummaryItems();
+			column.updateSummaryItems();
 	}
 
 	@Override

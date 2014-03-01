@@ -141,8 +141,7 @@ public abstract class ATextColumn extends AEntityColumn {
 		return el;
 	}
 
-	public MinSizeTextElement addTextItem(String text, Object elementID, NestableColumn column,
-			NestableItem parentItem) {
+	public MinSizeTextElement addTextItem(String text, Object elementID, NestableColumn column, NestableItem parentItem) {
 		MinSizeTextElement el = new MinSizeTextElement(text);
 		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
 		addItem(el, elementID, column, parentItem);

@@ -68,10 +68,13 @@ public class TabularDataColumn extends AEntityColumn {
 		@Override
 		public int compare(NestableItem arg0, NestableItem arg1) {
 
-			SimpleDataRenderer r1 = (SimpleDataRenderer) arg0.getElement();
-			SimpleDataRenderer r2 = (SimpleDataRenderer) arg1.getElement();
+			// SimpleDataRenderer r1 = (SimpleDataRenderer) arg0.getElement();
+			// SimpleDataRenderer r2 = (SimpleDataRenderer) arg1.getElement();
 
-			return r1.getRecordID() - r2.getRecordID();
+			int recordID1 = (int) arg0.getElementData().iterator().next();
+			int recordID2 = (int) arg1.getElementData().iterator().next();
+
+			return recordID1 - recordID2;
 		}
 	};
 
@@ -232,6 +235,12 @@ public class TabularDataColumn extends AEntityColumn {
 
 	@Override
 	public GLElement createElement(Object elementID) {
+
+		// FIXME: Temporary hack -> use factory to create columns in entitycollection specifying the summary and item
+		// renderers for a column
+		if (dataDomain.getLabel().toLowerCase().contains("activity")) {
+			return new ActivityItemFactory(this).createItem(elementID);
+		}
 		return new SimpleDataRenderer(dataDomain, itemIDType, (Integer) elementID, perspective);
 	}
 

@@ -5,61 +5,35 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Map;
-
 import org.caleydo.core.event.ADirectedEvent;
-import org.caleydo.core.view.opengl.layout2.GLElement;
+
+import com.google.common.base.Predicate;
 
 /**
  * @author Christian
  *
  */
-public class AttributeFilterEvent<T> extends ADirectedEvent {
-	protected T filterDefinitionData;
-	protected Map<Object, GLElement> itemPool;
-	protected boolean save;
+public class AttributeFilterEvent extends ADirectedEvent {
 
-	public AttributeFilterEvent(T filterDefinitionData, Map<Object, GLElement> itemPool, boolean save) {
-		this.filterDefinitionData = filterDefinitionData;
-		this.itemPool = itemPool;
-		this.save = save;
+	protected Predicate<Object> filter;
+
+	public AttributeFilterEvent(Predicate<Object> filter) {
+		this.filter = filter;
 	}
 
 	/**
-	 * @return the filterDefinitionData, see {@link #filterDefinitionData}
+	 * @param filter
+	 *            setter, see {@link filter}
 	 */
-	public T getFilterDefinitionData() {
-		return filterDefinitionData;
+	public void setFilter(Predicate<Object> filter) {
+		this.filter = filter;
 	}
 
 	/**
-	 * @param filterDefinitionData
-	 *            setter, see {@link filterDefinitionData}
+	 * @return the filter, see {@link #filter}
 	 */
-	public void setFilterDefinitionData(T filterDefinitionData) {
-		this.filterDefinitionData = filterDefinitionData;
-	}
-
-	/**
-	 * @param itemPool
-	 *            setter, see {@link itemPool}
-	 */
-	public void setItemPool(Map<Object, GLElement> itemPool) {
-		this.itemPool = itemPool;
-	}
-
-	/**
-	 * @return the itemPool, see {@link #itemPool}
-	 */
-	public Map<Object, GLElement> getItemPool() {
-		return itemPool;
-	}
-
-	/**
-	 * @return the save, see {@link #save}
-	 */
-	public boolean isSave() {
-		return save;
+	public Predicate<Object> getFilter() {
+		return filter;
 	}
 
 }

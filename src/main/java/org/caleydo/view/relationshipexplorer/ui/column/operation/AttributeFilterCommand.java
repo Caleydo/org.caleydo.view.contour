@@ -7,8 +7,10 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
+import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 
 /**
  * @author Christian
@@ -16,23 +18,29 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
  */
 public class AttributeFilterCommand implements IHistoryCommand {
 
-	protected final AEntityColumn column;
+	protected final IEntityCollection collection;
 	protected final Set<Object> filteredElementIDs;
+	protected final History history;
+	protected final int columnHistoryID;
 
-	public AttributeFilterCommand(AEntityColumn column, Set<Object> filteredElementIDs) {
-		this.column = column;
+	public AttributeFilterCommand(AEntityColumn column, Set<Object> filteredElementIDs, History history) {
+		this.columnHistoryID = column.getHistoryID();
+		this.collection = column.getCollection();
 		this.filteredElementIDs = filteredElementIDs;
+		this.history = history;
 	}
 
 	@Override
 	public Object execute() {
-		column.getCollection().setFilteredItems(filteredElementIDs, column);
+		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, columnHistoryID);
+		collection.setFilteredItems(filteredElementIDs, column);
 		column.updateSorting();
-
+		column.getRelationshipExplorer().applyIDMappingUpdate(
+				new MappingFilterUpdateOperation(collection.getBroadcastingIDsFromElementIDs(filteredElementIDs),
+						column,
+						ESetOperation.INTERSECTION), true);
 		return null;
-		// column.getRelationshipExplorer().applyIDMappingUpdate(
-		// new MappingFilterUpdateOperation(column.getBroadcastingIDsFromElementIDs(filteredElementIDs), column,
-		// ESetOperation.REPLACE), true);
+
 	}
 
 }

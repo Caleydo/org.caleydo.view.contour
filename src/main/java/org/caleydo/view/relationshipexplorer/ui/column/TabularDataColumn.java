@@ -15,20 +15,30 @@ import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -88,7 +98,30 @@ public class TabularDataColumn extends AEntityColumn {
 		this.mappingIDType = tabularDataCollection.mappingIDType;
 		this.va = tabularDataCollection.va;
 		this.itemIDType = tabularDataCollection.itemIDType;
-		this.perspective = tabularDataCollection.perspective;
+		this.perspective = tabularDataCollection.dimensionPerspective;
+
+		final GLButton filterButton = addHeaderButton(FILTER_ICON);
+
+		filterButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				// final Vec2f location = filterButton.getAbsoluteLocation();
+
+				column.getColumnTree().getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+						TabularAttributesFilterDialog dialog = new TabularAttributesFilterDialog(canvas.getShell(),
+								TabularDataColumn.this);
+						if (dialog.open() == Window.OK) {
+							Predicate<Object> filter = dialog.getFilter();
+							EventPublisher.trigger(new AttributeFilterEvent(filter).to(TabularDataColumn.this));
+						}
+					}
+				});
+			}
+		});
 		// this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
 		//
 		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
@@ -105,25 +138,15 @@ public class TabularDataColumn extends AEntityColumn {
 		// filteredElementIDs.addAll(va.getIDs());
 	}
 
-	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
-			Perspective dimensionPerspective) {
-		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
+	@ListenTo
+	public void onAttributeFilter(AttributeFilterEvent event) {
+		if (event.getReceiver() != this)
+			return;
+		Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
 
-		addElement(renderer, recordID);
-		// IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
-		// IDType origIDType;
-		// IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
-		// if (spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
-		// origIDType = IDType.getIDType(spec.getIdType());
-		// } else {
-		// origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
-		// }
-
-		// itemList.add(renderer);
-		// Object origID = m.getID(recordIDType, origIDType, recordID);
-
-		// itemList.setElementTooltip(renderer, origID.toString());
-
+		AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());
+		c.execute();
+		relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
 	}
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
@@ -149,9 +172,9 @@ public class TabularDataColumn extends AEntityColumn {
 
 	@Override
 	protected void setContent() {
-		for (int id : va) {
-			addItem(dataDomain, itemIDType, id, perspective);
-		}
+		// for (int id : va) {
+		// addItem(dataDomain, itemIDType, id, perspective);
+		// }
 	}
 
 	@Override

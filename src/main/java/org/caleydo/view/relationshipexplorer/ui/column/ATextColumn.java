@@ -15,13 +15,11 @@ import java.util.Set;
 
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.util.base.ILabeled;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
@@ -166,14 +164,14 @@ public abstract class ATextColumn extends AEntityColumn {
 	}
 
 	@ListenTo(sendToMe = true)
-	public void onAttributeFilter(final AttributeFilterEvent<String> event) {
+	public void onAttributeFilter(final FilterEvent<String> event) {
 
-		AttributeFilterCommand c = new AttributeFilterCommand(this, getTextFilteredElementIDs(
-				event.getFilterDefinitionData(), event.getItemPool()));
-		c.execute();
-		if (event.isSave()) {
-			relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
-		}
+		// AttributeFilterCommand c = new AttributeFilterCommand(this, getTextFilteredElementIDs(
+		// event.getFilterDefinitionData(), event.getItemPool()));
+		// c.execute();
+		// if (event.isSave()) {
+		// relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+		// }
 	}
 
 	protected Set<Object> getTextFilteredElementIDs(String query, Map<Object, GLElement> itemPool) {

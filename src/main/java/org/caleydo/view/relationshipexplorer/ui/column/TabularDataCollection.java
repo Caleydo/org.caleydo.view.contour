@@ -29,7 +29,7 @@ public class TabularDataCollection extends AEntityCollection {
 	protected final TablePerspective tablePerspective;
 	protected final IDType itemIDType;
 	protected final VirtualArray va;
-	protected final Perspective perspective;
+	protected final Perspective dimensionPerspective;
 	protected final IDType mappingIDType;
 
 	public TabularDataCollection(TablePerspective tablePerspective, IDCategory itemIDCategory,
@@ -44,12 +44,12 @@ public class TabularDataCollection extends AEntityCollection {
 		if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
 			va = tablePerspective.getDimensionPerspective().getVirtualArray();
 			itemIDType = tablePerspective.getDimensionPerspective().getIdType();
-			perspective = tablePerspective.getRecordPerspective();
+			dimensionPerspective = tablePerspective.getRecordPerspective();
 
 		} else {
 			va = tablePerspective.getRecordPerspective().getVirtualArray();
 			itemIDType = tablePerspective.getRecordPerspective().getIdType();
-			perspective = tablePerspective.getDimensionPerspective();
+			dimensionPerspective = tablePerspective.getDimensionPerspective();
 		}
 		allElementIDs.addAll(va.getIDs());
 		filteredElementIDs.addAll(allElementIDs);
@@ -74,6 +74,27 @@ public class TabularDataCollection extends AEntityCollection {
 	@Override
 	public IColumnModel createColumnModel() {
 		return new TabularDataColumn(this, relationshipExplorer);
+	}
+
+	/**
+	 * @return the dataDomain, see {@link #dataDomain}
+	 */
+	public ATableBasedDataDomain getDataDomain() {
+		return dataDomain;
+	}
+
+	/**
+	 * @return the perspective, see {@link #dimensionPerspective}
+	 */
+	public Perspective getDimensionPerspective() {
+		return dimensionPerspective;
+	}
+
+	/**
+	 * @return the itemIDType, see {@link #itemIDType}
+	 */
+	public IDType getItemIDType() {
+		return itemIDType;
 	}
 
 }

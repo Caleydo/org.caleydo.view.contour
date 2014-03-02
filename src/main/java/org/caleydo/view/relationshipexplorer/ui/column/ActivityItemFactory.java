@@ -29,9 +29,9 @@ import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 public class ActivityItemFactory implements IItemFactory {
 
 	protected static final URL ACTIVATION_ICON = AEntityColumn.class
-			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_up.png");
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_right_up.png");
 	protected static final URL INHIBITION_ICON = AEntityColumn.class
-			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_down.png");
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_right_down.png");
 	protected static final URL INACTIVE_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/abort.png");
 

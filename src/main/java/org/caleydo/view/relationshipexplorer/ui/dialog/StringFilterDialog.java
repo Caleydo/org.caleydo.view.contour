@@ -3,12 +3,13 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.dialog;
 
 import java.util.Map;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.column.FilterEvent;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -121,7 +122,7 @@ public class StringFilterDialog extends Window {
 	}
 
 	private void triggerEvent(boolean save) {
-		EventPublisher.trigger(new AttributeFilterEvent<String>(query, itemPool, save)
+		EventPublisher.trigger(new FilterEvent<String>(query, itemPool, save)
 				.to(receiver));
 	}
 

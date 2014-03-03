@@ -184,8 +184,23 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 				Object dataClassDesc = table.getDataClassSpecificDescription(dimensionID);
 				String label = dataDomain.getDimensionLabel(dimensionID);
 				if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
-					// TODO: use correct data center
-					addNumericalAttributeGroup(parentComposite, dimensionID, label, 0, 0);
+
+					float min = Float.POSITIVE_INFINITY;
+					float max = Float.NEGATIVE_INFINITY;
+
+					for (Object elementID : collection.getAllElementIDs()) {
+						float value = (float) collection.getDataDomain().getRaw(collection.getItemIDType(),
+								(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID);
+						if (value < min) {
+							min = value;
+						}
+						if (value > max) {
+							max = value;
+						}
+
+					}
+
+					addNumericalAttributeGroup(parentComposite, dimensionID, label, min, max);
 				} else {
 
 					addCategoricalAttributeGroup(parentComposite, dimensionID, label,

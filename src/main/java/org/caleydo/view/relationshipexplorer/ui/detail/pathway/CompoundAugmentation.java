@@ -135,6 +135,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 		if (groupCollection == null)
 			return;
 
+		groupCollection.addEntityRepresentation(this);
 		Set<Object> groups = groupCollection.getElementIDsFromForeignIDs(compoundIDs, compoundIDType);
 		groupIDType = groupCollection.getBroadcastingIDType();
 
@@ -248,6 +249,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 	@Override
 	protected void takeDown() {
 		filteredMapping.getHistory().unregisterHistoryObject(historyID);
+		groupCollection.removeEntityRepresentation(this);
 		super.takeDown();
 	}
 }

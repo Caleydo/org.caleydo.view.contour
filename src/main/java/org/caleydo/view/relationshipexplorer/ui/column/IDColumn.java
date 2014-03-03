@@ -193,10 +193,9 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 	//
 	// }
 
-
 	@Override
-	protected GLElement createElement(Object elementID) {
-		return createTextItem(getDisplayedID(elementID));
+	public String getText(Object elementID) {
+		return getDisplayedID(elementID);
 	}
 
 }

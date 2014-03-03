@@ -13,16 +13,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -49,15 +56,22 @@ public abstract class ATextColumn extends AEntityColumn {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				final Vec2f location = filterButton.getAbsoluteLocation();
 
-				// context.getSWTLayer().run(new ISWTLayerRunnable() {
-				// @Override
-				// public void run(Display display, Composite canvas) {
-				// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
-				// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
-				// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
-				// dialog.open();
-				// }
-				// });
+				column.getColumnTree().getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+
+						Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+						// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+						// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
+						StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+								loc, ATextColumn.this);
+
+						if (dialog.open() == Window.OK) {
+							Predicate<Object> filter = dialog.getFilter();
+							EventPublisher.trigger(new AttributeFilterEvent(filter).to(ATextColumn.this));
+						}
+					}
+				});
 			}
 		});
 	}
@@ -192,5 +206,12 @@ public abstract class ATextColumn extends AEntityColumn {
 		}
 		return elementIDs;
 	}
+
+	@Override
+	protected GLElement createElement(Object elementID) {
+		return createTextItem(getText(elementID));
+	}
+
+	public abstract String getText(Object elementID);
 
 }

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
@@ -149,8 +148,13 @@ public class PathwayColumn extends ATextColumn {
 		relationshipExplorer.showDetailView(entityCollection, pathwayElement, pathway);
 	}
 
+	// @Override
+	// protected GLElement createElement(Object elementID) {
+	// return createTextItem(((PathwayGraph) elementID).getLabel());
+	// }
+
 	@Override
-	protected GLElement createElement(Object elementID) {
-		return createTextItem(((PathwayGraph) elementID).getLabel());
+	public String getText(Object elementID) {
+		return ((PathwayGraph) elementID).getLabel();
 	}
 }

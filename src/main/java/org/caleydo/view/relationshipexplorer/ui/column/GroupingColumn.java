@@ -172,8 +172,8 @@ public class GroupingColumn extends ATextColumn {
 	}
 
 	@Override
-	protected GLElement createElement(Object elementID) {
-		return createTextItem(((Group) elementID).getLabel());
+	public String getText(Object elementID) {
+		return ((Group) elementID).getLabel();
 	}
 
 

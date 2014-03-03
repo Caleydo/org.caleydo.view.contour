@@ -8,15 +8,22 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDataType;
+import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
+import org.caleydo.core.data.datadomain.DataDomainManager;
+import org.caleydo.core.data.datadomain.IDataDomain;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
+import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
+import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -24,6 +31,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -60,8 +68,6 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
 		}
 	};
-
-
 
 	public IDColumn(IDCollection idCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(idCollection, relationshipExplorer);
@@ -118,7 +124,6 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 		return id.toString();
 	}
 
-
 	@Override
 	public IDType getBroadcastingIDType() {
 		return idType;
@@ -157,15 +162,66 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 
 	@Override
 	public void showDetailView() {
-		GLElement dummy = new GLElement() {
-			@Override
-			public Vec2f getMinSize() {
-				return new Vec2f(300, 300);
-			}
-		};
-		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
+		// FIXME: Hack to get right column and dataset
+		if (getLabel().toLowerCase().contains("compounds")) {
+			Set<NestableItem> selectedItems = column.getSelectedItems();
 
-		relationshipExplorer.showDetailView(this, dummy, this);
+			if (selectedItems.size() != 1)
+				return;
+
+			Object elementID = selectedItems.iterator().next().getElementData().iterator().next();
+
+			int recordID = (int) entityCollection.getBroadcastingIDsFromElementID(elementID).iterator().next();
+
+			ATableBasedDataDomain dataDomain = null;
+
+			// Not the most elegant way but it does the job to get the smiles dataset
+			for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
+				if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Smiles")) {
+					dataDomain = (ATableBasedDataDomain) dd;
+					break;
+				}
+			}
+
+			Set<Integer> smileIDs = mappingManager.getIDAsSet(entityCollection.getBroadcastingIDType(),
+					dataDomain.getRecordIDType(), recordID);
+
+			if (smileIDs != null && !smileIDs.isEmpty()) {
+
+				IDType dimensionIDType = dataDomain.getDimensionIDType();
+				int smilesColumnID = dataDomain.getDefaultTablePerspective().getRecordPerspective().getVirtualArray()
+						.get(0);
+
+				String smileString = (String) dataDomain.getRaw(dataDomain.getRecordIDType(), smileIDs.iterator()
+						.next(), dimensionIDType, smilesColumnID);
+
+				GLElementFactoryContext context = GLElementFactoryContext.builder().put("smile", smileString).build();
+				List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
+						new Predicate<String>() {
+
+							@Override
+							public boolean apply(String input) {
+								return input.equals("smile");
+							}
+						});
+				if (!suppliers.isEmpty()) {
+					GLElement compoundView = suppliers.get(0).get();
+
+					relationshipExplorer.showDetailView(this, compoundView, this);
+				}
+			}
+
+		} else {
+			GLElement dummy = new GLElement() {
+				@Override
+				public Vec2f getMinSize() {
+					return new Vec2f(300, 300);
+				}
+			};
+			dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
+
+			relationshipExplorer.showDetailView(this, dummy, this);
+		}
 
 	}
 

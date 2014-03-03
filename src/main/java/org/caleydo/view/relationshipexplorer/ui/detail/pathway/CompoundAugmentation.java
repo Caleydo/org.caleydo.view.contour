@@ -213,8 +213,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 
 	@Override
 	public int getHistoryID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return historyID;
 	}
 
 	@Override

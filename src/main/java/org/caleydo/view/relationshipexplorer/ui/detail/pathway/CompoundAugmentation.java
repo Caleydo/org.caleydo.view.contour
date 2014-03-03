@@ -30,13 +30,16 @@ import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 
 /**
  * @author Alexander Lex
  *
  */
 
-public class CompoundAugmentation extends GLElement {
+public class CompoundAugmentation extends GLElement implements IEntityRepresentation {
 
 	private class GroupData {
 		Set<Object> allCompounds = new HashSet<>();
@@ -75,6 +78,9 @@ public class CompoundAugmentation extends GLElement {
 
 	protected IPathwayRepresentation pathwayRepresentation;
 
+	protected GroupCollection groupCollection;
+	private final int historyID;
+
 	private int padding = 50;
 
 	private IDCategory geneIDCategory = IDCategory.getIDCategory(EGeneIDTypes.GENE.name());
@@ -101,6 +107,7 @@ public class CompoundAugmentation extends GLElement {
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, padding, padding,
 				padding));
 		this.filteredMapping = filteredMapping;
+		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
 
 		updateMapping();
 		setUpLayout();
@@ -121,8 +128,6 @@ public class CompoundAugmentation extends GLElement {
 				compoundIDs.addAll(currentCompounds);
 		}
 
-		GroupCollection groupCollection = null;
-
 		for (IEntityCollection collection : filteredMapping.getEntityCollections()) {
 			if (collection instanceof GroupCollection)
 				groupCollection = (GroupCollection) collection;
@@ -142,6 +147,21 @@ public class CompoundAugmentation extends GLElement {
 
 		}
 
+	}
+
+	protected void propagateGroupSelection(Set<Object> groups) {
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), groups,
+				groupCollection.getBroadcastingIDsFromElementIDs(groups), filteredMapping);
+		c.execute();
+		filteredMapping.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+	}
+
+	protected void propagateGroupHighlight(Set<Object> groups) {
+		groupCollection.setHighlightItems(groups, this);
+
+		filteredMapping.applyIDMappingUpdate(
+				new MappingHighlightUpdateOperation(groupCollection.getBroadcastingIDsFromElementIDs(groups), this),
+				false);
 	}
 
 	private void setUpLayout() {
@@ -189,5 +209,46 @@ public class CompoundAugmentation extends GLElement {
 		}
 		// container.render(g);
 
+	}
+
+	@Override
+	public int getHistoryID() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateMappings(IEntityRepresentation srcRep) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public IEntityCollection getCollection() {
+		return groupCollection;
+	}
+
+	@Override
+	protected void takeDown() {
+		filteredMapping.getHistory().unregisterHistoryObject(historyID);
+		super.takeDown();
 	}
 }

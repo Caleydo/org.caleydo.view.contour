@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.pathway;
+package org.caleydo.view.relationshipexplorer.ui.detail.pathway;
 
 import java.util.ArrayList;
 import java.util.Collections;

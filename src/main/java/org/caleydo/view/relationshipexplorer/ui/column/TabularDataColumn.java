@@ -29,6 +29,7 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -228,7 +229,9 @@ public class TabularDataColumn extends AEntityColumn {
 			detailView = suppliers.get(0).get();
 		}
 
-		relationshipExplorer.showDetailView(entityCollection, detailView, this);
+		ParCoordsElement element = new ParCoordsElement(tablePerspective, entityCollection, relationshipExplorer);
+
+		relationshipExplorer.showDetailView(entityCollection, element, this);
 
 	}
 

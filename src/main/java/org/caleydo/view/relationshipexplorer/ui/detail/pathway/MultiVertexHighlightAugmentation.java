@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.pathway;
+package org.caleydo.view.relationshipexplorer.ui.detail.pathway;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -55,7 +55,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	// protected AEntityColumn referenceColumn;
 	protected IEntityCollection geneCollection;
 	protected RelationshipExplorerElement relationshipExplorer;
-	protected boolean updateIsFromMe = false;
 	protected int historyID;
 
 	/**
@@ -176,7 +175,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	public void propagateHighlight() {
-		updateIsFromMe = true;
 		Set<Object> highlightElementIDs = getGeneCollectionElementIDs(highlightedVertexReps);
 
 		geneCollection.setHighlightItems(highlightElementIDs, this);

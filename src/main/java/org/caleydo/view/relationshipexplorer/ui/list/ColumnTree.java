@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.event.EventListenerManager.DeepScan;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementAccessor;
@@ -27,8 +28,14 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
+/**
+ * @author Christian
+ *
+ */
 /**
  * @author Christian
  *
@@ -42,8 +49,10 @@ public class ColumnTree extends AnimatedGLElementContainer {
 	// protected GLElementContainer bodyRow;
 	protected ScrollingDecorator scrollingDecorator;
 
-	@DeepScan
 	protected Set<NestableColumn> allColumns = new HashSet<>();
+
+	@DeepScan
+	protected ColumnModelEventListener listener = new ColumnModelEventListener();
 
 	protected class ScrollableItemList extends ItemContainer {
 
@@ -89,26 +98,41 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	}
 
-	// protected class ColumnTreeLayout extends GLSizeRestrictiveFlowLayout2 {
-	//
-	// /**
-	// * @param horizontal
-	// * @param gap
-	// * @param padding
-	// */
-	// public ColumnTreeLayout(boolean horizontal, float gap, GLPadding padding) {
-	// super(horizontal, gap, padding);
-	// }
-	//
-	// @Override
-	// public boolean doLayout(List<? extends IGLLayoutElement> children, float w, float h, IGLLayoutElement parent,
-	// int deltaTimeMs) {
-	//
-	//
-	// return super.doLayout(children, w, h, parent, deltaTimeMs);
-	// }
-	//
-	// }
+	/**
+	 * As column models are no GLElement and are likely to be added or removed, having a @Deepscan to a member list can
+	 * get out of date. Therefore we use this class to centrally handle events for {@link IColumnModel}s.
+	 *
+	 * @author Christian
+	 *
+	 */
+	protected class ColumnModelEventListener {
+
+		@ListenTo
+		public void onAttributeFilter(AttributeFilterEvent event) {
+			IColumnModel model = findReceiver(event.getReceiver());
+			if (model != null) {
+				model.onAttributeFilter(event);
+			}
+		}
+
+		@ListenTo
+		public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
+			IColumnModel model = findReceiver(event.getReceiver());
+			if (model != null) {
+				model.onHandleContextMenuOperation(event);
+			}
+		}
+
+		protected IColumnModel findReceiver(Object receiver) {
+			for (NestableColumn column : allColumns) {
+				IColumnModel columnModel = column.getColumnModel();
+				if (columnModel == receiver) {
+					return columnModel;
+				}
+			}
+			return null;
+		}
+	}
 
 	public ColumnTree(IColumnModel columnModel) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
@@ -286,8 +310,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		rootContainer = new ScrollableItemList();
 		// rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 		rootColumn.itemContainers.add(rootContainer);
-		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8,
-				EDimension.RECORD);
+		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8, EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(rootContainer);
 		allColumns.add(rootColumn);
 

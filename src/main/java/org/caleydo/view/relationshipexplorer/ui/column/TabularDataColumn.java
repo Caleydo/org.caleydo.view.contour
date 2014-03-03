@@ -15,7 +15,6 @@ import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
@@ -138,10 +137,11 @@ public class TabularDataColumn extends AEntityColumn {
 		// filteredElementIDs.addAll(va.getIDs());
 	}
 
-	@ListenTo
+	// @ListenTo
+	@Override
 	public void onAttributeFilter(AttributeFilterEvent event) {
-		if (event.getReceiver() != this)
-			return;
+		// if (event.getReceiver() != this)
+		// return;
 		Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
 
 		AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());

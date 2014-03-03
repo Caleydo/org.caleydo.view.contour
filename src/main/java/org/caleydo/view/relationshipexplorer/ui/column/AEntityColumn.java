@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
@@ -41,6 +40,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
@@ -334,13 +334,23 @@ public abstract class AEntityColumn implements ILabeled, IEntityCollection, ICol
 		return highlightElementIDs;
 	}
 
-	@ListenTo(sendToMe = true)
+	// @ListenTo(sendToMe = true)
+	@Override
 	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
 		event.getCommand().execute();
 
 		// applyFilter(event.type, elementIDs);
 		// triggerIDUpdate(broadcastIDs, event.type);
 		// triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
+	}
+
+	@Override
+	public void onAttributeFilter(AttributeFilterEvent event) {
+		Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
+
+		AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());
+		c.execute();
+		relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
 	}
 
 	// @Override

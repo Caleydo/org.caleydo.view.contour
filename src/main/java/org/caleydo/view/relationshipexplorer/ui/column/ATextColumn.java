@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
@@ -163,16 +162,16 @@ public abstract class ATextColumn extends AEntityColumn {
 				TEXT_ITEM_COMPARATOR));
 	}
 
-	@ListenTo(sendToMe = true)
-	public void onAttributeFilter(final FilterEvent<String> event) {
-
-		// AttributeFilterCommand c = new AttributeFilterCommand(this, getTextFilteredElementIDs(
-		// event.getFilterDefinitionData(), event.getItemPool()));
-		// c.execute();
-		// if (event.isSave()) {
-		// relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
-		// }
-	}
+	// @ListenTo(sendToMe = true)
+	// public void onAttributeFilter(final FilterEvent<String> event) {
+	//
+	// // AttributeFilterCommand c = new AttributeFilterCommand(this, getTextFilteredElementIDs(
+	// // event.getFilterDefinitionData(), event.getItemPool()));
+	// // c.execute();
+	// // if (event.isSave()) {
+	// // relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+	// // }
+	// }
 
 	protected Set<Object> getTextFilteredElementIDs(String query, Map<Object, GLElement> itemPool) {
 		final String q = query.toLowerCase();

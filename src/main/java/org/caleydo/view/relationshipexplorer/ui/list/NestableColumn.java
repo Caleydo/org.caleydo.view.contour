@@ -284,6 +284,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		}
 		removeItemContainers(item);
 		item.removed = true;
+		columnTree.relayout();
 	}
 
 	protected void removeContainer(CollapsableItemContainer container) {

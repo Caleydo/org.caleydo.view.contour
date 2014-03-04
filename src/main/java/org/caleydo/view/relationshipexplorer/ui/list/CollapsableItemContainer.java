@@ -73,8 +73,9 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 		itemContainer.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(itemContainer,
 				ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
 		// nestedList.setRenderer(GLRenderers.drawRect(Color.YELLOW));
-
-		summaryItem = new NestableItem(ColumnTree.createTextElement("Default Summary", 16), column, parentItem,
+		GLElement summaryRenderer = new GLElement();
+		summaryRenderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(50, 16));
+		summaryItem = new NestableItem(summaryRenderer, column, parentItem,
 				columnTree);
 		summaryItem.setElementData(new HashSet<>());
 		if (column.isCollapsed())

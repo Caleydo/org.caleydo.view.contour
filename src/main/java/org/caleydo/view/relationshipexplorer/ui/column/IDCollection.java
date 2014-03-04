@@ -53,7 +53,9 @@ public class IDCollection extends AEntityCollection {
 
 	@Override
 	public IColumnModel createColumnModel() {
-		return new IDColumn(this, relationshipExplorer);
+		IDColumn column = new IDColumn(this, relationshipExplorer);
+		column.init();
+		return column;
 	}
 
 	public IDType getMappingIDType() {

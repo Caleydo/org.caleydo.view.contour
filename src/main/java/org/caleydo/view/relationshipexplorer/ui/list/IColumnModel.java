@@ -61,4 +61,6 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void onHandleContextMenuOperation(ContextMenuCommandEvent event);
 
+	public void init();
+
 }

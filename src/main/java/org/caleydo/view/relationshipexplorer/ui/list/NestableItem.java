@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,8 +108,8 @@ public class NestableItem extends AnimatedGLElementContainer {
 	}
 
 	public List<NestableItem> getChildItems(NestableColumn column) {
-		CollapsableItemContainer c = getNestedContainer(column);
-		return c.getItems();
+		CollapsableItemContainer c = itemContainers.get(column);
+		return (c != null) ? c.getItems() : new ArrayList<NestableItem>();
 	}
 
 	public void addItem(NestableItem item, NestableColumn column) {

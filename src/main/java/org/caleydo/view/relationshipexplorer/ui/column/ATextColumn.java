@@ -21,13 +21,11 @@ import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.eclipse.jface.window.Window;
-import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 
 /**
  * @author Christian
@@ -164,11 +162,9 @@ public abstract class ATextColumn extends AEntityColumn {
 	// return TEXT_COMPARATOR;
 	// }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Comparator<NestableItem> getDefaultComparator() {
-		return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
-				TEXT_ITEM_COMPARATOR));
+		return TEXT_ITEM_COMPARATOR;
 	}
 
 	// @ListenTo(sendToMe = true)

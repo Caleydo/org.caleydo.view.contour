@@ -28,10 +28,8 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
-import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -146,12 +144,10 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 	// return super.getDefaultElementComparator();
 	// }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Comparator<NestableItem> getDefaultComparator() {
 		if (displayedIDType.getDataType() == EDataType.INTEGER)
-			return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
-					ID_NUMBER_ITEM_COMPARATOR));
+			return ID_NUMBER_ITEM_COMPARATOR;
 		return super.getDefaultComparator();
 	}
 

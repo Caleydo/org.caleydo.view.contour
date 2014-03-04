@@ -73,7 +73,9 @@ public class TabularDataCollection extends AEntityCollection {
 
 	@Override
 	public IColumnModel createColumnModel() {
-		return new TabularDataColumn(this, relationshipExplorer);
+		TabularDataColumn column = new TabularDataColumn(this, relationshipExplorer);
+		column.init();
+		return column;
 	}
 
 	/**

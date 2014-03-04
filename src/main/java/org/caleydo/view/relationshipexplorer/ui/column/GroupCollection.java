@@ -64,7 +64,9 @@ public class GroupCollection extends AEntityCollection {
 
 	@Override
 	public IColumnModel createColumnModel() {
-		return new GroupingColumn(this, relationshipExplorer);
+		GroupingColumn column = new GroupingColumn(this, relationshipExplorer);
+		column.init();
+		return column;
 	}
 
 	public IDType getMappingIDType() {

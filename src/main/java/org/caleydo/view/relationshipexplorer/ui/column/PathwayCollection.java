@@ -58,7 +58,9 @@ public class PathwayCollection extends AEntityCollection {
 
 	@Override
 	public IColumnModel createColumnModel() {
-		return new PathwayColumn(this, relationshipExplorer);
+		PathwayColumn column = new PathwayColumn(this, relationshipExplorer);
+		column.init();
+		return column;
 	}
 
 	public IDType getMappingIDType() {

@@ -321,7 +321,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		add(scrollingDecorator);
 		model.fill(rootColumn, null);
 		updateSummaryItems();
-		rootColumn.sortBy(model.getDefaultComparator());
+		rootColumn.sortBy(rootColumn.getColumnModel().getCurrentComparator());
+
 		// updateSizes();
 		relayout();
 
@@ -350,7 +351,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		model.fill(column, parent);
 		updateSummaryItems();
 		column.setCollapsed(true);
-		column.sortBy(model.getDefaultComparator());
+		column.sortBy(column.getColumnModel().getCurrentComparator());
+		parent.getColumnModel().sortBy(parent.getColumnModel().getCurrentComparator());
 		// updateSizes();
 		relayout();
 		// for (CollapsableItemContainer container : parent.itemContainers) {

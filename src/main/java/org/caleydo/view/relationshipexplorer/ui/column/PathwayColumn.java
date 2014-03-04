@@ -5,9 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
@@ -35,6 +33,7 @@ public class PathwayColumn extends ATextColumn {
 	public PathwayColumn(PathwayCollection pathwayCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(pathwayCollection, relationshipExplorer);
 		this.pathwayCollection = pathwayCollection;
+		currentComparator = getDefaultComparator();
 	}
 
 	// @ListenTo
@@ -55,31 +54,31 @@ public class PathwayColumn extends ATextColumn {
 	// setFilteredItems(mappedPathways);
 	// }
 
-	@Override
-	protected void setContent() {
-		List<PathwayGraph> pathways = new ArrayList<>(PathwayManager.get().getAllItems());
-		// Collections.sort(pathways, new Comparator<PathwayGraph>() {
-		//
-		// @Override
-		// public int compare(PathwayGraph arg0, PathwayGraph arg1) {
-		// return arg0.getLabel().toLowerCase().compareTo(arg1.getLabel().toLowerCase());
-		// }
-		// });
-
-		for (final PathwayGraph pathway : pathways) {
-			addTextElement(pathway.getLabel(), pathway);
-			// ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new
-			// Runnable() {
-			// @Override
-			// public void run() {
-			//
-			//
-			// }
-			// });
-			// itemList.addContextMenuItem(item, contextMenuItem);
-		}
-
-	}
+	// @Override
+	// protected void setContent() {
+	// List<PathwayGraph> pathways = new ArrayList<>(PathwayManager.get().getAllItems());
+	// // Collections.sort(pathways, new Comparator<PathwayGraph>() {
+	// //
+	// // @Override
+	// // public int compare(PathwayGraph arg0, PathwayGraph arg1) {
+	// // return arg0.getLabel().toLowerCase().compareTo(arg1.getLabel().toLowerCase());
+	// // }
+	// // });
+	//
+	// for (final PathwayGraph pathway : pathways) {
+	// addTextElement(pathway.getLabel(), pathway);
+	// // ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new
+	// // Runnable() {
+	// // @Override
+	// // public void run() {
+	// //
+	// //
+	// // }
+	// // });
+	// // itemList.addContextMenuItem(item, contextMenuItem);
+	// }
+	//
+	// }
 
 	@Override
 	public IDType getBroadcastingIDType() {
@@ -108,10 +107,7 @@ public class PathwayColumn extends ATextColumn {
 		return elementIDs;
 	}
 
-	@Override
-	public IDType getMappingIDType() {
-		return getBroadcastingIDType();
-	}
+
 
 	// @Override
 	// protected List<AContextMenuItem> getContextMenuItems() {

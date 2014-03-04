@@ -26,7 +26,7 @@ public class AddColumnTreeCommand implements IHistoryCommand {
 
 	@Override
 	public Object execute() {
-		ColumnTree tree = new ColumnTree(collection.createColumnModel());
+		ColumnTree tree = new ColumnTree(collection.createColumnModel(), relationshipExplorer);
 		relationshipExplorer.addColumn(tree);
 		return tree;
 	}

@@ -19,6 +19,8 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.view.relationshipexplorer.ui.History;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
@@ -102,7 +104,12 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		headerContainer.onPick(new APickingListener() {
 			@Override
 			protected void doubleClicked(Pick pick) {
-				ColumnHeader.this.column.sortBy(ColumnHeader.this.column.getColumnModel().getDefaultComparator());
+				IColumnModel model = ColumnHeader.this.column.getColumnModel();
+				History history = ColumnHeader.this.column.getColumnTree().getRelationshipExplorer().getHistory();
+				model.sortBy(model.getCurrentComparator());
+				ColumnSortingCommand c = new ColumnSortingCommand(model, model.getDefaultComparator(), history);
+				c.execute();
+				history.addHistoryCommand(c, Color.MAGENTA);
 			}
 
 			@Override

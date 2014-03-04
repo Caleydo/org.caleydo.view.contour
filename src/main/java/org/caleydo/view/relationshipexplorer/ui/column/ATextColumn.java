@@ -8,10 +8,6 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
@@ -24,7 +20,6 @@ import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
-import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import org.eclipse.swt.graphics.Point;
@@ -79,24 +74,24 @@ public abstract class ATextColumn extends AEntityColumn {
 	protected static final int MIN_TEXT_WIDTH = 150;
 	protected static final int ITEM_HEIGHT = 16;
 
-	protected class TextComparator implements Comparator<GLElement> {
+	// protected class TextComparator implements Comparator<GLElement> {
+	//
+	// private final ATextColumn column;
+	//
+	// public TextComparator(ATextColumn column) {
+	// this.column = column;
+	// }
+	//
+	// @Override
+	// public int compare(GLElement arg0, GLElement arg1) {
+	//
+	// MinSizeTextElement r1 = column.asMinSizeTextElement(arg0);
+	// MinSizeTextElement r2 = column.asMinSizeTextElement(arg1);
+	// return r1.getLabel().compareTo(r2.getLabel());
+	// }
+	// }
 
-		private final ATextColumn column;
-
-		public TextComparator(ATextColumn column) {
-			this.column = column;
-		}
-
-		@Override
-		public int compare(GLElement arg0, GLElement arg1) {
-
-			MinSizeTextElement r1 = column.asMinSizeTextElement(arg0);
-			MinSizeTextElement r2 = column.asMinSizeTextElement(arg1);
-			return r1.getLabel().compareTo(r2.getLabel());
-		}
-	}
-
-	protected final TextComparator TEXT_COMPARATOR = new TextComparator(this);
+	// protected final TextComparator TEXT_COMPARATOR = new TextComparator(this);
 
 	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
 
@@ -138,17 +133,17 @@ public abstract class ATextColumn extends AEntityColumn {
 
 	}
 
-	@SuppressWarnings("unchecked")
-	protected MinSizeTextElement asMinSizeTextElement(GLElement element) {
-		return (MinSizeTextElement) ((KeyBasedGLElementContainer<GLElement>) element).getElement(DATA_KEY);
-	}
+	// @SuppressWarnings("unchecked")
+	// protected MinSizeTextElement asMinSizeTextElement(GLElement element) {
+	// return (MinSizeTextElement) ((KeyBasedGLElementContainer<GLElement>) element).getElement(DATA_KEY);
+	// }
 
-	public MinSizeTextElement addTextElement(String text, Object elementID) {
-		MinSizeTextElement el = new MinSizeTextElement(text);
-		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
-		addElement(el, elementID);
-		return el;
-	}
+	// public MinSizeTextElement addTextElement(String text, Object elementID) {
+	// MinSizeTextElement el = new MinSizeTextElement(text);
+	// el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
+	// addElement(el, elementID);
+	// return el;
+	// }
 
 	public MinSizeTextElement addTextItem(String text, Object elementID, NestableColumn column, NestableItem parentItem) {
 		MinSizeTextElement el = new MinSizeTextElement(text);
@@ -164,10 +159,10 @@ public abstract class ATextColumn extends AEntityColumn {
 		return el;
 	}
 
-	@Override
-	public Comparator<GLElement> getDefaultElementComparator() {
-		return TEXT_COMPARATOR;
-	}
+	// @Override
+	// public Comparator<GLElement> getDefaultElementComparator() {
+	// return TEXT_COMPARATOR;
+	// }
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -187,25 +182,25 @@ public abstract class ATextColumn extends AEntityColumn {
 	// // }
 	// }
 
-	protected Set<Object> getTextFilteredElementIDs(String query, Map<Object, GLElement> itemPool) {
-		final String q = query.toLowerCase();
-
-		Predicate<Entry<Object, GLElement>> textFilter = new Predicate<Entry<Object, GLElement>>() {
-
-			@Override
-			public boolean apply(Entry<Object, GLElement> input) {
-				return asMinSizeTextElement(input.getValue()).getLabel().toLowerCase().contains(q);
-			}
-		};
-
-		Set<Object> elementIDs = new HashSet<>();
-		for (Entry<Object, GLElement> entry : itemPool.entrySet()) {
-			if (textFilter.apply(entry)) {
-				elementIDs.add(entry.getKey());
-			}
-		}
-		return elementIDs;
-	}
+	// protected Set<Object> getTextFilteredElementIDs(String query, Map<Object, GLElement> itemPool) {
+	// final String q = query.toLowerCase();
+	//
+	// Predicate<Entry<Object, GLElement>> textFilter = new Predicate<Entry<Object, GLElement>>() {
+	//
+	// @Override
+	// public boolean apply(Entry<Object, GLElement> input) {
+	// return asMinSizeTextElement(input.getValue()).getLabel().toLowerCase().contains(q);
+	// }
+	// };
+	//
+	// Set<Object> elementIDs = new HashSet<>();
+	// for (Entry<Object, GLElement> entry : itemPool.entrySet()) {
+	// if (textFilter.apply(entry)) {
+	// elementIDs.add(entry.getKey());
+	// }
+	// }
+	// return elementIDs;
+	// }
 
 	@Override
 	protected GLElement createElement(Object elementID) {

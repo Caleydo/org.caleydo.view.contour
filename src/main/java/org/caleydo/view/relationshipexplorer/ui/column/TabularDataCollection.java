@@ -97,4 +97,8 @@ public class TabularDataCollection extends AEntityCollection {
 		return itemIDType;
 	}
 
+	public IDType getMappingIDType() {
+		return mappingIDType;
+	}
+
 }

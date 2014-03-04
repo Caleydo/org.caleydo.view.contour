@@ -33,7 +33,6 @@ import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElemen
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
-import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
@@ -58,20 +57,20 @@ public class TabularDataColumn extends AEntityColumn {
 	protected final Perspective perspective;
 	protected final IDType mappingIDType;
 
-	public static final Comparator<GLElement> ID_COMPARATOR = new Comparator<GLElement>() {
-
-		@Override
-		public int compare(GLElement arg0, GLElement arg1) {
-			@SuppressWarnings("unchecked")
-			SimpleDataRenderer r1 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg0)
-					.getElement(DATA_KEY);
-			@SuppressWarnings("unchecked")
-			SimpleDataRenderer r2 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg1)
-					.getElement(DATA_KEY);
-
-			return r1.getRecordID() - r2.getRecordID();
-		}
-	};
+	// public static final Comparator<GLElement> ID_COMPARATOR = new Comparator<GLElement>() {
+	//
+	// @Override
+	// public int compare(GLElement arg0, GLElement arg1) {
+	// @SuppressWarnings("unchecked")
+	// SimpleDataRenderer r1 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg0)
+	// .getElement(DATA_KEY);
+	// @SuppressWarnings("unchecked")
+	// SimpleDataRenderer r2 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg1)
+	// .getElement(DATA_KEY);
+	//
+	// return r1.getRecordID() - r2.getRecordID();
+	// }
+	// };
 
 	public static final Comparator<NestableItem> ITEM_ID_COMPARATOR = new Comparator<NestableItem>() {
 
@@ -122,6 +121,8 @@ public class TabularDataColumn extends AEntityColumn {
 				});
 			}
 		});
+
+		currentComparator = getDefaultComparator();
 		// this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
 		//
 		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
@@ -171,12 +172,12 @@ public class TabularDataColumn extends AEntityColumn {
 
 	}
 
-	@Override
-	protected void setContent() {
-		// for (int id : va) {
-		// addItem(dataDomain, itemIDType, id, perspective);
-		// }
-	}
+	// @Override
+	// protected void setContent() {
+	// // for (int id : va) {
+	// // addItem(dataDomain, itemIDType, id, perspective);
+	// // }
+	// }
 
 	@Override
 	public IDType getBroadcastingIDType() {
@@ -193,15 +194,12 @@ public class TabularDataColumn extends AEntityColumn {
 		return Sets.newHashSet((Object) broadcastingID);
 	}
 
-	@Override
-	public Comparator<GLElement> getDefaultElementComparator() {
-		return ID_COMPARATOR;
-	}
+	// @Override
+	// public Comparator<GLElement> getDefaultElementComparator() {
+	// return ID_COMPARATOR;
+	// }
 
-	@Override
-	public IDType getMappingIDType() {
-		return mappingIDType;
-	}
+
 
 	@Override
 	public void showDetailView() {

@@ -28,7 +28,6 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
-import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 
 import com.google.common.base.Predicate;
@@ -49,15 +48,15 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 	protected IIDTypeMapper<Object, Object> elementIDToDisplayedIDMapper;
 	protected IDMappingManager mappingManager;
 
-	public static final Comparator<GLElement> ID_NUMBER_COMPARATOR = new Comparator<GLElement>() {
-
-		@Override
-		public int compare(GLElement arg0, GLElement arg1) {
-			MinSizeTextElement r1 = (MinSizeTextElement) ((KeyBasedGLElementContainer) arg0).getElement(DATA_KEY);
-			MinSizeTextElement r2 = (MinSizeTextElement) ((KeyBasedGLElementContainer) arg1).getElement(DATA_KEY);
-			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
-		}
-	};
+	// public static final Comparator<GLElement> ID_NUMBER_COMPARATOR = new Comparator<GLElement>() {
+	//
+	// @Override
+	// public int compare(GLElement arg0, GLElement arg1) {
+	// MinSizeTextElement r1 = (MinSizeTextElement) ((KeyBasedGLElementContainer) arg0).getElement(DATA_KEY);
+	// MinSizeTextElement r2 = (MinSizeTextElement) ((KeyBasedGLElementContainer) arg1).getElement(DATA_KEY);
+	// return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
+	// }
+	// };
 
 	public static final Comparator<NestableItem> ID_NUMBER_ITEM_COMPARATOR = new Comparator<NestableItem>() {
 
@@ -77,6 +76,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 
 		mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
+		currentComparator = getDefaultComparator();
 	}
 
 	// @ListenTo
@@ -95,24 +95,24 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 	// setFilteredItems(mappedIDs);
 	// }
 
-	@Override
-	protected void setContent() {
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
-		IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
-
-		for (final Object id : mappingManager.getAllMappedIDs(idType)) {
-			Set<Object> idsToDisplay = mapper.apply(id);
-			if (idsToDisplay != null) {
-				for (Object name : idsToDisplay) {
-					addTextElement(name.toString(), id);
-					break;
-				}
-			} else {
-				addTextElement(id.toString(), id);
-			}
-		}
-
-	}
+	// @Override
+	// protected void setContent() {
+	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
+	// IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
+	//
+	// for (final Object id : mappingManager.getAllMappedIDs(idType)) {
+	// Set<Object> idsToDisplay = mapper.apply(id);
+	// if (idsToDisplay != null) {
+	// for (Object name : idsToDisplay) {
+	// addTextElement(name.toString(), id);
+	// break;
+	// }
+	// } else {
+	// addTextElement(id.toString(), id);
+	// }
+	// }
+	//
+	// }
 
 	protected String getDisplayedID(Object id) {
 		Set<Object> idsToDisplay = elementIDToDisplayedIDMapper.apply(id);
@@ -139,12 +139,12 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 		return Sets.newHashSet((Object) broadcastingID);
 	}
 
-	@Override
-	public Comparator<GLElement> getDefaultElementComparator() {
-		if (displayedIDType.getDataType() == EDataType.INTEGER)
-			return ID_NUMBER_COMPARATOR;
-		return super.getDefaultElementComparator();
-	}
+	// @Override
+	// public Comparator<GLElement> getDefaultElementComparator() {
+	// if (displayedIDType.getDataType() == EDataType.INTEGER)
+	// return ID_NUMBER_COMPARATOR;
+	// return super.getDefaultElementComparator();
+	// }
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -153,11 +153,6 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 			return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
 					ID_NUMBER_ITEM_COMPARATOR));
 		return super.getDefaultComparator();
-	}
-
-	@Override
-	public IDType getMappingIDType() {
-		return getBroadcastingIDType();
 	}
 
 	@Override
@@ -207,7 +202,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 				if (!suppliers.isEmpty()) {
 					GLElement compoundView = suppliers.get(0).get();
 
-					relationshipExplorer.showDetailView(this, compoundView, this);
+					relationshipExplorer.showDetailView(entityCollection, compoundView, this);
 				}
 			}
 
@@ -220,7 +215,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 			};
 			dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 
-			relationshipExplorer.showDetailView(this, dummy, this);
+			relationshipExplorer.showDetailView(entityCollection, dummy, this);
 		}
 
 	}

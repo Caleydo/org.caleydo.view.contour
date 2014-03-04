@@ -61,4 +61,8 @@ public class PathwayCollection extends AEntityCollection {
 		return new PathwayColumn(this, relationshipExplorer);
 	}
 
+	public IDType getMappingIDType() {
+		return getBroadcastingIDType();
+	}
+
 }

@@ -56,4 +56,8 @@ public class IDCollection extends AEntityCollection {
 		return new IDColumn(this, relationshipExplorer);
 	}
 
+	public IDType getMappingIDType() {
+		return getBroadcastingIDType();
+	}
+
 }

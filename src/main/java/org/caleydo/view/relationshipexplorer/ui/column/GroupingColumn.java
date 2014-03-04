@@ -7,7 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import gleem.linalg.Vec2f;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,12 +16,10 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 
 /**
  * @author Christian
@@ -38,16 +35,16 @@ public class GroupingColumn extends ATextColumn {
 	protected final GroupList groupList;
 	protected final GroupCollection groupCollection;
 
-	public final Comparator<GLElement> GROUP_COMPARATOR = new Comparator<GLElement>() {
-
-		@Override
-		public int compare(GLElement arg0, GLElement arg1) {
-			MinSizeTextElement r1 = asMinSizeTextElement(arg0);
-			MinSizeTextElement r2 = asMinSizeTextElement(arg1);
-
-			return r2.getLabel().compareTo(r1.getLabel());
-		}
-	};
+	// public final Comparator<GLElement> GROUP_COMPARATOR = new Comparator<GLElement>() {
+	//
+	// @Override
+	// public int compare(GLElement arg0, GLElement arg1) {
+	// MinSizeTextElement r1 = asMinSizeTextElement(arg0);
+	// MinSizeTextElement r2 = asMinSizeTextElement(arg1);
+	//
+	// return r2.getLabel().compareTo(r1.getLabel());
+	// }
+	// };
 
 	public GroupingColumn(GroupCollection groupCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(groupCollection, relationshipExplorer);
@@ -55,10 +52,11 @@ public class GroupingColumn extends ATextColumn {
 		this.perspective = groupCollection.perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
+		currentComparator = getDefaultComparator();
 	}
 
-	@Override
-	protected void setContent() {
+	// @Override
+	// protected void setContent() {
 		// Table table = dataDomain.getTable();
 		// if (table instanceof NumericalTable) {
 		// NumericalTable numTable = (NumericalTable) table;
@@ -88,7 +86,7 @@ public class GroupingColumn extends ATextColumn {
 		// }
 		// }
 
-	}
+	// }
 
 	@Override
 	public IDType getBroadcastingIDType() {
@@ -115,47 +113,48 @@ public class GroupingColumn extends ATextColumn {
 		return elementIDs;
 	}
 
-	@Override
-	protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {
+	// @Override
+	// protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {
+	//
+	// List<AEntityColumn> foreignColumns = relationshipExplorer
+	// .getColumnsWithBroadcastIDType(getBroadcastingIDType());
+	// foreignColumns.remove(this);
+	// for (AEntityColumn column : foreignColumns) {
+	// if (column instanceof TabularDataColumn) {
+	// return column;
+	// }
+	// }
+	// AEntityColumn foreignColumn = this;
+	//
+	// if (path != null) {
+	// for (int i = path.size() - 1; i >= 0; i--) {
+	// foreignColumn = getForeignColumnWithMappingIDType(path.get(i).getFromIDType());
+	// if (foreignColumn != null)
+	// break;
+	// }
+	// }
+	// return foreignColumn;
+	// }
 
-		List<AEntityColumn> foreignColumns = relationshipExplorer
-				.getColumnsWithBroadcastIDType(getBroadcastingIDType());
-		foreignColumns.remove(this);
-		for (AEntityColumn column : foreignColumns) {
-			if (column instanceof TabularDataColumn) {
-				return column;
-			}
-		}
-		AEntityColumn foreignColumn = this;
+	// @Override
+	// public IDType getMappingIDType() {
+	// return getBroadcastingIDType();
+	// }
 
-		if (path != null) {
-			for (int i = path.size() - 1; i >= 0; i--) {
-				foreignColumn = getForeignColumnWithMappingIDType(path.get(i).getFromIDType());
-				if (foreignColumn != null)
-					break;
-			}
-		}
-		return foreignColumn;
-	}
-
-	@Override
-	public IDType getMappingIDType() {
-		return getBroadcastingIDType();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	protected MinSizeTextElement asMinSizeTextElement(GLElement element) {
-		KeyBasedGLElementContainer<GLElement> c = (KeyBasedGLElementContainer<GLElement>) ((KeyBasedGLElementContainer<GLElement>) element)
-				.getElement(DATA_KEY);
-		return (MinSizeTextElement) c.getElement(GROUP_NAME_KEY);
-	}
-
-	@Override
-	public Comparator<GLElement> getDefaultElementComparator() {
-
-		return GROUP_COMPARATOR;
-	}
+	// @Override
+	// @SuppressWarnings("unchecked")
+	// protected MinSizeTextElement asMinSizeTextElement(GLElement element) {
+	// KeyBasedGLElementContainer<GLElement> c = (KeyBasedGLElementContainer<GLElement>)
+	// ((KeyBasedGLElementContainer<GLElement>) element)
+	// .getElement(DATA_KEY);
+	// return (MinSizeTextElement) c.getElement(GROUP_NAME_KEY);
+	// }
+	//
+	// @Override
+	// public Comparator<GLElement> getDefaultElementComparator() {
+	//
+	// return GROUP_COMPARATOR;
+	// }
 
 	@Override
 	public void showDetailView() {
@@ -167,7 +166,7 @@ public class GroupingColumn extends ATextColumn {
 		};
 		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 
-		relationshipExplorer.showDetailView(this, dummy, this);
+		relationshipExplorer.showDetailView(groupCollection, dummy, this);
 
 	}
 

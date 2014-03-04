@@ -67,4 +67,8 @@ public class GroupCollection extends AEntityCollection {
 		return new GroupingColumn(this, relationshipExplorer);
 	}
 
+	public IDType getMappingIDType() {
+		return getBroadcastingIDType();
+	}
+
 }

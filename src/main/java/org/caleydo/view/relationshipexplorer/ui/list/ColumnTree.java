@@ -28,6 +28,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
@@ -41,6 +42,8 @@ import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
  *
  */
 public class ColumnTree extends AnimatedGLElementContainer {
+
+	protected final RelationshipExplorerElement relationshipExplorer;
 
 	protected NestableColumn rootColumn;
 	protected ItemContainer rootContainer;
@@ -134,7 +137,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		}
 	}
 
-	public ColumnTree(IColumnModel columnModel) {
+	public ColumnTree(IColumnModel columnModel, RelationshipExplorerElement relationshipExplorer) {
+		this.relationshipExplorer = relationshipExplorer;
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
 				ColumnTreeRenderStyle.VERTICAL_SPACING, GLPadding.ZERO));
@@ -379,5 +383,12 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	public IGLElementContext getContext() {
 		return context;
+	}
+
+	/**
+	 * @return the relationshipExplorer, see {@link #relationshipExplorer}
+	 */
+	public RelationshipExplorerElement getRelationshipExplorer() {
+		return relationshipExplorer;
 	}
 }

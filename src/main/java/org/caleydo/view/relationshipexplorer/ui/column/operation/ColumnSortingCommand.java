@@ -7,9 +7,10 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Comparator;
 
-import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
 /**
  * @author Christian
@@ -17,17 +18,20 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
  */
 public class ColumnSortingCommand implements IHistoryCommand {
 
-	protected final AEntityColumn column;
-	protected final Comparator<GLElement> comparator;
+	protected final int columnHistoryID;
+	protected final Comparator<NestableItem> comparator;
+	protected final History history;
 
-	public ColumnSortingCommand(AEntityColumn column, Comparator<GLElement> comparator) {
-		this.column = column;
+	public ColumnSortingCommand(IColumnModel model, Comparator<NestableItem> comparator, History history) {
+		this.columnHistoryID = model.getHistoryID();
 		this.comparator = comparator;
+		this.history = history;
 	}
 
 	@Override
 	public Object execute() {
-		column.sort(comparator);
+		IColumnModel column = history.getHistoryObjectAs(IColumnModel.class, columnHistoryID);
+		column.sortBy(comparator);
 		return null;
 	}
 

@@ -458,10 +458,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				elementIDs.addAll(ids);
 		}
 
-		entityCollection.setHighlightItems(elementIDs, this);
+		entityCollection.setHighlightItems(elementIDs);
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(
-				getBroadcastingIDsFromElementIDs(elementIDs), this), false);
+				getBroadcastingIDsFromElementIDs(elementIDs), this));
 
 	}
 
@@ -789,9 +789,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			return;
 		if (srcRep instanceof IColumnModel) {
 			if (!column.isChild((IColumnModel) srcRep)) {
+				column.updateSummaryItems();
 				updateSorting();
 			}
 		} else {
+			column.updateSummaryItems();
 			updateSorting();
 		}
 	}
@@ -816,53 +818,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return entityCollection;
 	}
 
-
-	@Override
-	public void updateMappings(IEntityRepresentation srcRep) {
-
-		if (!column.isRoot())
-			return;
-
-		updateFilteredItems();
-		// mapIDToFilteredItems.clear();
-
-		// mapFilteredElements = new HashMap<>(elementIDs.size());
-		// for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
-		//
-		// GLElement element = entry.getValue();
-		// boolean visible = false;
-		//
-		// if (elementIDs.contains(entry.getKey())) {
-		// visible = true;
-		// // itemList.show(element);
-		// if (!itemList.hasElement(element)) {
-		// itemList.add(element);
-		// itemList.asGLElement().relayout();
-		// }
-		// mapFilteredElements.put(entry.getKey(), entry.getValue());
-		// }
-		//
-		// if (!visible) {
-		// itemList.removeElement(element);
-		// // itemList.hide(element);
-		// itemList.asGLElement().relayout();
-		// }
-		//
-		// }
-		// updateSelections();
-		//
-		// if (parentItem != null) {
-		// List<NestableItem> childItems = parentItem.getChildItems(column);
-		// for (NestableItem item : childItems) {
-		// if (item.getElementData().contains(elementID)) {
-		// // An item with that is already present -> no need to add
-		// return;
-		// }
-		// }
-		// }
-
-	}
-
 	protected void updateChildColumnFilters() {
 		for (NestableColumn col : column.getChildren()) {
 			col.getColumnModel().updateFilteredItems();
@@ -872,8 +827,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void updateFilteredItems() {
-
-		boolean filtered = false;
 
 		if (column.isRoot()) {
 			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
@@ -888,14 +841,12 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				for (NestableItem item : items) {
 					column.removeItem(item);
 				}
-				filtered = true;
 			}
 			for (Object elementID : elementsToAdd) {
 				GLElement element = createElement(elementID);
 				if (element != null) {
 					addItem(element, elementID, column, null);
 				}
-				filtered = true;
 			}
 		} else {
 
@@ -912,7 +863,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				for (NestableItem item : items) {
 					column.removeItem(item);
 				}
-				filtered = true;
 			}
 
 			// Second remove remaining items that have no parent
@@ -926,7 +876,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						entry.getValue().remove(item);
 						if (entry.getValue().isEmpty()) {
 							mapIDToFilteredItems.remove(entry.getKey());
-							filtered = true;
 						}
 					}
 				}
@@ -952,7 +901,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						GLElement element = createElement(id);
 						if (element != null) {
 							addItem(element, id, column, parentItem);
-							filtered = true;
 						}
 					}
 				}
@@ -963,7 +911,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		updateChildColumnFilters();
 		column.updateSummaryItems();
 
-		if (filtered)
 		updateSorting();
 	}
 
@@ -988,10 +935,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+		if (!column.isRoot())
+			return;
 
-		//
-		// updateSelections();
-
+		updateFilteredItems();
 	}
 
 	// @Override

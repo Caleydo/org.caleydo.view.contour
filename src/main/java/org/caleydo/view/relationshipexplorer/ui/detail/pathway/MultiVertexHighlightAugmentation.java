@@ -177,11 +177,10 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	public void propagateHighlight() {
 		Set<Object> highlightElementIDs = getGeneCollectionElementIDs(highlightedVertexReps);
 
-		geneCollection.setHighlightItems(highlightElementIDs, this);
+		geneCollection.setHighlightItems(highlightElementIDs);
 
-		relationshipExplorer.applyIDMappingUpdate(
-				new MappingHighlightUpdateOperation(geneCollection
-						.getBroadcastingIDsFromElementIDs(highlightElementIDs), this), false);
+		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(geneCollection
+				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this));
 	}
 
 	@Override
@@ -265,11 +264,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	@Override
 	public void removeHighlight(PathwayVertexRep vertexRep) {
 		highlightedVertexReps.remove(vertexRep);
-
-	}
-
-	@Override
-	public void updateMappings(IEntityRepresentation srcRep) {
 
 	}
 

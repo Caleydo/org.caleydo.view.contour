@@ -33,10 +33,10 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 	public Object execute() {
 		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
 				IEntityRepresentation.class, representationHistoryID);
-		representation.getCollection().setSelectedItems(selectedElementIDs, representation);
+		representation.getCollection().setSelectedItems(selectedElementIDs);
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
-				representation), true);
+				representation));
 		return null;
 	}
 

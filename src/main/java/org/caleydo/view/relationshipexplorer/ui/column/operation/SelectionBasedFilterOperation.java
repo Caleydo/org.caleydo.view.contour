@@ -43,10 +43,9 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 				IEntityRepresentation.class, representationHistoryID);
 
 		representation.getCollection().setFilteredItems(
-				setOperation.apply(selectedElementIDs, representation.getCollection().getFilteredElementIDs()),
-				representation);
+				setOperation.apply(selectedElementIDs, representation.getCollection().getFilteredElementIDs()));
 		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs,
-				representation, setOperation), true);
+				representation, setOperation));
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(representationHistoryID,
 				selectedElementIDs, selectedBroadcastIDs, relationshipExplorer);
 		o.execute();

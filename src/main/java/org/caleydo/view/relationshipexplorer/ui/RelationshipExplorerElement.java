@@ -40,7 +40,6 @@ import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowLis
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
@@ -76,7 +75,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
 
 	public interface IIDMappingUpdateHandler {
-		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings);
+		public void handleIDMappingUpdate(AMappingUpdateOperation operation);
 	}
 
 	// public interface ISelectionMappingUpdateListener {
@@ -86,10 +85,9 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected IIDMappingUpdateHandler idMappingUpdateHandler = new IIDMappingUpdateHandler() {
 
 		@Override
-		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
+		public void handleIDMappingUpdate(AMappingUpdateOperation operation) {
 			executeMappingUpdateOperation(operation);
-			if (updateSelectionMappings)
-				updateSelectionMappings(operation.getSrcRepresentation());
+			updateMappings(operation);
 		}
 
 	};
@@ -226,20 +224,21 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return collections;
 	}
 
-	public void applyIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
-		idMappingUpdateHandler.handleIDMappingUpdate(operation, updateSelectionMappings);
+	public void applyIDMappingUpdate(AMappingUpdateOperation operation) {
+		idMappingUpdateHandler.handleIDMappingUpdate(operation);
 	}
 
 	public void executeMappingUpdateOperation(AMappingUpdateOperation operation) {
 		for (IEntityCollection collection : entityCollections) {
-			if (operation.getSrcRepresentation().getCollection() != collection)
-				operation.execute(collection);
+			// if (operation.getSrcRepresentation().getCollection() != collection)
+			operation.execute(collection);
 		}
 	}
 
-	public void updateSelectionMappings(IEntityRepresentation srcRep) {
+	public void updateMappings(AMappingUpdateOperation operation) {
 		for (IEntityCollection collection : entityCollections) {
-			collection.updateSelectionMappings(srcRep);
+			// if (operation.getSrcRepresentation().getCollection() != collection)
+			operation.triggerUpdate(collection);
 		}
 	}
 

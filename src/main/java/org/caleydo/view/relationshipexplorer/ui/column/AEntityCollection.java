@@ -25,6 +25,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	protected Set<Object> allElementIDs = new HashSet<>();
 	protected Set<Object> filteredElementIDs = new HashSet<>();
 	protected Set<Object> selectedElementIDs = new HashSet<>();
+	protected Set<Object> highlightElementIDs = new HashSet<>();
 
 	protected Set<IEntityRepresentation> representations = new HashSet<>();
 
@@ -50,16 +51,17 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	@Override
 	public Set<Object> getHighlightElementIDs() {
-		return new HashSet<>();
+		return highlightElementIDs;
 	}
 
 	@Override
-	public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+	public void setFilteredItems(Set<Object> elementIDs) {
 		this.filteredElementIDs = elementIDs;
-		notifyFilterUpdate(updateSource);
+		// notifyFilterUpdate(updateSource);
 	}
 
-	protected void notifyFilterUpdate(IEntityRepresentation updateSource) {
+	@Override
+	public void notifyFilterUpdate(IEntityRepresentation updateSource) {
 
 		for (IEntityRepresentation rep : representations) {
 			rep.filterChanged(filteredElementIDs, updateSource);
@@ -68,23 +70,25 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
-		notifyHighlightUpdate(updateSource, elementIDs);
+	public void setHighlightItems(Set<Object> elementIDs) {
+		this.highlightElementIDs = elementIDs;
 	}
 
-	protected void notifyHighlightUpdate(IEntityRepresentation updateSource, Set<Object> highlightElementIDs) {
+	@Override
+	public void notifyHighlightUpdate(IEntityRepresentation updateSource) {
 		for (IEntityRepresentation rep : representations) {
 			rep.highlightChanged(highlightElementIDs, updateSource);
 		}
 	}
 
 	@Override
-	public void setSelectedItems(Set<Object> elementIDs, IEntityRepresentation updateSource) {
+	public void setSelectedItems(Set<Object> elementIDs) {
 		this.selectedElementIDs = elementIDs;
-		notifySelectionUpdate(updateSource);
+		// notifySelectionUpdate(updateSource);
 	}
 
-	protected void notifySelectionUpdate(IEntityRepresentation updateSource) {
+	@Override
+	public void notifySelectionUpdate(IEntityRepresentation updateSource) {
 
 		for (IEntityRepresentation rep : representations) {
 			rep.selectionChanged(selectedElementIDs, updateSource);
@@ -137,14 +141,6 @@ public abstract class AEntityCollection implements IEntityCollection {
 	@Override
 	public void removeEntityRepresentation(IEntityRepresentation rep) {
 		representations.remove(rep);
-	}
-
-	@Override
-	public void updateSelectionMappings(IEntityRepresentation srcRep) {
-		for (IEntityRepresentation rep : representations) {
-			rep.updateMappings(srcRep);
-		}
-
 	}
 
 	@Override

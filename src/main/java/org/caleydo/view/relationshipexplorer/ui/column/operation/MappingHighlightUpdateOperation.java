@@ -27,7 +27,13 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 
 	@Override
 	protected void execute(IEntityCollection collection, Set<Object> elementIDs) {
-		collection.setHighlightItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()), srcRep);
+		collection.setHighlightItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
+	}
+
+	@Override
+	public void triggerUpdate(IEntityCollection collection) {
+		collection.notifyHighlightUpdate(srcRep);
+
 	}
 
 }

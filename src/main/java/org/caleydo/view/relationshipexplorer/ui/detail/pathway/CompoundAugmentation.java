@@ -158,11 +158,10 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 	}
 
 	protected void propagateGroupHighlight(Set<Object> groups) {
-		groupCollection.setHighlightItems(groups, this);
+		groupCollection.setHighlightItems(groups);
 
-		filteredMapping.applyIDMappingUpdate(
-				new MappingHighlightUpdateOperation(groupCollection.getBroadcastingIDsFromElementIDs(groups), this),
-				false);
+		filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection
+				.getBroadcastingIDsFromElementIDs(groups), this));
 	}
 
 	private void setUpLayout() {
@@ -231,12 +230,6 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateMappings(IEntityRepresentation srcRep) {
 		// TODO Auto-generated method stub
 
 	}

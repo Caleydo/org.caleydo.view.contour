@@ -132,11 +132,10 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 		SelectionManager selectionManager = selections.getRecordSelectionManager();
 		Set<Object> highlightElementIDs = new HashSet<Object>(selectionManager.getElements(SelectionType.MOUSE_OVER));
 
-		collection.setHighlightItems(highlightElementIDs, this);
+		collection.setHighlightItems(highlightElementIDs);
 
-		relationshipExplorer.applyIDMappingUpdate(
-				new MappingHighlightUpdateOperation(collection.getBroadcastingIDsFromElementIDs(highlightElementIDs),
-						this), false);
+		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection
+				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this));
 	}
 
 	@Override
@@ -166,12 +165,6 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateMappings(IEntityRepresentation srcRep) {
 		// TODO Auto-generated method stub
 
 	}

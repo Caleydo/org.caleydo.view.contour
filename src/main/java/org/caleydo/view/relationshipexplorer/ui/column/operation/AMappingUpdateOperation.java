@@ -29,10 +29,13 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 
 	@Override
 	public void execute(IEntityCollection collection) {
-		execute(collection,
-				collection.getElementIDsFromForeignIDs(srcBroadcastIDs, srcRep.getCollection().getBroadcastingIDType()));
+		if (!(collection == srcRep.getCollection()))
+			execute(collection, collection.getElementIDsFromForeignIDs(srcBroadcastIDs, srcRep.getCollection()
+					.getBroadcastingIDType()));
 
 	}
+
+	public abstract void triggerUpdate(IEntityCollection collection);
 
 	protected abstract void execute(IEntityCollection collection, Set<Object> elementIDs);
 

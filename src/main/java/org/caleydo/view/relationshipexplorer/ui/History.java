@@ -23,7 +23,6 @@ import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement.IIDMappingUpdateHandler;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.IColumnOperation;
@@ -54,17 +53,16 @@ public class History extends AnimatedGLElementContainer {
 		public int getHistoryID();
 	}
 
-	protected class HistoryIDMappingHandler implements IIDMappingUpdateHandler {
-
-		@Override
-		public void handleIDMappingUpdate(AMappingUpdateOperation operation, boolean updateSelectionMappings) {
-			relationshipExplorer.executeMappingUpdateOperation(operation);
-			if (updateSelectionMappings)
-				lastMappingUpdateOperation = operation;
-		}
-	}
-
-	protected HistoryIDMappingHandler idMappingHandler = new HistoryIDMappingHandler();
+	// protected class HistoryIDMappingHandler implements IIDMappingUpdateHandler {
+	//
+	// @Override
+	// public void handleIDMappingUpdate(AMappingUpdateOperation operation) {
+	// relationshipExplorer.executeMappingUpdateOperation(operation);
+	// lastMappingUpdateOperation = operation;
+	// }
+	// }
+	//
+	// protected HistoryIDMappingHandler idMappingHandler = new HistoryIDMappingHandler();
 
 	public static interface IHistoryCommand {
 		public Object execute();

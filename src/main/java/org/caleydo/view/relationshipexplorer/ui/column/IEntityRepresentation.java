@@ -21,8 +21,6 @@ public interface IEntityRepresentation extends IHistoryIDOwner {
 
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep);
 
-	public void updateMappings(IEntityRepresentation srcRep);
-
 	public IEntityCollection getCollection();
 
 }

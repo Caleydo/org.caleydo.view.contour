@@ -33,12 +33,11 @@ public class AttributeFilterCommand implements IHistoryCommand {
 	@Override
 	public Object execute() {
 		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, columnHistoryID);
-		collection.setFilteredItems(filteredElementIDs, column);
-		column.updateSorting();
+		collection.setFilteredItems(filteredElementIDs);
+		// column.updateSorting();
 		column.getRelationshipExplorer().applyIDMappingUpdate(
 				new MappingFilterUpdateOperation(collection.getBroadcastingIDsFromElementIDs(filteredElementIDs),
-						column,
-						ESetOperation.INTERSECTION), true);
+						column, ESetOperation.INTERSECTION));
 		return null;
 
 	}

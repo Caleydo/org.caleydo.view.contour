@@ -27,7 +27,13 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 
 	@Override
 	protected void execute(IEntityCollection collection, Set<Object> elementIDs) {
-		collection.setFilteredItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()), srcRep);
+		collection.setFilteredItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
+	}
+
+	@Override
+	public void triggerUpdate(IEntityCollection collection) {
+		collection.notifyFilterUpdate(srcRep);
+
 	}
 
 }

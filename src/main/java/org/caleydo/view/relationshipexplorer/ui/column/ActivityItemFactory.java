@@ -55,14 +55,17 @@ public class ActivityItemFactory implements IItemFactory {
 			Object dataClassDesc = column.dataDomain.getDataClassSpecificDescription(recordIDType, (Integer) elementID,
 					column.perspective.getIdType(), dimensionID);
 
-			if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
+			if (dataClassDesc instanceof NumericalProperties) {
+				NumericalProperties p = (NumericalProperties) dataClassDesc;
 				// TODO: use correct data center
 				ic50Renderer = new SimpleBarRenderer();
 				ic50Renderer.setHorizontal(true);
-				ic50Renderer.setColor(column.dataDomain.getColor());
+
 				float rawValue = (float) column.dataDomain.getRaw(recordIDType, (int) elementID,
 						column.perspective.getIdType(), dimensionID);
 				ic50Renderer.setValue(rawValue);
+				ic50Renderer.setColor(rawValue > p.getMax() ? column.dataDomain.getColor().darker().darker()
+						: column.dataDomain.getColor());
 				float normalizedValue = column.dataDomain.getNormalizedValue(recordIDType, (int) elementID,
 						column.perspective.getIdType(), dimensionID);
 				ic50Renderer.setNormalizedValue(normalizedValue);

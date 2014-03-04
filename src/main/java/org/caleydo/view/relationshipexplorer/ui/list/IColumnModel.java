@@ -51,8 +51,6 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void sortBy(Comparator<NestableItem> comparator);
 
-	public void updateFilteredItems();
-
 	public NestableColumn getColumn();
 
 	public List<GLElement> getHeaderOverlayElements();

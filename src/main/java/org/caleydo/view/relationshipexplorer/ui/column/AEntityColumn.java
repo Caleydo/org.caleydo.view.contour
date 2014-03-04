@@ -776,8 +776,15 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
 
+		if (!column.isRoot())
+			return;
+
+		updateSelections(srcRep);
+	}
+
+	protected void updateSelections(IEntityRepresentation srcRep) {
 		column.clearSelection();
-		for (Object elementID : selectedElementIDs) {
+		for (Object elementID : entityCollection.getSelectedElementIDs()) {
 			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
 			if (items != null) {
 				for (NestableItem item : items) {
@@ -785,6 +792,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				}
 			}
 		}
+
+		updateChildColumnSelections(srcRep);
+
 		if (srcRep == this)
 			return;
 		if (srcRep instanceof IColumnModel) {
@@ -814,19 +824,33 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
+	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+		if (!column.isRoot())
+			return;
+
+		updateFilteredItems(srcRep);
+	}
+
+	@Override
 	public IEntityCollection getCollection() {
 		return entityCollection;
 	}
 
-	protected void updateChildColumnFilters() {
+	protected void updateChildColumnSelections(IEntityRepresentation srcRep) {
 		for (NestableColumn col : column.getChildren()) {
-			col.getColumnModel().updateFilteredItems();
-			((AEntityColumn) col.getColumnModel()).updateChildColumnFilters();
+			((AEntityColumn) col.getColumnModel()).updateSelections(srcRep);
+			// ((AEntityColumn) col.getColumnModel()).updateChildColumnFilters();
 		}
 	}
 
-	@Override
-	public void updateFilteredItems() {
+	protected void updateChildColumnFilters(IEntityRepresentation srcRep) {
+		for (NestableColumn col : column.getChildren()) {
+			((AEntityColumn) col.getColumnModel()).updateFilteredItems(srcRep);
+			// ((AEntityColumn) col.getColumnModel()).updateChildColumnFilters();
+		}
+	}
+
+	public void updateFilteredItems(IEntityRepresentation srcRep) {
 
 		if (column.isRoot()) {
 			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
@@ -908,10 +932,17 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		}
 
-		updateChildColumnFilters();
+		updateChildColumnFilters(srcRep);
 		column.updateSummaryItems();
 
-		updateSorting();
+		if (srcRep == this)
+			return;
+		if (srcRep instanceof IColumnModel) {
+			if (!column.isChild((IColumnModel) srcRep)) {
+				column.updateSummaryItems();
+				updateSorting();
+			}
+		}
 	}
 
 	@Override
@@ -932,26 +963,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				maxParentMappings = mappedElementIDs.size();
 		}
 	}
-
-	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		if (!column.isRoot())
-			return;
-
-		updateFilteredItems();
-	}
-
-	// @Override
-	// public void addEntityRepresentation(IEntityRepresentation rep) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void removeEntityRepresentation(IEntityRepresentation rep) {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 	public void addSummaryItemFactory(ISummaryItemFactory factory) {
 		summaryItemFactories.add(factory);

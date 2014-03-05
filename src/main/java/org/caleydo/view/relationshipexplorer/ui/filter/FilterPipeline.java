@@ -29,6 +29,7 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 
 import com.google.common.collect.Lists;
 
@@ -172,6 +173,8 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 	}
 
 	public void addFilterCommand(IFilterCommand filterCommand) {
+		if (filterCommand.getSetOperation() == ESetOperation.REPLACE)
+			clearFilterCommands();
 		filterCommands.add(filterCommand);
 		add(new FilterRepresentation(filterCommand));
 	}

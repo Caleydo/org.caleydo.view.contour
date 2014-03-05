@@ -64,8 +64,13 @@ public class ActivityItemFactory implements IItemFactory {
 				float rawValue = (float) column.dataDomain.getRaw(recordIDType, (int) elementID,
 						column.perspective.getIdType(), dimensionID);
 				ic50Renderer.setValue(rawValue);
-				ic50Renderer.setColor(rawValue > p.getMax() ? column.dataDomain.getColor().darker().darker()
-						: column.dataDomain.getColor());
+				if (p.getMax() != null) {
+					ic50Renderer.setColor(rawValue > p.getMax() ? column.dataDomain.getColor().darker().darker()
+							: column.dataDomain.getColor());
+				} else {
+					ic50Renderer.setColor(column.dataDomain.getColor());
+				}
+
 				float normalizedValue = column.dataDomain.getNormalizedValue(recordIDType, (int) elementID,
 						column.perspective.getIdType(), dimensionID);
 				ic50Renderer.setNormalizedValue(normalizedValue);

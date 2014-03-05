@@ -14,7 +14,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
  * @author Christian
  *
  */
-public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation implements IColumnOperation {
+public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation implements ICollectionOperation {
 
 	protected final Set<Object> srcBroadcastIDs;
 	protected final IEntityRepresentation srcRep;

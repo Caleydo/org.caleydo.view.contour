@@ -14,7 +14,6 @@ import java.util.Map;
 
 import javax.media.opengl.GL2;
 
-import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
@@ -25,9 +24,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.IColumnOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedFilterOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 
 /**
  * TODO: Possible performance improvements: Take snapshots of the whole setup every now and then. The reset command
@@ -53,37 +49,12 @@ public class History extends AnimatedGLElementContainer {
 		public int getHistoryID();
 	}
 
-	// protected class HistoryIDMappingHandler implements IIDMappingUpdateHandler {
-	//
-	// @Override
-	// public void handleIDMappingUpdate(AMappingUpdateOperation operation) {
-	// relationshipExplorer.executeMappingUpdateOperation(operation);
-	// lastMappingUpdateOperation = operation;
-	// }
-	// }
-	//
-	// protected HistoryIDMappingHandler idMappingHandler = new HistoryIDMappingHandler();
-
 	public static interface IHistoryCommand {
 		public Object execute();
+
+		public String getDescription();
 	}
 
-	protected static class ColumnOperationCommand implements IHistoryCommand {
-		protected final IEntityCollection collection;
-		protected final IColumnOperation columnOperation;
-
-		public ColumnOperationCommand(IEntityCollection collection, IColumnOperation columnOperation) {
-			this.collection = collection;
-			this.columnOperation = columnOperation;
-		}
-
-		@Override
-		public Object execute() {
-			columnOperation.execute(collection);
-			return null;
-		}
-
-	}
 
 	protected class ResetCommand implements IHistoryCommand {
 
@@ -94,6 +65,7 @@ public class History extends AnimatedGLElementContainer {
 
 			relationshipExplorer.removeAllDetailViews();
 			relationshipExplorer.clearColumns();
+			relationshipExplorer.getFilterPipeline().clearFilterCommands();
 			for (IEntityCollection collection : relationshipExplorer.getEntityCollections()) {
 				collection.reset();
 			}
@@ -102,6 +74,11 @@ public class History extends AnimatedGLElementContainer {
 				initCommand.execute();
 			}
 			return null;
+		}
+
+		@Override
+		public String getDescription() {
+			return "Initial State";
 		}
 
 	}
@@ -176,21 +153,21 @@ public class History extends AnimatedGLElementContainer {
 		addHistoryCommand(new ResetCommand(), Color.GRAY);
 	}
 
-	public void addColumnOperation(IEntityCollection collection, IColumnOperation columnOperation) {
-		Color color = Color.GRAY;
-		if (columnOperation instanceof SelectionBasedFilterOperation) {
-			color = Color.LIGHT_BLUE;
-		} else if (columnOperation instanceof SelectionBasedHighlightOperation) {
-			color = SelectionType.SELECTION.getColor();
-		}
-		// } else if (columnOperation instanceof ShowDetailOperation) {
-		// color = ColorBrewer.Greens.getColors(3).get(1);
-		// } else if (columnOperation instanceof HideDetailOperation) {
-		// color = ColorBrewer.Greens.getColors(3).get(2);
-		// }
-		addHistoryCommand(new ColumnOperationCommand(collection, columnOperation), color);
-
-	}
+	// public void addColumnOperation(IEntityCollection collection, IColumnOperation columnOperation) {
+	// Color color = Color.GRAY;
+	// if (columnOperation instanceof SelectionBasedFilterOperation) {
+	// color = Color.LIGHT_BLUE;
+	// } else if (columnOperation instanceof SelectionBasedHighlightOperation) {
+	// color = SelectionType.SELECTION.getColor();
+	// }
+	// // } else if (columnOperation instanceof ShowDetailOperation) {
+	// // color = ColorBrewer.Greens.getColors(3).get(1);
+	// // } else if (columnOperation instanceof HideDetailOperation) {
+	// // color = ColorBrewer.Greens.getColors(3).get(2);
+	// // }
+	// addHistoryCommand(new ColumnOperationCommand(collection, columnOperation), color);
+	//
+	// }
 
 	public synchronized void addHistoryCommand(IHistoryCommand command, Color color) {
 		if (currentPosition < commands.size() - 1) {
@@ -202,10 +179,14 @@ public class History extends AnimatedGLElementContainer {
 		}
 		commands.add(command);
 		HistoryCommandElement element = new HistoryCommandElement(color);
+		element.setTooltip(command.getDescription());
 		element.setSize(16, Float.NaN);
 		add(element);
 		currentPosition++;
 		relayoutParent();
+
+		// if (command instanceof IFilterCommand)
+		// relationshipExplorer.getFilterPipeline().addFilterCommand((IFilterCommand) command);
 	}
 
 	public synchronized void applyHistoryState(int index) {

@@ -398,9 +398,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void onAttributeFilter(AttributeFilterEvent event) {
-		Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
+		// Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(),
+		// event.getFilter());
 
-		AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());
+		AttributeFilterCommand c = new AttributeFilterCommand(this, event.getFilter(), ESetOperation.INTERSECTION,
+				relationshipExplorer.getHistory());
 		c.execute();
 		relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
 	}

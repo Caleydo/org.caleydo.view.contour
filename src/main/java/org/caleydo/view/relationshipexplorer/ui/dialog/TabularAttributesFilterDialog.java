@@ -5,7 +5,9 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.column.container.CategoricalClassDescription;
@@ -18,7 +20,7 @@ import org.caleydo.core.io.DataDescription;
 import org.caleydo.core.io.NumericalProperties;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
-import org.caleydo.view.relationshipexplorer.ui.util.CompositePredicate;
+import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -34,8 +36,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import com.google.common.base.Predicate;
-
 /**
  * @author Christian
  *
@@ -47,10 +47,45 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 
 	protected Set<IAttributeFilterFactory> filterFactories = new HashSet<>();
 
-	protected CompositePredicate<Object> filter;
+	protected CompositeAttributeFilter filter;
+
+	protected class CompositeAttributeFilter extends ArrayList<IEntityFilter> implements IEntityFilter {
+
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = 7288024541742262535L;
+
+		@Override
+		public boolean apply(Object input) {
+			for (IEntityFilter f : this) {
+				if (!f.apply(input))
+					return false;
+			}
+			return true;
+		}
+
+		@Override
+		public String getDescription() {
+			StringBuilder b = new StringBuilder();
+			b.append("Attribute filter for ").append(collection.getLabel()).append(": \n");
+
+			for (int i = 0; i < size() && i < 3; i++) {
+				b.append(get(i).getDescription());
+				if (i < size() - 1 && i < 2) {
+					b.append("\n");
+				}
+			}
+			if (size() > 3)
+				b.append("\n...");
+			return b.toString();
+		}
+
+
+	}
 
 	protected interface IAttributeFilterFactory {
-		public Predicate<Object> createFilter();
+		public IEntityFilter createFilter();
 
 		public boolean use();
 	}
@@ -69,18 +104,26 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 		}
 
 		@Override
-		public Predicate<Object> createFilter() {
+		public IEntityFilter createFilter() {
 
 			final float upperLimit = Float.parseFloat(upperLimitText.getText());
 			final float lowerLimit = Float.parseFloat(lowerLimitText.getText());
+			final String attribute = collection.getDataDomain().getDimensionLabel(dimensionID);
 
-			return new Predicate<Object>() {
+			return new IEntityFilter() {
 
 				@Override
 				public boolean apply(Object elementID) {
 					float value = (float) collection.getDataDomain().getRaw(collection.getItemIDType(),
 							(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID);
 					return value >= lowerLimit && value <= upperLimit;
+				}
+
+				@Override
+				public String getDescription() {
+					StringBuilder b = new StringBuilder();
+					b.append(attribute).append(": ").append("Lower Limit: ").append(lowerLimit).append(", Upper Limit: " + upperLimit);
+					return b.toString();
 				}
 			};
 		}
@@ -103,16 +146,16 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 		}
 
 		@Override
-		public Predicate<Object> createFilter() {
+		public IEntityFilter createFilter() {
 
-			final Set<String> validCategories = new HashSet<>(table.getSelection().length);
+			final List<String> validCategories = new ArrayList<>(table.getSelection().length);
 			for (TableItem item : table.getItems()) {
 				if (item.getChecked()) {
 					validCategories.add(item.getText());
 				}
 			}
-
-			return new Predicate<Object>() {
+			final String attribute = collection.getDataDomain().getDimensionLabel(dimensionID);
+			return new IEntityFilter() {
 
 				@Override
 				public boolean apply(Object elementID) {
@@ -120,6 +163,22 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 							(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID);
 
 					return validCategories.contains(value);
+				}
+
+				@Override
+				public String getDescription() {
+					StringBuilder b = new StringBuilder();
+					b.append(attribute).append(": ");
+					for(int i = 0; i < validCategories.size() && i < 3; i++) {
+						b.append(validCategories.get(i));
+						if(i < validCategories.size() - 1 && i < 2) {
+							b.append(", ");
+						}
+					}
+					if(validCategories.size() > 3)
+						b.append("...");
+
+					return b.toString();
 				}
 			};
 		}
@@ -299,7 +358,7 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 
 	@Override
 	protected void okPressed() {
-		filter = new CompositePredicate<>();
+		filter = new CompositeAttributeFilter();
 		for(IAttributeFilterFactory f : filterFactories) {
 			if (f.use()) {
 				filter.add(f.createFilter());
@@ -308,7 +367,7 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 		super.okPressed();
 	}
 
-	public Predicate<Object> getFilter() {
+	public IEntityFilter getFilter() {
 		return filter;
 	}
 

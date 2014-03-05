@@ -31,4 +31,9 @@ public class AddColumnTreeCommand implements IHistoryCommand {
 		return tree;
 	}
 
+	@Override
+	public String getDescription() {
+		return "Added new column " + collection.getLabel();
+	}
+
 }

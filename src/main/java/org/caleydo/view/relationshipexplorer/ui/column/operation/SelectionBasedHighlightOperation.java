@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
@@ -38,6 +39,28 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
 				representation));
 		return null;
+	}
+
+	@Override
+	public String getDescription() {
+
+		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
+				IEntityRepresentation.class, representationHistoryID);
+
+		StringBuilder b = new StringBuilder();
+
+		b.append("Selected ").append(representation.getCollection().getLabel()).append(":\n");
+
+		Iterator<Object> it = selectedElementIDs.iterator();
+		for (int i = 0; i < selectedElementIDs.size() && i < 3; i++) {
+			b.append(it.next());
+			if (i < selectedElementIDs.size() - 1 && i < 2) {
+				b.append(", ");
+			}
+		}
+		if (selectedElementIDs.size() > 3)
+			b.append("...");
+		return b.toString();
 	}
 
 }

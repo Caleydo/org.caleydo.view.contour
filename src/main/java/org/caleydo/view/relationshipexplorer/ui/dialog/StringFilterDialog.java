@@ -5,7 +5,9 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog;
 
+import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
+import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -17,8 +19,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import com.google.common.base.Predicate;
 
 /**
  * @author Christian
@@ -33,6 +33,31 @@ public class StringFilterDialog extends Dialog {
 	protected final ATextColumn column;
 	protected Text queryText;
 	protected String query = "";
+
+	protected static class TextFilter implements IEntityFilter {
+
+		protected final int columHistoryID;
+		protected final String query;
+		protected final History history;
+
+		public TextFilter(int columnHistoryID, String query, History history) {
+			this.columHistoryID = columnHistoryID;
+			this.query = query;
+			this.history = history;
+		}
+
+		@Override
+		public boolean apply(Object elementID) {
+			ATextColumn column = history.getHistoryObjectAs(ATextColumn.class, columHistoryID);
+			return column.getText(elementID).toLowerCase().contains(query.toLowerCase());
+		}
+
+		@Override
+		public String getDescription() {
+			ATextColumn column = history.getHistoryObjectAs(ATextColumn.class, columHistoryID);
+			return "Filtered " + column.getLabel() + " containing '" + query + "'";
+		}
+	}
 
 	/**
 	 * @param parentShell
@@ -153,14 +178,8 @@ public class StringFilterDialog extends Dialog {
 		return query;
 	}
 
-	public Predicate<Object> getFilter() {
-		return new Predicate<Object>() {
-
-			@Override
-			public boolean apply(Object elementID) {
-				return column.getText(elementID).toLowerCase().contains(query.toLowerCase());
-			}
-		};
+	public IEntityFilter getFilter() {
+		return new TextFilter(column.getHistoryID(), query, column.getRelationshipExplorer().getHistory());
 	}
 
 }

@@ -28,11 +28,7 @@ public interface IEntityCollection extends ILabeled {
 
 	public void reset();
 
-	// public void setFilteredItems(Set<Object> elementIDs);
-	//
-	// public void setHighlightItems(Set<Object> elementIDs);
-	//
-	// public void setSelectedItems(Set<Object> elementIDs);
+	public void restoreAllEntities();
 
 	public void setFilteredItems(Set<Object> elementIDs);
 

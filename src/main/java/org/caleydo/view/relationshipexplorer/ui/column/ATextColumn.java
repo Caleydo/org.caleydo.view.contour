@@ -18,14 +18,13 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
+import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-
-import com.google.common.base.Predicate;
 
 /**
  * @author Christian
@@ -60,7 +59,7 @@ public abstract class ATextColumn extends AEntityColumn {
 								loc, ATextColumn.this);
 
 						if (dialog.open() == Window.OK) {
-							Predicate<Object> filter = dialog.getFilter();
+							IEntityFilter filter = dialog.getFilter();
 							EventPublisher.trigger(new AttributeFilterEvent(filter).to(ATextColumn.this));
 						}
 					}

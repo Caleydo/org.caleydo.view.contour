@@ -35,4 +35,11 @@ public class AddChildColumnCommand implements IHistoryCommand {
 		return column.getColumnTree().addNestedColumn(collection.createColumnModel(), column);
 	}
 
+	@Override
+	public String getDescription() {
+		IColumnModel model = history.getHistoryObjectAs(IColumnModel.class, parentColumnModelHistoryID);
+		return "Added " + collection.getLabel() + "as child of " + model.getLabel();
+	}
+
+
 }

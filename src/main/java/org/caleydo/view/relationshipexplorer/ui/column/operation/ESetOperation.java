@@ -5,7 +5,10 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import java.net.URL;
 import java.util.Set;
+
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 
 import com.google.common.collect.Sets;
 
@@ -14,7 +17,15 @@ import com.google.common.collect.Sets;
  *
  */
 public enum ESetOperation {
-	REPLACE, INTERSECTION, UNION;
+	REPLACE(AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), INTERSECTION(
+			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), UNION(
+			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/add.png"));
+
+	private URL icon;
+
+	private ESetOperation(URL icon) {
+		this.icon = icon;
+	}
 
 	public Set<Object> apply(Set<Object> set1, Set<Object> set2) {
 		switch (this) {
@@ -27,5 +38,12 @@ public enum ESetOperation {
 		default:
 			return null;
 		}
+	}
+
+	/**
+	 * @return the icon, see {@link #icon}
+	 */
+	public URL getIcon() {
+		return icon;
 	}
 }

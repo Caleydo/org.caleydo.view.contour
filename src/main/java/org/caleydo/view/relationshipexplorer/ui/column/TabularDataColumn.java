@@ -28,9 +28,9 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementS
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
+import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
@@ -114,7 +114,7 @@ public class TabularDataColumn extends AEntityColumn {
 						TabularAttributesFilterDialog dialog = new TabularAttributesFilterDialog(canvas.getShell(),
 								TabularDataColumn.this);
 						if (dialog.open() == Window.OK) {
-							Predicate<Object> filter = dialog.getFilter();
+							IEntityFilter filter = dialog.getFilter();
 							EventPublisher.trigger(new AttributeFilterEvent(filter).to(TabularDataColumn.this));
 						}
 					}
@@ -140,16 +140,16 @@ public class TabularDataColumn extends AEntityColumn {
 	}
 
 	// @ListenTo
-	@Override
-	public void onAttributeFilter(AttributeFilterEvent event) {
-		// if (event.getReceiver() != this)
-		// return;
-		Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
-
-		AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());
-		c.execute();
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
-	}
+	// @Override
+	// public void onAttributeFilter(AttributeFilterEvent event) {
+	// // if (event.getReceiver() != this)
+	// // return;
+	// Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
+	//
+	// AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());
+	// c.execute();
+	// relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+	// }
 
 	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
 			Perspective dimensionPerspective, NestableItem parentItem, NestableColumn column) {

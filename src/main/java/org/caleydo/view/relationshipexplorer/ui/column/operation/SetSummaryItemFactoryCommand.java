@@ -35,4 +35,10 @@ public class SetSummaryItemFactoryCommand implements IHistoryCommand {
 		return null;
 	}
 
+	@Override
+	public String getDescription() {
+		TabularDataColumn col = history.getHistoryObjectAs(TabularDataColumn.class, tabularColumnHistoryID);
+		return "Changed Summary Item View for " + col.getLabel();
+	}
+
 }

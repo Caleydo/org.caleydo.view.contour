@@ -6,8 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.column;
 
 import org.caleydo.core.event.ADirectedEvent;
-
-import com.google.common.base.Predicate;
+import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 
 /**
  * @author Christian
@@ -15,9 +14,9 @@ import com.google.common.base.Predicate;
  */
 public class AttributeFilterEvent extends ADirectedEvent {
 
-	protected Predicate<Object> filter;
+	protected IEntityFilter filter;
 
-	public AttributeFilterEvent(Predicate<Object> filter) {
+	public AttributeFilterEvent(IEntityFilter filter) {
 		this.filter = filter;
 	}
 
@@ -25,14 +24,14 @@ public class AttributeFilterEvent extends ADirectedEvent {
 	 * @param filter
 	 *            setter, see {@link filter}
 	 */
-	public void setFilter(Predicate<Object> filter) {
+	public void setFilter(IEntityFilter filter) {
 		this.filter = filter;
 	}
 
 	/**
 	 * @return the filter, see {@link #filter}
 	 */
-	public Predicate<Object> getFilter() {
+	public IEntityFilter getFilter() {
 		return filter;
 	}
 

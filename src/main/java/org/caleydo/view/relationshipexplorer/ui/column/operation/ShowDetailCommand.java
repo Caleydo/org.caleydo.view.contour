@@ -30,4 +30,10 @@ public class ShowDetailCommand implements IHistoryCommand {
 		return null;
 	}
 
+	@Override
+	public String getDescription() {
+		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, entityColumnHistoryID);
+		return "Shoe Detail View of " + column.getLabel();
+	}
+
 }

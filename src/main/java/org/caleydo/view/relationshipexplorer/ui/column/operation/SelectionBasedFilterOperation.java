@@ -5,16 +5,19 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.filter.IFilterCommand;
 
 /**
  * @author Christian
  *
  */
-public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
+public class SelectionBasedFilterOperation extends ASelectionBasedOperation implements IFilterCommand {
 
 	protected final int representationHistoryID;
 
@@ -49,7 +52,54 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation {
 		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(representationHistoryID,
 				selectedElementIDs, selectedBroadcastIDs, relationshipExplorer);
 		o.execute();
+
+		relationshipExplorer.getFilterPipeline().addFilterCommand(this);
 		return null;
+	}
+
+	@Override
+	public String getDescription() {
+
+		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
+				IEntityRepresentation.class, representationHistoryID);
+
+		StringBuilder b = new StringBuilder();
+		switch (setOperation) {
+		case INTERSECTION:
+			b.append("Filtered relationships based on selected ").append(representation.getCollection().getLabel())
+					.append(":\n");
+			break;
+		case REPLACE:
+			b.append("Replaced relationships based on selected ").append(representation.getCollection().getLabel())
+					.append(":\n");
+			break;
+		case UNION:
+			b.append("Added relationships based on selected ").append(representation.getCollection().getLabel())
+					.append(":\n");
+			break;
+		default:
+			return "";
+		}
+
+		Iterator<Object> it = selectedElementIDs.iterator();
+		for (int i = 0; i < selectedElementIDs.size() && i < 3; i++) {
+			b.append(it.next());
+			if (i < selectedElementIDs.size() - 1 && i < 2) {
+				b.append(", ");
+			}
+		}
+
+		if (selectedElementIDs.size() > 3)
+			b.append("...");
+
+		return b.toString();
+	}
+
+	@Override
+	public IEntityCollection getCollection() {
+		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
+				IEntityRepresentation.class, representationHistoryID);
+		return representation.getCollection();
 	}
 
 }

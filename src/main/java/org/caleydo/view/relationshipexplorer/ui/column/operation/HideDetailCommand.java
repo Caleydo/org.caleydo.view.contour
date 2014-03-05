@@ -29,4 +29,9 @@ public class HideDetailCommand implements IHistoryCommand {
 		return null;
 	}
 
+	@Override
+	public String getDescription() {
+		return "Hide Detail View of " + collection.getLabel();
+	}
+
 }

@@ -145,9 +145,14 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	@Override
 	public void reset() {
+		restoreAllEntities();
+		representations.clear();
+	}
+
+	@Override
+	public void restoreAllEntities() {
 		filteredElementIDs = new HashSet<>(allElementIDs.size());
 		filteredElementIDs.addAll(allElementIDs);
-		representations.clear();
 	}
 
 

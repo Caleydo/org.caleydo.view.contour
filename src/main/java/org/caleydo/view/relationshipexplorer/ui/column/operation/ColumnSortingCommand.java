@@ -35,4 +35,10 @@ public class ColumnSortingCommand implements IHistoryCommand {
 		return null;
 	}
 
+	@Override
+	public String getDescription() {
+		IColumnModel column = history.getHistoryObjectAs(IColumnModel.class, columnHistoryID);
+		return "Sorting of " + column.getLabel() + " column";
+	}
+
 }

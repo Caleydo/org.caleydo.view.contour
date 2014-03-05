@@ -20,12 +20,27 @@ public class CompositeHistoryCommand extends ArrayList<IHistoryCommand> implemen
 	 */
 	private static final long serialVersionUID = 8920297872522595779L;
 
+	protected String description = "";
+
 	@Override
 	public Object execute() {
 		for (IHistoryCommand c : this) {
 			c.execute();
 		}
 		return null;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description
+	 *            setter, see {@link description}
+	 */
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

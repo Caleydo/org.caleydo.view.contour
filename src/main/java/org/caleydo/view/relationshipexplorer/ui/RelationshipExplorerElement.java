@@ -42,6 +42,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
+import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
 import com.google.common.base.Predicates;
@@ -58,6 +59,7 @@ import com.google.common.collect.Iterables;
 public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	protected final static int MIN_HISTORY_HEIGHT = 30;
+	protected final static int MIN_FILTER_PIPELINE_HEIGHT = 16;
 	protected final static int MIN_COLUMN_HEIGHT = 200;
 
 	// ------------
@@ -69,6 +71,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected AnimatedGLElementContainer columnContainer;
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
+	protected FilterPipeline filterPipeline;
 	protected BiMap<IEntityCollection, GLElementWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
@@ -115,12 +118,30 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
 		add(columnContainer);
+
+		filterPipeline = new FilterPipeline(this);
+		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
+				new ScrollBar(false), 8, EDimension.RECORD);
+		scrollingDecorator.setMinSizeProvider(filterPipeline);
+		scrollingDecorator.setSize(Float.NaN, MIN_FILTER_PIPELINE_HEIGHT);
+		add(scrollingDecorator);
+
 		history = new History(this);
-		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(
+		scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(
 				false), 8, EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(history);
 		scrollingDecorator.setSize(Float.NaN, MIN_HISTORY_HEIGHT);
 		add(scrollingDecorator);
+
+
+
+	}
+
+	/**
+	 * @return the filterPipeline, see {@link #filterPipeline}
+	 */
+	public FilterPipeline getFilterPipeline() {
+		return filterPipeline;
 	}
 
 	// public void addEntityColumn(AEntityColumn column) {
@@ -357,5 +378,11 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	 */
 	public Set<IEntityCollection> getEntityCollections() {
 		return entityCollections;
+	}
+
+	public void restoreAllEntities() {
+		for (IEntityCollection collection : entityCollections) {
+			collection.restoreAllEntities();
+		}
 	}
 }

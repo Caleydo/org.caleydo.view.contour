@@ -14,7 +14,6 @@ import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
-import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.canvas.EDetailLevel;
 import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -22,13 +21,10 @@ import org.caleydo.view.parcoords.v2.ParallelCoordinateElement;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 
 /**
  * @author Christian
@@ -75,25 +71,27 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 			break;
 		case RIGHT_CLICKED:
 			ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
-			IContextMenuCommand selectionCommand = new IContextMenuCommand() {
-
-				@Override
-				public void execute() {
-					propagateSelection();
-				}
-
-			};
-			IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this, relationshipExplorer);
-			IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
-					relationshipExplorer);
-			IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, relationshipExplorer);
-
-			contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
-					new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
-			contextMenuCreator.add(new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
-					new CompositeContextMenuCommand(intersectionCommand, selectionCommand)).to(this)));
-			contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
-					new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
+			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this));
+			// IContextMenuCommand selectionCommand = new IContextMenuCommand() {
+			//
+			// @Override
+			// public void execute() {
+			// propagateSelection();
+			// }
+			//
+			// };
+			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
+			// relationshipExplorer);
+			// IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
+			// relationshipExplorer);
+			// IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, relationshipExplorer);
+			//
+			// contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
+			// new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
+			// contextMenuCreator.add(new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
+			// new CompositeContextMenuCommand(intersectionCommand, selectionCommand)).to(this)));
+			// contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
+			// new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
 
 			context.getSWTLayer().showContextMenu(contextMenuCreator);
 			break;

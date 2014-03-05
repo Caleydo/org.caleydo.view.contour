@@ -36,7 +36,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighligh
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -263,12 +263,18 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// }
 
 	protected List<AContextMenuItem> getContextMenuItems() {
-		AContextMenuItem replaceFilterItem = new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
-				new FilterCommand(ESetOperation.REPLACE, this, relationshipExplorer)).to(this));
-		AContextMenuItem andFilterITem = new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
-				new FilterCommand(ESetOperation.INTERSECTION, this, relationshipExplorer)).to(this));
-		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
-				new FilterCommand(ESetOperation.UNION, this, relationshipExplorer)).to(this));
+		// AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
+		// "Replace current Set by Relationships for selected " + entityCollection.getLabel(),
+		// new ContextMenuCommandEvent(new FilterCommand(ESetOperation.REPLACE, this, relationshipExplorer))
+		// .to(this));
+		// AContextMenuItem andFilterITem = new
+		// GenericContextMenuItem("Filter current Set by Relationships for selected "
+		// + entityCollection.getLabel(), new ContextMenuCommandEvent(new FilterCommand(
+		// ESetOperation.INTERSECTION, this, relationshipExplorer)).to(this));
+		// AContextMenuItem orFilterITem = new GenericContextMenuItem("Add all Relationships for selected "
+		// + entityCollection.getLabel(), new ContextMenuCommandEvent(new FilterCommand(ESetOperation.UNION, this,
+		// relationshipExplorer)).to(this));
+		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this);
 		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
 				new IContextMenuCommand() {
 					@Override
@@ -280,7 +286,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					}
 				}).to(this));
 
-		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem, detailItem);
+		items.add(detailItem);
+
+		return items;
 	}
 
 	// protected void addElement(GLElement element, Object elementID) {

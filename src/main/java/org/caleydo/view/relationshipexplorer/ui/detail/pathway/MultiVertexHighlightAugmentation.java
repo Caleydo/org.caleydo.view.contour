@@ -18,7 +18,6 @@ import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
-import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -31,13 +30,10 @@ import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.CompositeContextMenuCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterCommand;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
@@ -85,26 +81,32 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		}
 
 		if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
+
+			if (!isSelected(vertexRep))
+				propagateSelection();
 			ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
-			IContextMenuCommand selectionCommand = new IContextMenuCommand() {
+			// IContextMenuCommand selectionCommand = new IContextMenuCommand() {
+			//
+			// @Override
+			// public void execute() {
+			// propagateSelection();
+			// }
+			//
+			// };
 
-				@Override
-				public void execute() {
-					propagateSelection();
-				}
-
-			};
-			IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this, relationshipExplorer);
-			IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
-					relationshipExplorer);
-			IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, relationshipExplorer);
-
-			contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
-					new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
-			contextMenuCreator.add(new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
-					new CompositeContextMenuCommand(intersectionCommand, selectionCommand)).to(this)));
-			contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
-					new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
+			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this));
+			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
+			// relationshipExplorer);
+			// IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
+			// relationshipExplorer);
+			// IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, relationshipExplorer);
+			//
+			// contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
+			// new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
+			// contextMenuCreator.add(new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
+			// new CompositeContextMenuCommand(intersectionCommand, selectionCommand)).to(this)));
+			// contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
+			// new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
 
 			context.getSWTLayer().showContextMenu(contextMenuCreator);
 		}

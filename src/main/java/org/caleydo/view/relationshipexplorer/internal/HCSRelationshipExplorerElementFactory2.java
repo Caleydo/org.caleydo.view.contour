@@ -60,6 +60,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 					// ColumnTree activityColumn = new ColumnTree();
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
+					activityCollection.setLabel("Activities");
 
 					// ColumnTree activityColumn = new ColumnTree(activityCollection.createColumnModel());
 					//

@@ -28,7 +28,7 @@ public final class FilterContextMenuItems {
 	public static List<AContextMenuItem> getDefaultFilterItems(RelationshipExplorerElement relationshipExplorer,
 			IEntityRepresentation representation, Object contextMenuCommandReceiver) {
 		AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
-				"Replace items with the relationships for the selected " + representation.getCollection().getLabel(),
+				"Replace items with those related to the selected " + representation.getCollection().getLabel(),
 				new ContextMenuCommandEvent(new FilterCommand(ESetOperation.REPLACE, representation,
 						relationshipExplorer)).to(contextMenuCommandReceiver));
 		AContextMenuItem andFilterITem = new GenericContextMenuItem("Filter items to those related to the selected "

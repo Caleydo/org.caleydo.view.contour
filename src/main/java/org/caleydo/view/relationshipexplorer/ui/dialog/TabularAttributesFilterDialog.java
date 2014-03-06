@@ -18,7 +18,7 @@ import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.gui.util.AHelpButtonDialog;
 import org.caleydo.core.io.DataDescription;
 import org.caleydo.core.io.NumericalProperties;
-import org.caleydo.view.relationshipexplorer.ui.column.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.eclipse.swt.SWT;

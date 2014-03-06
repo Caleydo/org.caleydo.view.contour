@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.collection;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +15,8 @@ import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 
 /**
  * @author Christian
@@ -63,14 +64,33 @@ public class GroupCollection extends AEntityCollection {
 	}
 
 	@Override
-	public IColumnModel createColumnModel() {
-		GroupingColumn column = new GroupingColumn(this, relationshipExplorer);
-		column.init();
-		return column;
+	protected IColumnFactory getDefaultColumnFactory() {
+		return ColumnFactories.createDefaultGroupColumnFactory(this, relationshipExplorer);
 	}
 
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
+	}
+
+	/**
+	 * @return the dataDomain, see {@link #dataDomain}
+	 */
+	public ATableBasedDataDomain getDataDomain() {
+		return dataDomain;
+	}
+
+	/**
+	 * @return the perspective, see {@link #perspective}
+	 */
+	public Perspective getPerspective() {
+		return perspective;
+	}
+
+	/**
+	 * @return the groupList, see {@link #groupList}
+	 */
+	public GroupList getGroupList() {
+		return groupList;
 	}
 
 }

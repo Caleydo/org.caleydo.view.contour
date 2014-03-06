@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 import gleem.linalg.Vec2f;
 
@@ -16,6 +16,7 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
@@ -37,34 +38,37 @@ public class MappingSummaryItemFactory implements ISummaryItemFactory {
 	}
 
 	@Override
-	public GLElement createSummaryItem(Set<NestableItem> items) {
-		if (column.parentColumn == null)
+	public GLElement createSummaryItem(NestableItem parentItem, Set<NestableItem> items) {
+		if (column.getParentColumn() == null)
 			return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
 
-		Set<Object> parentElementIDs = new HashSet<>();
+		Set<Object> parentElementIDs = parentItem.getElementData();
 		int numSelections = 0;
+		Set<Object> filteredElementIDs = new HashSet<>(items.size());
 		for (NestableItem item : items) {
-			parentElementIDs.addAll(item.getParentItem().getElementData());
-			if (item.isSelected())
+
+			if (filteredElementIDs.addAll(item.getElementData()) && item.isSelected())
 				numSelections++;
 		}
 
-		Set<Object> parentBCIDs = column.parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(
-				parentElementIDs);
+		Set<Object> parentBCIDs = column.getParentColumn().getColumnModel()
+				.getBroadcastingIDsFromElementIDs(parentElementIDs);
 		Set<Object> mappedElementIDs = column.getCollection().getElementIDsFromForeignIDs(parentBCIDs,
-				column.parentColumn.getColumnModel().getBroadcastingIDType());
+				column.getParentColumn().getColumnModel().getBroadcastingIDType());
 
 		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
 		// layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));
 		layeredRenderer.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelections);
 		layeredRenderer.getElement(SELECTED_ELEMENTS_KEY).setNormalizedValue(
-				(float) numSelections / column.maxParentMappings);
-		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(items.size());
+				(float) numSelections / column.getMaxParentMappings());
+
+		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setValue(filteredElementIDs.size());
 		layeredRenderer.getElement(FILTERED_ELEMENTS_KEY).setNormalizedValue(
-				(float) items.size() / column.maxParentMappings);
+				(float) filteredElementIDs.size() / column.getMaxParentMappings());
+
 		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setValue(mappedElementIDs.size());
 		layeredRenderer.getElement(ALL_ELEMENTS_KEY).setNormalizedValue(
-				(float) mappedElementIDs.size() / column.maxParentMappings);
+				(float) mappedElementIDs.size() / column.getMaxParentMappings());
 		return layeredRenderer;
 	}
 

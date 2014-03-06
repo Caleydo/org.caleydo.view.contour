@@ -26,6 +26,7 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementS
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
@@ -69,8 +70,8 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 	public IDColumn(IDCollection idCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(idCollection, relationshipExplorer);
 		this.idCollection = idCollection;
-		this.idType = idCollection.idType;
-		this.displayedIDType = idCollection.displayedIDType;
+		this.idType = idCollection.getIdType();
+		this.displayedIDType = idCollection.getDisplayedIDType();
 
 		mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);

@@ -7,7 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
  * @author Christian

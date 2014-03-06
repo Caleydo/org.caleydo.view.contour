@@ -20,10 +20,13 @@ import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.GroupCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IDCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.PathwayCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MedianSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddChildColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.CompositeHistoryCommand;
@@ -61,6 +64,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
 					activityCollection.setLabel("Activities");
+					activityCollection.setColumnFactory(new ActivityColumnFactory(activityCollection,
+							relationshipExplorer));
 
 					// ColumnTree activityColumn = new ColumnTree(activityCollection.createColumnModel());
 					//
@@ -173,7 +178,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 
 		// ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
 
-		c = new SetSummaryItemFactoryCommand(fCol.getColumnModel().getHistoryID(), relationshipExplorer.getHistory());
+		c = new SetSummaryItemFactoryCommand((AEntityColumn) fCol.getColumnModel(), MedianSummaryItemFactory.class,
+				relationshipExplorer.getHistory());
 		initCommand.add(c);
 		c.execute();
 

@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
  * @author Christian

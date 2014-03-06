@@ -5,10 +5,13 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.MedianSummaryItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactory;
 
 /**
  * @author Christian
@@ -18,20 +21,31 @@ public class SetSummaryItemFactoryCommand implements IHistoryCommand {
 
 	protected final int tabularColumnHistoryID;
 	protected final History history;
+	protected final Class<? extends AEntityColumn> columnClass;
+	protected final Class<? extends ISummaryItemFactory> factoryClass;
 
-	public SetSummaryItemFactoryCommand(int tabularColumnHistoryID, History history) {
-		this.tabularColumnHistoryID = tabularColumnHistoryID;
+	public SetSummaryItemFactoryCommand(AEntityColumn column, Class<? extends ISummaryItemFactory> factoryClass,
+			History history) {
+		this.tabularColumnHistoryID = column.getHistoryID();
+		this.columnClass = column.getClass();
+		this.factoryClass = factoryClass;
 		this.history = history;
 	}
 
 	@Override
 	public Object execute() {
-		// FIXME parameterize factory type
 
-		TabularDataColumn col = history.getHistoryObjectAs(TabularDataColumn.class, tabularColumnHistoryID);
-		MedianSummaryItemFactory f = new MedianSummaryItemFactory(col);
-		col.addSummaryItemFactory(f);
-		col.setSummaryItemFactory(f);
+		AEntityColumn col = history.getHistoryObjectAs(columnClass, tabularColumnHistoryID);
+		ISummaryItemFactory f;
+		try {
+			f = factoryClass.getConstructor(columnClass).newInstance(col);
+			col.addSummaryItemFactory(f);
+			col.setSummaryItemFactory(f);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 

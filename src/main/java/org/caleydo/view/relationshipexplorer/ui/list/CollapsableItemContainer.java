@@ -165,7 +165,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 			// }
 		}
 		updateSummaryData(summaryItem, items);
-		summaryItem.setElement(column.getSummaryElement(new HashSet<>(items)));
+		summaryItem.setElement(column.getSummaryElement(parentItem, new HashSet<>(items)));
 		for (NestableColumn col : column.children) {
 			// NestableItem childSummaryItem = new NestableItem(col.getSummaryElement(childColumnItems.get(col)),
 			// col,
@@ -176,7 +176,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 				CollapsableItemContainer container = summaryItem.getNestedContainer(col);
 
 				updateSummaryData(container.summaryItem, i);
-				container.summaryItem.setElement(col.getSummaryElement(i));
+				container.summaryItem.setElement(col.getSummaryElement(summaryItem, i));
 				container.collapseButton.setSelected(true);
 				container.items.clear();
 				container.items.addAll(i);

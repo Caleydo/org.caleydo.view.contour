@@ -8,7 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.util;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 import com.google.common.collect.Sets;
 

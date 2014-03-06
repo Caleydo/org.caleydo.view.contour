@@ -27,7 +27,7 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void fill(NestableColumn column, NestableColumn parentColumn);
 
-	public GLElement getSummaryElement(Set<NestableItem> items);
+	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items);
 
 	public Set<NestableItem> getItems(Set<Object> elementIDs);
 

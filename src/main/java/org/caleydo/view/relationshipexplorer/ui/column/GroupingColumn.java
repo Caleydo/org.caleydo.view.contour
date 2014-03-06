@@ -20,6 +20,7 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 
 /**
  * @author Christian
@@ -49,7 +50,7 @@ public class GroupingColumn extends ATextColumn {
 	public GroupingColumn(GroupCollection groupCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(groupCollection, relationshipExplorer);
 		this.groupCollection = groupCollection;
-		this.perspective = groupCollection.perspective;
+		this.perspective = groupCollection.getPerspective();
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
 		currentComparator = getDefaultComparator();

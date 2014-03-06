@@ -3,16 +3,16 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column.operation;
+package org.caleydo.view.relationshipexplorer.ui.column.factory;
 
-import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
  * @author Christian
  *
  */
-public interface ICollectionOperation {
+public interface IColumnFactory {
 
-	public void execute(IEntityCollection collection);
+	public IColumnModel create();
 
 }

@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 import java.util.Set;
 
@@ -16,6 +16,6 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
  */
 public interface ISummaryItemFactory {
 
-	public GLElement createSummaryItem(Set<NestableItem> items);
+	public GLElement createSummaryItem(NestableItem parentItem, Set<NestableItem> items);
 
 }

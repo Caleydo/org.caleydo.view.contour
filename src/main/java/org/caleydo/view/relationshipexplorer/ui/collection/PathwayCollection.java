@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.collection;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,8 @@ import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 
 /**
  * @author Christian
@@ -57,10 +58,8 @@ public class PathwayCollection extends AEntityCollection {
 
 
 	@Override
-	public IColumnModel createColumnModel() {
-		PathwayColumn column = new PathwayColumn(this, relationshipExplorer);
-		column.init();
-		return column;
+	protected IColumnFactory getDefaultColumnFactory() {
+		return ColumnFactories.createDefaultPathwayColumnFactory(this, relationshipExplorer);
 	}
 
 	public IDType getMappingIDType() {

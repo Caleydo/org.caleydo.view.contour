@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.collection;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,6 +13,9 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
  * @author Christian
@@ -28,6 +31,8 @@ public abstract class AEntityCollection implements IEntityCollection {
 	protected Set<Object> highlightElementIDs = new HashSet<>();
 
 	protected Set<IEntityRepresentation> representations = new HashSet<>();
+
+	protected IColumnFactory columnFactory;
 
 	public AEntityCollection(RelationshipExplorerElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
@@ -154,6 +159,23 @@ public abstract class AEntityCollection implements IEntityCollection {
 		filteredElementIDs = new HashSet<>(allElementIDs.size());
 		filteredElementIDs.addAll(allElementIDs);
 	}
+
+	@Override
+	public IColumnModel createColumnModel() {
+		if (columnFactory == null)
+			columnFactory = getDefaultColumnFactory();
+		return columnFactory.create();
+	}
+
+	/**
+	 * @param columnFactory
+	 *            setter, see {@link columnFactory}
+	 */
+	public void setColumnFactory(IColumnFactory columnFactory) {
+		this.columnFactory = columnFactory;
+	}
+
+	protected abstract IColumnFactory getDefaultColumnFactory();
 
 
 }

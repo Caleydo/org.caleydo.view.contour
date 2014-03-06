@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column;
+package org.caleydo.view.relationshipexplorer.ui.collection;
 
 import java.util.Set;
 
@@ -11,7 +11,8 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 
 import com.google.common.collect.Sets;
 
@@ -52,14 +53,26 @@ public class IDCollection extends AEntityCollection {
 	}
 
 	@Override
-	public IColumnModel createColumnModel() {
-		IDColumn column = new IDColumn(this, relationshipExplorer);
-		column.init();
-		return column;
+	protected IColumnFactory getDefaultColumnFactory() {
+		return ColumnFactories.createDefaultIDColumnFactory(this, relationshipExplorer);
 	}
 
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
+	}
+
+	/**
+	 * @return the idType, see {@link #idType}
+	 */
+	public IDType getIdType() {
+		return idType;
+	}
+
+	/**
+	 * @return the displayedIDType, see {@link #displayedIDType}
+	 */
+	public IDType getDisplayedIDType() {
+		return displayedIDType;
 	}
 
 }

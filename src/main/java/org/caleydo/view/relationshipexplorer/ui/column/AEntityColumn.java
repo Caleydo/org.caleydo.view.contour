@@ -30,6 +30,9 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
@@ -738,8 +741,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// }
 
 	@Override
-	public GLElement getSummaryElement(Set<NestableItem> items) {
-		return summaryItemFactory.createSummaryItem(items);
+	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items) {
+		return summaryItemFactory.createSummaryItem(parentItem, items);
 	}
 
 	@Override
@@ -1011,6 +1014,20 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public List<GLElement> getHeaderOverlayElements() {
 		return headerButtons;
+	}
+
+	/**
+	 * @return the parentColumn, see {@link #parentColumn}
+	 */
+	public NestableColumn getParentColumn() {
+		return parentColumn;
+	}
+
+	/**
+	 * @return the maxParentMappings, see {@link #maxParentMappings}
+	 */
+	public int getMaxParentMappings() {
+		return maxParentMappings;
 	}
 
 	protected abstract GLElement createElement(Object elementID);

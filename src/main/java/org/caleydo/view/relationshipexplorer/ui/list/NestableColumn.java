@@ -254,8 +254,8 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		return children;
 	}
 
-	public GLElement getSummaryElement(Set<NestableItem> items) {
-		return model.getSummaryElement(items);
+	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items) {
+		return model.getSummaryElement(parentItem, items);
 		// return ColumnTree.createTextElement("summary of " + items.size(), 16);
 	}
 

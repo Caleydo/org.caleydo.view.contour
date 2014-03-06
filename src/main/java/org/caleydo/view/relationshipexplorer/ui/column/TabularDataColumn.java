@@ -28,6 +28,8 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementS
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivityItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
@@ -91,13 +93,13 @@ public class TabularDataColumn extends AEntityColumn {
 			RelationshipExplorerElement relationshipExplorer) {
 
 		super(tabularDataCollection, relationshipExplorer);
-		this.itemIDCategory = tabularDataCollection.itemIDCategory;
-		this.tablePerspective = tabularDataCollection.tablePerspective;
+		this.itemIDCategory = tabularDataCollection.getItemIDCategory();
+		this.tablePerspective = tabularDataCollection.getTablePerspective();
 		dataDomain = tablePerspective.getDataDomain();
-		this.mappingIDType = tabularDataCollection.mappingIDType;
-		this.va = tabularDataCollection.va;
-		this.itemIDType = tabularDataCollection.itemIDType;
-		this.perspective = tabularDataCollection.dimensionPerspective;
+		this.mappingIDType = tabularDataCollection.getMappingIDType();
+		this.va = tabularDataCollection.getVa();
+		this.itemIDType = tabularDataCollection.getItemIDType();
+		this.perspective = tabularDataCollection.getDimensionPerspective();
 
 		final GLButton filterButton = addHeaderButton(FILTER_ICON);
 

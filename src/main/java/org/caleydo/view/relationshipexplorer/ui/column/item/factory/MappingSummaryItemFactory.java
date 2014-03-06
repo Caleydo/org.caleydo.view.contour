@@ -18,6 +18,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
+import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
@@ -51,10 +52,13 @@ public class MappingSummaryItemFactory implements ISummaryItemFactory {
 				numSelections++;
 		}
 
-		Set<Object> parentBCIDs = column.getParentColumn().getColumnModel()
-				.getBroadcastingIDsFromElementIDs(parentElementIDs);
-		Set<Object> mappedElementIDs = column.getCollection().getElementIDsFromForeignIDs(parentBCIDs,
-				column.getParentColumn().getColumnModel().getBroadcastingIDType());
+		Set<Object> mappedElementIDs = EntityMappingUtil.getAllMappedElementIDs(parentElementIDs, column
+				.getParentColumn().getColumnModel().getCollection(), column.getCollection());
+
+		// Set<Object> parentBCIDs = column.getParentColumn().getColumnModel()
+		// .getBroadcastingIDsFromElementIDs(parentElementIDs);
+		// Set<Object> mappedElementIDs = column.getCollection().getElementIDsFromForeignIDs(parentBCIDs,
+		// column.getParentColumn().getColumnModel().getBroadcastingIDType());
 
 		KeyBasedGLElementContainer<SimpleBarRenderer> layeredRenderer = createLayeredBarRenderer();
 		// layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));

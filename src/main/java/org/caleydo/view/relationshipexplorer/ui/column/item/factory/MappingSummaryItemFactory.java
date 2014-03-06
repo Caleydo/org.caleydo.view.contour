@@ -17,6 +17,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.KeyBasedGLElementContainer;
@@ -98,6 +99,11 @@ public class MappingSummaryItemFactory implements ISummaryItemFactory {
 		renderer.setBarWidth(12);
 		renderer.setzDelta(zDelta);
 		return renderer;
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		return true;
 	}
 
 }

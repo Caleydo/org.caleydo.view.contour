@@ -15,6 +15,7 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleAggregateDataRenderer;
 
@@ -53,6 +54,11 @@ public class MedianSummaryItemFactory implements ISummaryItemFactory {
 		}
 
 		return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		return cause != EUpdateCause.SELECTION;
 	}
 
 }

@@ -75,8 +75,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 		// nestedList.setRenderer(GLRenderers.drawRect(Color.YELLOW));
 		GLElement summaryRenderer = new GLElement();
 		summaryRenderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(50, 16));
-		summaryItem = new NestableItem(summaryRenderer, column, parentItem,
-				columnTree);
+		summaryItem = new NestableItem(summaryRenderer, column, parentItem, columnTree);
 		summaryItem.setElementData(new HashSet<>());
 		if (column.isCollapsed())
 			itemContainer.add(summaryItem);
@@ -133,7 +132,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 		if (updateMappings) {
 			for (NestableColumn col : column.children) {
-				col.updateSummaryItems();
+				col.updateSummaryItems(EUpdateCause.OTHER);
 			}
 		}
 
@@ -145,7 +144,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 	}
 
 	@Override
-	public void updateSummaryItems() {
+	public void updateSummaryItems(EUpdateCause cause) {
 		// Set<NestableItem> items = new HashSet<>(itemContainer.size());
 		Map<NestableColumn, Set<NestableItem>> childColumnItems = new HashMap<>();
 		for (NestableItem item : items) {
@@ -165,7 +164,9 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 			// }
 		}
 		updateSummaryData(summaryItem, items);
-		summaryItem.setElement(column.getSummaryElement(parentItem, new HashSet<>(items)));
+		GLElement summaryElement = column.getSummaryElement(parentItem, new HashSet<>(items), summaryItem, cause);
+		if (summaryElement != summaryItem.getElement())
+			summaryItem.setElement(summaryElement);
 		for (NestableColumn col : column.children) {
 			// NestableItem childSummaryItem = new NestableItem(col.getSummaryElement(childColumnItems.get(col)),
 			// col,
@@ -176,7 +177,9 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 				CollapsableItemContainer container = summaryItem.getNestedContainer(col);
 
 				updateSummaryData(container.summaryItem, i);
-				container.summaryItem.setElement(col.getSummaryElement(summaryItem, i));
+				summaryElement = col.getSummaryElement(summaryItem, i, container.summaryItem, cause);
+				if (summaryElement != container.summaryItem.getElement())
+					container.summaryItem.setElement(summaryElement);
 				container.collapseButton.setSelected(true);
 				container.items.clear();
 				container.items.addAll(i);
@@ -244,7 +247,6 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 	public void sortItems(Comparator<GLElement> comparator) {
 		itemContainer.sortBy(comparator);
 	}
-
 
 	// private void setItemVisibility(EVisibility visibility) {
 	// for (GLElement element : itemContainer) {

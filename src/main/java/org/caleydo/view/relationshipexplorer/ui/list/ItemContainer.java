@@ -28,7 +28,7 @@ public class ItemContainer extends AnimatedGLElementContainer {
 		return items;
 	}
 
-	public void updateSummaryItems() {
+	public void updateSummaryItems(EUpdateCause cause) {
 
 	}
 }

@@ -170,9 +170,9 @@ public class NestableItem extends AnimatedGLElementContainer {
 		// + ColumnTreeRenderStyle.COLLAPSE_BUTTON_SIZE : 0), Float.NaN);
 	}
 
-	public void updateSummaryItems() {
+	public void updateSummaryItems(EUpdateCause cause) {
 		for (CollapsableItemContainer container : itemContainers.values()) {
-			container.updateSummaryItems();
+			container.updateSummaryItems(cause);
 		}
 	}
 

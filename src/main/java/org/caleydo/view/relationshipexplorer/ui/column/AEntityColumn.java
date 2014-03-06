@@ -41,6 +41,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailComma
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -741,8 +742,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// }
 
 	@Override
-	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items) {
-		return summaryItemFactory.createSummaryItem(parentItem, items);
+	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
+			EUpdateCause cause) {
+
+		if (summaryItem.getElement() == null || summaryItemFactory.needsUpdate(cause)) {
+			return summaryItemFactory.createSummaryItem(parentItem, items);
+		}
+		return summaryItem.getElement();
 	}
 
 	@Override
@@ -812,11 +818,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			return;
 		if (srcRep instanceof IColumnModel) {
 			if (!column.isChild((IColumnModel) srcRep)) {
-				column.updateSummaryItems();
+				column.updateSummaryItems(EUpdateCause.SELECTION);
 				updateSorting();
 			}
 		} else {
-			column.updateSummaryItems();
+			column.updateSummaryItems(EUpdateCause.SELECTION);
 			updateSorting();
 		}
 	}
@@ -946,13 +952,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		}
 
 		updateChildColumnFilters(srcRep);
-		column.updateSummaryItems();
+		column.updateSummaryItems(EUpdateCause.FILTER);
 
 		if (srcRep == this)
 			return;
 		if (srcRep instanceof IColumnModel) {
 			if (!column.isChild((IColumnModel) srcRep)) {
-				column.updateSummaryItems();
+				column.updateSummaryItems(EUpdateCause.FILTER);
 				updateSorting();
 			}
 		}
@@ -984,7 +990,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	public void setSummaryItemFactory(ISummaryItemFactory factory) {
 		summaryItemFactory = factory;
 		if (column != null)
-			column.updateSummaryItems();
+			column.updateSummaryItems(EUpdateCause.OTHER);
 	}
 
 	@Override

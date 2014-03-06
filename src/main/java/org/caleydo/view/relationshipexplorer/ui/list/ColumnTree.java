@@ -274,8 +274,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	}
 
-	public void updateSummaryItems() {
-		rootColumn.updateSummaryItems();
+	public void updateSummaryItems(EUpdateCause cause) {
+		rootColumn.updateSummaryItems(cause);
 	}
 
 	@Override
@@ -320,7 +320,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 		add(scrollingDecorator);
 		model.fill(rootColumn, null);
-		updateSummaryItems();
+		updateSummaryItems(EUpdateCause.OTHER);
 		rootColumn.sortBy(rootColumn.getColumnModel().getCurrentComparator());
 
 		// updateSizes();
@@ -349,7 +349,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		allColumns.add(column);
 		column.parent = parent;
 		model.fill(column, parent);
-		updateSummaryItems();
+		updateSummaryItems(EUpdateCause.OTHER);
 		column.setCollapsed(true);
 		column.sortBy(column.getColumnModel().getCurrentComparator());
 		parent.getColumnModel().sortBy(parent.getColumnModel().getCurrentComparator());

@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 import java.util.Set;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
 /**
@@ -17,5 +18,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 public interface ISummaryItemFactory {
 
 	public GLElement createSummaryItem(NestableItem parentItem, Set<NestableItem> items);
+
+	public boolean needsUpdate(EUpdateCause cause);
 
 }

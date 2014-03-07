@@ -37,12 +37,10 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 import org.eclipse.jface.window.Window;
-import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -86,6 +84,11 @@ public class TabularDataColumn extends AEntityColumn {
 			int recordID2 = (int) arg1.getElementData().iterator().next();
 
 			return recordID1 - recordID2;
+		}
+
+		@Override
+		public String toString() {
+			return "Item ID";
 		}
 	};
 
@@ -201,8 +204,6 @@ public class TabularDataColumn extends AEntityColumn {
 	// return ID_COMPARATOR;
 	// }
 
-
-
 	@Override
 	public void showDetailView() {
 		GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
@@ -270,11 +271,9 @@ public class TabularDataColumn extends AEntityColumn {
 		return new SimpleDataRenderer(dataDomain, itemIDType, (Integer) elementID, perspective);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Comparator<NestableItem> getDefaultComparator() {
-		return new ComparatorChain<>(Lists.<Comparator<NestableItem>> newArrayList(SELECTED_ITEMS_COMPARATOR,
-				ITEM_ID_COMPARATOR));
+		return ITEM_ID_COMPARATOR;
 	}
 
 }

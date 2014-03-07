@@ -26,8 +26,10 @@ import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
+import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
@@ -41,12 +43,16 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailComma
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.dialog.SortingDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
+import org.eclipse.jface.window.Window;
 import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -68,6 +74,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected static final URL FILTER_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
+	protected static final URL SORT_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/sort_descending.png");
 
 	// -----------------
 
@@ -85,6 +93,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected int historyID;
 
+	protected Set<Comparator<NestableItem>> baseComparators = new HashSet<>();
 	protected Comparator<NestableItem> currentComparator;
 
 	// -----------------
@@ -138,6 +147,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 
 			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "Item Selection";
 		}
 	};
 
@@ -234,11 +248,35 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 
+		final GLButton sortButton = addHeaderButton(SORT_ICON);
+
+		sortButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				// final Vec2f location = filterButton.getAbsoluteLocation();
+
+				column.getColumnTree().getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+						SortingDialog dialog = new SortingDialog(canvas.getShell(), AEntityColumn.this);
+						if (dialog.open() == Window.OK) {
+							// IEntityFilter filter = dialog.getFilter();
+							// EventPublisher.trigger(new AttributeFilterEvent(filter).to(TabularDataColumn.this));
+						}
+					}
+				});
+			}
+		});
+
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void init() {
+		baseComparators.add(SELECTED_ITEMS_COMPARATOR);
+		baseComparators.add(getDefaultComparator());
 		currentComparator = new ComparatorChain<NestableItem>(Lists.newArrayList(SELECTED_ITEMS_COMPARATOR,
 				selectionMappingComparator, visibleMappingComparator, totalMappingComparator, getDefaultComparator()));
 	}
@@ -1034,6 +1072,17 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	 */
 	public int getMaxParentMappings() {
 		return maxParentMappings;
+	}
+
+	/**
+	 * @return the baseComparators, see {@link #baseComparators}
+	 */
+	public Set<Comparator<NestableItem>> getComparators() {
+		return baseComparators;
+	}
+
+	public void addComparator(Comparator<NestableItem> comparator) {
+		baseComparators.add(comparator);
 	}
 
 	protected abstract GLElement createElement(Object elementID);

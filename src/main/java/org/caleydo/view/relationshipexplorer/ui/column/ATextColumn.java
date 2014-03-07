@@ -35,6 +35,54 @@ public abstract class ATextColumn extends AEntityColumn {
 
 	// protected Map<Object, Set<NestableItem>> mapIDToItems = new HashMap<>();
 
+	protected static final int MIN_TEXT_WIDTH = 150;
+	protected static final int ITEM_HEIGHT = 16;
+
+	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
+
+		@Override
+		public int compare(NestableItem o1, NestableItem o2) {
+			MinSizeTextElement r1 = (MinSizeTextElement) o1.getElement();
+			MinSizeTextElement r2 = (MinSizeTextElement) o2.getElement();
+			return r1.getLabel().compareTo(r2.getLabel());
+		}
+
+		@Override
+		public String toString() {
+			return "Alphabetical";
+		}
+	};
+
+	public class MinSizeTextElement extends GLElement implements ILabeled {
+
+		private String text;
+		private Vec2f minSize;
+
+		public MinSizeTextElement(String text) {
+			super(GLRenderers.drawText(text));
+			this.text = text;
+		}
+
+		@Override
+		public Vec2f getMinSize() {
+			return minSize;
+		}
+
+		/**
+		 * @param minSize
+		 *            setter, see {@link minSize}
+		 */
+		public void setMinSize(Vec2f minSize) {
+			this.minSize = minSize;
+		}
+
+		@Override
+		public String getLabel() {
+			return text;
+		}
+
+	}
+
 	/**
 	 * @param relationshipExplorer
 	 */
@@ -67,68 +115,6 @@ public abstract class ATextColumn extends AEntityColumn {
 				});
 			}
 		});
-	}
-
-	protected static final int MIN_TEXT_WIDTH = 150;
-	protected static final int ITEM_HEIGHT = 16;
-
-	// protected class TextComparator implements Comparator<GLElement> {
-	//
-	// private final ATextColumn column;
-	//
-	// public TextComparator(ATextColumn column) {
-	// this.column = column;
-	// }
-	//
-	// @Override
-	// public int compare(GLElement arg0, GLElement arg1) {
-	//
-	// MinSizeTextElement r1 = column.asMinSizeTextElement(arg0);
-	// MinSizeTextElement r2 = column.asMinSizeTextElement(arg1);
-	// return r1.getLabel().compareTo(r2.getLabel());
-	// }
-	// }
-
-	// protected final TextComparator TEXT_COMPARATOR = new TextComparator(this);
-
-	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
-
-		@Override
-		public int compare(NestableItem o1, NestableItem o2) {
-			MinSizeTextElement r1 = (MinSizeTextElement) o1.getElement();
-			MinSizeTextElement r2 = (MinSizeTextElement) o2.getElement();
-			return r1.getLabel().compareTo(r2.getLabel());
-		}
-	};
-
-	public class MinSizeTextElement extends GLElement implements ILabeled {
-
-		private String text;
-		private Vec2f minSize;
-
-		public MinSizeTextElement(String text) {
-			super(GLRenderers.drawText(text));
-			this.text = text;
-		}
-
-		@Override
-		public Vec2f getMinSize() {
-			return minSize;
-		}
-
-		/**
-		 * @param minSize
-		 *            setter, see {@link minSize}
-		 */
-		public void setMinSize(Vec2f minSize) {
-			this.minSize = minSize;
-		}
-
-		@Override
-		public String getLabel() {
-			return text;
-		}
-
 	}
 
 	// @SuppressWarnings("unchecked")

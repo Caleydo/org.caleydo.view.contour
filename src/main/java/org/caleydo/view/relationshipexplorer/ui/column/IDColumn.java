@@ -65,6 +65,11 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 			MinSizeTextElement r2 = (MinSizeTextElement) arg1.getElement();
 			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
 		}
+
+		@Override
+		public String toString() {
+			return "Item ID";
+		}
 	};
 
 	public IDColumn(IDCollection idCollection, RelationshipExplorerElement relationshipExplorer) {

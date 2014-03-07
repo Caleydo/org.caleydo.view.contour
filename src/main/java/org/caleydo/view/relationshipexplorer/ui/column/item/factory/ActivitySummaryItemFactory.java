@@ -15,11 +15,9 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.function.ArrayDoubleList;
 import org.caleydo.core.util.function.IDoubleList;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
-import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
@@ -66,8 +64,8 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 			return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
 
 		GLPadding padding = new GLPadding(2, 0);
-		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 1, padding));
-		container.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(container, 1, padding));
+		// GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 1, padding));
+		// container.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(container, 1, padding));
 
 		Set<Object> allElementIDs = EntityMappingUtil.getAllMappedElementIDs(parentItem.getElementData(), column
 				.getParentColumn().getColumnModel().getCollection(), collection);
@@ -76,21 +74,21 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 			filteredElementIDs.addAll(item.getElementData());
 		}
 
-		container.add(getBoxPlot("All", getValues(allElementIDs), Color.LIGHT_GRAY));
-		container.add(getBoxPlot("Filtered", getValues(filteredElementIDs), Color.GRAY));
+		// container.add(getBoxPlot("All", getValues(allElementIDs), Color.LIGHT_GRAY));
+		// container.add(getBoxPlot("Filtered", getValues(filteredElementIDs), Color.GRAY));
 
 		// AdvancedDoubleStatistics normalizedStats = AdvancedDoubleStatistics.of(normalizedValues);
 
-		// IC50SummaryRenderer renderer = new IC50SummaryRenderer(allElementIDs, filteredElementIDs);
-		// renderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
+		IC50SummaryRenderer renderer = new IC50SummaryRenderer(allElementIDs, filteredElementIDs);
+		renderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
 		// container.add(renderer);
 
 		// renderer = new IC50SummaryRenderer(allElementIDs, filteredElementIDs);
 		// renderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
 		// container.add(renderer);
 
-		return container;
-		// return renderer;
+		// return container;
+		return renderer;
 	}
 
 	protected GLElement getBoxPlot(String label, IDoubleList values, Color color) {

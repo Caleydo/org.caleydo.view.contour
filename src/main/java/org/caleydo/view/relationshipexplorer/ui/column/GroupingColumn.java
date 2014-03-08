@@ -53,7 +53,7 @@ public class GroupingColumn extends ATextColumn {
 		this.perspective = groupCollection.getPerspective();
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
-		currentComparator = getDefaultComparator();
+		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
 	// @Override

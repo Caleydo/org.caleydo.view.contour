@@ -16,6 +16,7 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.column.SortingEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn.ISelectionUpdateListener;
 
@@ -57,6 +58,8 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 	public List<GLElement> getHeaderOverlayElements();
 
 	public void onAttributeFilter(AttributeFilterEvent event);
+
+	public void onSort(SortingEvent event);
 
 	public void onHandleContextMenuOperation(ContextMenuCommandEvent event);
 

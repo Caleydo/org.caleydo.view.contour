@@ -25,14 +25,22 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.SelectionMappingComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMappingComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MedianSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddChildColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
 /**
  * @author Christian
@@ -130,7 +138,10 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 				relationshipExplorer.getHistory());
 		initCommand.add(c);
-		c.execute();
+		NestableColumn childColumn = (NestableColumn) c.execute();
+
+		addDefaultSortingCommand(relationshipExplorer, pathwayColumn.getRootColumn().getColumnModel(),
+				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
@@ -141,7 +152,10 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		c = new AddChildColumnCommand(activityCollection, geneColumn.getRootColumn().getColumnModel().getHistoryID(),
 				relationshipExplorer.getHistory());
 		initCommand.add(c);
-		c.execute();
+		childColumn = (NestableColumn) c.execute();
+
+		addDefaultSortingCommand(relationshipExplorer, geneColumn.getRootColumn().getColumnModel(),
+				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
@@ -152,7 +166,10 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		c = new AddChildColumnCommand(activityCollection, compoundColumn.getRootColumn().getColumnModel()
 				.getHistoryID(), relationshipExplorer.getHistory());
 		initCommand.add(c);
-		c.execute();
+		childColumn = (NestableColumn) c.execute();
+
+		addDefaultSortingCommand(relationshipExplorer, compoundColumn.getRootColumn().getColumnModel(),
+				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
@@ -160,10 +177,13 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		initCommand.add(c);
 		ColumnTree fingerprintColumn = (ColumnTree) c.execute();
 
-		c = new AddChildColumnCommand(clusterCollection, fingerprintColumn.getRootColumn().getColumnModel()
+		c = new AddChildColumnCommand(compoundCollection, fingerprintColumn.getRootColumn().getColumnModel()
 				.getHistoryID(), relationshipExplorer.getHistory());
 		initCommand.add(c);
-		c.execute();
+		childColumn = (NestableColumn) c.execute();
+
+		addDefaultSortingCommand(relationshipExplorer, fingerprintColumn.getRootColumn().getColumnModel(),
+				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
@@ -183,12 +203,28 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		initCommand.add(c);
 		c.execute();
 
+		addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
+				fCol.getColumnModel(), initCommand);
+
 		relationshipExplorer.getHistory().setInitCommand(initCommand);
 		// clusterColumn.addNestedColumn(fingerCol, clusterColumn.getRootColumn());
 		//
 		// relationshipExplorer.addColumn(clusterColumn);
 
 		return relationshipExplorer;
+	}
+
+	protected void addDefaultSortingCommand(RelationshipExplorerElement relationshipExplorer,
+			IColumnModel parentColumn, IColumnModel childColumn, CompositeHistoryCommand initCommand) {
+		CompositeComparator<NestableItem> comparator = new CompositeComparator<>(
+				ItemComparators.SELECTED_ITEMS_COMPARATOR, new SelectionMappingComparator(childColumn,
+						relationshipExplorer.getHistory()), new VisibleMappingComparator(childColumn,
+						relationshipExplorer.getHistory()), new TotalMappingComparator(childColumn,
+						relationshipExplorer.getHistory()));
+
+		ColumnSortingCommand c = new ColumnSortingCommand(parentColumn, comparator, relationshipExplorer.getHistory());
+		c.execute();
+		initCommand.add(c);
 	}
 
 	protected GroupCollection getClusterColumn(RelationshipExplorerElement relationshipExplorer) {

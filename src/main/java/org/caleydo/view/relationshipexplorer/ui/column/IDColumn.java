@@ -80,7 +80,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 
 		mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
 		elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
-		currentComparator = getDefaultComparator();
+		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
 	// @ListenTo

@@ -30,6 +30,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
+import org.caleydo.view.relationshipexplorer.ui.column.SortingEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
@@ -115,6 +116,14 @@ public class ColumnTree extends AnimatedGLElementContainer {
 			IColumnModel model = findReceiver(event.getReceiver());
 			if (model != null) {
 				model.onAttributeFilter(event);
+			}
+		}
+
+		@ListenTo
+		public void onSort(SortingEvent event) {
+			IColumnModel model = findReceiver(event.getReceiver());
+			if (model != null) {
+				model.onSort(event);
 			}
 		}
 

@@ -227,4 +227,11 @@ public class NestableItem extends AnimatedGLElementContainer {
 	public boolean isRemoved() {
 		return removed;
 	}
+
+	/**
+	 * @return the column, see {@link #column}
+	 */
+	public NestableColumn getColumn() {
+		return column;
+	}
 }

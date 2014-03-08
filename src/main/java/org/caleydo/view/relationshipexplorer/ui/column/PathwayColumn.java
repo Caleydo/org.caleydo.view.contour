@@ -35,7 +35,7 @@ public class PathwayColumn extends ATextColumn {
 	public PathwayColumn(PathwayCollection pathwayCollection, RelationshipExplorerElement relationshipExplorer) {
 		super(pathwayCollection, relationshipExplorer);
 		this.pathwayCollection = pathwayCollection;
-		currentComparator = getDefaultComparator();
+		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
 	// @ListenTo

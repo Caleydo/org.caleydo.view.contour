@@ -127,7 +127,7 @@ public class TabularDataColumn extends AEntityColumn {
 			}
 		});
 
-		currentComparator = getDefaultComparator();
+		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 		// this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
 		//
 		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {

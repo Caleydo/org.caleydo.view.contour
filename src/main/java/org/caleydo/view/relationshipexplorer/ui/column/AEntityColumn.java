@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
@@ -36,6 +37,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
@@ -48,13 +50,10 @@ import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
-import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 import org.eclipse.jface.window.Window;
-import org.eclipse.nebula.widgets.nattable.util.ComparatorChain;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 /**
@@ -96,147 +95,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	protected Set<Comparator<NestableItem>> baseComparators = new HashSet<>();
 	protected Comparator<NestableItem> currentComparator;
 
+	protected boolean initialized = false;
+
 	// -----------------
-
-	// protected KeyBasedGLElementContainer<GLElement> header;
-	// // protected GLElementContainer buttonBar;
-	//
-	// protected GLElementList itemList = new GLElementList();
-	// protected BiMap<Object, GLElement> mapIDToElement = HashBiMap.create();
-	//
-	// protected Set<Object> selectedElementIDs = new HashSet<>();
-	// protected Set<Object> highlightElementIDs = new HashSet<>();
-	// protected Map<Object, GLElement> mapFilteredElements = new HashMap<>();
 	protected RelationshipExplorerElement relationshipExplorer;
-
-	// protected Comparator<GLElement> currentComparator;
-
-	// protected static class MappingBarComparator implements Comparator<GLElement> {
-	//
-	// private final Object key;
-	//
-	// public MappingBarComparator(Object key) {
-	// this.key = key;
-	// }
-	//
-	// @Override
-	// public int compare(GLElement el1, GLElement el2) {
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<SimpleBarRenderer> layeredBars1 = (KeyBasedGLElementContainer<SimpleBarRenderer>)
-	// ((KeyBasedGLElementContainer<GLElement>) el1)
-	// .getElement(MAPPING_KEY);
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<SimpleBarRenderer> layeredBars2 = (KeyBasedGLElementContainer<SimpleBarRenderer>)
-	// ((KeyBasedGLElementContainer<GLElement>) el2)
-	// .getElement(MAPPING_KEY);
-	//
-	// return Float.compare(layeredBars2.getElement(key).getNormalizedValue(), layeredBars1.getElement(key)
-	// .getNormalizedValue());
-	// }
-	// }
-
-	public final Comparator<NestableItem> SELECTED_ITEMS_COMPARATOR = new Comparator<NestableItem>() {
-
-		@Override
-		public int compare(NestableItem o1, NestableItem o2) {
-			if (o1.isSelected() && !o2.isSelected()) {
-				return -1;
-			}
-			if (!o1.isSelected() && o2.isSelected()) {
-				return 1;
-			}
-
-			return 0;
-		}
-
-		@Override
-		public String toString() {
-			return "Item Selection";
-		}
-	};
-
-	protected abstract class AMappingComparator implements Comparator<NestableItem> {
-
-		@Override
-		public int compare(NestableItem o1, NestableItem o2) {
-
-			List<NestableColumn> childColumns = column.getChildren();
-			if (childColumns.isEmpty())
-				return 0;
-
-			NestableColumn mappingChildColumn = childColumns.get(0);
-			return getNumChildMappings(o2, mappingChildColumn) - getNumChildMappings(o1, mappingChildColumn);
-		}
-
-		protected abstract int getNumChildMappings(NestableItem parent, NestableColumn childColumn);
-	}
-
-	protected class SelectionMappingComparator extends AMappingComparator {
-
-		@Override
-		protected int getNumChildMappings(NestableItem parent, NestableColumn childColumn) {
-			List<NestableItem> childItems = parent.getChildItems(childColumn);
-			Set<Object> elementIDs = new HashSet<>(childItems.size());
-			for (NestableItem item : childItems) {
-				if (item.isSelected()) {
-					elementIDs.addAll(item.getElementData());
-				}
-			}
-			return elementIDs.size();
-		}
-	}
-
-	protected class VisibleMappingComparator extends AMappingComparator {
-
-		@Override
-		protected int getNumChildMappings(NestableItem parent, NestableColumn childColumn) {
-			List<NestableItem> childItems = parent.getChildItems(childColumn);
-			Set<Object> elementIDs = new HashSet<>(childItems.size());
-			for (NestableItem item : childItems) {
-				elementIDs.addAll(item.getElementData());
-			}
-			return elementIDs.size();
-		}
-	}
-
-	protected class TotalMappingComparator extends AMappingComparator {
-
-		@Override
-		protected int getNumChildMappings(NestableItem parent, NestableColumn childColumn) {
-			Set<Object> mappedIDs = EntityMappingUtil.getAllMappedElementIDs(parent.getElementData(), entityCollection,
-					childColumn.getColumnModel().getCollection());
-			return mappedIDs.size();
-		}
-	}
-
-	protected final SelectionMappingComparator selectionMappingComparator = new SelectionMappingComparator();
-	protected final VisibleMappingComparator visibleMappingComparator = new VisibleMappingComparator();
-	protected final TotalMappingComparator totalMappingComparator = new TotalMappingComparator();
-
-	// public static final MappingBarComparator SELECTED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
-	// SELECTED_ELEMENTS_KEY);
-	// public static final MappingBarComparator FILTERED_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
-	// FILTERED_ELEMENTS_KEY);
-	// public static final MappingBarComparator ALL_FOREIGN_ELEMENTS_COMPARATOR = new MappingBarComparator(
-	// ALL_ELEMENTS_KEY);
-	//
-	// public final Comparator<GLElement> SELECTED_ELEMENTS_COMPARATOR = new Comparator<GLElement>() {
-	//
-	// @Override
-	// public int compare(GLElement o1, GLElement o2) {
-	// boolean o1Selected = itemList.isSelected(o1);
-	// boolean o2Selected = itemList.isSelected(o2);
-	//
-	// if (o1Selected && !o2Selected) {
-	// return -1;
-	// }
-	// if (!o1Selected && o2Selected) {
-	// return 1;
-	// }
-	//
-	// return 0;
-	// }
-	// };
 
 	public AEntityColumn(IEntityCollection entityCollection, RelationshipExplorerElement relationshipExplorer) {
 		// super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
@@ -262,8 +124,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
 						SortingDialog dialog = new SortingDialog(canvas.getShell(), AEntityColumn.this);
 						if (dialog.open() == Window.OK) {
-							// IEntityFilter filter = dialog.getFilter();
-							// EventPublisher.trigger(new AttributeFilterEvent(filter).to(TabularDataColumn.this));
+							Comparator<NestableItem> comparator = dialog.getComparator();
+							EventPublisher.trigger(new SortingEvent(comparator).to(AEntityColumn.this));
 						}
 					}
 				});
@@ -272,13 +134,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void init() {
-		baseComparators.add(SELECTED_ITEMS_COMPARATOR);
+		// baseComparators.add(ItemComparators.SELECTED_ITEMS_COMPARATOR);
 		baseComparators.add(getDefaultComparator());
-		currentComparator = new ComparatorChain<NestableItem>(Lists.newArrayList(SELECTED_ITEMS_COMPARATOR,
-				selectionMappingComparator, visibleMappingComparator, totalMappingComparator, getDefaultComparator()));
+		// currentComparator = new CompositeComparator<NestableItem>(ItemComparators.SELECTED_ITEMS_COMPARATOR,
+		// selectionMappingComparator, visibleMappingComparator, totalMappingComparator, getDefaultComparator());
+		initialized = true;
 	}
 
 	protected GLButton addHeaderButton(URL iconURL) {
@@ -1047,7 +909,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void sortBy(Comparator<NestableItem> comparator) {
-		column.sortBy(comparator);
+		currentComparator = comparator;
+		if (initialized)
+			column.sortBy(comparator);
 	}
 
 	@Override
@@ -1083,6 +947,15 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	public void addComparator(Comparator<NestableItem> comparator) {
 		baseComparators.add(comparator);
+	}
+
+	@Override
+	public void onSort(SortingEvent event) {
+		ColumnSortingCommand c = new ColumnSortingCommand(this, event.getComparator(),
+				relationshipExplorer.getHistory());
+		c.execute();
+		relationshipExplorer.getHistory().addHistoryCommand(c, Color.MAGENTA);
+
 	}
 
 	protected abstract GLElement createElement(Object elementID);

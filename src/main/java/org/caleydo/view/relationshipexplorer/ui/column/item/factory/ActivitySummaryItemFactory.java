@@ -6,30 +6,30 @@
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.NumericalProperties;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.function.AdvancedDoubleStatistics;
 import org.caleydo.core.util.function.ArrayDoubleList;
+import org.caleydo.core.util.function.DoubleFunctions;
+import org.caleydo.core.util.function.IDoubleIterator;
 import org.caleydo.core.util.function.IDoubleList;
+import org.caleydo.core.util.function.IInvertableDoubleFunction;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext.Builder;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
-
-import com.google.common.base.Predicate;
 
 /**
  * @author Christian
@@ -64,8 +64,8 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 			return new GLElement(GLRenderers.drawText("Summary of " + items.size()));
 
 		GLPadding padding = new GLPadding(2, 0);
-		// GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 1, padding));
-		// container.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(container, 1, padding));
+		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 1, padding));
+		container.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(container, 1, padding));
 
 		Set<Object> allElementIDs = EntityMappingUtil.getAllMappedElementIDs(parentItem.getElementData(), column
 				.getParentColumn().getColumnModel().getCollection(), collection);
@@ -74,56 +74,59 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 			filteredElementIDs.addAll(item.getElementData());
 		}
 
-		// container.add(getBoxPlot("All", getValues(allElementIDs), Color.LIGHT_GRAY));
-		// container.add(getBoxPlot("Filtered", getValues(filteredElementIDs), Color.GRAY));
+		container.add(getBoxPlot("All", getValues(allElementIDs), Color.LIGHT_GRAY));
+		container.add(getBoxPlot("Filtered", getValues(filteredElementIDs), Color.GRAY));
 
 		// AdvancedDoubleStatistics normalizedStats = AdvancedDoubleStatistics.of(normalizedValues);
 
-		IC50SummaryRenderer renderer = new IC50SummaryRenderer(allElementIDs, filteredElementIDs);
-		renderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
+		// IC50SummaryRenderer renderer = new IC50SummaryRenderer(allElementIDs, filteredElementIDs);
+		// renderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
 		// container.add(renderer);
-
+		//
 		// renderer = new IC50SummaryRenderer(allElementIDs, filteredElementIDs);
 		// renderer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
 		// container.add(renderer);
 
-		// return container;
-		return renderer;
+		return container;
+		// return renderer;
 	}
 
 	protected GLElement getBoxPlot(String label, IDoubleList values, Color color) {
 
 		Float max = numericalProperties.getMax();
 		Float min = numericalProperties.getMin();
+		BoxPlot p = new BoxPlot(values, min != null ? min : Float.NaN, max != null ? max : Float.NaN, color, label);
+		p.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
+		return p;
 
 		// return new ListBoxAndWhiskersElement(values, EDetailLevel.LOW, EDimension.DIMENSION, false, false, label,
-		// color, min != null ? min : Float.NaN, max != null ? max : Float.NaN);
+		// color, min != null ? min : Float.NaN, max != null ? max : Float.NaN, GLPadding.ZERO);
 
-		Builder b = GLElementFactoryContext.builder().put(IDoubleList.class, values).put("label", label)
-				.put("color", color);
-		if (max != null)
-			b.put("max", max);
-		if (min != null)
-			b.put("min", min);
-		GLElementFactoryContext context = b.build();
-
-		List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
-				new Predicate<String>() {
-
-					@Override
-					public boolean apply(String input) {
-						return input.equals("boxandwhiskers");
-					}
-				});
-
-		if (!suppliers.isEmpty()) {
-			GLElement plot = suppliers.get(0).get();
-			// plot.setSize(80, 16);
-			plot.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
-			return plot;
-		}
-
-		return null;
+		// Builder b = GLElementFactoryContext.builder().put(IDoubleList.class, values).put("label", label)
+		// .put("color", color);
+		// if (max != null)
+		// b.put("max", max);
+		// if (min != null)
+		// b.put("min", min);
+		// GLElementFactoryContext context = b.build();
+		//
+		// List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
+		// new Predicate<String>() {
+		//
+		// @Override
+		// public boolean apply(String input) {
+		// return input.equals("boxandwhiskers");
+		// }
+		// });
+		//
+		// if (!suppliers.isEmpty()) {
+		// GLElement plot = suppliers.get(0).get();
+		// // plot.setSize(80, 16);
+		// // plot.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(80, 16));
+		// return plot;
+		// }
+		//
+		// return null;
 	}
 
 	protected IDoubleList getValues(Set<Object> elementIDs) {
@@ -149,7 +152,152 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 
 	}
 
-	protected class IC50SummaryRenderer extends GLElement {
+	// FIXME: This is in the end a duplicate of the ABoxAndWhiskersPlot, however using this implementation is 5 times
+	// faster, don't know why yet.
+	protected class BoxPlot extends PickableGLElement {
+
+		private static final float BOX_HEIGHT_PERCENTAGE = 1 / 3.f;
+		private static final float LINE_TAIL_HEIGHT_PERCENTAGE = 0.75f;
+
+		/**
+		 * value which is just above the <code>25 quartile - iqr*1.5</code> margin
+		 */
+		private double nearestIQRMin;
+		/**
+		 * value which is just below the <code>75 quartile + iqr*1.5</code> margin
+		 */
+		private double nearestIQRMax;
+
+		// private IDoubleList outliers;
+		// private final boolean showOutlier;
+		// private final boolean showMinMax;
+		// private boolean showScale = false;
+
+		private AdvancedDoubleStatistics stats;
+		protected IInvertableDoubleFunction normalize;
+		protected Color color;
+		protected String label;
+
+		public BoxPlot(IDoubleList data, double min, double max, Color color, String label) {
+			this.color = color;
+			this.label = label;
+			setData(data, min, max);
+		}
+
+		public void setData(IDoubleList list, double min, double max) {
+			this.stats = AdvancedDoubleStatistics.of(list);
+			updateIQRMatches(list);
+			min = Double.isNaN(min) ? stats.getMin() : min;
+			max = Double.isNaN(max) ? stats.getMax() : max;
+			normalize = DoubleFunctions.normalize(min, max);
+			repaint();
+		}
+
+		private void updateIQRMatches(IDoubleList l) {
+			final double lowerIQRBounds = stats.getQuartile25() - stats.getIQR() * 1.5;
+			final double upperIQRBounds = stats.getQuartile75() + stats.getIQR() * 1.5;
+
+			if (l == null) { // invalid raw data
+				nearestIQRMin = lowerIQRBounds;
+				nearestIQRMax = upperIQRBounds;
+				// outliers = null;
+				return;
+			}
+
+			nearestIQRMin = upperIQRBounds;
+			nearestIQRMax = lowerIQRBounds;
+
+			// values which are out of the iqr bounds
+			// List<Double> outliers = new ArrayList<>();
+
+			// find the values which are at the within iqr bounds
+			for (IDoubleIterator it = l.iterator(); it.hasNext();) {
+				double v = it.nextPrimitive();
+				if (Double.isNaN(v))
+					continue;
+				if (v > lowerIQRBounds && v < nearestIQRMin)
+					nearestIQRMin = v;
+				if (v < upperIQRBounds && v > nearestIQRMax)
+					nearestIQRMax = v;
+				// optionally compute the outliers
+				// if (showOutlier && (v < lowerIQRBounds || v > upperIQRBounds))
+				// outliers.add(v);
+			}
+			// this.outliers = new ArrayDoubleList(Doubles.toArray(outliers));
+		}
+
+		@Override
+		public String getTooltip() {
+			if (stats == null)
+				return null;
+			StringBuilder b = new StringBuilder();
+			b.append(label).append('\n');
+			b.append(String.format("%s:\t%d", "count", stats.getN()));
+			if (stats.getNaNs() > 0) {
+				b.append(String.format("(+%d invalid)\n", stats.getNaNs()));
+			} else
+				b.append('\n');
+			b.append(String.format("%s:\t%.3f\n", "median", stats.getMedian()));
+			b.append(String.format("%s:\t%.3f\n", "mean", stats.getMean()));
+			b.append(String.format("%s:\t%.3f\n", "median", stats.getMedian()));
+			b.append(String.format("%s:\t%.3f\n", "sd", stats.getSd()));
+			b.append(String.format("%s:\t%.3f\n", "var", stats.getVar()));
+			b.append(String.format("%s:\t%.3f\n", "mad", stats.getMedianAbsoluteDeviation()));
+			b.append(String.format("%s:\t%.3f\n", "min", stats.getMin()));
+			b.append(String.format("%s:\t%.3f", "max", stats.getMax()));
+			return b.toString();
+		}
+
+		@Override
+		protected void renderImpl(GLGraphics g, float w, float h) {
+			final float hi = h * BOX_HEIGHT_PERCENTAGE;
+			final float y = (h - hi) * 0.5f;
+			final float center = h / 2;
+
+			{
+				final float firstQuantrileBoundary = (float) (normalize.apply(stats.getQuartile25())) * w;
+				final float thirdQuantrileBoundary = (float) (normalize.apply(stats.getQuartile75())) * w;
+
+				g.color(color).fillRect(firstQuantrileBoundary, y, thirdQuantrileBoundary - firstQuantrileBoundary, hi);
+				g.color(Color.BLACK).drawRect(firstQuantrileBoundary, y,
+						thirdQuantrileBoundary - firstQuantrileBoundary, hi);
+
+				final float iqrMin = (float) normalize.apply(nearestIQRMin) * w;
+				final float iqrMax = (float) normalize.apply(nearestIQRMax) * w;
+
+				// Median
+				float median = (float) normalize.apply(stats.getMedian()) * w;
+				g.color(0.2f, 0.2f, 0.2f).drawLine(median, y, median, y + hi);
+
+				// Whiskers
+				g.color(0, 0, 0);
+				// line to whiskers
+				g.drawLine(iqrMin, center, firstQuantrileBoundary, center);
+				g.drawLine(iqrMax, center, thirdQuantrileBoundary, center);
+
+				float h_whiskers = hi * LINE_TAIL_HEIGHT_PERCENTAGE;
+				g.drawLine(iqrMin, center - h_whiskers * 0.5f, iqrMin, center + h_whiskers * 0.5f);
+				g.drawLine(iqrMax, center - h_whiskers * 0.5f, iqrMax, center + h_whiskers * 0.5f);
+			}
+			//
+			// renderOutliers(g, w, hi, center, normalize);
+			//
+			// if (showMinMax) {
+			// g.gl.glPushAttrib(GL2.GL_POINT_BIT);
+			// g.gl.glPointSize(2f);
+			// g.color(0f, 0f, 0f, 1f);
+			// float min = (float) normalize.apply(stats.getMin()) * w;
+			// float max = (float) normalize.apply(stats.getMax()) * w;
+			// g.drawPoint(min, center);
+			// g.drawPoint(max, center);
+			// g.gl.glPopAttrib();
+			// }
+
+		}
+
+	}
+
+	protected class IC50SummaryRenderer extends PickableGLElement {
 
 		protected final Set<Object> filteredElementIDs;
 		protected final Set<Object> allElementIDs;
@@ -160,6 +308,7 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 		public IC50SummaryRenderer(Set<Object> allElementIDs, Set<Object> filteredElementIDs) {
 			this.allElementIDs = allElementIDs;
 			this.filteredElementIDs = filteredElementIDs;
+			setTooltip("holadrio");
 		}
 
 		@Override
@@ -189,11 +338,12 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 			// g.drawLine(0, h, w, h);
 
 		}
+
 	}
 
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
-		return true;
+		return cause != EUpdateCause.SELECTION;
 	}
 
 }

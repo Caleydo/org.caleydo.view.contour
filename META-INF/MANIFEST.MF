@@ -13,3 +13,4 @@ Bundle-Vendor: www.caleydo.org
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.caleydo.view.relationshipexplorer.internal.Activator
 Export-Package: org.caleydo.view.relationshipexplorer.ui
+Import-Package: org.caleydo.view.histogram.v2

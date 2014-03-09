@@ -50,6 +50,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
+import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -670,14 +671,32 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
 
+				boolean add = true;
 				for (NestableItem parentItem : parentItems) {
-					GLElement element = createElement(id);
-					if (element != null) {
-						addItem(element, id, column, parentItem);
+					if (parentItem.getParentItem() != null) {
+						add = hasParentItemElementMapping(parentItem.getParentItem(), foreignElementIDs);
+					}
+
+					if (add) {
+						GLElement element = createElement(id);
+						if (element != null) {
+							addItem(element, id, column, parentItem);
+						}
 					}
 				}
 			}
 		}
+	}
+
+	protected boolean hasParentItemElementMapping(NestableItem parentItem, Object id) {
+
+		Set<Object> mappingIDs = EntityMappingUtil.getFilteredMappedElementIDs(parentItem.getElementData(), parentItem
+				.getColumn().getColumnModel().getCollection(), entityCollection);
+		if (!mappingIDs.contains(id))
+			return false;
+		if (parentItem.getParentItem() == null)
+			return true;
+		return hasParentItemElementMapping(parentItem.getParentItem(), id);
 	}
 
 	@Override
@@ -714,6 +733,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		updateChildColumnSelections(srcRep);
 
+		column.getHeader().updateItemCounts();
 		if (srcRep == this)
 			return;
 		if (srcRep instanceof IColumnModel) {
@@ -853,6 +873,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		updateChildColumnFilters(srcRep);
 		column.updateSummaryItems(EUpdateCause.FILTER);
+		column.getHeader().updateItemCounts();
 
 		if (srcRep == this)
 			return;

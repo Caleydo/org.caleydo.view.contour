@@ -23,6 +23,8 @@ public class SimpleBarRenderer extends PickableGLElement {
 	private Color color = Color.GRAY;
 	private Vec2f minSize = new Vec2f(0, 0);
 	private float barWidth = Float.NaN;
+	private boolean showTooltip;
+	private float maximumWidthPercentage = 0.9f;
 
 	/**
 	 *
@@ -30,7 +32,7 @@ public class SimpleBarRenderer extends PickableGLElement {
 	public SimpleBarRenderer() {
 	}
 
-	public SimpleBarRenderer(float value, boolean isHorizontal) {
+	public SimpleBarRenderer(float value, boolean isHorizontal, boolean showTooltip) {
 		this.normalizedValue = value;
 		this.isHorizontal = isHorizontal;
 	}
@@ -42,7 +44,7 @@ public class SimpleBarRenderer extends PickableGLElement {
 			if (!Float.isNaN(barWidth)) {
 				posY = (h - barWidth) / 2.0f;
 			}
-			float barSize = w * 0.9f * normalizedValue;
+			float barSize = w * maximumWidthPercentage * normalizedValue;
 			if (Float.compare(normalizedValue, 0) > 0) {
 				barSize = Math.max(barSize, 2);
 			}
@@ -54,12 +56,20 @@ public class SimpleBarRenderer extends PickableGLElement {
 			if (!Float.isNaN(barWidth)) {
 				posX = (w - barWidth) / 2.0f;
 			}
-			float barSize = h * 0.9f * normalizedValue;
+			float barSize = h * maximumWidthPercentage * normalizedValue;
 			if (Float.compare(normalizedValue, 0) > 0) {
 				barSize = Math.max(barSize, 2);
 			}
 			g.color(color).fillRect(posX, 0, Float.isNaN(barWidth) ? w : barWidth, barSize);
 		}
+	}
+
+	/**
+	 * @param maximumWidthPercentage
+	 *            setter, see {@link maximumWidthPercentage}
+	 */
+	public void setMaximumWidthPercentage(float maximumWidthPercentage) {
+		this.maximumWidthPercentage = maximumWidthPercentage;
 	}
 
 	@Override
@@ -147,7 +157,8 @@ public class SimpleBarRenderer extends PickableGLElement {
 	 */
 	public void setValue(float value) {
 		this.value = value;
-		setTooltip(String.valueOf(value));
+		if (showTooltip)
+			setTooltip(String.valueOf(value));
 	}
 
 	/**

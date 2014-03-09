@@ -135,13 +135,21 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		initCommand.add(c);
 		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
-		c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
+		c = new AddChildColumnCommand(clusterCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 				relationshipExplorer.getHistory());
 		initCommand.add(c);
 		NestableColumn childColumn = (NestableColumn) c.execute();
 
 		addDefaultSortingCommand(relationshipExplorer, pathwayColumn.getRootColumn().getColumnModel(),
 				childColumn.getColumnModel(), initCommand);
+
+		// c = new AddChildColumnCommand(compoundCollection, childColumn.getColumnModel().getHistoryID(),
+		// relationshipExplorer.getHistory());
+		// initCommand.add(c);
+		// childColumn = (NestableColumn) c.execute();
+
+		// addDefaultSortingCommand(relationshipExplorer, childColumn.getColumnModel(),
+		// childColumn.getColumnModel(), initCommand);
 
 		// ----
 
@@ -207,6 +215,11 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 				fCol.getColumnModel(), initCommand);
 
 		relationshipExplorer.getHistory().setInitCommand(initCommand);
+
+		// System.out.println("Before overlap computation");
+		// List<MappingOverlap> overlaps = EntityMappingUtil.getMappingOverlap(pathwayCollection, clusterCollection,
+		// compoundCollection);
+		// System.out.println("Overlap size: " + overlaps.size());
 		// clusterColumn.addNestedColumn(fingerCol, clusterColumn.getRootColumn());
 		//
 		// relationshipExplorer.addColumn(clusterColumn);

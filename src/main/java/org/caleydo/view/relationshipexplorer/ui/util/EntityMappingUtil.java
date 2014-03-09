@@ -5,7 +5,12 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
@@ -46,4 +51,42 @@ public final class EntityMappingUtil {
 		return new HashSet<>(Sets.intersection(targetCollection.getFilteredElementIDs(), allIDs));
 	}
 
+	public static class MappingOverlap {
+		public Object elementID1;
+		public Object elementID2;
+		public Set<Object> overlap;
+
+		public MappingOverlap(Object elementID1, Object elementID2, Set<Object> overlap) {
+			this.elementID1 = elementID1;
+			this.elementID2 = elementID2;
+			this.overlap = overlap;
+		}
+	}
+
+	public static List<MappingOverlap> getMappingOverlap(IEntityCollection pathwayCollection,
+			IEntityCollection clusterCollection, IEntityCollection compoundCollection) {
+
+		Map<Object, Set<Object>> pathwaysToCompounds = new HashMap<>();
+
+		for (Object pathway : pathwayCollection.getAllElementIDs()) {
+			pathwaysToCompounds.put(pathway, getAllMappedElementIDs(pathway, pathwayCollection, compoundCollection));
+		}
+
+		Map<Object, Set<Object>> clustersToCompounds = new HashMap<>();
+
+		for (Object cluster : clusterCollection.getAllElementIDs()) {
+			clustersToCompounds.put(cluster, getAllMappedElementIDs(cluster, clusterCollection, compoundCollection));
+		}
+
+		List<MappingOverlap> overlaps = new ArrayList<>(pathwaysToCompounds.size() * clustersToCompounds.size());
+
+		for (Entry<Object, Set<Object>> pathwayEntry : pathwaysToCompounds.entrySet()) {
+			for (Entry<Object, Set<Object>> clusterEntry : clustersToCompounds.entrySet()) {
+				overlaps.add(new MappingOverlap(pathwayEntry.getKey(), clusterEntry.getKey(), Sets.intersection(
+						pathwayEntry.getValue(), clusterEntry.getValue())));
+
+			}
+		}
+		return overlaps;
+	}
 }

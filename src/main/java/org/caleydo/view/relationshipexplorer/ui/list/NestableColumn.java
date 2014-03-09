@@ -131,7 +131,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 					- ColumnTreeRenderStyle.CAPTION_HEIGHT - ColumnTreeRenderStyle.HORIZONTAL_SPACING;
 		}
 
-		AnimationUtil.resizeElement(header.headerItem, headerItemWidth, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+		AnimationUtil.resizeElement(header.headerItem, headerItemWidth, header.headerItem.getMinSize().y());
 		// header.headerItem.setSize(headerItemWidth, ColumnTreeRenderStyle.CAPTION_HEIGHT);
 		header.updateSize();
 
@@ -452,5 +452,12 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 	 */
 	public ColumnTree getColumnTree() {
 		return columnTree;
+	}
+
+	/**
+	 * @return the header, see {@link #header}
+	 */
+	public ColumnHeader getHeader() {
+		return header;
 	}
 }

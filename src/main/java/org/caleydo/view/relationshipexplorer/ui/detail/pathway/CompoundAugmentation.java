@@ -18,12 +18,13 @@ import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
-import org.caleydo.core.view.opengl.layout2.GLGraphics;
-import org.caleydo.core.view.opengl.layout2.geom.Rect;
-import org.caleydo.core.view.opengl.layout2.layout.GLFlowLayout;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.picking.APickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
@@ -35,23 +36,27 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 
+import com.google.common.collect.Sets;
+
 /**
  * @author Alexander Lex
  *
  */
 
-public class CompoundAugmentation extends GLElement implements IEntityRepresentation {
+public class CompoundAugmentation extends GLElementContainer implements IEntityRepresentation {
 
 	class GroupData {
 		Set<Object> allCompounds = new HashSet<>();
 		List<Pair<Object, List<Integer>>> containedCompounds = new ArrayList<>();
 
-		Object groupID;
+		Object fingerPrintIDs;
+		Object group;
 
-		private GroupData(Set<Object> fingerPrints) {
+		private GroupData(Set<Object> fingerPrints, Object group) {
 
+			this.group = group;
 			// Group group = (Group) groupID;
-			this.groupID = fingerPrints;
+			this.fingerPrintIDs = fingerPrints;
 			for (Object fingerPrint : fingerPrints) {
 				Set<Object> compounds = idManager.getIDAsSet(groupIDType, compoundIDType, fingerPrint);
 				if (compounds != null)
@@ -100,7 +105,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 
 	private int overallCompoundSize = 0;
 
-	private GLFlowLayout layout = new GLFlowLayout(false, 1, GLPadding.ONE);
+	private GLSizeRestrictiveFlowLayout layout = new GLSizeRestrictiveFlowLayout(false, 1, GLPadding.ONE);
 	private GLElementContainer glContainer = new GLElementContainer(layout);
 
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
@@ -111,6 +116,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 		this.filteredMapping = filteredMapping;
 		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
 
+		setRenderer(GLRenderers.drawRect(Color.RED));
 
 		updateMapping();
 		setUpLayout();
@@ -145,7 +151,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 		clusterData = new ArrayList<>(groups.size());
 
 		for (Object group : groups) {
-			GroupData gd = new GroupData(groupCollection.getBroadcastingIDsFromElementID(group));
+			GroupData gd = new GroupData(groupCollection.getBroadcastingIDsFromElementID(group), group);
 			clusterData.add(gd);
 			overallCompoundSize += gd.containedCompounds.size();
 
@@ -167,16 +173,11 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 				.getBroadcastingIDsFromElementIDs(groups), this));
 	}
 
+	/** Initialize the layout, called once */
 	private void setUpLayout() {
 
-		// GLFlowLayout layout = new GLFlowLayout(false, 2, GLPadding.ONE);
-		// container = new GLElementContainer(layout);
-		//
-		// Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
-		//
-		// container.setSize(padding, pathwayBounds.height());
-		// container.setLocation(0, 0);
-		//
+		this.setLayout(GLLayouts.flowHorizontal(30));
+		add(glContainer);
 
 		Comparator<GroupData> comparator = new Comparator<GroupData>() {
 			@Override
@@ -187,38 +188,44 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 
 		Collections.sort(clusterData, comparator);
 
-		for (GroupData data : clusterData) {
-			GroupElement element = new GroupElement(data);
+		for (final GroupData data : clusterData) {
+			final GroupElement element = new GroupElement(data);
+			element.onPick(new APickingListener() {
+
+				@Override
+				protected void clicked(Pick pick) {
+					// Set<GroupData> groups = new HashSet<>();
+					// groups.add(element);
+
+					propagateGroupSelection(Sets.newHashSet(data.group));
+					// super.clicked(pick);
+				}
+			});
 			glContainer.add(element);
 		}
 
-		// for (GroupData gd : clusterData) {
-		// // container.add(new GLElement(new CompundGroupRenderer()));
-		//
-		// }
-
-		// for
+		glContainer.setSize(30, 100);
 
 	}
 
-	@Override
-	protected void renderImpl(GLGraphics g, float w, float h) {
-
-		Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
-		g.color(Color.RED)
-				.drawRect(pathwayBounds.x(), pathwayBounds.y(), pathwayBounds.width(), pathwayBounds.height());
-
-		float currentY = 0;
-
-		float heightPerCompound = (pathwayBounds.height() - clusterData.size() * 2) / overallCompoundSize;
-		for (GroupData gd : clusterData) {
-			float height = gd.containedCompounds.size() * heightPerCompound;
-			g.color(Color.BLUE).drawRect(0, currentY, 20, height);
-			currentY += height + 2;
-		}
-		glContainer.render(g);
-
-	}
+	// @Override
+	// protected void renderImpl(GLGraphics g, float w, float h) {
+	//
+	// Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
+	// g.color(Color.RED)
+	// .drawRect(pathwayBounds.x(), pathwayBounds.y(), pathwayBounds.width(), pathwayBounds.height());
+	//
+	// float currentY = 0;
+	//
+	// float heightPerCompound = (pathwayBounds.height() - clusterData.size() * 2) / overallCompoundSize;
+	// for (GroupData gd : clusterData) {
+	// float height = gd.containedCompounds.size() * heightPerCompound;
+	// g.color(Color.BLUE).drawRect(0, currentY, 20, height);
+	// currentY += height + 2;
+	// }
+	// // glContainer.render(g);
+	//
+	// }
 
 	@Override
 	public int getHistoryID() {

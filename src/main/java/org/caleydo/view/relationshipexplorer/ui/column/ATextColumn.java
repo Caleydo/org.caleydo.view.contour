@@ -13,6 +13,7 @@ import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
+import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
@@ -53,13 +54,13 @@ public abstract class ATextColumn extends AEntityColumn {
 		}
 	};
 
-	public class MinSizeTextElement extends GLElement implements ILabeled {
+	public class MinSizeTextElement extends PickableGLElement implements ILabeled {
 
 		private String text;
 		private Vec2f minSize;
 
 		public MinSizeTextElement(String text) {
-			super(GLRenderers.drawText(text));
+			setRenderer(GLRenderers.drawText(text));
 			this.text = text;
 		}
 
@@ -79,6 +80,11 @@ public abstract class ATextColumn extends AEntityColumn {
 		@Override
 		public String getLabel() {
 			return text;
+		}
+
+		@Override
+		public String getTooltip() {
+			return getLabel();
 		}
 
 	}

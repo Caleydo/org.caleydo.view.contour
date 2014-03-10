@@ -22,6 +22,7 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
+import org.caleydo.core.view.opengl.layout2.layout.GLFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.IPathwayRepresentation;
@@ -41,7 +42,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedH
 
 public class CompoundAugmentation extends GLElement implements IEntityRepresentation {
 
-	private class GroupData {
+	class GroupData {
 		Set<Object> allCompounds = new HashSet<>();
 		List<Pair<Object, List<Integer>>> containedCompounds = new ArrayList<>();
 
@@ -97,9 +98,10 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 
 	private Set<Integer> davidIDs;
 
-	private GLElementContainer container;
-
 	private int overallCompoundSize = 0;
+
+	private GLFlowLayout layout = new GLFlowLayout(false, 1, GLPadding.ONE);
+	private GLElementContainer glContainer = new GLElementContainer(layout);
 
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
@@ -108,6 +110,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 				padding));
 		this.filteredMapping = filteredMapping;
 		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
+
 
 		updateMapping();
 		setUpLayout();
@@ -183,6 +186,12 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 		};
 
 		Collections.sort(clusterData, comparator);
+
+		for (GroupData data : clusterData) {
+			GroupElement element = new GroupElement(data);
+			glContainer.add(element);
+		}
+
 		// for (GroupData gd : clusterData) {
 		// // container.add(new GLElement(new CompundGroupRenderer()));
 		//
@@ -207,7 +216,7 @@ public class CompoundAugmentation extends GLElement implements IEntityRepresenta
 			g.color(Color.BLUE).drawRect(0, currentY, 20, height);
 			currentY += height + 2;
 		}
-		// container.render(g);
+		glContainer.render(g);
 
 	}
 

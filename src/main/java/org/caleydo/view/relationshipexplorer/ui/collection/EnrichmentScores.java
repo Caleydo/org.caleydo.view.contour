@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 
@@ -89,7 +90,9 @@ public class EnrichmentScores {
 					float c = rowEntry.getValue().size();
 					float d = mappingCollectionIDs.size() - c;
 
-					float score = (a / (a + b)) / (c / c + d);
+					float score = (a / (a + b)) / (c / (c + d));
+					if (Float.isNaN(score))
+						score = 0;
 
 					scoreTable.put(rowEntry.getKey(), columnEntry.getKey(), Float.valueOf(score));
 
@@ -153,7 +156,7 @@ public class EnrichmentScores {
 		}
 	}
 
-	public static class MaxEnrichmentScoreComparator implements Comparator<NestableItem> {
+	public static class MaxEnrichmentScoreComparator implements Comparator<NestableItem>, IScoreProvider {
 
 		protected final EnrichmentScore score;
 
@@ -168,12 +171,18 @@ public class EnrichmentScores {
 			Float score1 = score.getMaxScoreFor(item1.getElementData().iterator().next(), myCollection);
 			Float score2 = score.getMaxScoreFor(item2.getElementData().iterator().next(), myCollection);
 
-			return score1.compareTo(score2);
+			return score2.compareTo(score1);
 
+		}
+
+		@Override
+		public Float getScore(Object primaryID, IEntityCollection primaryCollection, Object secondaryID,
+				IEntityCollection secondaryCollection) {
+			return score.getMaxScoreFor(primaryID, primaryCollection);
 		}
 	}
 
-	public static class EnrichmentScoreComparator implements Comparator<NestableItem> {
+	public static class EnrichmentScoreComparator implements Comparator<NestableItem>, IScoreProvider {
 
 		protected final EnrichmentScore score;
 
@@ -183,7 +192,6 @@ public class EnrichmentScores {
 
 		@Override
 		public int compare(NestableItem item1, NestableItem item2) {
-
 
 			IEntityCollection myCollection = item1.getColumn().getColumnModel().getCollection();
 			NestableItem parent1 = item1.getParentItem();
@@ -196,6 +204,12 @@ public class EnrichmentScores {
 					.getElementData().iterator().next(), parentCollection);
 
 			return score2.compareTo(score1);
+		}
+
+		@Override
+		public Float getScore(Object primaryID, IEntityCollection primaryCollection, Object secondaryID,
+				IEntityCollection secondaryCollection) {
+			return score.getScore(primaryID, primaryCollection, secondaryID, secondaryCollection);
 		}
 
 	}

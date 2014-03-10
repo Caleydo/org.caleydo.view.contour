@@ -34,7 +34,9 @@ public class SimpleBarRenderer extends PickableGLElement {
 
 	public SimpleBarRenderer(float value, boolean isHorizontal, boolean showTooltip) {
 		this.normalizedValue = value;
+		this.value = value;
 		this.isHorizontal = isHorizontal;
+		this.showTooltip = showTooltip;
 	}
 
 	@Override
@@ -151,14 +153,18 @@ public class SimpleBarRenderer extends PickableGLElement {
 		return barWidth;
 	}
 
+	@Override
+	public String getTooltip() {
+		return String.valueOf(value);
+		// return String.format("%8f", value);
+	}
+
 	/**
 	 * @param value
 	 *            setter, see {@link value}
 	 */
 	public void setValue(float value) {
 		this.value = value;
-		if (showTooltip)
-			setTooltip(String.valueOf(value));
 	}
 
 	/**

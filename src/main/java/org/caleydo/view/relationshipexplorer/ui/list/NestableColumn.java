@@ -16,6 +16,7 @@ import org.caleydo.core.event.EventListenerManager.DeepScan;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.column.ScoreElement;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
@@ -264,7 +265,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		return parent == null;
 	}
 
-	public NestableItem addElement(GLElement element, NestableItem parentItem) {
+	public NestableItem addElement(ScoreElement element, NestableItem parentItem) {
 		return columnTree.addElement(element, this, parentItem);
 	}
 

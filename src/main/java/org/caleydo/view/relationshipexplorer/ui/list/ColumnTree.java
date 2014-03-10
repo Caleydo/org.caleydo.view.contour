@@ -30,6 +30,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
+import org.caleydo.view.relationshipexplorer.ui.column.ScoreElement;
 import org.caleydo.view.relationshipexplorer.ui.column.SortingEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
@@ -372,7 +373,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 		return column;
 	}
 
-	public NestableItem addElement(GLElement element, NestableColumn column, NestableItem parentItem) {
+	public NestableItem addElement(ScoreElement element, NestableColumn column, NestableItem parentItem) {
 		NestableItem item = new NestableItem(element, column, parentItem, this);
 		// column.items.add(item);
 		if (parentItem == null) {

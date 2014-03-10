@@ -131,7 +131,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 				IColumnModel model = ColumnHeader.this.column.getColumnModel();
 				History history = ColumnHeader.this.column.getColumnTree().getRelationshipExplorer().getHistory();
 				model.sortBy(model.getCurrentComparator());
-				ColumnSortingCommand c = new ColumnSortingCommand(model, model.getDefaultComparator(), history);
+				ColumnSortingCommand c = new ColumnSortingCommand(model, model.getDefaultComparator(), null, history);
 				c.execute();
 				history.addHistoryCommand(c, Color.MAGENTA);
 			}

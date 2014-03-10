@@ -33,7 +33,6 @@ import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivityItem
 import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 import org.eclipse.jface.window.Window;
@@ -156,27 +155,6 @@ public class TabularDataColumn extends AEntityColumn {
 	// relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
 	// }
 
-	protected void addItem(ATableBasedDataDomain dd, final IDType recordIDType, final int recordID,
-			Perspective dimensionPerspective, NestableItem parentItem, NestableColumn column) {
-		SimpleDataRenderer renderer = new SimpleDataRenderer(dd, recordIDType, recordID, dimensionPerspective);
-
-		addItem(renderer, recordID, column, parentItem);
-		// IDMappingManager m = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
-		// IDType origIDType;
-		// IDSpecification spec = dd.getDataSetDescription().getColumnIDSpecification();
-		// if (spec.getIdCategory().equalsIgnoreCase(recordIDType.getIDCategory().getCategoryName())) {
-		// origIDType = IDType.getIDType(spec.getIdType());
-		// } else {
-		// origIDType = IDType.getIDType(dd.getDataSetDescription().getRowIDSpecification().getIdType());
-		// }
-
-		// itemList.add(renderer);
-		// Object origID = m.getID(recordIDType, origIDType, recordID);
-
-		// itemList.setElementTooltip(renderer, origID.toString());
-
-	}
-
 	// @Override
 	// protected void setContent() {
 	// // for (int id : va) {
@@ -261,7 +239,7 @@ public class TabularDataColumn extends AEntityColumn {
 	// }
 
 	@Override
-	public GLElement createElement(Object elementID) {
+	public GLElement newElement(Object elementID) {
 
 		// FIXME: Temporary hack -> use factory to create columns in entitycollection specifying the summary and item
 		// renderers for a column

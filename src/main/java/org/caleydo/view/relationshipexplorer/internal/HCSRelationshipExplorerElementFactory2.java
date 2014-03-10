@@ -235,7 +235,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 						relationshipExplorer.getHistory()), new TotalMappingComparator(childColumn,
 						relationshipExplorer.getHistory()));
 
-		ColumnSortingCommand c = new ColumnSortingCommand(parentColumn, comparator, relationshipExplorer.getHistory());
+		ColumnSortingCommand c = new ColumnSortingCommand(parentColumn, comparator, null,
+				relationshipExplorer.getHistory());
 		c.execute();
 		initCommand.add(c);
 	}

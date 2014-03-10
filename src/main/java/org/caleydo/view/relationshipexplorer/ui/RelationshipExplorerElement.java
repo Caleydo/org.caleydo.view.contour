@@ -38,12 +38,14 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.BiMap;
@@ -66,6 +68,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected List<ColumnTree> cols = new ArrayList<>();
 
 	// ------------
+	protected EnrichmentScores enrichmentScores = new EnrichmentScores();
 
 	// protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
@@ -257,6 +260,9 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	}
 
 	public void updateMappings(AMappingUpdateOperation operation) {
+		if (operation.getUpdateCause() == EUpdateCause.FILTER) {
+			enrichmentScores.updateScores();
+		}
 		for (IEntityCollection collection : entityCollections) {
 			// if (operation.getSrcRepresentation().getCollection() != collection)
 			operation.triggerUpdate(collection);
@@ -384,5 +390,12 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		for (IEntityCollection collection : entityCollections) {
 			collection.restoreAllEntities();
 		}
+	}
+
+	/**
+	 * @return the enrichmentScores, see {@link #enrichmentScores}
+	 */
+	public EnrichmentScores getEnrichmentScores() {
+		return enrichmentScores;
 	}
 }

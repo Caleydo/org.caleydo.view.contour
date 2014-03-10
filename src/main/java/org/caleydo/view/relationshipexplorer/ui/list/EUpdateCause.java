@@ -10,5 +10,5 @@ package org.caleydo.view.relationshipexplorer.ui.list;
  *
  */
 public enum EUpdateCause {
-	FILTER, SELECTION, OTHER;
+	FILTER, SELECTION, HIGHLIGHT, OTHER;
 }

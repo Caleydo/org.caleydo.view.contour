@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 /**
  * @author Christian
@@ -34,6 +35,11 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 	public void triggerUpdate(IEntityCollection collection) {
 		collection.notifyFilterUpdate(srcRep);
 
+	}
+
+	@Override
+	public EUpdateCause getUpdateCause() {
+		return EUpdateCause.FILTER;
 	}
 
 }

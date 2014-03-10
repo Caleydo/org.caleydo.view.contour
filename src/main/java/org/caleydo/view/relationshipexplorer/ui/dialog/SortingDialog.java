@@ -6,13 +6,19 @@
 package org.caleydo.view.relationshipexplorer.ui.dialog;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.caleydo.core.gui.util.AHelpButtonDialog;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScore;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScoreComparator;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.MaxEnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
@@ -23,7 +29,10 @@ import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMa
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -45,10 +54,14 @@ public class SortingDialog extends AHelpButtonDialog {
 
 	protected Button considerSelectionsButton;
 	protected Button sortByNumberOfChildItemsButton;
+	protected Button sortByEnrichmentScoreButton;
+
+	protected Combo scoreCombo;
 	protected Combo childColumnCombo;
 	protected Group criteriaGroup;
 
 	protected Map<Integer, IColumnModel> childColumnMap = new HashMap<>();
+	protected Map<Integer, EnrichmentScore> scoreMap = new HashMap<>();
 
 	protected Comparator<NestableItem> definedComparator;
 
@@ -86,8 +99,8 @@ public class SortingDialog extends AHelpButtonDialog {
 
 		criteriaGroup = new Group(parentComposite, SWT.SHADOW_ETCHED_IN);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		criteriaGroup.setLayout(new GridLayout(2, true));
-		gd.widthHint = 200;
+		criteriaGroup.setLayout(new GridLayout(3, false));
+		// gd.widthHint = 400;
 		criteriaGroup.setLayoutData(gd);
 		criteriaGroup.setText("Sorting Criteria");
 		// final org.eclipse.swt.widgets.Table table = new org.eclipse.swt.widgets.Table(group, SWT.CHECK | SWT.BORDER
@@ -95,7 +108,7 @@ public class SortingDialog extends AHelpButtonDialog {
 		for (Comparator<NestableItem> c : comparators) {
 
 			Button button = new Button(criteriaGroup, SWT.RADIO);
-			button.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+			button.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1));
 			button.setText(c.toString());
 			button.setData(c);
 			button.setSelection(currentComparators.contains(c));
@@ -118,9 +131,9 @@ public class SortingDialog extends AHelpButtonDialog {
 			sortByNumberOfChildItemsButton = new Button(criteriaGroup, SWT.RADIO);
 			sortByNumberOfChildItemsButton.setText("Sort by number of child items in");
 			sortByNumberOfChildItemsButton.setSelection(mappingComparator != null);
+			sortByNumberOfChildItemsButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 			childColumnCombo = new Combo(criteriaGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
-			if (childColumns.size() <= 1)
-				childColumnCombo.setEnabled(false);
+			childColumnCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
 
 			for (int i = 0; i < childColumns.size(); i++) {
 				NestableColumn col = childColumns.get(i);
@@ -135,6 +148,27 @@ public class SortingDialog extends AHelpButtonDialog {
 			}
 		}
 
+		sortByEnrichmentScoreButton = new Button(criteriaGroup, SWT.RADIO);
+		sortByEnrichmentScoreButton.setText("Sort by enrichment score");
+		scoreCombo = new Combo(criteriaGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.widthHint = 200;
+		scoreCombo.setLayoutData(gd);
+		updateScoreCombo();
+
+		Button newScoreButton = new Button(criteriaGroup, SWT.PUSH);
+		newScoreButton.setText("New");
+		newScoreButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				CreateEnrichmentScoreDialog dialog = new CreateEnrichmentScoreDialog(getShell(), column
+						.getRelationshipExplorer());
+				if (dialog.open() == Window.OK) {
+					updateScoreCombo();
+				}
+			}
+		});
+
 		considerSelectionsButton = new Button(parentComposite, SWT.CHECK);
 		considerSelectionsButton.setText("Rank selected items on top");
 		considerSelectionsButton.setSelection(currentComparators.contains(ItemComparators.SELECTED_ITEMS_COMPARATOR));
@@ -147,6 +181,20 @@ public class SortingDialog extends AHelpButtonDialog {
 		// });
 
 		return super.createDialogArea(parent);
+	}
+
+	protected void updateScoreCombo() {
+		EnrichmentScores enrichmentScores = column.getRelationshipExplorer().getEnrichmentScores();
+		Collection<EnrichmentScore> allScores = enrichmentScores.getAllScoresForTargetOrEnrichment(column
+				.getCollection());
+		Iterator<EnrichmentScore> it = allScores.iterator();
+		for (int i = 0; i < allScores.size(); i++) {
+			EnrichmentScore score = it.next();
+			scoreMap.put(i, score);
+			scoreCombo.add(score.getLabel());
+		}
+		if (allScores.size() == 1)
+			scoreCombo.select(0);
 	}
 
 	@Override
@@ -176,6 +224,20 @@ public class SortingDialog extends AHelpButtonDialog {
 								.getHistory()));
 						comparator.add(new TotalMappingComparator(mappingColumn, column.getRelationshipExplorer()
 								.getHistory()));
+					} else if (button == sortByEnrichmentScoreButton) {
+
+						EnrichmentScore score = scoreMap.get(scoreCombo.getSelectionIndex());
+						if (score == null)
+							return;
+
+						if (column.getParentColumn() != null
+								&& score.hasEnrichmentOrTargetCollection(column.getParentColumn().getColumnModel()
+										.getCollection())) {
+							comparator.add(new EnrichmentScoreComparator(score));
+						} else {
+							comparator.add(new MaxEnrichmentScoreComparator(score));
+						}
+
 					} else {
 						comparator.add((Comparator<NestableItem>) button.getData());
 					}

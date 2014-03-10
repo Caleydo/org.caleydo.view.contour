@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 /**
  * @author Christian
@@ -38,6 +39,8 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 	public abstract void triggerUpdate(IEntityCollection collection);
 
 	protected abstract void execute(IEntityCollection collection, Set<Object> elementIDs);
+
+	public abstract EUpdateCause getUpdateCause();
 
 	/**
 	 * @return the srcColumn, see {@link #srcColumn}

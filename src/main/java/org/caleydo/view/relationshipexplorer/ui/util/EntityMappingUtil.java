@@ -54,12 +54,12 @@ public final class EntityMappingUtil {
 	public static class MappingOverlap {
 		public Object elementID1;
 		public Object elementID2;
-		public Set<Object> overlap;
+		public float score;
 
-		public MappingOverlap(Object elementID1, Object elementID2, Set<Object> overlap) {
+		public MappingOverlap(Object elementID1, Object elementID2, float score) {
 			this.elementID1 = elementID1;
 			this.elementID2 = elementID2;
-			this.overlap = overlap;
+			this.score = score;
 		}
 	}
 
@@ -82,8 +82,12 @@ public final class EntityMappingUtil {
 
 		for (Entry<Object, Set<Object>> pathwayEntry : pathwaysToCompounds.entrySet()) {
 			for (Entry<Object, Set<Object>> clusterEntry : clustersToCompounds.entrySet()) {
-				overlaps.add(new MappingOverlap(pathwayEntry.getKey(), clusterEntry.getKey(), Sets.intersection(
-						pathwayEntry.getValue(), clusterEntry.getValue())));
+				float overlap = Sets.intersection(pathwayEntry.getValue(), clusterEntry.getValue()).size();
+				float notInOverlap = clusterEntry.getValue().size() - overlap;
+
+				float score = (overlap / (overlap + notInOverlap))
+						/ ((pathwayEntry.getValue().size()) / compoundCollection.getAllElementIDs().size());
+				overlaps.add(new MappingOverlap(pathwayEntry.getKey(), clusterEntry.getKey(), score));
 
 			}
 		}

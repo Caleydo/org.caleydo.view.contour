@@ -18,13 +18,13 @@ import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
@@ -113,12 +113,11 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
-		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, padding, padding,
-				padding));
+		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
 		this.filteredMapping = filteredMapping;
 		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
 
-		setRenderer(GLRenderers.drawRect(Color.RED));
+		// setRenderer(GLRenderers.drawRect(Color.RED));
 
 		updateMapping();
 		setUpLayout();
@@ -183,7 +182,11 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
 
 		this.setLayout(GLLayouts.flowHorizontal(3));
+		leftClusterContainer.setSize(20, Float.NaN);
+		rightClusterContainer.setSize(20, Float.NaN);
 		add(leftClusterContainer);
+		// Spacing
+		add(new GLElement());
 		add(rightClusterContainer);
 
 		Comparator<GroupData> comparator = new Comparator<GroupData>() {

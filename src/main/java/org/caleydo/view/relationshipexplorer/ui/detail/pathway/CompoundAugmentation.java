@@ -19,6 +19,8 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.IGLElementContext;
+import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
@@ -63,9 +65,6 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 					allCompounds.addAll(compounds);
 			}
 
-			if (allCompounds == null) {
-				System.out.println("blu");
-			}
 			for (Object compoundID : allCompounds) {
 				if (compoundIDs.contains(compoundID)) {
 					Set<Integer> mappedDavids = idManager.getIDAsSet(compoundIDType, davidIDType, compoundID);
@@ -105,8 +104,11 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	private int overallCompoundSize = 0;
 
-	private GLSizeRestrictiveFlowLayout layout = new GLSizeRestrictiveFlowLayout(false, 1, GLPadding.ONE);
-	private GLElementContainer glContainer = new GLElementContainer(layout);
+	private GLSizeRestrictiveFlowLayout layout = new GLSizeRestrictiveFlowLayout(false, 4, new GLPadding(0, 1));
+	private GLElementContainer leftClusterContainer = new GLElementContainer(layout);
+
+	private GLElementContainer rightClusterContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4,
+			new GLPadding(0, 1)));
 
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
@@ -154,7 +156,6 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 			GroupData gd = new GroupData(groupCollection.getBroadcastingIDsFromElementID(group), group);
 			clusterData.add(gd);
 			overallCompoundSize += gd.containedCompounds.size();
-
 		}
 
 	}
@@ -176,8 +177,14 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	/** Initialize the layout, called once */
 	private void setUpLayout() {
 
-		this.setLayout(GLLayouts.flowHorizontal(30));
-		add(glContainer);
+		int gap = 3;
+
+		// this is zero here. When to initialize?
+		Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
+
+		this.setLayout(GLLayouts.flowHorizontal(3));
+		add(leftClusterContainer);
+		add(rightClusterContainer);
 
 		Comparator<GroupData> comparator = new Comparator<GroupData>() {
 			@Override
@@ -186,25 +193,38 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 			}
 		};
 
+		// assuming a heigth of 1000 pixels:
+		double height = 1000;
+		double pixelPerCompound = (height - gap * clusterData.size()) / overallCompoundSize * 2;
+		double pixelStatus = 0;
 		Collections.sort(clusterData, comparator);
-
+		// leftClusterContainer.setSize(30, 100);
 		for (final GroupData data : clusterData) {
 			final GroupElement element = new GroupElement(data);
 			element.onPick(new APickingListener() {
-
 				@Override
 				protected void clicked(Pick pick) {
-					// Set<GroupData> groups = new HashSet<>();
-					// groups.add(element);
-
 					propagateGroupSelection(Sets.newHashSet(data.group));
-					// super.clicked(pick);
+
 				}
 			});
-			glContainer.add(element);
+			pixelStatus += data.containedCompounds.size() * pixelPerCompound + gap;
+
+			if (pixelStatus > 1000) {
+
+				leftClusterContainer.add(element);
+			} else {
+				rightClusterContainer.add(element);
+			}
 		}
 
-		glContainer.setSize(30, 100);
+		// leftClusterContainer.setSize(30, 100);
+
+	}
+
+	@Override
+	protected void init(IGLElementContext context) {
+		super.init(context);
 
 	}
 

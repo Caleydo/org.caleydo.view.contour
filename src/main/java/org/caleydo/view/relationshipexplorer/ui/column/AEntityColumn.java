@@ -96,6 +96,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	protected Set<Comparator<NestableItem>> baseComparators = new HashSet<>();
 	protected Comparator<NestableItem> currentComparator;
 
+	protected IScoreProvider scoreProvider;
+
 	protected boolean initialized = false;
 
 	// -----------------
@@ -126,7 +128,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						SortingDialog dialog = new SortingDialog(canvas.getShell(), AEntityColumn.this);
 						if (dialog.open() == Window.OK) {
 							Comparator<NestableItem> comparator = dialog.getComparator();
-							EventPublisher.trigger(new SortingEvent(comparator).to(AEntityColumn.this));
+							EventPublisher.trigger(new SortingEvent(comparator, dialog.getScoreProvider())
+									.to(AEntityColumn.this));
 						}
 					}
 				});
@@ -206,7 +209,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// itemList.add(row);
 	// }
 
-	protected void addItem(GLElement element, Object elementID, NestableColumn column, NestableItem parentItem) {
+	protected void addItem(ScoreElement element, Object elementID, NestableColumn column, NestableItem parentItem) {
 
 		NestableItem item = column.addElement(element, parentItem);
 		Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
@@ -660,7 +663,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		if (parentColumn == null) {
 			for (Object id : entityCollection.getFilteredElementIDs()) {
-				GLElement element = createElement(id);
+				ScoreElement element = createElement(id, null);
 				if (element != null) {
 					addItem(element, id, column, null);
 				}
@@ -678,7 +681,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					}
 
 					if (add) {
-						GLElement element = createElement(id);
+						ScoreElement element = createElement(id, parentItem);
 						if (element != null) {
 							addItem(element, id, column, parentItem);
 						}
@@ -686,6 +689,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				}
 			}
 		}
+
+		if (scoreProvider != null)
+			updateScores();
 	}
 
 	protected boolean hasParentItemElementMapping(NestableItem parentItem, Object id) {
@@ -806,7 +812,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				}
 			}
 			for (Object elementID : elementsToAdd) {
-				GLElement element = createElement(elementID);
+				ScoreElement element = createElement(elementID, null);
 				if (element != null) {
 					addItem(element, elementID, column, null);
 				}
@@ -861,7 +867,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						}
 					}
 					if (createItem) {
-						GLElement element = createElement(id);
+						ScoreElement element = createElement(id, parentItem);
 						if (element != null) {
 							addItem(element, id, column, parentItem);
 						}
@@ -874,6 +880,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		updateChildColumnFilters(srcRep);
 		column.updateSummaryItems(EUpdateCause.FILTER);
 		column.getHeader().updateItemCounts();
+		updateScores();
 
 		if (srcRep == this)
 			return;
@@ -971,15 +978,86 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
+	public void setScoreProvider(IScoreProvider scoreProvider) {
+		if (this.scoreProvider != scoreProvider) {
+			this.scoreProvider = scoreProvider;
+			updateScores();
+		}
+	}
+
+	protected void updateScores() {
+		float maxScore = Float.NEGATIVE_INFINITY;
+
+		for (Entry<Object, Set<NestableItem>> entry : mapIDToFilteredItems.entrySet()) {
+			for (NestableItem item : entry.getValue()) {
+				ScoreElement scoreElement = (ScoreElement) item.getElement();
+
+				if (scoreProvider == null) {
+					scoreElement.hideScore();
+				} else {
+					float score = 0;
+					if (item.getParentItem() == null) {
+						score = scoreProvider.getScore(entry.getKey(), entityCollection, null, null);
+
+					} else {
+						score = scoreProvider.getScore(entry.getKey(), entityCollection, item.getParentItem()
+								.getElementData().iterator().next(), parentColumn.getColumnModel().getCollection());
+					}
+
+					if (score > maxScore)
+						maxScore = score;
+					scoreElement.showScore();
+				}
+				scoreElement.relayout();
+			}
+		}
+
+		if (scoreProvider != null) {
+
+			for (Entry<Object, Set<NestableItem>> entry : mapIDToFilteredItems.entrySet()) {
+				for (NestableItem item : entry.getValue()) {
+					ScoreElement scoreElement = (ScoreElement) item.getElement();
+
+					if (item.getParentItem() == null) {
+						scoreElement.setScore(scoreProvider.getScore(entry.getKey(), entityCollection, null, null),
+								maxScore);
+					} else {
+						scoreElement.setScore(scoreProvider.getScore(entry.getKey(), entityCollection, item
+								.getParentItem().getElementData().iterator().next(), parentColumn.getColumnModel()
+								.getCollection()), maxScore);
+					}
+				}
+			}
+		}
+
+		column.getColumnTree().relayout();
+	}
+
+	@Override
 	public void onSort(SortingEvent event) {
-		ColumnSortingCommand c = new ColumnSortingCommand(this, event.getComparator(),
+		ColumnSortingCommand c = new ColumnSortingCommand(this, event.getComparator(), event.getScoreProvider(),
 				relationshipExplorer.getHistory());
 		c.execute();
 		relationshipExplorer.getHistory().addHistoryCommand(c, Color.MAGENTA);
 
 	}
 
-	protected abstract GLElement createElement(Object elementID);
+	protected ScoreElement createElement(Object elementID, NestableItem parentItem) {
+		GLElement element = newElement(elementID);
+		ScoreElement scoreElement = new ScoreElement(element);
+		if (scoreProvider != null) {
+			scoreElement.showScore();
+			// if (parentItem == null) {
+			// scoreElement.setScore(scoreProvider.getScore(elementID, entityCollection, null, null));
+			// } else {
+			// scoreElement.setScore(scoreProvider.getScore(elementID, entityCollection, parentItem.getElementData()
+			// .iterator().next(), parentColumn.getColumnModel().getCollection()));
+			// }
+		}
+		return scoreElement;
+	}
+
+	protected abstract GLElement newElement(Object elementID);
 
 	public abstract void showDetailView();
 

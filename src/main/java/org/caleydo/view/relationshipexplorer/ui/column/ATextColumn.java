@@ -21,7 +21,6 @@ import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.graphics.Point;
@@ -41,10 +40,11 @@ public abstract class ATextColumn extends AEntityColumn {
 
 	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
 
+
 		@Override
 		public int compare(NestableItem o1, NestableItem o2) {
-			MinSizeTextElement r1 = (MinSizeTextElement) o1.getElement();
-			MinSizeTextElement r2 = (MinSizeTextElement) o2.getElement();
+			MinSizeTextElement r1 = (MinSizeTextElement) ((ScoreElement) o1.getElement()).getElement();
+			MinSizeTextElement r2 = (MinSizeTextElement) ((ScoreElement) o2.getElement()).getElement();
 			return r1.getLabel().compareTo(r2.getLabel());
 		}
 
@@ -123,75 +123,19 @@ public abstract class ATextColumn extends AEntityColumn {
 		});
 	}
 
-	// @SuppressWarnings("unchecked")
-	// protected MinSizeTextElement asMinSizeTextElement(GLElement element) {
-	// return (MinSizeTextElement) ((KeyBasedGLElementContainer<GLElement>) element).getElement(DATA_KEY);
-	// }
-
-	// public MinSizeTextElement addTextElement(String text, Object elementID) {
-	// MinSizeTextElement el = new MinSizeTextElement(text);
-	// el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
-	// addElement(el, elementID);
-	// return el;
-	// }
-
-	public MinSizeTextElement addTextItem(String text, Object elementID, NestableColumn column, NestableItem parentItem) {
-		MinSizeTextElement el = new MinSizeTextElement(text);
-		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
-		addItem(el, elementID, column, parentItem);
-		// addElement(el, elementID);
-		return el;
-	}
-
 	public MinSizeTextElement createTextItem(String text) {
 		MinSizeTextElement el = new MinSizeTextElement(text);
 		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
 		return el;
 	}
 
-	// @Override
-	// public Comparator<GLElement> getDefaultElementComparator() {
-	// return TEXT_COMPARATOR;
-	// }
-
 	@Override
 	public Comparator<NestableItem> getDefaultComparator() {
 		return TEXT_ITEM_COMPARATOR;
 	}
 
-	// @ListenTo(sendToMe = true)
-	// public void onAttributeFilter(final FilterEvent<String> event) {
-	//
-	// // AttributeFilterCommand c = new AttributeFilterCommand(this, getTextFilteredElementIDs(
-	// // event.getFilterDefinitionData(), event.getItemPool()));
-	// // c.execute();
-	// // if (event.isSave()) {
-	// // relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
-	// // }
-	// }
-
-	// protected Set<Object> getTextFilteredElementIDs(String query, Map<Object, GLElement> itemPool) {
-	// final String q = query.toLowerCase();
-	//
-	// Predicate<Entry<Object, GLElement>> textFilter = new Predicate<Entry<Object, GLElement>>() {
-	//
-	// @Override
-	// public boolean apply(Entry<Object, GLElement> input) {
-	// return asMinSizeTextElement(input.getValue()).getLabel().toLowerCase().contains(q);
-	// }
-	// };
-	//
-	// Set<Object> elementIDs = new HashSet<>();
-	// for (Entry<Object, GLElement> entry : itemPool.entrySet()) {
-	// if (textFilter.apply(entry)) {
-	// elementIDs.add(entry.getKey());
-	// }
-	// }
-	// return elementIDs;
-	// }
-
 	@Override
-	protected GLElement createElement(Object elementID) {
+	protected GLElement newElement(Object elementID) {
 		return createTextItem(getText(elementID));
 	}
 

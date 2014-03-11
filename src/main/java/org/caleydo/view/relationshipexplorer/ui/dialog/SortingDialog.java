@@ -21,6 +21,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.Enri
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.MaxEnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.AMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.SelectionMappingComparator;
@@ -64,6 +65,8 @@ public class SortingDialog extends AHelpButtonDialog {
 	protected Map<Integer, EnrichmentScore> scoreMap = new HashMap<>();
 
 	protected Comparator<NestableItem> definedComparator;
+
+	protected IScoreProvider scoreProvider;
 
 	/**
 	 * @param parentShell
@@ -233,9 +236,13 @@ public class SortingDialog extends AHelpButtonDialog {
 						if (column.getParentColumn() != null
 								&& score.hasEnrichmentOrTargetCollection(column.getParentColumn().getColumnModel()
 										.getCollection())) {
-							comparator.add(new EnrichmentScoreComparator(score));
+							EnrichmentScoreComparator c = new EnrichmentScoreComparator(score);
+							scoreProvider = c;
+							comparator.add(c);
 						} else {
-							comparator.add(new MaxEnrichmentScoreComparator(score));
+							MaxEnrichmentScoreComparator c = new MaxEnrichmentScoreComparator(score);
+							scoreProvider = c;
+							comparator.add(c);
 						}
 
 					} else {
@@ -253,6 +260,13 @@ public class SortingDialog extends AHelpButtonDialog {
 	 */
 	public Comparator<NestableItem> getComparator() {
 		return definedComparator;
+	}
+
+	/**
+	 * @return the scoreProvider, see {@link #scoreProvider}
+	 */
+	public IScoreProvider getScoreProvider() {
+		return scoreProvider;
 	}
 
 }

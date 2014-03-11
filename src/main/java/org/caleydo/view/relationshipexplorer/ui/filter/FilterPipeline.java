@@ -69,6 +69,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			List<IFilterCommand> commands = new ArrayList<>(filterCommands);
 			clearFilterCommands();
 			if (commands.isEmpty()) {
+				relationshipExplorer.getEnrichmentScores().updateScores();
 				for (IEntityCollection collection : relationshipExplorer.getEntityCollections()) {
 					collection.notifyFilterUpdate(null);
 				}

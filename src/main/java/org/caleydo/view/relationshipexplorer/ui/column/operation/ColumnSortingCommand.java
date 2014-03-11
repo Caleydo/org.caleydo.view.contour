@@ -9,6 +9,7 @@ import java.util.Comparator;
 
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
@@ -20,17 +21,21 @@ public class ColumnSortingCommand implements IHistoryCommand {
 
 	protected final int columnHistoryID;
 	protected final Comparator<NestableItem> comparator;
+	protected final IScoreProvider scoreProvider;
 	protected final History history;
 
-	public ColumnSortingCommand(IColumnModel model, Comparator<NestableItem> comparator, History history) {
+	public ColumnSortingCommand(IColumnModel model, Comparator<NestableItem> comparator, IScoreProvider scoreProvider,
+			History history) {
 		this.columnHistoryID = model.getHistoryID();
 		this.comparator = comparator;
 		this.history = history;
+		this.scoreProvider = scoreProvider;
 	}
 
 	@Override
 	public Object execute() {
 		IColumnModel column = history.getHistoryObjectAs(IColumnModel.class, columnHistoryID);
+		column.setScoreProvider(scoreProvider);
 		column.sortBy(comparator);
 		return null;
 	}

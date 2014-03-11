@@ -30,6 +30,7 @@ public class ListElement extends GLElementContainer {
 		@Override
 		protected void renderImpl(GLGraphics g, float w, float h) {
 			if (isHighlight || isSelected) {
+				g.incZ(-0.5f);
 				Color primaryColor = selectionColor;
 				Color secondaryColor = selectionColor;
 
@@ -49,6 +50,7 @@ public class ListElement extends GLElementContainer {
 				gl.glVertex2f(w, 0);
 				gl.glVertex2f(0, 0);
 				gl.glEnd();
+				g.incZ(0.5f);
 				// g.gl.glPushAttrib(GL2.GL_LINE_BIT);
 				// g.color(highlightColor).lineWidth(3).drawRect(0, 0, w, h);
 				// g.gl.glPopAttrib();

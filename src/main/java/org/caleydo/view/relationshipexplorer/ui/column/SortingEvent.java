@@ -17,9 +17,11 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 public class SortingEvent extends ADirectedEvent {
 
 	protected Comparator<NestableItem> comparator;
+	protected IScoreProvider scoreProvider;
 
-	public SortingEvent(Comparator<NestableItem> comparator) {
+	public SortingEvent(Comparator<NestableItem> comparator, IScoreProvider scoreProvider) {
 		this.comparator = comparator;
+		this.scoreProvider = scoreProvider;
 	}
 
 	/**
@@ -35,6 +37,21 @@ public class SortingEvent extends ADirectedEvent {
 	 */
 	public void setComparator(Comparator<NestableItem> comparator) {
 		this.comparator = comparator;
+	}
+
+	/**
+	 * @param scoreProvider
+	 *            setter, see {@link scoreProvider}
+	 */
+	public void setScoreProvider(IScoreProvider scoreProvider) {
+		this.scoreProvider = scoreProvider;
+	}
+
+	/**
+	 * @return the scoreProvider, see {@link #scoreProvider}
+	 */
+	public IScoreProvider getScoreProvider() {
+		return scoreProvider;
 	}
 
 }

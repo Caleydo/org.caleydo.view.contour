@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.caleydo.core.gui.util.AHelpButtonDialog;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.AEnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScore;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.MaxEnrichmentScoreComparator;
@@ -122,14 +123,17 @@ public class SortingDialog extends AHelpButtonDialog {
 		}
 
 		List<NestableColumn> childColumns = column.getColumn().getChildren();
-		if (!childColumns.isEmpty()) {
-			AMappingComparator mappingComparator = null;
-			for (Comparator<NestableItem> c : currentComparators) {
-				if (c instanceof AMappingComparator) {
-					mappingComparator = (AMappingComparator) c;
-					break;
-				}
+		AMappingComparator mappingComparator = null;
+		EnrichmentScore enrichmentScore = null;
+		for (Comparator<NestableItem> c : currentComparators) {
+			if (c instanceof AMappingComparator) {
+				mappingComparator = (AMappingComparator) c;
+				break;
+			} else if (c instanceof AEnrichmentScoreComparator) {
+				enrichmentScore = ((AEnrichmentScoreComparator) c).getEnrichmentScore();
 			}
+		}
+		if (!childColumns.isEmpty()) {
 
 			sortByNumberOfChildItemsButton = new Button(criteriaGroup, SWT.RADIO);
 			sortByNumberOfChildItemsButton.setText("Sort by number of child items in");
@@ -153,11 +157,24 @@ public class SortingDialog extends AHelpButtonDialog {
 
 		sortByEnrichmentScoreButton = new Button(criteriaGroup, SWT.RADIO);
 		sortByEnrichmentScoreButton.setText("Sort by enrichment score");
+		sortByEnrichmentScoreButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				scoreCombo.setEnabled(sortByEnrichmentScoreButton.getSelection());
+			}
+		});
+
 		scoreCombo = new Combo(criteriaGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = 200;
 		scoreCombo.setLayoutData(gd);
-		updateScoreCombo();
+		scoreCombo.setEnabled(false);
+
+		if (enrichmentScore != null) {
+			sortByEnrichmentScoreButton.setSelection(true);
+			scoreCombo.setEnabled(true);
+		}
+		updateScoreCombo(enrichmentScore);
 
 		Button newScoreButton = new Button(criteriaGroup, SWT.PUSH);
 		newScoreButton.setText("New");
@@ -167,7 +184,7 @@ public class SortingDialog extends AHelpButtonDialog {
 				CreateEnrichmentScoreDialog dialog = new CreateEnrichmentScoreDialog(getShell(), column
 						.getRelationshipExplorer());
 				if (dialog.open() == Window.OK) {
-					updateScoreCombo();
+					updateScoreCombo(dialog.getScore());
 				}
 			}
 		});
@@ -186,7 +203,7 @@ public class SortingDialog extends AHelpButtonDialog {
 		return super.createDialogArea(parent);
 	}
 
-	protected void updateScoreCombo() {
+	protected void updateScoreCombo(EnrichmentScore currentScore) {
 		EnrichmentScores enrichmentScores = column.getRelationshipExplorer().getEnrichmentScores();
 		Collection<EnrichmentScore> allScores = enrichmentScores.getAllScoresForTargetOrEnrichment(column
 				.getCollection());
@@ -195,6 +212,8 @@ public class SortingDialog extends AHelpButtonDialog {
 			EnrichmentScore score = it.next();
 			scoreMap.put(i, score);
 			scoreCombo.add(score.getLabel());
+			if (score == currentScore)
+				scoreCombo.select(i);
 		}
 		if (allScores.size() == 1)
 			scoreCombo.select(0);

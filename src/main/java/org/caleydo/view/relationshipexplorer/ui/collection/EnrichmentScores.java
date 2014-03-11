@@ -156,20 +156,33 @@ public class EnrichmentScores {
 		}
 	}
 
-	public static class MaxEnrichmentScoreComparator implements Comparator<NestableItem>, IScoreProvider {
+	public static abstract class AEnrichmentScoreComparator implements Comparator<NestableItem>, IScoreProvider {
+		protected final EnrichmentScore enrichmentScore;
 
-		protected final EnrichmentScore score;
+		public AEnrichmentScoreComparator(EnrichmentScore score) {
+			this.enrichmentScore = score;
+		}
+
+		/**
+		 * @return the enrichmentScore, see {@link #enrichmentScore}
+		 */
+		public EnrichmentScore getEnrichmentScore() {
+			return enrichmentScore;
+		}
+	}
+
+	public static class MaxEnrichmentScoreComparator extends AEnrichmentScoreComparator {
 
 		public MaxEnrichmentScoreComparator(EnrichmentScore score) {
-			this.score = score;
+			super(score);
 		}
 
 		@Override
 		public int compare(NestableItem item1, NestableItem item2) {
 			IEntityCollection myCollection = item1.getColumn().getColumnModel().getCollection();
 
-			Float score1 = score.getMaxScoreFor(item1.getElementData().iterator().next(), myCollection);
-			Float score2 = score.getMaxScoreFor(item2.getElementData().iterator().next(), myCollection);
+			Float score1 = enrichmentScore.getMaxScoreFor(item1.getElementData().iterator().next(), myCollection);
+			Float score2 = enrichmentScore.getMaxScoreFor(item2.getElementData().iterator().next(), myCollection);
 
 			return score2.compareTo(score1);
 
@@ -178,16 +191,15 @@ public class EnrichmentScores {
 		@Override
 		public Float getScore(Object primaryID, IEntityCollection primaryCollection, Object secondaryID,
 				IEntityCollection secondaryCollection) {
-			return score.getMaxScoreFor(primaryID, primaryCollection);
+			return enrichmentScore.getMaxScoreFor(primaryID, primaryCollection);
 		}
 	}
 
-	public static class EnrichmentScoreComparator implements Comparator<NestableItem>, IScoreProvider {
+	public static class EnrichmentScoreComparator extends AEnrichmentScoreComparator {
 
-		protected final EnrichmentScore score;
 
 		public EnrichmentScoreComparator(EnrichmentScore score) {
-			this.score = score;
+			super(score);
 		}
 
 		@Override
@@ -198,9 +210,9 @@ public class EnrichmentScores {
 			IEntityCollection parentCollection = parent1.getColumn().getColumnModel().getCollection();
 			NestableItem parent2 = item2.getParentItem();
 
-			Float score1 = score.getScore(item1.getElementData().iterator().next(), myCollection, parent1
+			Float score1 = enrichmentScore.getScore(item1.getElementData().iterator().next(), myCollection, parent1
 					.getElementData().iterator().next(), parentCollection);
-			Float score2 = score.getScore(item2.getElementData().iterator().next(), myCollection, parent2
+			Float score2 = enrichmentScore.getScore(item2.getElementData().iterator().next(), myCollection, parent2
 					.getElementData().iterator().next(), parentCollection);
 
 			return score2.compareTo(score1);
@@ -209,7 +221,7 @@ public class EnrichmentScores {
 		@Override
 		public Float getScore(Object primaryID, IEntityCollection primaryCollection, Object secondaryID,
 				IEntityCollection secondaryCollection) {
-			return score.getScore(primaryID, primaryCollection, secondaryID, secondaryCollection);
+			return enrichmentScore.getScore(primaryID, primaryCollection, secondaryID, secondaryCollection);
 		}
 
 	}

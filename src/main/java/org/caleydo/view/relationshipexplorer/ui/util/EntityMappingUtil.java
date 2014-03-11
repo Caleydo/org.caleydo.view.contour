@@ -42,13 +42,19 @@ public final class EntityMappingUtil {
 	public static Set<Object> getFilteredMappedElementIDs(Set<Object> sourceElementIDs,
 			IEntityCollection sourceCollection, IEntityCollection targetCollection) {
 		Set<Object> allIDs = getAllMappedElementIDs(sourceElementIDs, sourceCollection, targetCollection);
-		return new HashSet<>(Sets.intersection(targetCollection.getFilteredElementIDs(), allIDs));
+		return getFilteredElementIDsOf(allIDs, targetCollection);
+		// return new HashSet<>(Sets.intersection(targetCollection.getFilteredElementIDs(), allIDs));
+	}
+
+	public static Set<Object> getFilteredElementIDsOf(Set<Object> elementIDs, IEntityCollection collection) {
+		return new HashSet<>(Sets.intersection(collection.getFilteredElementIDs(), elementIDs));
 	}
 
 	public static Set<Object> getFilteredMappedElementIDs(Object sourceElementID, IEntityCollection sourceCollection,
 			IEntityCollection targetCollection) {
 		Set<Object> allIDs = getAllMappedElementIDs(sourceElementID, sourceCollection, targetCollection);
-		return new HashSet<>(Sets.intersection(targetCollection.getFilteredElementIDs(), allIDs));
+		return getFilteredElementIDsOf(allIDs, targetCollection);
+		// return new HashSet<>(Sets.intersection(targetCollection.getFilteredElementIDs(), allIDs));
 	}
 
 	public static class MappingOverlap {

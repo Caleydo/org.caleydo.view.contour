@@ -32,6 +32,7 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 	protected Combo targetCollectionCombo;
 	protected Combo enrichmentCollectionCombo;
 	protected Combo mappingCollectionCombo;
+	protected Combo itemModeCombo;
 	protected EnrichmentScores enrichmentScores;
 	protected Collection<IEntityCollection> collections;
 
@@ -58,7 +59,7 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 
 		Composite parentComposite = new Composite(parent, SWT.NONE);
 		parentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		parentComposite.setLayout(new GridLayout(6, false));
+		parentComposite.setLayout(new GridLayout(8, false));
 
 		Label l = new Label(parentComposite, SWT.NONE);
 		l.setText("Calculate enrichment of");
@@ -74,6 +75,13 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 		l.setText("via");
 
 		mappingCollectionCombo = addCollectionCombo(parentComposite);
+
+		l = new Label(parentComposite, SWT.NONE);
+		l.setText("considering");
+
+		itemModeCombo = new Combo(parentComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		itemModeCombo.add("all items");
+		itemModeCombo.add("filtered items");
 
 		int i = 0;
 		for (IEntityCollection collection : collections) {
@@ -104,10 +112,12 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 		IEntityCollection targetCollection = collectionMap.get(targetCollectionCombo.getSelectionIndex());
 		IEntityCollection enrichmentCollection = collectionMap.get(enrichmentCollectionCombo.getSelectionIndex());
 		IEntityCollection mappingCollection = collectionMap.get(mappingCollectionCombo.getSelectionIndex());
-		if (targetCollection == null || enrichmentCollection == null || mappingCollection == null)
+		int itemModeIndex = itemModeCombo.getSelectionIndex();
+		if (targetCollection == null || enrichmentCollection == null || mappingCollection == null || itemModeIndex < 0)
 			return;
 
-		score = enrichmentScores.getOrCreateEnrichmentScore(targetCollection, enrichmentCollection, mappingCollection);
+		score = enrichmentScores.getOrCreateEnrichmentScore(targetCollection, enrichmentCollection, mappingCollection,
+				itemModeIndex == 0 ? false : true);
 
 		super.okPressed();
 	}

@@ -204,6 +204,8 @@ public class SortingDialog extends AHelpButtonDialog {
 	}
 
 	protected void updateScoreCombo(EnrichmentScore currentScore) {
+		scoreCombo.removeAll();
+		scoreMap.clear();
 		EnrichmentScores enrichmentScores = column.getRelationshipExplorer().getEnrichmentScores();
 		Collection<EnrichmentScore> allScores = enrichmentScores.getAllScoresForTargetOrEnrichment(column
 				.getCollection());

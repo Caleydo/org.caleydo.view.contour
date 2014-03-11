@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.util.collection.Pair;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
@@ -30,7 +31,11 @@ import com.google.common.collect.Table.Cell;
  */
 public class EnrichmentScores {
 
-	protected Map<IEntityCollection, Table<IEntityCollection, IEntityCollection, EnrichmentScore>> allScores = new HashMap<>();
+	/**
+	 * Holds all {@link EnrichmentScore}s defined via 4 dimensions: MappingCollection, TargetCollection,
+	 * EnrichmentCollection, and, whether the score is based on filtered (Pair.second) or all items (Pair.first)
+	 */
+	protected Map<IEntityCollection, Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>>> allScores = new HashMap<>();
 
 	// protected Table<IEntityCollection, IEntityCollection, EnrichmentScore> allScores = HashBasedTable.create();
 
@@ -42,53 +47,62 @@ public class EnrichmentScores {
 		/**
 		 * Determines whether the scores are calculated for filtered or all elements of the collections.
 		 */
-		protected final boolean isFilteredScore;
+		protected final boolean isFilteredItemScore;
 		protected Table<Object, Object, Float> scoreTable = HashBasedTable.create();
 
 		public EnrichmentScore(IEntityCollection rowCollection, IEntityCollection columnCollection,
-				IEntityCollection mappingCollection, boolean isFilteredScore) {
+				IEntityCollection mappingCollection, boolean isFilteredItemScore) {
 			this.rowCollection = rowCollection;
 			this.columnCollection = columnCollection;
 			this.mappingCollection = mappingCollection;
-			this.isFilteredScore = isFilteredScore;
+			this.isFilteredItemScore = isFilteredItemScore;
 			updateScores();
 		}
 
 		public void updateScores() {
 			scoreTable.clear();
 
-			Set<Object> rowCollectionIDs = isFilteredScore ? rowCollection.getFilteredElementIDs() : rowCollection
+			Set<Object> rowCollectionIDs = isFilteredItemScore ? rowCollection.getFilteredElementIDs() : rowCollection
 					.getAllElementIDs();
-			Set<Object> columnCollectionIDs = isFilteredScore ? columnCollection.getFilteredElementIDs()
+			Set<Object> columnCollectionIDs = isFilteredItemScore ? columnCollection.getFilteredElementIDs()
 					: columnCollection.getAllElementIDs();
-			Set<Object> mappingCollectionIDs = isFilteredScore ? mappingCollection.getFilteredElementIDs()
-					: mappingCollection.getAllElementIDs();
 
-			Map<Object, Set<Object>> rowToMappings = new HashMap<>();
+			Map<Object, Pair<Set<Object>, Set<Object>>> rowToMappings = new HashMap<>();
 
 			for (Object pathway : rowCollectionIDs) {
-				Set<Object> mappedIDs = isFilteredScore ? EntityMappingUtil.getFilteredMappedElementIDs(pathway,
-						rowCollection, mappingCollection) : EntityMappingUtil.getAllMappedElementIDs(pathway,
-						rowCollection, mappingCollection);
+				Set<Object> allMappedIDs = EntityMappingUtil.getAllMappedElementIDs(pathway, rowCollection,
+						mappingCollection);
+				Set<Object> filteredMappedIDs = EntityMappingUtil.getFilteredElementIDsOf(allMappedIDs,
+						mappingCollection);
 
-				rowToMappings.put(pathway, mappedIDs);
+				rowToMappings.put(pathway, Pair.make(allMappedIDs, filteredMappedIDs));
 			}
 
-			Map<Object, Set<Object>> columnToMappings = new HashMap<>();
+			Map<Object, Pair<Set<Object>, Set<Object>>> columnToMappings = new HashMap<>();
 
 			for (Object cluster : columnCollectionIDs) {
-				Set<Object> mappedIDs = isFilteredScore ? EntityMappingUtil.getFilteredMappedElementIDs(cluster,
-						columnCollection, mappingCollection) : EntityMappingUtil.getAllMappedElementIDs(cluster,
-						columnCollection, mappingCollection);
-				columnToMappings.put(cluster, mappedIDs);
+				Set<Object> allMappedIDs = EntityMappingUtil.getAllMappedElementIDs(cluster, columnCollection,
+						mappingCollection);
+				Set<Object> filteredMappedIDs = EntityMappingUtil.getFilteredElementIDsOf(allMappedIDs,
+						mappingCollection);
+
+				columnToMappings.put(cluster, Pair.make(allMappedIDs, filteredMappedIDs));
 			}
 
-			for (Entry<Object, Set<Object>> rowEntry : rowToMappings.entrySet()) {
-				for (Entry<Object, Set<Object>> columnEntry : columnToMappings.entrySet()) {
-					float a = Sets.intersection(rowEntry.getValue(), columnEntry.getValue()).size();
-					float b = columnEntry.getValue().size() - a;
-					float c = rowEntry.getValue().size();
-					float d = mappingCollectionIDs.size() - c;
+			for (Entry<Object, Pair<Set<Object>, Set<Object>>> rowEntry : rowToMappings.entrySet()) {
+				for (Entry<Object, Pair<Set<Object>, Set<Object>>> columnEntry : columnToMappings.entrySet()) {
+					float a = 0;
+					float b = 0;
+					if (isFilteredItemScore) {
+						a = Sets.intersection(rowEntry.getValue().getSecond(), columnEntry.getValue().getSecond())
+								.size();
+						b = columnEntry.getValue().getSecond().size() - a;
+					} else {
+						a = Sets.intersection(rowEntry.getValue().getFirst(), columnEntry.getValue().getFirst()).size();
+						b = columnEntry.getValue().getFirst().size() - a;
+					}
+					float c = rowEntry.getValue().getFirst().size();
+					float d = mappingCollection.getAllElementIDs().size() - c;
 
 					float score = (a / (a + b)) / (c / (c + d));
 					if (Float.isNaN(score))
@@ -152,7 +166,8 @@ public class EnrichmentScores {
 		@Override
 		public String getLabel() {
 			return "Enrichment of " + columnCollection.getLabel() + " for " + rowCollection.getLabel() + " via "
-					+ mappingCollection.getLabel();
+					+ mappingCollection.getLabel() + " considering "
+					+ (isFilteredItemScore ? "filtered items" : "all items");
 		}
 	}
 
@@ -197,7 +212,6 @@ public class EnrichmentScores {
 
 	public static class EnrichmentScoreComparator extends AEnrichmentScoreComparator {
 
-
 		public EnrichmentScoreComparator(EnrichmentScore score) {
 			super(score);
 		}
@@ -227,17 +241,27 @@ public class EnrichmentScores {
 	}
 
 	public EnrichmentScore getOrCreateEnrichmentScore(IEntityCollection targetCollection,
-			IEntityCollection enrichmentCollection, IEntityCollection mappingCollection) {
+			IEntityCollection enrichmentCollection, IEntityCollection mappingCollection, boolean isFilteredItemScore) {
 
-		Table<IEntityCollection, IEntityCollection, EnrichmentScore> table = allScores.get(mappingCollection);
+		Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table = allScores
+				.get(mappingCollection);
 		if (table == null) {
 			table = HashBasedTable.create();
 			allScores.put(mappingCollection, table);
 		}
-		EnrichmentScore score = table.get(targetCollection, enrichmentCollection);
+		Pair<EnrichmentScore, EnrichmentScore> scores = table.get(targetCollection, enrichmentCollection);
+		if (scores == null) {
+			scores = new Pair<>();
+			table.put(targetCollection, enrichmentCollection, scores);
+		}
+		EnrichmentScore score = isFilteredItemScore ? scores.getSecond() : scores.getFirst();
 		if (score == null) {
-			score = new EnrichmentScore(targetCollection, enrichmentCollection, mappingCollection, true);
-			table.put(targetCollection, enrichmentCollection, score);
+			score = new EnrichmentScore(targetCollection, enrichmentCollection, mappingCollection, isFilteredItemScore);
+			if (isFilteredItemScore) {
+				scores.setSecond(score);
+			} else {
+				scores.setFirst(score);
+			}
 		}
 
 		return score;
@@ -245,20 +269,34 @@ public class EnrichmentScores {
 
 	public Collection<EnrichmentScore> getScoresForTargetCollection(IEntityCollection targetCollection) {
 		Set<EnrichmentScore> scores = new HashSet<>();
-		for (Table<IEntityCollection, IEntityCollection, EnrichmentScore> table : allScores.values()) {
-			Map<IEntityCollection, EnrichmentScore> row = table.row(targetCollection);
-			if (row != null)
-				scores.addAll(row.values());
+		for (Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table : allScores
+				.values()) {
+			Map<IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> row = table.row(targetCollection);
+			if (row != null) {
+				for (Pair<EnrichmentScore, EnrichmentScore> pair : row.values()) {
+					if (pair.getFirst() != null)
+						scores.add(pair.getFirst());
+					if (pair.getSecond() != null)
+						scores.add(pair.getSecond());
+				}
+			}
 		}
 		return scores;
 	}
 
 	public Collection<EnrichmentScore> getScoresForEnrichmentCollection(IEntityCollection enrichmentCollection) {
 		Set<EnrichmentScore> scores = new HashSet<>();
-		for (Table<IEntityCollection, IEntityCollection, EnrichmentScore> table : allScores.values()) {
-			Map<IEntityCollection, EnrichmentScore> column = table.column(enrichmentCollection);
-			if (column != null)
-				scores.addAll(column.values());
+		for (Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table : allScores
+				.values()) {
+			Map<IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> column = table.column(enrichmentCollection);
+			if (column != null) {
+				for (Pair<EnrichmentScore, EnrichmentScore> pair : column.values()) {
+					if (pair.getFirst() != null)
+						scores.add(pair.getFirst());
+					if (pair.getSecond() != null)
+						scores.add(pair.getSecond());
+				}
+			}
 		}
 		return scores;
 	}
@@ -275,9 +313,12 @@ public class EnrichmentScores {
 	}
 
 	public void updateScores() {
-		for (Table<IEntityCollection, IEntityCollection, EnrichmentScore> table : allScores.values()) {
-			for (Cell<IEntityCollection, IEntityCollection, EnrichmentScore> cell : table.cellSet()) {
-				cell.getValue().updateScores();
+		for (Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table : allScores
+				.values()) {
+			for (Cell<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> cell : table
+					.cellSet()) {
+				// Only second (filter based scores) need update
+				cell.getValue().getSecond().updateScores();
 			}
 		}
 	}

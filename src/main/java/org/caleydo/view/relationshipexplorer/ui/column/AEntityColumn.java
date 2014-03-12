@@ -35,6 +35,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItem
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.DuplicateColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.RemoveColumnCommand;
@@ -76,6 +77,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/sort_descending.png");
 	protected static final URL REMOVE_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/remove.png");
+	protected static final URL DUPLICATE_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/duplicate.png");
 
 	// -----------------
 
@@ -136,8 +139,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		});
 
-
-
 	}
 
 	@Override
@@ -150,6 +151,18 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		headerButtons.add(new GLElement());
 
+		final GLButton duplicateColumnButton = addHeaderButton(DUPLICATE_ICON);
+
+		duplicateColumnButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				DuplicateColumnCommand c = new DuplicateColumnCommand(AEntityColumn.this, relationshipExplorer);
+				c.execute();
+				relationshipExplorer.getHistory().addHistoryCommand(c, Color.DARK_BLUE);
+			}
+		});
+
 		final GLButton removeColumnButton = addHeaderButton(REMOVE_ICON);
 
 		removeColumnButton.setCallback(new ISelectionCallback() {
@@ -161,6 +174,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				relationshipExplorer.getHistory().addHistoryCommand(c, Color.DARK_BLUE);
 			}
 		});
+
 	}
 
 	protected GLButton addHeaderButton(URL iconURL) {
@@ -1090,6 +1104,20 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		mapIDToFilteredItems.clear();
 		baseComparators.clear();
 		summaryItemFactories.clear();
+	}
+
+	/**
+	 * @return the summaryItemFactory, see {@link #summaryItemFactory}
+	 */
+	public ISummaryItemFactory getSummaryItemFactory() {
+		return summaryItemFactory;
+	}
+
+	/**
+	 * @return the summaryItemFactories, see {@link #summaryItemFactories}
+	 */
+	public Set<ISummaryItemFactory> getSummaryItemFactories() {
+		return summaryItemFactories;
 	}
 
 	protected abstract GLElement newElement(Object elementID);

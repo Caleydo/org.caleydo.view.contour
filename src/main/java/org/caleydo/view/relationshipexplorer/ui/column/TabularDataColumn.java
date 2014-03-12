@@ -9,7 +9,6 @@ import gleem.linalg.Vec2f;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
@@ -40,7 +39,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -162,20 +160,20 @@ public class TabularDataColumn extends AEntityColumn {
 	// // }
 	// }
 
-	@Override
-	public IDType getBroadcastingIDType() {
-		return itemIDType;
-	}
-
-	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
-		return Sets.newHashSet(elementID);
-	}
-
-	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-		return Sets.newHashSet((Object) broadcastingID);
-	}
+	// @Override
+	// public IDType getBroadcastingIDType() {
+	// return itemIDType;
+	// }
+	//
+	// @Override
+	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	// return Sets.newHashSet(elementID);
+	// }
+	//
+	// @Override
+	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	// return Sets.newHashSet((Object) broadcastingID);
+	// }
 
 	// @Override
 	// public Comparator<GLElement> getDefaultElementComparator() {

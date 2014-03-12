@@ -233,9 +233,9 @@ public class History extends AnimatedGLElementContainer {
 		return lastHistoryObjectID;
 	}
 
-	public void unregisterHistoryObject(int id) {
-		historyObjects.remove(id);
-	}
+	// public void unregisterHistoryObject(int id) {
+	// historyObjects.remove(id);
+	// }
 
 	public <T> T getHistoryObjectAs(Class<T> clazz, int id) {
 		Object o = historyObjects.get(id);

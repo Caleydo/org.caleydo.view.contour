@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.collection;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.id.IDMappingManager;
@@ -25,15 +26,15 @@ public class IDCollection extends AEntityCollection {
 	protected final IDType idType;
 	protected final IDType displayedIDType;
 
-	public IDCollection(IDType idType, IDType displayedIDType, RelationshipExplorerElement relationshipExplorer) {
+	public IDCollection(IDType idType, IDType displayedIDType, IElementIDProvider elementIDProvider,
+			RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;
 		this.label = idType.getIDCategory().getDenominationPlural(true);
-
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
-		// elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
-		allElementIDs.addAll(mappingManager.getAllMappedIDs(idType));
+		if (elementIDProvider == null)
+			elementIDProvider = getDefaultElementIDProvider(idType);
+		allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 	}
 
@@ -43,13 +44,13 @@ public class IDCollection extends AEntityCollection {
 	}
 
 	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	protected Set<Object> getBroadcastIDsFromElementID(Object elementID) {
 		return Sets.newHashSet(elementID);
 	}
 
 	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-		return Sets.newHashSet((Object) broadcastingID);
+	protected Set<Object> getElementIDsFromBroadcastID(Object broadcastingID) {
+		return Sets.newHashSet(broadcastingID);
 	}
 
 	@Override
@@ -73,6 +74,17 @@ public class IDCollection extends AEntityCollection {
 	 */
 	public IDType getDisplayedIDType() {
 		return displayedIDType;
+	}
+
+	public static IElementIDProvider getDefaultElementIDProvider(final IDType idType) {
+		return new IElementIDProvider() {
+			@Override
+			public Set<Object> getElementIDs() {
+				IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(
+						idType.getIDCategory());
+				return new HashSet<Object>(mappingManager.getAllMappedIDs(idType));
+			}
+		};
 	}
 
 }

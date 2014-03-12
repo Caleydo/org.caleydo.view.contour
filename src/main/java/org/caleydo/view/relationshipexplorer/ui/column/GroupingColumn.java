@@ -7,15 +7,10 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import gleem.linalg.Vec2f;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
-import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
@@ -89,30 +84,30 @@ public class GroupingColumn extends ATextColumn {
 
 	// }
 
-	@Override
-	public IDType getBroadcastingIDType() {
-		return perspective.getIdType();
-	}
-
-	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
-		Group g = (Group) elementID;
-		Set<Object> bcIDs = new HashSet<>();
-		bcIDs.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
-		return bcIDs;
-	}
-
-	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-
-		List<Group> groups = perspective.getVirtualArray().getGroupOf(broadcastingID);
-
-		Set<Object> elementIDs = new HashSet<>(groups.size());
-		for (Group group : groups) {
-			elementIDs.add(group);
-		}
-		return elementIDs;
-	}
+	// @Override
+	// public IDType getBroadcastingIDType() {
+	// return perspective.getIdType();
+	// }
+	//
+	// @Override
+	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	// Group g = (Group) elementID;
+	// Set<Object> bcIDs = new HashSet<>();
+	// bcIDs.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
+	// return bcIDs;
+	// }
+	//
+	// @Override
+	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	//
+	// List<Group> groups = perspective.getVirtualArray().getGroupOf(broadcastingID);
+	//
+	// Set<Object> elementIDs = new HashSet<>(groups.size());
+	// for (Group group : groups) {
+	// elementIDs.add(group);
+	// }
+	// return elementIDs;
+	// }
 
 	// @Override
 	// protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {

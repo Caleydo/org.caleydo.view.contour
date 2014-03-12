@@ -248,7 +248,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	@Override
 	protected void takeDown() {
 		geneCollection.removeEntityRepresentation(this);
-		relationshipExplorer.getHistory().unregisterHistoryObject(getHistoryID());
+		// relationshipExplorer.getHistory().unregisterHistoryObject(getHistoryID());
 		super.takeDown();
 	}
 

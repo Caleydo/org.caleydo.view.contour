@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.internal;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
@@ -12,16 +13,21 @@ import org.caleydo.core.data.datadomain.DataDomainManager;
 import org.caleydo.core.data.datadomain.IDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.id.IDCategory;
+import org.caleydo.core.id.IDMappingManager;
+import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.io.DataSetDescription;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
+import org.caleydo.datadomain.pathway.graph.PathwayGraph;
+import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
@@ -47,6 +53,51 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
  *
  */
 public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory {
+
+	private class PathwayIDProvider implements IElementIDProvider {
+
+		@Override
+		public Set<Object> getElementIDs() {
+			Set<PathwayGraph> allPathways = new HashSet<>(PathwayManager.get().getAllItems());
+
+			IDType compoundIDType = IDType.getIDType("COMPOUND_ID");
+
+			Set<Object> filteredPathways = new HashSet<>();
+			for (PathwayGraph pathway : allPathways) {
+				if (pathway.getLabel().toLowerCase().contains("metabolic pathway"))
+					continue;
+				Set<Object> compoundIDs = PathwayManager.get().getPathwayGeneIDs(pathway, compoundIDType);
+				if (compoundIDs != null && !compoundIDs.isEmpty())
+					filteredPathways.add(pathway);
+			}
+
+			return filteredPathways;
+		}
+
+	}
+
+	private class GeneIDProvider implements IElementIDProvider {
+
+		@Override
+		public Set<Object> getElementIDs() {
+			IDType geneIDType = IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name());
+			IDType compoundIDType = IDType.getIDType("COMPOUND_ID");
+			IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(
+					geneIDType.getIDCategory());
+			Set<Object> allGeneIDs = new HashSet<Object>(mappingManager.getAllMappedIDs(geneIDType));
+			Set<Object> filteredGeneIDs = new HashSet<>();
+			for (Object geneID : allGeneIDs) {
+				Set<Object> compoundIDs = mappingManager.getIDAsSet(geneIDType, compoundIDType, geneID);
+				if (compoundIDs != null && !compoundIDs.isEmpty()) {
+					filteredGeneIDs.add(geneID);
+				}
+			}
+
+			return filteredGeneIDs;
+		}
+
+	}
+
 	@Override
 	public String getId() {
 		return "relationship explorer";
@@ -57,10 +108,11 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 
 		RelationshipExplorerElement relationshipExplorer = new RelationshipExplorerElement();
 
-		PathwayCollection pathwayCollection = new PathwayCollection(relationshipExplorer);
+		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), relationshipExplorer);
 
 		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
-				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), relationshipExplorer);
+				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), new GeneIDProvider(),
+				relationshipExplorer);
 
 		TabularDataCollection activityCollection = null;
 
@@ -70,7 +122,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					// ColumnTree activityColumn = new ColumnTree();
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
 					activityCollection.setLabel("Activities");
 					activityCollection.setColumnFactory(new ActivityColumnFactory(activityCollection,
 							relationshipExplorer));
@@ -87,7 +139,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		}
 
 		IDCollection compoundCollection = new IDCollection(IDType.getIDType("COMPOUND_ID"),
-				IDType.getIDType("COMPOUND_ID"), relationshipExplorer);
+				IDType.getIDType("COMPOUND_ID"), null, relationshipExplorer);
 		compoundCollection.setLabel("Compounds");
 
 		TabularDataCollection fingerprintCollection = null;
@@ -96,7 +148,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					fingerprintCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), relationshipExplorer);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
 
 					// ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
 					//
@@ -137,7 +189,9 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 
 		c = new AddChildColumnCommand(clusterCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 				relationshipExplorer.getHistory());
-		initCommand.add(c);
+		// c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
+		// relationshipExplorer.getHistory());
+		// initCommand.add(c);
 		NestableColumn childColumn = (NestableColumn) c.execute();
 
 		addDefaultSortingCommand(relationshipExplorer, pathwayColumn.getRootColumn().getColumnModel(),
@@ -257,7 +311,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getDimensionPerspective(perspectiveID);
-								return new GroupCollection(perspective, relationshipExplorer);
+								return new GroupCollection(perspective, null, relationshipExplorer);
 							}
 						}
 
@@ -268,7 +322,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getRecordPerspective(perspectiveID);
-								return new GroupCollection(perspective, relationshipExplorer);
+								return new GroupCollection(perspective, null, relationshipExplorer);
 							}
 						}
 					}

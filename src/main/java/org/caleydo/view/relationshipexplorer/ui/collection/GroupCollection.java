@@ -28,12 +28,16 @@ public class GroupCollection extends AEntityCollection {
 	protected final Perspective perspective;
 	protected final GroupList groupList;
 
-	public GroupCollection(Perspective perspective, RelationshipExplorerElement relationshipExplorer) {
+	public GroupCollection(Perspective perspective, IElementIDProvider elementIDProvider,
+			RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
 		this.perspective = perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();
 		this.groupList = perspective.getVirtualArray().getGroupList();
-		allElementIDs.addAll(groupList.getGroups());
+		if (elementIDProvider == null)
+			elementIDProvider = getDefaultElementIDProvider(perspective);
+
+		allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel(perspective.getLabel());
 	}
@@ -44,7 +48,7 @@ public class GroupCollection extends AEntityCollection {
 	}
 
 	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	protected Set<Object> getBroadcastIDsFromElementID(Object elementID) {
 		Group g = (Group) elementID;
 		Set<Object> bcIDs = new HashSet<>();
 		bcIDs.addAll(perspective.getVirtualArray().getIDsOfGroup(g.getGroupIndex()));
@@ -52,9 +56,9 @@ public class GroupCollection extends AEntityCollection {
 	}
 
 	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	public Set<Object> getElementIDsFromBroadcastID(Object broadcastingID) {
 
-		List<Group> groups = perspective.getVirtualArray().getGroupOf(broadcastingID);
+		List<Group> groups = perspective.getVirtualArray().getGroupOf((Integer) broadcastingID);
 
 		Set<Object> elementIDs = new HashSet<>(groups.size());
 		for (Group group : groups) {
@@ -91,6 +95,15 @@ public class GroupCollection extends AEntityCollection {
 	 */
 	public GroupList getGroupList() {
 		return groupList;
+	}
+
+	public static IElementIDProvider getDefaultElementIDProvider(final Perspective perspective) {
+		return new IElementIDProvider() {
+			@Override
+			public Set<Object> getElementIDs() {
+				return new HashSet<Object>(perspective.getVirtualArray().getGroupList().getGroups());
+			}
+		};
 	}
 
 }

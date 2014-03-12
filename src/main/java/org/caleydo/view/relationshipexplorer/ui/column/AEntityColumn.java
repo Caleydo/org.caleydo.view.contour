@@ -7,7 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,8 +16,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
-import org.caleydo.core.id.IDMappingManager;
-import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
@@ -275,19 +272,19 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return foreignColumn;
 	}
 
-	@Override
-	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
-		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-
-		Set<Object> elementIDs = new HashSet<>();
-		Set<Object> broadcastIDs = mappingManager.getIDTypeMapper(foreignIDType, getBroadcastingIDType()).apply(
-				foreignIDs);
-		for (Object bcID : broadcastIDs) {
-			elementIDs.addAll(getElementIDsFromBroadcastingID((Integer) bcID));
-		}
-
-		return elementIDs;
-	}
+	// @Override
+	// public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
+	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
+	//
+	// Set<Object> elementIDs = new HashSet<>();
+	// Set<Object> broadcastIDs = mappingManager.getIDTypeMapper(foreignIDType, getBroadcastingIDType()).apply(
+	// foreignIDs);
+	// for (Object bcID : broadcastIDs) {
+	// elementIDs.addAll(getElementIDsFromBroadcastingID((Integer) bcID));
+	// }
+	//
+	// return elementIDs;
+	// }
 
 	// /**
 	// * @return the selectedElementIDs, see {@link #selectedElementIDs}
@@ -378,8 +375,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		entityCollection.setHighlightItems(elementIDs);
 
-		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(
-				getBroadcastingIDsFromElementIDs(elementIDs), this));
+		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(entityCollection
+				.getBroadcastingIDsFromElementIDs(elementIDs), this));
 
 	}
 
@@ -596,10 +593,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// layeredBars.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelectedElements);
 	// }
 
-	@Override
-	public Set<Object> getFilteredElementIDs() {
-		return mapIDToFilteredItems.keySet();
-	}
+	// @Override
+	// public Set<Object> getFilteredElementIDs() {
+	// return mapIDToFilteredItems.keySet();
+	// }
 
 	// protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {
 	// if (path == null) {
@@ -631,15 +628,15 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return relationshipExplorer;
 	}
 
-	@Override
-	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
-		Set<Object> broadcastIDs = new HashSet<>();
-		for (Object elementID : elementIDs) {
-			broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-		}
-
-		return broadcastIDs;
-	}
+	// @Override
+	// public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
+	// Set<Object> broadcastIDs = new HashSet<>();
+	// for (Object elementID : elementIDs) {
+	// broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
+	// }
+	//
+	// return broadcastIDs;
+	// }
 
 	// public void updateSorting() {
 	// sort(currentComparator);
@@ -670,8 +667,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		} else {
 			for (Object id : entityCollection.getFilteredElementIDs()) {
-				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
-						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, entityCollection,
+						parentColumn.getColumnModel().getCollection());
+				// = parentColumn
+				// .getColumnModel()
+				// .getCollection()
+				// .getElementIDsFromForeignIDs(entityCollection.getBroadcastingIDsFromElementID(id),
+				// entityCollection.getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
 
 				boolean add = true;
@@ -852,8 +854,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 			// Third add items that are present in the filter and where there's a parent
 			for (Object id : elementIDs) {
-				Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
-						getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
+				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, entityCollection,
+						parentColumn.getColumnModel().getCollection());
+				// Set<Object> foreignElementIDs = parentColumn
+				// .getColumnModel()
+				// .getCollection()
+				// .getElementIDsFromForeignIDs(entityCollection.getBroadcastingIDsFromElementID(id),
+				// entityCollection.getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
 
 				for (NestableItem parentItem : parentItems) {
@@ -902,10 +909,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		if (parentColumn == null)
 			return;
 		for (NestableItem parentItem : parentColumn.getVisibleItems()) {
-			Set<Object> parentBCIDs = parentColumn.getColumnModel().getBroadcastingIDsFromElementIDs(
-					parentItem.getElementData());
-			Set<Object> mappedElementIDs = getElementIDsFromForeignIDs(parentBCIDs, parentColumn.getColumnModel()
-					.getBroadcastingIDType());
+			Set<Object> parentBCIDs = parentColumn.getColumnModel().getCollection()
+					.getBroadcastingIDsFromElementIDs(parentItem.getElementData());
+			Set<Object> mappedElementIDs = entityCollection.getElementIDsFromForeignIDs(parentBCIDs, parentColumn
+					.getColumnModel().getCollection().getBroadcastingIDType());
 			if (mappedElementIDs.size() > maxParentMappings)
 				maxParentMappings = mappedElementIDs.size();
 		}

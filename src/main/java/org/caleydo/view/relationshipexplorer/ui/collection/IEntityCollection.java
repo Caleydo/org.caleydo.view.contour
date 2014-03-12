@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.collection;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
@@ -47,9 +46,9 @@ public interface IEntityCollection extends ILabeled {
 
 	public Set<Object> getBroadcastingIDsFromElementID(Object elementID);
 
-	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs);
+	public Set<Object> getBroadcastingIDsFromElementIDs(Set<Object> elementIDs);
 
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
+	public Set<Object> getElementIDsFromBroadcastingID(Object broadcastingID);
 
 	public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType);
 

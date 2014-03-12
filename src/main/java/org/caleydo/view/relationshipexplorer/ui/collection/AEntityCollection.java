@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.collection;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +15,8 @@ import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -61,7 +62,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	@Override
 	public void setFilteredItems(Set<Object> elementIDs) {
-		this.filteredElementIDs = elementIDs;
+		this.filteredElementIDs = new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
 		// notifyFilterUpdate(updateSource);
 	}
 
@@ -76,7 +77,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	@Override
 	public void setHighlightItems(Set<Object> elementIDs) {
-		this.highlightElementIDs = elementIDs;
+		this.highlightElementIDs = new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
 	}
 
 	@Override
@@ -88,7 +89,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	@Override
 	public void setSelectedItems(Set<Object> elementIDs) {
-		this.selectedElementIDs = elementIDs;
+		this.selectedElementIDs = new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
 		// notifySelectionUpdate(updateSource);
 	}
 
@@ -102,9 +103,10 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
+	public Set<Object> getBroadcastingIDsFromElementIDs(Set<Object> elementIDs) {
+		Set<Object> myElementIDs = new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
 		Set<Object> broadcastIDs = new HashSet<>();
-		for (Object elementID : elementIDs) {
+		for (Object elementID : myElementIDs) {
 			broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
 		}
 
@@ -119,11 +121,28 @@ public abstract class AEntityCollection implements IEntityCollection {
 		Set<Object> broadcastIDs = mappingManager.getIDTypeMapper(foreignIDType, getBroadcastingIDType()).apply(
 				foreignIDs);
 		for (Object bcID : broadcastIDs) {
-			elementIDs.addAll(getElementIDsFromBroadcastingID((Integer) bcID));
+			elementIDs.addAll(getElementIDsFromBroadcastID(bcID));
 		}
 
-		return elementIDs;
+		return new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
 	}
+
+	@Override
+	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+		if (!allElementIDs.contains(elementID))
+			return new HashSet<>();
+		return getBroadcastIDsFromElementID(elementID);
+	}
+
+	protected abstract Set<Object> getBroadcastIDsFromElementID(Object elementID);
+
+	@Override
+	public Set<Object> getElementIDsFromBroadcastingID(Object broadcastingID) {
+		Set<Object> elementIDs = getElementIDsFromBroadcastID(broadcastingID);
+		return new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
+	}
+
+	protected abstract Set<Object> getElementIDsFromBroadcastID(Object broadcastID);
 
 	@Override
 	public String getLabel() {

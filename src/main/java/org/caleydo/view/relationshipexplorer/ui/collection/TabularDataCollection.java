@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.collection;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
@@ -34,7 +35,7 @@ public class TabularDataCollection extends AEntityCollection {
 	protected final IDType mappingIDType;
 
 	public TabularDataCollection(TablePerspective tablePerspective, IDCategory itemIDCategory,
-			RelationshipExplorerElement relationshipExplorer) {
+			IElementIDProvider elementIDProvider, RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
 		dataDomain = tablePerspective.getDataDomain();
 
@@ -52,7 +53,10 @@ public class TabularDataCollection extends AEntityCollection {
 			itemIDType = tablePerspective.getRecordPerspective().getIdType();
 			dimensionPerspective = tablePerspective.getDimensionPerspective();
 		}
-		allElementIDs.addAll(va.getIDs());
+		if (elementIDProvider == null)
+			elementIDProvider = getDefaultElementIDProvider(va);
+
+		allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel(dataDomain.getLabel());
 	}
@@ -63,13 +67,13 @@ public class TabularDataCollection extends AEntityCollection {
 	}
 
 	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	protected Set<Object> getBroadcastIDsFromElementID(Object elementID) {
 		return Sets.newHashSet(elementID);
 	}
 
 	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-		return Sets.newHashSet((Object) broadcastingID);
+	protected Set<Object> getElementIDsFromBroadcastID(Object broadcastingID) {
+		return Sets.newHashSet(broadcastingID);
 	}
 
 	@Override
@@ -121,6 +125,15 @@ public class TabularDataCollection extends AEntityCollection {
 	 */
 	public VirtualArray getVa() {
 		return va;
+	}
+
+	public static IElementIDProvider getDefaultElementIDProvider(final VirtualArray va) {
+		return new IElementIDProvider() {
+			@Override
+			public Set<Object> getElementIDs() {
+				return new HashSet<Object>(va.getIDs());
+			}
+		};
 	}
 
 }

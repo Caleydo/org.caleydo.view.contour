@@ -280,7 +280,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	protected void takeDown() {
-		filteredMapping.getHistory().unregisterHistoryObject(historyID);
+		// filteredMapping.getHistory().unregisterHistoryObject(historyID);
 		groupCollection.removeEntityRepresentation(this);
 		super.takeDown();
 	}

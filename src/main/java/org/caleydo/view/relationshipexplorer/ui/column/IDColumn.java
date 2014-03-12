@@ -31,7 +31,6 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.Sets;
 
 /**
  * @author Christian
@@ -128,20 +127,20 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 		return id.toString();
 	}
 
-	@Override
-	public IDType getBroadcastingIDType() {
-		return idType;
-	}
-
-	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
-		return Sets.newHashSet(elementID);
-	}
-
-	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-		return Sets.newHashSet((Object) broadcastingID);
-	}
+	// @Override
+	// public IDType getBroadcastingIDType() {
+	// return idType;
+	// }
+	//
+	// @Override
+	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	// return Sets.newHashSet(elementID);
+	// }
+	//
+	// @Override
+	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	// return Sets.newHashSet((Object) broadcastingID);
+	// }
 
 	// @Override
 	// public Comparator<GLElement> getDefaultElementComparator() {

@@ -22,9 +22,11 @@ import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
  */
 public class PathwayCollection extends AEntityCollection {
 
-	public PathwayCollection(RelationshipExplorerElement relationshipExplorer) {
+	public PathwayCollection(IElementIDProvider elementIDProvider, RelationshipExplorerElement relationshipExplorer) {
 		super(relationshipExplorer);
-		this.allElementIDs.addAll(PathwayManager.get().getAllItems());
+		if (elementIDProvider == null)
+			elementIDProvider = getDefaultElementIDProvider();
+		this.allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel("Pathways");
 	}
@@ -36,16 +38,16 @@ public class PathwayCollection extends AEntityCollection {
 	}
 
 	@Override
-	public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
+	protected Set<Object> getBroadcastIDsFromElementID(Object elementID) {
 		Set<Object> ids = PathwayManager.get().getPathwayGeneIDs((PathwayGraph) elementID,
 				IDType.getIDType(EGeneIDTypes.DAVID.name()));
 		return ids;
 	}
 
 	@Override
-	public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
+	protected Set<Object> getElementIDsFromBroadcastID(Object broadcastingID) {
 		Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(getBroadcastingIDType(),
-				broadcastingID);
+				(Integer) broadcastingID);
 
 		Set<Object> elementIDs = new HashSet<>(pathways != null ? pathways.size() : 0);
 		if (pathways != null) {
@@ -64,6 +66,15 @@ public class PathwayCollection extends AEntityCollection {
 
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
+	}
+
+	public static IElementIDProvider getDefaultElementIDProvider() {
+		return new IElementIDProvider() {
+			@Override
+			public Set<Object> getElementIDs() {
+				return new HashSet<Object>(PathwayManager.get().getAllItems());
+			}
+		};
 	}
 
 }

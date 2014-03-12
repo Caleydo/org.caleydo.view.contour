@@ -170,6 +170,8 @@ public abstract class AEntityCollection implements IEntityCollection {
 	@Override
 	public void reset() {
 		restoreAllEntities();
+		highlightElementIDs.clear();
+		selectedElementIDs.clear();
 		representations.clear();
 	}
 

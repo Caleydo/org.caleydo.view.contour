@@ -269,6 +269,51 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		return columnTree.addElement(element, this, parentItem);
 	}
 
+	private void removeChildColumn(NestableColumn column) {
+		header.remove(column.getHeader());
+		if (isRoot()) {
+			for (ItemContainer container : itemContainers) {
+				for (GLElement element : container) {
+					NestableItem item = (NestableItem) element;
+					item.removeNestedContainer(column);
+				}
+			}
+		} else {
+			for (ItemContainer container : itemContainers) {
+				CollapsableItemContainer c = (CollapsableItemContainer) container;
+				for (NestableItem item : c.items) {
+					item.removeNestedContainer(column);
+				}
+				c.summaryItem.removeNestedContainer(column);
+			}
+		}
+		children.remove(column);
+	}
+
+	public void remove() {
+		if (isRoot()) {
+			columnTree.getRelationshipExplorer().removeColumn(columnTree);
+		} else {
+			parent.removeChildColumn(this);
+			columnTree.allColumns.remove(this);
+			columnTree.relayout();
+		}
+
+		takeDown();
+	}
+
+	private void takeDown() {
+		for (NestableColumn column : children) {
+			column.takeDown();
+		}
+		model.takeDown();
+		selectionListeners.clear();
+		children.clear();
+		itemContainers.clear();
+		selectedItems.clear();
+		highlightedItems.clear();
+	}
+
 	public void removeItem(NestableItem item) {
 		if (isRoot()) {
 			for (ItemContainer container : itemContainers) {

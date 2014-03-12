@@ -37,6 +37,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.AttributeFilter
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.RemoveColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ShowDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
@@ -73,6 +74,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
 	protected static final URL SORT_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/sort_descending.png");
+	protected static final URL REMOVE_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/remove.png");
 
 	// -----------------
 
@@ -133,6 +136,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		});
 
+
+
 	}
 
 	@Override
@@ -142,6 +147,20 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		// currentComparator = new CompositeComparator<NestableItem>(ItemComparators.SELECTED_ITEMS_COMPARATOR,
 		// selectionMappingComparator, visibleMappingComparator, totalMappingComparator, getDefaultComparator());
 		initialized = true;
+
+		headerButtons.add(new GLElement());
+
+		final GLButton removeColumnButton = addHeaderButton(REMOVE_ICON);
+
+		removeColumnButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				RemoveColumnCommand c = new RemoveColumnCommand(AEntityColumn.this, relationshipExplorer.getHistory());
+				c.execute();
+				relationshipExplorer.getHistory().addHistoryCommand(c, Color.DARK_BLUE);
+			}
+		});
 	}
 
 	protected GLButton addHeaderButton(URL iconURL) {
@@ -1062,6 +1081,15 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			// }
 		}
 		return scoreElement;
+	}
+
+	@Override
+	public void takeDown() {
+		column.removeSelectionUpdateListener(this);
+		entityCollection.removeEntityRepresentation(this);
+		mapIDToFilteredItems.clear();
+		baseComparators.clear();
+		summaryItemFactories.clear();
 	}
 
 	protected abstract GLElement newElement(Object elementID);

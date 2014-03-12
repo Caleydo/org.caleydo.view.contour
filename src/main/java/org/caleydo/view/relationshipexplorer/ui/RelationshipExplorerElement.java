@@ -130,13 +130,11 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		add(scrollingDecorator);
 
 		history = new History(this);
-		scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(
-				false), 8, EDimension.RECORD);
+		scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(false), 8,
+				EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(history);
 		scrollingDecorator.setSize(Float.NaN, MIN_HISTORY_HEIGHT);
 		add(scrollingDecorator);
-
-
 
 	}
 
@@ -167,6 +165,23 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		columnContainer.add(column);
 		cols.add(column);
 		// registerEntityCollection(column);
+	}
+
+	public void removeColumn(ColumnTree column) {
+		int index = columnContainer.indexOf(column);
+		if (index == -1)
+			return;
+
+		if (index == 0) {
+			columnContainer.remove(0);
+			if (columnContainer.size() > 0)
+				columnContainer.remove(0);
+		} else {
+			columnContainer.remove(index - 1);
+			columnContainer.remove(column);
+		}
+
+		cols.remove(column);
 	}
 
 	public void clearColumns() {

@@ -66,4 +66,6 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void init();
 
+	public void takeDown();
+
 }

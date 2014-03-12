@@ -191,7 +191,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 				relationshipExplorer.getHistory());
 		// c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 		// relationshipExplorer.getHistory());
-		// initCommand.add(c);
+		initCommand.add(c);
 		NestableColumn childColumn = (NestableColumn) c.execute();
 
 		addDefaultSortingCommand(relationshipExplorer, pathwayColumn.getRootColumn().getColumnModel(),

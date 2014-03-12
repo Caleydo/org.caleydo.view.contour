@@ -136,6 +136,12 @@ public class NestableItem extends AnimatedGLElementContainer {
 		return container;
 	}
 
+	public void removeNestedContainer(NestableColumn column) {
+		CollapsableItemContainer c = itemContainers.get(column);
+		if (c != null)
+			remove(c);
+	}
+
 	public void updateSize(float elementWidth, float elementHeight) {
 
 		if (getParent() == null)

@@ -28,7 +28,7 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivityItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTSActivityItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
@@ -242,7 +242,7 @@ public class TabularDataColumn extends AEntityColumn {
 		// FIXME: Temporary hack -> use factory to create columns in entitycollection specifying the summary and item
 		// renderers for a column
 		if (dataDomain.getLabel().toLowerCase().contains("activity")) {
-			return new ActivityItemFactory(this).createItem(elementID);
+			return new HTSActivityItemFactory(this).createItem(elementID);
 		}
 		return new SimpleDataRenderer(dataDomain, itemIDType, (Integer) elementID, perspective);
 	}

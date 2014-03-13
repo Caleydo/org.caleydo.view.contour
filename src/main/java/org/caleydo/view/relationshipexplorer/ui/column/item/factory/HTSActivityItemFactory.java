@@ -31,18 +31,18 @@ import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
  * @author Christian
  *
  */
-public class ActivityItemFactory implements IItemFactory {
+public class HTSActivityItemFactory implements IItemFactory {
 
 	protected static final URL ACTIVATION_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_right_up.png");
 	protected static final URL INHIBITION_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_right_down.png");
-	protected static final URL INACTIVE_ICON = AEntityColumn.class
-			.getResource("/org/caleydo/view/relationshipexplorer/icons/abort.png");
+	protected static final URL BIND_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/arrow_bidirectional.png");
 
 	protected final TabularDataColumn column;
 
-	public ActivityItemFactory(TabularDataColumn column) {
+	public HTSActivityItemFactory(TabularDataColumn column) {
 		this.column = column;
 	}
 
@@ -96,9 +96,9 @@ public class ActivityItemFactory implements IItemFactory {
 					} else if (property.getCategoryName().equalsIgnoreCase("inhibition")) {
 						interactionTypeRenderer.setRenderer(GLRenderers.fillImage(INHIBITION_ICON));
 						interactionTypeRenderer.setTooltip("Inhibition");
-					} else if (property.getCategoryName().equalsIgnoreCase("inactive")) {
-						interactionTypeRenderer.setRenderer(GLRenderers.fillImage(INACTIVE_ICON));
-						interactionTypeRenderer.setTooltip("Inactive");
+					} else if (property.getCategoryName().equalsIgnoreCase("binding")) {
+						interactionTypeRenderer.setRenderer(GLRenderers.fillImage(BIND_ICON));
+						interactionTypeRenderer.setTooltip("Binding");
 					}
 				}
 			}

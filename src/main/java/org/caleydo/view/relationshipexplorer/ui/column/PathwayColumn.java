@@ -36,96 +36,14 @@ public class PathwayColumn extends ATextColumn {
 		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
-	// @ListenTo
-	// public void onApplyIDFilter(IDUpdateEvent event) {
-	// if (event.getSender() == this)
-	// return;
-	// Set<?> foreignIDs = event.getIds();
-	// IDType foreignIDType = event.getIdType();
-	// Set<Object> mappedPathways = new HashSet<>();
-	// for (Object foreignID : foreignIDs) {
-	// Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(foreignIDType,
-	// (Integer) foreignID);
-	// if (pathways != null) {
-	// mappedPathways.addAll(pathways);
-	// }
-	// }
-	//
-	// setFilteredItems(mappedPathways);
-	// }
-
-	// @Override
-	// protected void setContent() {
-	// List<PathwayGraph> pathways = new ArrayList<>(PathwayManager.get().getAllItems());
-	// // Collections.sort(pathways, new Comparator<PathwayGraph>() {
-	// //
-	// // @Override
-	// // public int compare(PathwayGraph arg0, PathwayGraph arg1) {
-	// // return arg0.getLabel().toLowerCase().compareTo(arg1.getLabel().toLowerCase());
-	// // }
-	// // });
-	//
-	// for (final PathwayGraph pathway : pathways) {
-	// addTextElement(pathway.getLabel(), pathway);
-	// // ActionBasedContextMenuItem contextMenuItem = new ActionBasedContextMenuItem("Apply Filter", new
-	// // Runnable() {
-	// // @Override
-	// // public void run() {
-	// //
-	// //
-	// // }
-	// // });
-	// // itemList.addContextMenuItem(item, contextMenuItem);
-	// }
-	//
-	// }
-
-	// @Override
-	// public IDType getBroadcastingIDType() {
-	//
-	// return IDType.getIDType(EGeneIDTypes.DAVID.name());
-	// }
-	//
-	// @Override
-	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
-	// Set<Object> ids = PathwayManager.get().getPathwayGeneIDs((PathwayGraph) elementID,
-	// IDType.getIDType(EGeneIDTypes.DAVID.name()));
-	// return ids;
-	// }
-	//
-	// @Override
-	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-	// Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(getBroadcastingIDType(),
-	// broadcastingID);
-	//
-	// Set<Object> elementIDs = new HashSet<>(pathways != null ? pathways.size() : 0);
-	// if (pathways != null) {
-	// for (PathwayGraph pathway : pathways) {
-	// elementIDs.add(pathway);
-	// }
-	// }
-	// return elementIDs;
-	// }
-
-
-
-	// @Override
-	// protected List<AContextMenuItem> getContextMenuItems() {
-	// List<AContextMenuItem> items = super.getContextMenuItems();
-	//
-	// element.setRenderer(GLRenderers.fillRect(Color.RED));
-	//
-	// return items;
-	// }
-
 	@Override
 	public void showDetailView() {
 		Set<NestableItem> selectedItems = column.getSelectedItems();
 
-		if (selectedItems.size() != 1)
-			return;
-
 		PathwayGraph pathway = (PathwayGraph) selectedItems.iterator().next().getElementData().iterator().next();
+		if (selectedItems.size() > 1) {
+			pathway = (PathwayGraph) column.getHighlightedItems().iterator().next().getElementData().iterator().next();
+		}
 
 		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);

@@ -167,7 +167,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 
 			Object elementID = selectedItems.iterator().next().getElementData().iterator().next();
 
-			int recordID = (int) entityCollection.getBroadcastingIDsFromElementID(elementID).iterator().next();
+			Object bcID = entityCollection.getBroadcastingIDsFromElementID(elementID).iterator().next();
 
 			ATableBasedDataDomain dataDomain = null;
 
@@ -179,8 +179,10 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 				}
 			}
 
+			// IDType targetIDType = dataDomain.getPrimaryIDType(entityCollection.getBroadcastingIDType());
+
 			Set<Integer> smileIDs = mappingManager.getIDAsSet(entityCollection.getBroadcastingIDType(),
-					dataDomain.getRecordIDType(), recordID);
+					dataDomain.getRecordIDType(), bcID);
 
 			if (smileIDs != null && !smileIDs.isEmpty()) {
 

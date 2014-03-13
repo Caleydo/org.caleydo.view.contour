@@ -318,7 +318,8 @@ public class EnrichmentScores {
 			for (Cell<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> cell : table
 					.cellSet()) {
 				// Only second (filter based scores) need update
-				cell.getValue().getSecond().updateScores();
+				if (cell.getValue().getSecond() != null)
+					cell.getValue().getSecond().updateScores();
 			}
 		}
 	}

@@ -17,6 +17,7 @@ import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.column.ScoreElement;
+import org.caleydo.view.relationshipexplorer.ui.list.ListElement.ISelectionModeProvider;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
@@ -24,7 +25,7 @@ import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSe
  * @author Christian
  *
  */
-public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
+public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISelectionModeProvider {
 
 	@DeepScan
 	protected final IColumnModel model;
@@ -42,6 +43,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 
 	protected Set<NestableItem> selectedItems = new HashSet<>();
 	protected Set<NestableItem> highlightedItems = new HashSet<>();
+	boolean isDirectSelectionMode = false;
 
 	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
@@ -152,6 +154,30 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		// }
 
 		// parent.updateSizes();
+	}
+
+	/**
+	 * @return the isDirectSelectionMode, see {@link #isDirectSelectionMode}
+	 */
+	@Override
+	public boolean isDirectSelectionMode() {
+		return isDirectSelectionMode;
+	}
+
+	/**
+	 * @param isDirectSelectionMode
+	 *            setter, see {@link isDirectSelectionMode}
+	 */
+	public void setDirectSelectionMode(boolean isDirectSelectionMode) {
+		if (this.isDirectSelectionMode != isDirectSelectionMode) {
+			this.isDirectSelectionMode = isDirectSelectionMode;
+			for (NestableItem item : highlightedItems) {
+				item.repaint();
+			}
+			for (NestableItem item : selectedItems) {
+				item.repaint();
+			}
+		}
 	}
 
 	public boolean isCollapsed() {
@@ -346,6 +372,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem> {
 		removeItemContainers(container.summaryItem);
 		container.summaryItem.removed = true;
 	}
+
 
 	protected void removeItemContainers(NestableItem item) {
 		for (Entry<NestableColumn, CollapsableItemContainer> entry : item.itemContainers.entrySet()) {

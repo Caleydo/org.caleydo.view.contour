@@ -31,6 +31,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.picking.IPickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.core.view.opengl.picking.PickingMode;
+import org.caleydo.view.relationshipexplorer.ui.list.ListElement.ISelectionModeProvider;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
 
@@ -175,7 +176,13 @@ public class GLElementList implements IHasMinSize, IMultiSelectionHandler<GLElem
 	}
 
 	public void add(final GLElement element) {
-		final ListElement el = new ListElement();
+		final ListElement el = new ListElement(new ISelectionModeProvider() {
+
+			@Override
+			public boolean isDirectSelectionMode() {
+				return false;
+			}
+		});
 		el.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
 		el.setSelectionColor(SelectionType.SELECTION.getColor());
 		el.setContent(element);

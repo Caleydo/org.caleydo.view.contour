@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2GL3;
 
@@ -42,14 +43,29 @@ public class ListElement extends GLElementContainer {
 				}
 
 				GL2 gl = g.gl;
-				g.color(primaryColor.r, primaryColor.g, primaryColor.b, 0.4f);
-				gl.glBegin(GL2GL3.GL_QUADS);
-				gl.glVertex2f(0, h);
-				gl.glVertex2f(w, h);
-				g.color(secondaryColor.r, secondaryColor.g, secondaryColor.b, 0.4f);
-				gl.glVertex2f(w, 0);
-				gl.glVertex2f(0, 0);
-				gl.glEnd();
+
+				if (selectionModeProvider.isDirectSelectionMode()) {
+					g.lineWidth(3);
+					g.color(primaryColor.r, primaryColor.g, primaryColor.b, 0.8f);
+					gl.glBegin(GL.GL_LINE_LOOP);
+					gl.glVertex2f(0, h);
+					gl.glVertex2f(w, h);
+					g.color(secondaryColor.r, secondaryColor.g, secondaryColor.b, 0.8f);
+					gl.glVertex2f(w, 0);
+					gl.glVertex2f(0, 0);
+					gl.glEnd();
+					g.lineWidth(1);
+				} else {
+					g.color(primaryColor.r, primaryColor.g, primaryColor.b, 0.4f);
+					gl.glBegin(GL2GL3.GL_QUADS);
+					gl.glVertex2f(0, h);
+					gl.glVertex2f(w, h);
+					g.color(secondaryColor.r, secondaryColor.g, secondaryColor.b, 0.4f);
+					gl.glVertex2f(w, 0);
+					gl.glVertex2f(0, 0);
+					gl.glEnd();
+				}
+
 				g.incZ(0.5f);
 				// g.gl.glPushAttrib(GL2.GL_LINE_BIT);
 				// g.color(highlightColor).lineWidth(3).drawRect(0, 0, w, h);
@@ -58,15 +74,19 @@ public class ListElement extends GLElementContainer {
 		}
 	}
 
+	public interface ISelectionModeProvider {
+		public boolean isDirectSelectionMode();
+	}
+
 	protected Color highlightColor = new Color();
 	protected Color selectionColor = new Color();
 	boolean isSelected = false;
 	boolean isHighlight = false;
-
 	protected HighlightRenderer highlightRenderer;
 	protected GLElement content;
 	protected GLElementContainer contentContainer;
 	protected String tooltip;
+	protected ISelectionModeProvider selectionModeProvider;
 
 	//
 	// protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
@@ -74,7 +94,8 @@ public class ListElement extends GLElementContainer {
 	/**
 	 *
 	 */
-	public ListElement() {
+	public ListElement(ISelectionModeProvider selectionModeProvider) {
+		this.selectionModeProvider = selectionModeProvider;
 		setLayout(GLLayouts.LAYERS);
 		setVisibility(EVisibility.PICKABLE);
 		setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(this));

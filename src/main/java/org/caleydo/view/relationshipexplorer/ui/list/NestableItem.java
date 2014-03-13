@@ -45,7 +45,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 		setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(this,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		this.column = column;
-		this.listElement = new ListElement();
+		this.listElement = new ListElement(column);
 
 		listElement.setHighlightColor(SelectionType.MOUSE_OVER.getColor());
 		listElement.setSelectionColor(SelectionType.SELECTION.getColor());
@@ -56,6 +56,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 
 				boolean update = MultiSelectionUtil.handleSelection(pick, NestableItem.this, NestableItem.this.column);
 				if (update) {
+					NestableItem.this.column.setDirectSelectionMode(true);
 					NestableItem.this.column.notifyOfSelectionUpdate();
 				}
 				update = MultiSelectionUtil.handleHighlight(pick, NestableItem.this, NestableItem.this.column);

@@ -786,6 +786,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			column.updateSummaryItems(EUpdateCause.SELECTION);
 			updateSorting();
 		}
+		column.setDirectSelectionMode(false);
 	}
 
 	@Override

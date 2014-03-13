@@ -37,6 +37,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 	protected NestableColumn column;
 	protected GLButton collapseButton;
 	protected MappingRenderer mappingRenderer;
+	protected DragAndDropHeader dragAndDropHeader;
 
 	public ColumnHeader(NestableColumn column, String caption, AnimatedGLElementContainer headerParent) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(
@@ -100,6 +101,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		}
 
 		this.column = column;
+		this.dragAndDropHeader = new DragAndDropHeader(column);
 		headerItem = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 4, GLPadding.ZERO));
 		headerItem.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(headerItem, 2,
 				GLPadding.ZERO));
@@ -140,11 +142,17 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 			protected void mouseOver(Pick pick) {
 				buttonBar.setVisibility(EVisibility.VISIBLE);
 				buttonBar.repaintAll();
+
+				context.getMouseLayer().addDragSource(dragAndDropHeader);
+				context.getMouseLayer().addDropTarget(dragAndDropHeader);
 			}
 
 			@Override
 			protected void mouseOut(Pick pick) {
 				buttonBar.setVisibility(EVisibility.HIDDEN);
+
+				context.getMouseLayer().removeDragSource(dragAndDropHeader);
+				context.getMouseLayer().removeDropTarget(dragAndDropHeader);
 			}
 		});
 
@@ -178,7 +186,13 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 	@Override
 	public void onSelectionChanged(GLButton button, boolean selected) {
 		column.collapseAll(selected);
+	}
 
+	@Override
+	protected void takeDown() {
+		context.getMouseLayer().removeDragSource(dragAndDropHeader);
+		context.getMouseLayer().removeDropTarget(dragAndDropHeader);
+		super.takeDown();
 	}
 
 }

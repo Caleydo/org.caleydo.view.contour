@@ -18,6 +18,7 @@ public class AddColumnTreeCommand implements IHistoryCommand {
 
 	protected final IEntityCollection collection;
 	protected final RelationshipExplorerElement relationshipExplorer;
+	protected int index = -1;
 
 	public AddColumnTreeCommand(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
 		this.collection = collection;
@@ -27,13 +28,24 @@ public class AddColumnTreeCommand implements IHistoryCommand {
 	@Override
 	public Object execute() {
 		ColumnTree tree = new ColumnTree(collection.createColumnModel(), relationshipExplorer);
-		relationshipExplorer.addColumn(tree);
+		if (index == -1)
+			relationshipExplorer.addColumn(tree);
+		else
+			relationshipExplorer.addColumn(index, tree);
 		return tree;
 	}
 
 	@Override
 	public String getDescription() {
 		return "Added new column " + collection.getLabel();
+	}
+
+	/**
+	 * @param index
+	 *            setter, see {@link index}
+	 */
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 }

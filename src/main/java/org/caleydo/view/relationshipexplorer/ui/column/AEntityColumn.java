@@ -712,7 +712,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				boolean add = true;
 				for (NestableItem parentItem : parentItems) {
 					if (parentItem.getParentItem() != null) {
-						add = hasParentItemElementMapping(parentItem.getParentItem(), foreignElementIDs);
+						add = hasParentItemElementMapping(parentItem.getParentItem(), id);
 					}
 
 					if (add) {

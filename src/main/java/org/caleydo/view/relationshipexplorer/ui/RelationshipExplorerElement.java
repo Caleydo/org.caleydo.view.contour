@@ -26,25 +26,33 @@ import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
+import org.caleydo.core.view.opengl.layout2.dnd.EDnDType;
+import org.caleydo.core.view.opengl.layout2.dnd.IDnDItem;
+import org.caleydo.core.view.opengl.layout2.dnd.IDragInfo;
+import org.caleydo.core.view.opengl.layout2.dnd.IDropGLTarget;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
+import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.RemoveColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
+import org.caleydo.view.relationshipexplorer.ui.list.DragAndDropHeader.ColumnDragInfo;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 import com.google.common.base.Predicates;
@@ -98,6 +106,88 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	};
 
+	protected class ColumnSeparator extends PickableGLElement implements IDropGLTarget {
+
+		protected boolean isDraggedOver = false;
+		protected boolean isOver = false;
+
+		@Override
+		protected void renderImpl(GLGraphics g, float w, float h) {
+			g.color(isDraggedOver ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+			g.lineWidth(isDraggedOver ? 4 : 2);
+			g.drawLine(w / 2.0f, 0, w / 2.0f, h);
+			g.lineWidth(1);
+		}
+
+		@Override
+		protected void onMouseOver(Pick pick) {
+			context.getMouseLayer().addDropTarget(this);
+			isOver = true;
+		}
+
+		@Override
+		protected void onMouseOut(Pick pick) {
+			context.getMouseLayer().removeDropTarget(this);
+			if (isDraggedOver) {
+				isDraggedOver = false;
+				isOver = false;
+				repaint();
+			}
+		}
+
+		@Override
+		public boolean canSWTDrop(IDnDItem item) {
+			return item.getInfo() instanceof ColumnDragInfo;
+		}
+
+		@Override
+		public void onDrop(IDnDItem item) {
+			IDragInfo i = item.getInfo();
+			if (!(i instanceof ColumnDragInfo))
+				return;
+			ColumnDragInfo info = (ColumnDragInfo) i;
+
+			if (item.getType() == EDnDType.COPY) {
+				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
+						RelationshipExplorerElement.this);
+				c.setIndex(columnContainer.indexOf(this));
+				c.execute();
+				history.addHistoryCommand(c, Color.DARK_BLUE);
+			} else {
+				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
+						RelationshipExplorerElement.this);
+				c.setIndex(columnContainer.indexOf(this));
+				c.execute();
+				history.addHistoryCommand(c, Color.DARK_BLUE);
+
+				RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), history);
+				rc.execute();
+				history.addHistoryCommand(rc, Color.DARK_BLUE);
+			}
+		}
+
+		@Override
+		public void onItemChanged(IDnDItem item) {
+			if (!isDraggedOver && isOver) {
+				isDraggedOver = true;
+				repaint();
+			}
+
+		}
+
+		@Override
+		public EDnDType defaultSWTDnDType(IDnDItem item) {
+			return EDnDType.MOVE;
+		}
+
+		@Override
+		protected void takeDown() {
+			context.getMouseLayer().removeDropTarget(this);
+			super.takeDown();
+		}
+
+	}
+
 	// private class DetailConnector extends GLElement {
 	//
 	// @Override
@@ -115,7 +205,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public RelationshipExplorerElement() {
 		super(new GLSizeRestrictiveFlowLayout(false, 5, GLPadding.ZERO));
-		columnContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 5, GLPadding.ZERO));
+		columnContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 0, GLPadding.ZERO));
 		detailContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 5, GLPadding.ZERO));
 		detailContainer.setSize(Float.NaN, 0);
 		add(detailContainer);
@@ -158,13 +248,39 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public void addColumn(ColumnTree column) {
 		if (cols.size() > 0) {
-			GLElement columnSpacer = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
-			columnSpacer.setSize(2, Float.NaN);
-			columnContainer.add(columnSpacer);
+			ColumnSeparator columnSeparator = new ColumnSeparator();
+			columnSeparator.setSize(12, Float.NaN);
+			columnContainer.add(columnSeparator);
 		}
 		columnContainer.add(column);
 		cols.add(column);
 		// registerEntityCollection(column);
+	}
+
+	public void addColumn(int index, ColumnTree column) {
+		if (cols.isEmpty())
+			addColumn(column);
+		if (index > columnContainer.size())
+			index = columnContainer.size() - 1;
+		if (index < 0)
+			index = 0;
+
+		GLElement element = columnContainer.get(index);
+		if (element instanceof ColumnSeparator) {
+
+			columnContainer.add(index, column);
+			cols.add(column);
+			ColumnSeparator columnSeparator = new ColumnSeparator();
+			columnSeparator.setSize(12, Float.NaN);
+			columnContainer.add(index, columnSeparator);
+		} else {
+
+			ColumnSeparator columnSeparator = new ColumnSeparator();
+			columnSeparator.setSize(12, Float.NaN);
+			columnContainer.add(index, columnSeparator);
+			columnContainer.add(index, column);
+			cols.add(column);
+		}
 	}
 
 	public void removeColumn(ColumnTree column) {
@@ -413,4 +529,5 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	public EnrichmentScores getEnrichmentScores() {
 		return enrichmentScores;
 	}
+
 }

@@ -5,8 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
-import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
@@ -15,24 +15,25 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
  */
 public class RemoveColumnCommand implements IHistoryCommand {
 
-	protected final History history;
+	protected final RelationshipExplorerElement relationshipExplorer;
 	protected final int columnHistoryID;
 
-	public RemoveColumnCommand(IColumnModel model, History history) {
-		this.history = history;
+	public RemoveColumnCommand(IColumnModel model, RelationshipExplorerElement relationshipExplorer) {
+		this.relationshipExplorer = relationshipExplorer;
 		this.columnHistoryID = model.getHistoryID();
 	}
 
 	@Override
 	public Object execute() {
-		IColumnModel model = history.getHistoryObjectAs(IColumnModel.class, columnHistoryID);
+		IColumnModel model = relationshipExplorer.getHistory().getHistoryObjectAs(IColumnModel.class, columnHistoryID);
 		model.getColumn().remove();
+		relationshipExplorer.relayout();
 		return null;
 	}
 
 	@Override
 	public String getDescription() {
-		IColumnModel model = history.getHistoryObjectAs(IColumnModel.class, columnHistoryID);
+		IColumnModel model = relationshipExplorer.getHistory().getHistoryObjectAs(IColumnModel.class, columnHistoryID);
 		return "Removed " + model.getLabel() + " column";
 	}
 

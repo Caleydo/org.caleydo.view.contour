@@ -32,6 +32,7 @@ public class AddColumnTreeCommand implements IHistoryCommand {
 			relationshipExplorer.addColumn(tree);
 		else
 			relationshipExplorer.addColumn(index, tree);
+		relationshipExplorer.relayout();
 		return tree;
 	}
 

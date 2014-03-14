@@ -235,7 +235,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					c.execute();
 					history.addHistoryCommand(c, Color.DARK_BLUE);
 
-					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), history);
+					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), RelationshipExplorerElement.this);
 					rc.execute();
 					history.addHistoryCommand(rc, Color.DARK_BLUE);
 				}

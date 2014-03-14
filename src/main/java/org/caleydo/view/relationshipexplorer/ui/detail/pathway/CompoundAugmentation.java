@@ -48,6 +48,7 @@ import com.google.common.collect.Sets;
 public class CompoundAugmentation extends GLElementContainer implements IEntityRepresentation {
 
 	class GroupData {
+		GroupElement glRepresentation;
 		Set<Object> allCompounds = new HashSet<>();
 		List<Pair<Object, List<Integer>>> containedCompounds = new ArrayList<>();
 
@@ -77,6 +78,14 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 					containedCompounds.add(new Pair<Object, List<Integer>>(compoundID, inPathwayDavidsForCompound));
 				}
 			}
+		}
+
+		/**
+		 * @param element
+		 *            setter, see {@link element}
+		 */
+		public void setGLRepresentation(GroupElement glRepresentation) {
+			this.glRepresentation = glRepresentation;
 		}
 
 	}
@@ -204,6 +213,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		// leftClusterContainer.setSize(30, 100);
 		for (final GroupData data : clusterData) {
 			final GroupElement element = new GroupElement(data);
+			data.setGLRepresentation(element);
 			element.onPick(new APickingListener() {
 				@Override
 				protected void clicked(Pick pick) {
@@ -257,14 +267,21 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		// TODO Auto-generated method stub
+		updateSelection(true, selectedElementIDs, srcRep);
 
 	}
 
 	@Override
 	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		// TODO Auto-generated method stub
+		updateSelection(false, highlightElementIDs, srcRep);
 
+	}
+
+	private void updateSelection(boolean selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+		for (GroupData group : clusterData) {
+			group.glRepresentation.setHighlighted(selected, highlightElementIDs);
+
+		}
 	}
 
 	@Override
@@ -280,7 +297,6 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	protected void takeDown() {
-		// filteredMapping.getHistory().unregisterHistoryObject(historyID);
 		groupCollection.removeEntityRepresentation(this);
 		super.takeDown();
 	}

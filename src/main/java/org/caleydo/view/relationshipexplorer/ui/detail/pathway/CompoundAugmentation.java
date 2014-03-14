@@ -48,7 +48,7 @@ import com.google.common.collect.Sets;
 public class CompoundAugmentation extends GLElementContainer implements IEntityRepresentation {
 
 	class GroupData {
-		GroupElement glRepresentation;
+		CompoundGroupVis glRepresentation;
 		Set<Object> allCompounds = new HashSet<>();
 		List<Pair<Object, List<Integer>>> containedCompounds = new ArrayList<>();
 
@@ -75,6 +75,9 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 							inPathwayDavidsForCompound.add(david);
 						}
 					}
+					if (inPathwayDavidsForCompound.size() > maxMappingGenes) {
+						maxMappingGenes = inPathwayDavidsForCompound.size();
+					}
 					containedCompounds.add(new Pair<Object, List<Integer>>(compoundID, inPathwayDavidsForCompound));
 				}
 			}
@@ -84,7 +87,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		 * @param element
 		 *            setter, see {@link element}
 		 */
-		public void setGLRepresentation(GroupElement glRepresentation) {
+		public void setGLRepresentation(CompoundGroupVis glRepresentation) {
 			this.glRepresentation = glRepresentation;
 		}
 
@@ -113,10 +116,11 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	private Set<Integer> davidIDs;
 
 	private int overallCompoundSize = 0;
+	/** The highest number of genes a compound maps to */
+	private int maxMappingGenes = 0;
 
 	private GLSizeRestrictiveFlowLayout layout = new GLSizeRestrictiveFlowLayout(false, 4, new GLPadding(0, 1));
 	private GLElementContainer leftClusterContainer = new GLElementContainer(layout);
-
 	private GLElementContainer rightClusterContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4,
 			new GLPadding(0, 1)));
 
@@ -126,7 +130,6 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	/** If set only the compounds/clusters that are not filtered are shown. Else, all */
 	private boolean respectFilter = false;
-
 
 	protected class CompoundRepresentation implements IEntityRepresentation {
 
@@ -215,6 +218,8 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	private void updateMapping() {
 		// System.out.println("Vertices + " + );
 
+		maxMappingGenes = 0;
+
 		davidIDs = new HashSet<>();
 		for (PathwayVertexRep vertex : pathwayRepresentation.getPathway().vertexSet()) {
 			davidIDs.addAll(vertex.getDavidIDs());
@@ -262,7 +267,6 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 				.getBroadcastingIDsFromElementIDs(groups), this));
 	}
 
-	/** Initialize the layout, called once */
 	private void updateGroups() {
 		List<GroupData> groupList;
 		if (respectFilter && filteredGroupData != null) {
@@ -289,7 +293,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		leftClusterContainer.clear();
 		rightClusterContainer.clear();
 		for (final GroupData data : groupList) {
-			final GroupElement element = new GroupElement(data);
+			final CompoundGroupVis element = new CompoundGroupVis(data, maxMappingGenes, padding);
 			data.setGLRepresentation(element);
 			element.onPick(new APickingListener() {
 				@Override
@@ -357,7 +361,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	private void updateSelection(boolean selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
 		for (GroupData group : containedGroups) {
-			group.glRepresentation.setHighlighted(selected, highlightElementIDs);
+			group.glRepresentation.setClusterHighlighted(selected, highlightElementIDs);
 
 		}
 	}

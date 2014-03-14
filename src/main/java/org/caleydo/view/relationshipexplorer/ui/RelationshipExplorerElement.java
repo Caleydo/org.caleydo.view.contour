@@ -43,6 +43,8 @@ import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
@@ -53,6 +55,7 @@ import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.DragAndDropHeader.ColumnDragInfo;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
+import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.BiMap;
@@ -105,10 +108,76 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	};
 
-	protected class ColumnSeparator extends PickableGLElement implements IDropGLTarget {
+	protected class ReorderColumnTreesCommand implements IHistoryCommand {
+
+		protected final int columnModelHistoryID;
+		protected final int separatorHistoryID;
+
+		public ReorderColumnTreesCommand(IColumnModel model, ColumnSeparator separator) {
+			this.columnModelHistoryID = model.getHistoryID();
+			this.separatorHistoryID = separator.getHistoryID();
+		}
+
+		@Override
+		public Object execute() {
+			final List<ColumnTree> l = new ArrayList<>();
+			List<ColumnSeparator> separatorsToRemove = new ArrayList<>();
+			IColumnModel model = history.getHistoryObjectAs(IColumnModel.class, columnModelHistoryID);
+			ColumnSeparator separator = history.getHistoryObjectAs(ColumnSeparator.class, separatorHistoryID);
+
+			ColumnTree columnTree = model.getColumn().getColumnTree();
+			for (GLElement e : columnContainer) {
+				if (e instanceof ColumnTree && e != columnTree) {
+					l.add((ColumnTree) e);
+				} else {
+					if (e == separator) {
+						l.add(columnTree);
+					}
+				}
+				if (e instanceof ColumnSeparator) {
+					separatorsToRemove.add((ColumnSeparator) e);
+				}
+			}
+
+			for (ColumnSeparator cs : separatorsToRemove) {
+				columnContainer.remove(cs, 0);
+			}
+
+			columnContainer.sortBy(new Comparator<GLElement>() {
+				@Override
+				public int compare(GLElement o1, GLElement o2) {
+					return l.indexOf(o1) - l.indexOf(o2);
+				}
+			});
+
+			for (int j = 0; j < l.size(); j++) {
+				ColumnTree ct = l.get(j);
+
+				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator(), 0);
+
+			}
+			columnContainer.add(new ColumnSeparator(), 0);
+
+			return null;
+		}
+
+		@Override
+		public String getDescription() {
+			IColumnModel model = history.getHistoryObjectAs(IColumnModel.class, columnModelHistoryID);
+			return "Moved column " + model.getLabel();
+		}
+	}
+
+	protected class ColumnSeparator extends PickableGLElement implements IDropGLTarget, IHistoryIDOwner {
 
 		protected boolean isDraggedOver = false;
 		protected boolean isOver = false;
+		protected int historyID;
+
+		public ColumnSeparator() {
+			setSize(12, Float.NaN);
+			historyID = history.registerHistoryObject(this);
+		}
 
 		@Override
 		protected void renderImpl(GLGraphics g, float w, float h) {
@@ -147,21 +216,29 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			ColumnDragInfo info = (ColumnDragInfo) i;
 
 			if (item.getType() == EDnDType.COPY) {
-				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
-						RelationshipExplorerElement.this);
-				c.setIndex(columnContainer.indexOf(this));
-				c.execute();
-				history.addHistoryCommand(c, Color.DARK_BLUE);
-			} else {
+
 				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
 						RelationshipExplorerElement.this);
 				c.setIndex(columnContainer.indexOf(this));
 				c.execute();
 				history.addHistoryCommand(c, Color.DARK_BLUE);
 
-				RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), history);
-				rc.execute();
-				history.addHistoryCommand(rc, Color.DARK_BLUE);
+			} else {
+				if (info.getModel().getColumn().isRoot()) {
+					ReorderColumnTreesCommand c = new ReorderColumnTreesCommand(info.getModel(), this);
+					c.execute();
+					history.addHistoryCommand(c, Color.DARK_BLUE);
+				} else {
+					AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
+							RelationshipExplorerElement.this);
+					c.setIndex(columnContainer.indexOf(this));
+					c.execute();
+					history.addHistoryCommand(c, Color.DARK_BLUE);
+
+					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), history);
+					rc.execute();
+					history.addHistoryCommand(rc, Color.DARK_BLUE);
+				}
 			}
 		}
 
@@ -183,6 +260,11 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		protected void takeDown() {
 			context.getMouseLayer().removeDropTarget(this);
 			super.takeDown();
+		}
+
+		@Override
+		public int getHistoryID() {
+			return historyID;
 		}
 
 	}
@@ -210,6 +292,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
 		add(columnContainer);
+		history = new History(this);
+
+		columnContainer.add(new ColumnSeparator());
+		columnContainer.add(new ColumnSeparator());
 
 		filterPipeline = new FilterPipeline(this);
 		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
@@ -218,7 +304,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		scrollingDecorator.setSize(Float.NaN, MIN_FILTER_PIPELINE_HEIGHT);
 		add(scrollingDecorator);
 
-		history = new History(this);
+
 		scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(false), 8,
 				EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(history);
@@ -248,10 +334,9 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	public void addColumn(ColumnTree column) {
 		if (cols.size() > 0) {
 			ColumnSeparator columnSeparator = new ColumnSeparator();
-			columnSeparator.setSize(12, Float.NaN);
-			columnContainer.add(columnSeparator);
+			columnContainer.add(columnContainer.size() - 1, columnSeparator);
 		}
-		columnContainer.add(column);
+		columnContainer.add(columnContainer.size() - 1, column);
 		cols.add(column);
 		// registerEntityCollection(column);
 	}
@@ -270,12 +355,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			columnContainer.add(index, column);
 			cols.add(column);
 			ColumnSeparator columnSeparator = new ColumnSeparator();
-			columnSeparator.setSize(12, Float.NaN);
 			columnContainer.add(index, columnSeparator);
 		} else {
 
 			ColumnSeparator columnSeparator = new ColumnSeparator();
-			columnSeparator.setSize(12, Float.NaN);
 			columnContainer.add(index, columnSeparator);
 			columnContainer.add(index, column);
 			cols.add(column);

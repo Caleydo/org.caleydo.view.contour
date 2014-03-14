@@ -119,11 +119,72 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	private GLElementContainer rightClusterContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4,
 			new GLPadding(0, 1)));
 
+	private CompoundRepresentation compoundRepresentation;
+
+	protected class CompoundRepresentation implements IEntityRepresentation {
+
+		protected final int historyId;
+		protected final IEntityCollection compoundCollection;
+
+		public CompoundRepresentation() {
+			historyId = filteredMapping.getHistory().registerHistoryObject(this);
+			Set<IEntityCollection> collections = filteredMapping.getCollectionsWithBroadcastIDType(IDType
+					.getIDType("COMPOUND_ID"));
+			compoundCollection = collections.iterator().next();
+			compoundCollection.addEntityRepresentation(this);
+		}
+
+		@Override
+		public int getHistoryID() {
+			return historyId;
+		}
+
+		public void propagateGroupSelection(Set<Object> compoundIDs) {
+			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), compoundIDs,
+					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), filteredMapping);
+			c.execute();
+			filteredMapping.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+		}
+
+		public void propagateGroupHighlight(Set<Object> compoundIDs) {
+			groupCollection.setHighlightItems(compoundIDs);
+
+			filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
+					.getBroadcastingIDsFromElementIDs(compoundIDs), this));
+		}
+
+		@Override
+		public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public IEntityCollection getCollection() {
+
+			return compoundCollection;
+		}
+
+	}
+
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
 		this.filteredMapping = filteredMapping;
+		this.compoundRepresentation = new CompoundRepresentation();
 		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
 
 		// setRenderer(GLRenderers.drawRect(Color.RED));
@@ -297,6 +358,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	protected void takeDown() {
+		compoundRepresentation.getCollection().removeEntityRepresentation(compoundRepresentation);
 		groupCollection.removeEntityRepresentation(this);
 		super.takeDown();
 	}

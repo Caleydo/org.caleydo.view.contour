@@ -93,15 +93,17 @@ public class EnrichmentScores {
 				for (Entry<Object, Pair<Set<Object>, Set<Object>>> columnEntry : columnToMappings.entrySet()) {
 					float a = 0;
 					float b = 0;
+					float c = 0;
 					if (isFilteredItemScore) {
 						a = Sets.intersection(rowEntry.getValue().getSecond(), columnEntry.getValue().getSecond())
 								.size();
 						b = columnEntry.getValue().getSecond().size() - a;
+						c = rowEntry.getValue().getSecond().size();
 					} else {
 						a = Sets.intersection(rowEntry.getValue().getFirst(), columnEntry.getValue().getFirst()).size();
 						b = columnEntry.getValue().getFirst().size() - a;
+						c = rowEntry.getValue().getFirst().size();
 					}
-					float c = rowEntry.getValue().getFirst().size();
 					float d = mappingCollection.getAllElementIDs().size() - c;
 
 					float score = (a / (a + b)) / (c / (c + d));

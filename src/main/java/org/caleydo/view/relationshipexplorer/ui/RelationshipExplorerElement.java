@@ -153,7 +153,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			for (int j = 0; j < l.size(); j++) {
 				ColumnTree ct = l.get(j);
 
-				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator(), 0);
+				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator());
 
 			}
 			columnContainer.add(new ColumnSeparator(), 0);
@@ -235,7 +235,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					c.execute();
 					history.addHistoryCommand(c, Color.DARK_BLUE);
 
-					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), history);
+					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), RelationshipExplorerElement.this);
 					rc.execute();
 					history.addHistoryCommand(rc, Color.DARK_BLUE);
 				}
@@ -384,6 +384,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public void clearColumns() {
 		columnContainer.clear();
+		columnContainer.add(new ColumnSeparator());
+		columnContainer.add(new ColumnSeparator());
 		cols.clear();
 	}
 
@@ -554,6 +556,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		});
 
 		updateDetailHeight();
+	}
+
+	public void reset() {
+		removeAllDetailViews();
+		clearColumns();
+		getFilterPipeline().clearFilterCommands();
+		for (IEntityCollection collection : getEntityCollections()) {
+			collection.reset();
+		}
 	}
 
 	public void removeAllDetailViews() {

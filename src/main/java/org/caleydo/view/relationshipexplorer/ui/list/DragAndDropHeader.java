@@ -15,6 +15,7 @@ import org.caleydo.core.view.opengl.layout2.dnd.IDropGLTarget;
 import org.caleydo.core.view.opengl.layout2.dnd.IUIDragInfo;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.History;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddChildColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.RemoveColumnCommand;
 
@@ -86,20 +87,21 @@ public class DragAndDropHeader implements IDragGLSource, IDropGLTarget {
 		IDragInfo i = item.getInfo();
 		if (!(i instanceof ColumnDragInfo))
 			return;
-		History history = column.getColumnTree().getRelationshipExplorer().getHistory();
+		RelationshipExplorerElement relationshipExplorer = column.getColumnTree().getRelationshipExplorer();
+		History history = relationshipExplorer.getHistory();
 		ColumnDragInfo info = (ColumnDragInfo) i;
 		if (item.getType() == EDnDType.COPY) {
 			AddChildColumnCommand c = new AddChildColumnCommand(info.getModel().getCollection(), column
-					.getColumnModel().getHistoryID(), history);
+					.getColumnModel().getHistoryID(), relationshipExplorer);
 			c.execute();
 			history.addHistoryCommand(c, Color.DARK_BLUE);
 		} else {
 			AddChildColumnCommand c = new AddChildColumnCommand(info.getModel().getCollection(), column
-					.getColumnModel().getHistoryID(), history);
+					.getColumnModel().getHistoryID(), relationshipExplorer);
 			c.execute();
 			history.addHistoryCommand(c, Color.DARK_BLUE);
 
-			RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), history);
+			RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), relationshipExplorer);
 			rc.execute();
 			history.addHistoryCommand(rc, Color.DARK_BLUE);
 		}

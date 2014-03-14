@@ -22,7 +22,6 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
-import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
@@ -108,7 +107,8 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	private RelationshipExplorerElement filteredMapping;
 
-	private List<GroupData> clusterData;
+	private List<GroupData> containedGroups;
+	private List<GroupData> filteredGroupData = new ArrayList<>();
 
 	private Set<Integer> davidIDs;
 
@@ -122,17 +122,94 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	private GLElement centerSpacing = new GLElement();
 
+	private CompoundRepresentation compoundRepresentation;
+
+	/** If set only the compounds/clusters that are not filtered are shown. Else, all */
+	private boolean respectFilter = false;
+
+
+	protected class CompoundRepresentation implements IEntityRepresentation {
+
+		protected final int historyId;
+		protected final IEntityCollection compoundCollection;
+
+		public CompoundRepresentation() {
+			historyId = filteredMapping.getHistory().registerHistoryObject(this);
+			Set<IEntityCollection> collections = filteredMapping.getCollectionsWithBroadcastIDType(IDType
+					.getIDType("COMPOUND_ID"));
+			compoundCollection = collections.iterator().next();
+			compoundCollection.addEntityRepresentation(this);
+		}
+
+		@Override
+		public int getHistoryID() {
+			return historyId;
+		}
+
+		public void propagateGroupSelection(Set<Object> compoundIDs) {
+			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), compoundIDs,
+					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), filteredMapping);
+			c.execute();
+			filteredMapping.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+		}
+
+		public void propagateGroupHighlight(Set<Object> compoundIDs) {
+			groupCollection.setHighlightItems(compoundIDs);
+
+			filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
+					.getBroadcastingIDsFromElementIDs(compoundIDs), this));
+		}
+
+		@Override
+		public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public IEntityCollection getCollection() {
+
+			return compoundCollection;
+		}
+
+	}
+
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
 		this.filteredMapping = filteredMapping;
+		this.compoundRepresentation = new CompoundRepresentation();
 		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
 
 		// setRenderer(GLRenderers.drawRect(Color.RED));
 
 		updateMapping();
-		setUpLayout();
+
+		this.setLayout(GLLayouts.flowHorizontal(3));
+		leftClusterContainer.setSize(20, Float.NaN);
+		rightClusterContainer.setSize(20, Float.NaN);
+
+		add(new GLElement());
+		add(leftClusterContainer);
+		// Spacing
+		add(centerSpacing);
+		add(rightClusterContainer);
+		add(new GLElement());
+
+		updateGroups();
 	}
 
 	private void updateMapping() {
@@ -161,11 +238,11 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		Set<Object> groups = groupCollection.getElementIDsFromForeignIDs(compoundIDs, compoundIDType);
 		groupIDType = groupCollection.getBroadcastingIDType();
 
-		clusterData = new ArrayList<>(groups.size());
+		containedGroups = new ArrayList<>(groups.size());
 
 		for (Object group : groups) {
 			GroupData gd = new GroupData(groupCollection.getBroadcastingIDsFromElementID(group), group);
-			clusterData.add(gd);
+			containedGroups.add(gd);
 			overallCompoundSize += gd.containedCompounds.size();
 		}
 
@@ -186,23 +263,15 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	}
 
 	/** Initialize the layout, called once */
-	private void setUpLayout() {
+	private void updateGroups() {
+		List<GroupData> groupList;
+		if (respectFilter && filteredGroupData != null) {
+			groupList = filteredGroupData;
+		} else {
+			groupList = containedGroups;
+		}
 
 		int gap = 3;
-
-		// this is zero here. When to initialize?
-		Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
-
-		this.setLayout(GLLayouts.flowHorizontal(3));
-		leftClusterContainer.setSize(20, Float.NaN);
-		rightClusterContainer.setSize(20, Float.NaN);
-
-		add(new GLElement());
-		add(leftClusterContainer);
-		// Spacing
-		add(centerSpacing);
-		add(rightClusterContainer);
-		add(new GLElement());
 
 		Comparator<GroupData> comparator = new Comparator<GroupData>() {
 			@Override
@@ -213,11 +282,13 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 		// assuming a heigth of 1000 pixels:
 		double height = 1000;
-		double pixelPerCompound = (height - gap * clusterData.size()) / overallCompoundSize * 2;
+		double pixelPerCompound = (height - gap * groupList.size()) / overallCompoundSize * 2;
 		double pixelStatus = 0;
-		Collections.sort(clusterData, comparator);
+		Collections.sort(groupList, comparator);
 		// leftClusterContainer.setSize(30, 100);
-		for (final GroupData data : clusterData) {
+		leftClusterContainer.clear();
+		rightClusterContainer.clear();
+		for (final GroupData data : groupList) {
 			final GroupElement element = new GroupElement(data);
 			data.setGLRepresentation(element);
 			element.onPick(new APickingListener() {
@@ -285,7 +356,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	}
 
 	private void updateSelection(boolean selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		for (GroupData group : clusterData) {
+		for (GroupData group : containedGroups) {
 			group.glRepresentation.setHighlighted(selected, highlightElementIDs);
 
 		}
@@ -293,8 +364,15 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// the ids that remain
-		// TODO Auto-generated method stub
+		respectFilter = true;
+		filteredGroupData.clear();
+		for (GroupData group : containedGroups) {
+			if (filteredElementIDs.contains(group.group)) {
+				filteredGroupData.add(group);
+			}
+
+		}
+		updateGroups();
 
 	}
 
@@ -305,6 +383,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	protected void takeDown() {
+		compoundRepresentation.getCollection().removeEntityRepresentation(compoundRepresentation);
 		groupCollection.removeEntityRepresentation(this);
 		super.takeDown();
 	}

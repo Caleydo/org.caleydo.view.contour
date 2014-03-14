@@ -168,7 +168,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 			@Override
 			public void onSelectionChanged(GLButton button, boolean selected) {
-				RemoveColumnCommand c = new RemoveColumnCommand(AEntityColumn.this, relationshipExplorer.getHistory());
+				RemoveColumnCommand c = new RemoveColumnCommand(AEntityColumn.this, relationshipExplorer);
 				c.execute();
 				relationshipExplorer.getHistory().addHistoryCommand(c, Color.DARK_BLUE);
 			}

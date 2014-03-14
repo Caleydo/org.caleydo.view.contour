@@ -188,7 +188,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(clusterCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
-				relationshipExplorer.getHistory());
+				relationshipExplorer);
 		// c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 		// relationshipExplorer.getHistory());
 		initCommand.add(c);
@@ -212,7 +212,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		ColumnTree geneColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(activityCollection, geneColumn.getRootColumn().getColumnModel().getHistoryID(),
-				relationshipExplorer.getHistory());
+				relationshipExplorer);
 		initCommand.add(c);
 		childColumn = (NestableColumn) c.execute();
 
@@ -226,7 +226,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		ColumnTree compoundColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(activityCollection, compoundColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer.getHistory());
+				.getHistoryID(), relationshipExplorer);
 		initCommand.add(c);
 		childColumn = (NestableColumn) c.execute();
 
@@ -240,7 +240,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		ColumnTree fingerprintColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(compoundCollection, fingerprintColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer.getHistory());
+				.getHistoryID(), relationshipExplorer);
 		initCommand.add(c);
 		childColumn = (NestableColumn) c.execute();
 
@@ -254,7 +254,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		ColumnTree clusterColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(fingerprintCollection, clusterColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer.getHistory());
+				.getHistoryID(), relationshipExplorer);
 		initCommand.add(c);
 		NestableColumn fCol = (NestableColumn) c.execute();
 

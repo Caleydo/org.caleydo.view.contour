@@ -40,7 +40,7 @@ public class DuplicateColumnCommand implements IHistoryCommand {
 			duplicate = (AEntityColumn) columnTree.getRootColumn().getColumnModel();
 		} else {
 			AddChildColumnCommand c = new AddChildColumnCommand(column.getCollection(), column.getColumn().getParent()
-					.getColumnModel().getHistoryID(), relationshipExplorer.getHistory());
+					.getColumnModel().getHistoryID(), relationshipExplorer);
 			NestableColumn col = (NestableColumn) c.execute();
 			duplicate = (AEntityColumn) col.getColumnModel();
 		}

@@ -20,6 +20,7 @@ import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
@@ -119,6 +120,8 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	private GLElementContainer rightClusterContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4,
 			new GLPadding(0, 1)));
 
+	private GLElement centerSpacing = new GLElement();
+
 	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
@@ -193,10 +196,13 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		this.setLayout(GLLayouts.flowHorizontal(3));
 		leftClusterContainer.setSize(20, Float.NaN);
 		rightClusterContainer.setSize(20, Float.NaN);
+
+		add(new GLElement());
 		add(leftClusterContainer);
 		// Spacing
-		add(new GLElement());
+		add(centerSpacing);
 		add(rightClusterContainer);
+		add(new GLElement());
 
 		Comparator<GroupData> comparator = new Comparator<GroupData>() {
 			@Override
@@ -241,24 +247,25 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	}
 
-	// @Override
-	// protected void renderImpl(GLGraphics g, float w, float h) {
-	//
-	// Rect pathwayBounds = pathwayRepresentation.getPathwayBounds();
-	// g.color(Color.RED)
-	// .drawRect(pathwayBounds.x(), pathwayBounds.y(), pathwayBounds.width(), pathwayBounds.height());
-	//
-	// float currentY = 0;
-	//
-	// float heightPerCompound = (pathwayBounds.height() - clusterData.size() * 2) / overallCompoundSize;
-	// for (GroupData gd : clusterData) {
-	// float height = gd.containedCompounds.size() * heightPerCompound;
-	// g.color(Color.BLUE).drawRect(0, currentY, 20, height);
-	// currentY += height + 2;
-	// }
-	// // glContainer.render(g);
-	//
-	// }
+	@Override
+	protected void renderImpl(GLGraphics g, float w, float h) {
+		super.renderImpl(g, w, h);
+		centerSpacing.setSize(pathwayRepresentation.getPathwayBounds().width(), h);
+
+		// g.color(Color.RED)
+		// .drawRect(pathwayBounds.x(), pathwayBounds.y(), pathwayBounds.width(), pathwayBounds.height());
+		//
+		// float currentY = 0;
+		//
+		// float heightPerCompound = (pathwayBounds.height() - clusterData.size() * 2) / overallCompoundSize;
+		// for (GroupData gd : clusterData) {
+		// float height = gd.containedCompounds.size() * heightPerCompound;
+		// g.color(Color.BLUE).drawRect(0, currentY, 20, height);
+		// currentY += height + 2;
+		// }
+		// glContainer.render(g);
+
+	}
 
 	@Override
 	public int getHistoryID() {
@@ -286,6 +293,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+		// the ids that remain
 		// TODO Auto-generated method stub
 
 	}

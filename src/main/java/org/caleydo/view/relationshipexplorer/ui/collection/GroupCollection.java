@@ -72,6 +72,7 @@ public class GroupCollection extends AEntityCollection {
 		return ColumnFactories.createDefaultGroupColumnFactory(this, relationshipExplorer);
 	}
 
+	@Override
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
 	}

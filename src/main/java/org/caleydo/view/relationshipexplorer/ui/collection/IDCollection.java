@@ -58,6 +58,7 @@ public class IDCollection extends AEntityCollection {
 		return ColumnFactories.createDefaultIDColumnFactory(this, relationshipExplorer);
 	}
 
+	@Override
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
 	}

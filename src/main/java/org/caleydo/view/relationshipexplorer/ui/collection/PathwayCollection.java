@@ -64,6 +64,7 @@ public class PathwayCollection extends AEntityCollection {
 		return ColumnFactories.createDefaultPathwayColumnFactory(this, relationshipExplorer);
 	}
 
+	@Override
 	public IDType getMappingIDType() {
 		return getBroadcastingIDType();
 	}

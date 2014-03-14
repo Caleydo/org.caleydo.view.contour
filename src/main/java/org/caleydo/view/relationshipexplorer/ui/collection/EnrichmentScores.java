@@ -10,12 +10,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.caleydo.core.id.IDMappingManager;
+import org.caleydo.core.id.IDMappingManagerRegistry;
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.collection.Pair;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
@@ -31,6 +37,7 @@ import com.google.common.collect.Table.Cell;
  */
 public class EnrichmentScores {
 
+	protected final RelationshipExplorerElement relationshipExplorer;
 	/**
 	 * Holds all {@link EnrichmentScore}s defined via 4 dimensions: MappingCollection, TargetCollection,
 	 * EnrichmentCollection, and, whether the score is based on filtered (Pair.second) or all items (Pair.first)
@@ -41,6 +48,7 @@ public class EnrichmentScores {
 
 	public static class EnrichmentScore implements ILabeled {
 
+		protected final RelationshipExplorerElement relationshipExplorer;
 		protected final IEntityCollection rowCollection;
 		protected final IEntityCollection columnCollection;
 		protected final IEntityCollection mappingCollection;
@@ -51,11 +59,13 @@ public class EnrichmentScores {
 		protected Table<Object, Object, Float> scoreTable = HashBasedTable.create();
 
 		public EnrichmentScore(IEntityCollection rowCollection, IEntityCollection columnCollection,
-				IEntityCollection mappingCollection, boolean isFilteredItemScore) {
+				IEntityCollection mappingCollection, boolean isFilteredItemScore,
+				RelationshipExplorerElement relationshipExplorer) {
 			this.rowCollection = rowCollection;
 			this.columnCollection = columnCollection;
 			this.mappingCollection = mappingCollection;
 			this.isFilteredItemScore = isFilteredItemScore;
+			this.relationshipExplorer = relationshipExplorer;
 			updateScores();
 		}
 
@@ -69,24 +79,28 @@ public class EnrichmentScores {
 
 			Map<Object, Pair<Set<Object>, Set<Object>>> rowToMappings = new HashMap<>();
 
-			for (Object pathway : rowCollectionIDs) {
-				Set<Object> allMappedIDs = EntityMappingUtil.getAllMappedElementIDs(pathway, rowCollection,
-						mappingCollection);
-				Set<Object> filteredMappedIDs = EntityMappingUtil.getFilteredElementIDsOf(allMappedIDs,
-						mappingCollection);
+			for (Object id : rowCollectionIDs) {
+				Set<Object> allMappedIDs = getMappedElementIDs(id, rowCollection, mappingCollection, false);
+				Set<Object> filteredMappedIDs = getMappedElementIDs(id, rowCollection, mappingCollection, true);
+				// Set<Object> allMappedIDs = EntityMappingUtil.getAllMappedElementIDs(id, rowCollection,
+				// mappingCollection);
+				// Set<Object> filteredMappedIDs = EntityMappingUtil.getFilteredElementIDsOf(allMappedIDs,
+				// mappingCollection);
 
-				rowToMappings.put(pathway, Pair.make(allMappedIDs, filteredMappedIDs));
+				rowToMappings.put(id, Pair.make(allMappedIDs, filteredMappedIDs));
 			}
 
 			Map<Object, Pair<Set<Object>, Set<Object>>> columnToMappings = new HashMap<>();
 
-			for (Object cluster : columnCollectionIDs) {
-				Set<Object> allMappedIDs = EntityMappingUtil.getAllMappedElementIDs(cluster, columnCollection,
-						mappingCollection);
-				Set<Object> filteredMappedIDs = EntityMappingUtil.getFilteredElementIDsOf(allMappedIDs,
-						mappingCollection);
+			for (Object id : columnCollectionIDs) {
+				Set<Object> allMappedIDs = getMappedElementIDs(id, columnCollection, mappingCollection, false);
+				Set<Object> filteredMappedIDs = getMappedElementIDs(id, columnCollection, mappingCollection, true);
+				// Set<Object> allMappedIDs = EntityMappingUtil.getAllMappedElementIDs(id, columnCollection,
+				// mappingCollection);
+				// Set<Object> filteredMappedIDs = EntityMappingUtil.getFilteredElementIDsOf(allMappedIDs,
+				// mappingCollection);
 
-				columnToMappings.put(cluster, Pair.make(allMappedIDs, filteredMappedIDs));
+				columnToMappings.put(id, Pair.make(allMappedIDs, filteredMappedIDs));
 			}
 
 			for (Entry<Object, Pair<Set<Object>, Set<Object>>> rowEntry : rowToMappings.entrySet()) {
@@ -114,6 +128,72 @@ public class EnrichmentScores {
 
 				}
 			}
+		}
+
+		protected Set<Object> getMappedElementIDs(Object elementID, IEntityCollection sourceCollection,
+				IEntityCollection targetCollection, boolean filtered) {
+			Set<Object> srcBCIDs = sourceCollection.getBroadcastingIDsFromElementID(elementID);
+			IDType srcIDType = sourceCollection.getBroadcastingIDType();
+			IDType targetIDType = targetCollection.getBroadcastingIDType();
+
+			IDMappingManager idMappingManager = IDMappingManagerRegistry.get().getIDMappingManager(srcIDType);
+
+			List<MappingType> path = idMappingManager.getIDTypeMapper(srcIDType, targetIDType).getPath();
+
+			IDType fromIDType = srcIDType;
+			IDType toIDType = null;
+			Set<Object> fromIDs = new HashSet<>(srcBCIDs);
+			Set<Object> toIDs = new HashSet<>();
+
+			for (MappingType m : path) {
+				toIDType = m.getToIDType();
+				toIDs = idMappingManager.getIDTypeMapper(fromIDType, toIDType).apply(fromIDs);
+
+				Set<IEntityCollection> toCollections = relationshipExplorer.getCollectionsWithMappingIDType(toIDType);
+				if (toCollections.size() > 0) {
+					IEntityCollection toCollection = toCollections.iterator().next();
+					Set<Object> toBCIDs = idMappingManager.getIDTypeMapper(toIDType,
+							toCollection.getBroadcastingIDType()).apply(toIDs);
+					Set<Object> filteredToBCIDs = getFilteredBroadcastIDsOf(toBCIDs, toCollection, filtered);
+					toIDs = idMappingManager.getIDTypeMapper(toCollection.getBroadcastingIDType(), toIDType).apply(
+							filteredToBCIDs);
+
+				} else {
+					toCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(toIDType);
+					if (toCollections.size() > 0) {
+						IEntityCollection toCollection = toCollections.iterator().next();
+						toIDs = getFilteredBroadcastIDsOf(toIDs, toCollection, filtered);
+					}
+				}
+
+				fromIDs = new HashSet<>(toIDs);
+				fromIDType = toIDType;
+			}
+
+			Set<Object> elementIDs = new HashSet<>();
+			for (Object bcID : toIDs) {
+				elementIDs.addAll(targetCollection.getElementIDsFromBroadcastingID(bcID));
+			}
+
+			return elementIDs;
+
+		}
+
+		private Set<Object> getFilteredBroadcastIDsOf(Set<Object> broadcastIDs, IEntityCollection collection,
+				boolean filtered) {
+			Set<Object> elementIDs = new HashSet<>();
+			for (Object bcID : broadcastIDs) {
+				elementIDs.addAll(collection.getElementIDsFromBroadcastingID(bcID));
+			}
+			Set<Object> filteredElementIDs = null;
+			if (filtered) {
+				filteredElementIDs = EntityMappingUtil.getFilteredElementIDsOf(elementIDs, collection);
+			} else {
+				filteredElementIDs = new HashSet<>(Sets.intersection(elementIDs, collection.getAllElementIDs()));
+			}
+
+			Set<Object> filteredBroadcastIDs = collection.getBroadcastingIDsFromElementIDs(filteredElementIDs);
+			return filteredBroadcastIDs;
 		}
 
 		public Float getScore(Object targetID, Object enrichmentID) {
@@ -242,6 +322,10 @@ public class EnrichmentScores {
 
 	}
 
+	public EnrichmentScores(RelationshipExplorerElement relationshipExplorer) {
+		this.relationshipExplorer = relationshipExplorer;
+	}
+
 	public EnrichmentScore getOrCreateEnrichmentScore(IEntityCollection targetCollection,
 			IEntityCollection enrichmentCollection, IEntityCollection mappingCollection, boolean isFilteredItemScore) {
 
@@ -258,7 +342,8 @@ public class EnrichmentScores {
 		}
 		EnrichmentScore score = isFilteredItemScore ? scores.getSecond() : scores.getFirst();
 		if (score == null) {
-			score = new EnrichmentScore(targetCollection, enrichmentCollection, mappingCollection, isFilteredItemScore);
+			score = new EnrichmentScore(targetCollection, enrichmentCollection, mappingCollection, isFilteredItemScore,
+					relationshipExplorer);
 			if (isFilteredItemScore) {
 				scores.setSecond(score);
 			} else {

@@ -45,7 +45,6 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
@@ -76,7 +75,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected List<ColumnTree> cols = new ArrayList<>();
 
 	// ------------
-	protected EnrichmentScores enrichmentScores = new EnrichmentScores();
+	protected EnrichmentScores enrichmentScores = new EnrichmentScores(this);
 
 	// protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
@@ -349,24 +348,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	// return columns;
 	// }
 	//
-	public List<AEntityColumn> getColumnsWithBroadcastIDType(IDType idType) {
-		// List<AEntityColumn> list = new ArrayList<>();
-		// for (AEntityColumn column : columns) {
-		// if (column.getBroadcastingIDType() == idType) {
-		// list.add(column);
-		// }
-		// }
-		return null;
-	}
 
-	public List<AEntityColumn> getColumnsWithMappingIDType(IDType idType) {
-		// List<AEntityColumn> list = new ArrayList<>();
-		// for (AEntityColumn column : columns) {
-		// if (column.getMappingIDType() == idType) {
-		// list.add(column);
-		// }
-		// }
-		return null;
+	public Set<IEntityCollection> getCollectionsWithMappingIDType(IDType idType) {
+		Set<IEntityCollection> collections = new HashSet<>();
+		for (IEntityCollection collection : entityCollections) {
+			if (collection.getMappingIDType() == idType) {
+				collections.add(collection);
+			}
+		}
+		return collections;
 	}
 
 	public Set<IEntityCollection> getCollectionsWithBroadcastIDType(IDType idType) {

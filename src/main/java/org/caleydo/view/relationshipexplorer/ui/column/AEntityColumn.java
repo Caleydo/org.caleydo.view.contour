@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
-import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.color.ColorBrewer;
@@ -284,16 +283,16 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// public Vec2f getMinSize() {
 	// return itemList.getMinSize();
 	// }
-
-	protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
-
-		return getFirstForeignColumn(relationshipExplorer.getColumnsWithMappingIDType(idType));
-	}
-
-	protected AEntityColumn getForeignColumnWithBroadcastIDType(IDType idType) {
-
-		return getFirstForeignColumn(relationshipExplorer.getColumnsWithBroadcastIDType(idType));
-	}
+	//
+	// protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
+	//
+	// return getFirstForeignColumn(relationshipExplorer.getCollectionsWithMappingIDType(idType));
+	// }
+	//
+	// protected AEntityColumn getForeignColumnWithBroadcastIDType(IDType idType) {
+	//
+	// return getFirstForeignColumn(relationshipExplorer.getColumnsWithBroadcastIDType(idType));
+	// }
 
 	protected AEntityColumn getFirstForeignColumn(List<AEntityColumn> foreignColumns) {
 		AEntityColumn foreignColumn = null;

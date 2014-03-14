@@ -44,6 +44,8 @@ public interface IEntityCollection extends ILabeled {
 
 	public IDType getBroadcastingIDType();
 
+	public IDType getMappingIDType();
+
 	public Set<Object> getBroadcastingIDsFromElementID(Object elementID);
 
 	public Set<Object> getBroadcastingIDsFromElementIDs(Set<Object> elementIDs);

@@ -22,7 +22,6 @@ import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 
 /**
@@ -55,21 +54,13 @@ public class History extends AnimatedGLElementContainer {
 		public String getDescription();
 	}
 
-
 	protected class ResetCommand implements IHistoryCommand {
 
 		@Override
 		public Object execute() {
 			historyObjects.clear();
 			lastHistoryObjectID = -1;
-
-			relationshipExplorer.removeAllDetailViews();
-			relationshipExplorer.clearColumns();
-			relationshipExplorer.getFilterPipeline().clearFilterCommands();
-			for (IEntityCollection collection : relationshipExplorer.getEntityCollections()) {
-				collection.reset();
-			}
-
+			relationshipExplorer.reset();
 			if (initCommand != null) {
 				initCommand.execute();
 			}

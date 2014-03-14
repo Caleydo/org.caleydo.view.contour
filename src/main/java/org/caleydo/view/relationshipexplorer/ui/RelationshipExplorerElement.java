@@ -384,6 +384,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public void clearColumns() {
 		columnContainer.clear();
+		columnContainer.add(new ColumnSeparator());
+		columnContainer.add(new ColumnSeparator());
 		cols.clear();
 	}
 
@@ -554,6 +556,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		});
 
 		updateDetailHeight();
+	}
+
+	public void reset() {
+		removeAllDetailViews();
+		clearColumns();
+		getFilterPipeline().clearFilterCommands();
+		for (IEntityCollection collection : getEntityCollections()) {
+			collection.reset();
+		}
 	}
 
 	public void removeAllDetailViews() {

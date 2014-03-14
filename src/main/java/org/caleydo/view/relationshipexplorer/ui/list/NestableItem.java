@@ -192,7 +192,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 	}
 
 	/**
-	 * @return the element, see {@link #element}
+	 * @return the element, see {@link #glRepresentation}
 	 */
 	public GLElement getElement() {
 		return listElement.getContent();

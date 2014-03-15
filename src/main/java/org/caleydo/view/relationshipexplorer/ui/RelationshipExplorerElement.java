@@ -509,7 +509,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(2));
 				}
 			});
-			window.addTitleElement(button, false);
+			// FIXME, Christian - removed because it results in compilation error
+			// window.addTitleElement(button, false);
 			detailMap.put(srcCollection, window);
 		}
 

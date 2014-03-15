@@ -33,8 +33,9 @@ public class AddChildColumnCommand implements IHistoryCommand {
 		IColumnModel model = relationshipExplorer.getHistory().getHistoryObjectAs(IColumnModel.class,
 				parentColumnModelHistoryID);
 		NestableColumn column = model.getColumn();
-
-		return column.getColumnTree().addNestedColumn(collection.createColumnModel(), column);
+		NestableColumn childColumn = column.getColumnTree().addNestedColumn(collection.createColumnModel(), column);
+		relationshipExplorer.relayout();
+		return childColumn;
 	}
 
 	@Override

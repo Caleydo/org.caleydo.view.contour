@@ -153,7 +153,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			for (int j = 0; j < l.size(); j++) {
 				ColumnTree ct = l.get(j);
 
-				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator());
+				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator(), 0);
 
 			}
 			columnContainer.add(new ColumnSeparator(), 0);
@@ -294,8 +294,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		add(columnContainer);
 		history = new History(this);
 
-		columnContainer.add(new ColumnSeparator());
-		columnContainer.add(new ColumnSeparator());
+		columnContainer.add(new ColumnSeparator(), 0);
+		columnContainer.add(new ColumnSeparator(), 0);
 
 		filterPipeline = new FilterPipeline(this);
 		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
@@ -318,6 +318,12 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	 */
 	public FilterPipeline getFilterPipeline() {
 		return filterPipeline;
+	}
+
+	@Override
+	public void relayout() {
+		super.relayout();
+		columnContainer.relayout();
 	}
 
 	// public void addEntityColumn(AEntityColumn column) {

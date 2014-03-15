@@ -14,8 +14,12 @@ import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
+import org.caleydo.core.view.opengl.picking.APickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.GroupData;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author Alexander Lex
@@ -32,7 +36,10 @@ public class CompoundGroupVis extends GLElementContainer {
 
 	private CompoundGroupRepresentation group;
 
-	CompoundGroupVis(GroupData data, int maxMappingGenes, float width) {
+	// private CompoundAugmentation parent;
+
+	CompoundGroupVis(final CompoundAugmentation parent, final GroupData data, int maxMappingGenes, float width) {
+		// this.parent = parent;
 		this.data = data;
 		this.setLayout(GLLayouts.flowHorizontal(2));
 		setLayoutData(data.containedCompounds.size());
@@ -41,10 +48,29 @@ public class CompoundGroupVis extends GLElementContainer {
 
 		group = new CompoundGroupRepresentation(data, width / 3);
 		add(group);
+
+		group.onPick(new APickingListener() {
+			@Override
+			protected void clicked(Pick pick) {
+				parent.propagateGroupSelection(Sets.newHashSet(data.group));
+
+			}
+		});
+
+
 		add(compoundContainer);
-		for (Pair<Object, List<Integer>> compound : data.containedCompounds) {
+		for (final Pair<Object, List<Integer>> compound : data.containedCompounds) {
 			CompoundRepresentation rep = new CompoundRepresentation(compound, maxMappingGenes);
 			compoundContainer.add(rep);
+
+			rep.onPick(new APickingListener() {
+				@Override
+				protected void clicked(Pick pick) {
+					parent.getCompoundRepresentation().propagateGroupSelection(Sets.newHashSet(compound.getFirst()));
+
+				}
+			});
+
 		}
 	}
 

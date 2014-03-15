@@ -25,8 +25,6 @@ import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
-import org.caleydo.core.view.opengl.picking.APickingListener;
-import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
@@ -37,8 +35,6 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-
-import com.google.common.collect.Sets;
 
 /**
  * @author Alexander Lex
@@ -226,6 +222,13 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		updateGroups();
 	}
 
+	/**
+	 * @return the compoundRepresentation, see {@link #compoundRepresentation}
+	 */
+	public CompoundRepresentation getCompoundRepresentation() {
+		return compoundRepresentation;
+	}
+
 	private void updateMapping() {
 		// System.out.println("Vertices + " + );
 
@@ -304,15 +307,9 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		leftClusterContainer.clear();
 		rightClusterContainer.clear();
 		for (final GroupData data : groupList) {
-			final CompoundGroupVis element = new CompoundGroupVis(data, maxMappingGenes, padding);
+			final CompoundGroupVis element = new CompoundGroupVis(this, data, maxMappingGenes, padding);
 			data.setGLRepresentation(element);
-			element.onPick(new APickingListener() {
-				@Override
-				protected void clicked(Pick pick) {
-					propagateGroupSelection(Sets.newHashSet(data.group));
 
-				}
-			});
 			pixelStatus += data.containedCompounds.size() * pixelPerCompound + gap;
 
 			if (pixelStatus > 1000) {

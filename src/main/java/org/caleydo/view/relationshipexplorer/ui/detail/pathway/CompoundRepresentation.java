@@ -43,36 +43,51 @@ public class CompoundRepresentation extends PickableGLElement {
 	protected void renderImpl(GLGraphics g, float w, float h) {
 
 		super.renderImpl(g, w, h);
-		Color color;
+		Color primaryColor = null;
+		Color secondaryColor = null;
 
 		if (isHighlighted) {
-			color = Color.MOUSE_OVER_ORANGE;
-		} else if (isSelected) {
-			color = Color.SELECTION_ORANGE;
-		} else if (isSelected) {
-			color = Color.WHITE;
-		} else {
-			color = Color.LIGHT_GRAY;
+			primaryColor = Color.MOUSE_OVER_ORANGE;
+			secondaryColor = Color.MOUSE_OVER_ORANGE;
+			if (isSelected) {
+				secondaryColor = Color.SELECTION_ORANGE;
+			}
+		} else if (isSelected && !isHighlighted) {
+			primaryColor = Color.SELECTION_ORANGE;
+			secondaryColor = Color.SELECTION_ORANGE;
+		}
+
+		if (isFiltered) {
+			primaryColor = Color.WHITE;
+			secondaryColor = Color.WHITE;
+		}
+
+		if (!isFiltered && !isSelected && !isHighlighted) {
+			primaryColor = Color.LIGHT_GRAY;
+			secondaryColor = Color.LIGHT_GRAY;
 		}
 
 		g.lineWidth(1);
 		float spacing = 2;
 		float compoundSquareSpace = w / 2 - spacing;
 
-		g.color(color);
+		g.color(primaryColor);
 		g.fillRect(0, 0, compoundSquareSpace, h);
 		g.color(Color.BLACK);
 		g.drawRect(0, 0, compoundSquareSpace, h);
 
-		g.color(color);
+		g.color(primaryColor);
 
 		float geneFrequencySpace = w / 2;
 
 		float width = geneFrequencySpace * mappedGenes.size() / maxMappingGenes;
 		g.fillRect(compoundSquareSpace + spacing, 0, width, h);
+
+		// width += compoundSquareSpace + spacing;
+		// g.fillRect(compoundSquareSpace + spacing, 0, width, h);
 		g.color(Color.BLACK);
 		g.drawRect(compoundSquareSpace + spacing, 0, width, h);
-
+		// g.drawLine(width, h, width, 0);
 	}
 
 	@Override

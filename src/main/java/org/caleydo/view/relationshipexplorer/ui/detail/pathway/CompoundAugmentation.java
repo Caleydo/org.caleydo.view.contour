@@ -47,6 +47,10 @@ import com.google.common.collect.Sets;
 
 public class CompoundAugmentation extends GLElementContainer implements IEntityRepresentation {
 
+	public enum ESelectionMode {
+		SELECTED, HIGHLGHTED, FILTERED
+	}
+
 	class GroupData {
 		CompoundGroupVis glRepresentation;
 		Set<Object> allCompounds = new HashSet<>();
@@ -165,20 +169,26 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 		@Override
 		public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-			// TODO Auto-generated method stub
-
+			updateSelection(ESelectionMode.SELECTED, selectedElementIDs);
 		}
 
 		@Override
 		public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-			// TODO Auto-generated method stub
+			updateSelection(ESelectionMode.HIGHLGHTED, highlightElementIDs);
 
 		}
 
 		@Override
 		public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-			// TODO Auto-generated method stub
+			updateSelection(ESelectionMode.FILTERED, filteredElementIDs);
 
+		}
+
+		private void updateSelection(ESelectionMode selectionMode, Set<Object> highlightElementIDs) {
+			for (GroupData group : containedGroups) {
+				group.glRepresentation.setCompoundHighlighted(selectionMode, highlightElementIDs);
+
+			}
 		}
 
 		@Override
@@ -202,14 +212,15 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		updateMapping();
 
 		this.setLayout(GLLayouts.flowHorizontal(3));
-		leftClusterContainer.setSize(20, Float.NaN);
-		rightClusterContainer.setSize(20, Float.NaN);
+		leftClusterContainer.setSize(padding, Float.NaN);
+		rightClusterContainer.setSize(padding, Float.NaN);
 
 		add(new GLElement());
-		add(leftClusterContainer);
+		add(rightClusterContainer);
 		// Spacing
 		add(centerSpacing);
-		add(rightClusterContainer);
+		add(leftClusterContainer);
+
 		add(new GLElement());
 
 		updateGroups();
@@ -349,17 +360,17 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	@Override
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		updateSelection(true, selectedElementIDs, srcRep);
+		updateSelection(ESelectionMode.SELECTED, selectedElementIDs, srcRep);
 
 	}
 
 	@Override
 	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		updateSelection(false, highlightElementIDs, srcRep);
+		updateSelection(ESelectionMode.HIGHLGHTED, highlightElementIDs, srcRep);
 
 	}
 
-	private void updateSelection(boolean selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+	private void updateSelection(ESelectionMode selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
 		for (GroupData group : containedGroups) {
 			group.glRepresentation.setClusterHighlighted(selected, highlightElementIDs);
 

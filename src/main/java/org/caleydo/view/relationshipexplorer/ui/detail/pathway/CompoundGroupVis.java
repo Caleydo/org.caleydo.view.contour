@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.util.collection.Pair;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.GroupData;
 
 /**
@@ -27,7 +29,6 @@ public class CompoundGroupVis extends GLElementContainer {
 
 	private GLSizeRestrictiveFlowLayout layout = new GLSizeRestrictiveFlowLayout(false, 0, new GLPadding(0, 0));
 	private GLElementContainer compoundContainer = new GLElementContainer(layout);
-
 
 	private CompoundGroupRepresentation group;
 
@@ -47,12 +48,15 @@ public class CompoundGroupVis extends GLElementContainer {
 		}
 	}
 
-	public void setClusterHighlighted(boolean selected, Set<Object> highlightElementIDs) {
-		group.setHighlighted(selected, highlightElementIDs);
+	public void setClusterHighlighted(ESelectionMode selectionMode, Set<Object> highlightElementIDs) {
+		group.setHighlighted(selectionMode, highlightElementIDs);
 	}
 
-	public void setCompoundHighlighted(boolean selected, Set<Object> highlightElementIDs) {
-		// for(CompoundRepresentation rep : compoundContainer.asList()))
+	public void setCompoundHighlighted(ESelectionMode selected, Set<Object> highlightElementIDs) {
+		for (GLElement rep : compoundContainer.asList()) {
+			CompoundRepresentation compound = (CompoundRepresentation) rep;
+			compound.setHighlighted(selected, highlightElementIDs);
+		}
 	}
 
 }

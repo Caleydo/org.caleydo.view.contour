@@ -11,6 +11,7 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.GroupData;
 
 /**
@@ -24,6 +25,7 @@ public class CompoundGroupRepresentation extends PickableGLElement {
 	private GroupData data;
 	private boolean isSelected = false;
 	private boolean isHighlighted = false;
+	private boolean isFiltered = false;
 
 	CompoundGroupRepresentation(GroupData data, float width) {
 		this.data = data;
@@ -35,18 +37,35 @@ public class CompoundGroupRepresentation extends PickableGLElement {
 	protected void renderImpl(GLGraphics g, float w, float h) {
 
 		super.renderImpl(g, w, h);
-		Color color;
-		if (!isSelected) {
-			color = new Color(70, 130, 180);
-		} else {
-			color = Color.SELECTION_ORANGE;
-		}
+		Color frameColor;
+		Color bodyColor;
 		float completeness = (float) data.containedCompounds.size() / data.allCompounds.size() / 3 * 2;
-		color.a = 1 / 3 + completeness;
+		float alpha = 1;
+		if (isSelected) {
+			frameColor = Color.SELECTION_ORANGE;
+			g.lineWidth(2);
 
-		g.color(color);
+		} else if (isHighlighted) {
+			frameColor = Color.MOUSE_OVER_ORANGE;
+			g.lineWidth(2);
+
+		} else {
+			frameColor = Color.BLACK;
+			g.lineWidth(1);
+		}
+
+		if (isFiltered) {
+			bodyColor = Color.WHITE;
+		} else {
+			bodyColor = new Color(70, 130, 180);
+			alpha = 1 / 3 + completeness;
+		}
+
+
+
+		g.gl.glColor4f(bodyColor.r, bodyColor.g, bodyColor.b, alpha);
 		g.fillRect(0, 0, w, h);
-		g.color(Color.BLACK);
+		g.color(frameColor);
 		g.drawRect(0, 0, w, h);
 
 	}
@@ -69,14 +88,19 @@ public class CompoundGroupRepresentation extends PickableGLElement {
 		return "Compounds: " + data.containedCompounds.size() + "/" + data.allCompounds.size();
 	}
 
-	public void setHighlighted(boolean selected, Set<Object> highlightElementIDs) {
+	public void setHighlighted(ESelectionMode selected, Set<Object> highlightElementIDs) {
 		boolean isContained = highlightElementIDs.contains(data.group);
-		if (selected && (isContained != isSelected)) {
+
+		if (ESelectionMode.SELECTED.equals(selected) && (isContained != isSelected)) {
 			isSelected = isContained;
 			repaint();
 		}
-		if (!selected && (isContained != isHighlighted)) {
+		if (ESelectionMode.HIGHLGHTED.equals(selected) && (isContained != isHighlighted)) {
 			isHighlighted = isContained;
+			repaint();
+		}
+		if (ESelectionMode.FILTERED.equals(selected) && (isContained != isHighlighted)) {
+			isFiltered = isContained;
 			repaint();
 		}
 	}

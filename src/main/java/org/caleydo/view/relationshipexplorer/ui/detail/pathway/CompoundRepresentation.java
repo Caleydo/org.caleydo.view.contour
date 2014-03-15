@@ -13,6 +13,7 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
 
 /**
  * Rendering a cluster for a pathway.
@@ -27,6 +28,7 @@ public class CompoundRepresentation extends PickableGLElement {
 
 	private boolean isSelected = false;
 	private boolean isHighlighted = false;
+	private boolean isFiltered = false;
 	private int maxMappingGenes = 0;
 
 	CompoundRepresentation(Pair<Object, List<Integer>> data, int maxMappingGenes) {
@@ -42,13 +44,18 @@ public class CompoundRepresentation extends PickableGLElement {
 
 		super.renderImpl(g, w, h);
 		Color color;
-		if (!isSelected) {
-			color = Color.GRAY;
 
-		} else {
+		if (isHighlighted) {
+			color = Color.MOUSE_OVER_ORANGE;
+		} else if (isSelected) {
 			color = Color.SELECTION_ORANGE;
+		} else if (isSelected) {
+			color = Color.WHITE;
+		} else {
+			color = Color.LIGHT_GRAY;
 		}
 
+		g.lineWidth(1);
 		float spacing = 2;
 		float compoundSquareSpace = w / 2 - spacing;
 
@@ -57,9 +64,6 @@ public class CompoundRepresentation extends PickableGLElement {
 		g.color(Color.BLACK);
 		g.drawRect(0, 0, compoundSquareSpace, h);
 
-		if (!isSelected) {
-			color = new Color(70, 130, 180);
-		}
 		g.color(color);
 
 		float geneFrequencySpace = w / 2;
@@ -89,14 +93,20 @@ public class CompoundRepresentation extends PickableGLElement {
 		return "Compound: " + compoundID + "\n Mapping: " + mappedGenes.size();
 	}
 
-	public void setHighlighted(boolean selected, Set<Object> highlightElementIDs) {
+	public void setHighlighted(ESelectionMode selected, Set<Object> highlightElementIDs) {
+
 		boolean isContained = highlightElementIDs.contains(compoundID);
-		if (selected && (isContained != isSelected)) {
+
+		if (ESelectionMode.SELECTED.equals(selected) && (isContained != isSelected)) {
 			isSelected = isContained;
 			repaint();
 		}
-		if (!selected && (isContained != isHighlighted)) {
+		if (ESelectionMode.HIGHLGHTED.equals(selected) && (isContained != isHighlighted)) {
 			isHighlighted = isContained;
+			repaint();
+		}
+		if (ESelectionMode.FILTERED.equals(selected) && (isContained != isHighlighted)) {
+			isFiltered = isContained;
 			repaint();
 		}
 	}

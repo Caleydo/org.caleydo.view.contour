@@ -17,6 +17,7 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.ParallelCoordinatesDetailViewFactory;
 
 import com.google.common.collect.Sets;
 
@@ -59,6 +60,7 @@ public class TabularDataCollection extends AEntityCollection {
 		allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel(dataDomain.getLabel());
+		detailViewFactory = new ParallelCoordinatesDetailViewFactory(relationshipExplorer);
 	}
 
 	@Override

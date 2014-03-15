@@ -11,9 +11,15 @@ import java.util.Set;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewFactories;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindowFactories;
+import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewWindowFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 import com.google.common.collect.Sets;
@@ -34,6 +40,9 @@ public abstract class AEntityCollection implements IEntityCollection {
 	protected Set<IEntityRepresentation> representations = new HashSet<>();
 
 	protected IColumnFactory columnFactory;
+
+	protected IDetailViewWindowFactory detailViewWindowFactory;
+	protected IDetailViewFactory detailViewFactory;
 
 	public AEntityCollection(RelationshipExplorerElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
@@ -196,7 +205,37 @@ public abstract class AEntityCollection implements IEntityCollection {
 		this.columnFactory = columnFactory;
 	}
 
-	protected abstract IColumnFactory getDefaultColumnFactory();
+	@Override
+	public DetailViewWindow createDetailViewWindow() {
+		if (detailViewWindowFactory == null)
+			detailViewWindowFactory = DetailViewWindowFactories
+					.createDefaultDetailViewWindowFactory(relationshipExplorer);
+		return detailViewWindowFactory.createWindow(this);
+	}
 
+	/**
+	 * @param detailViewWindowFactory
+	 *            setter, see {@link detailViewWindowFactory}
+	 */
+	public void setDetailViewWindowFactory(IDetailViewWindowFactory detailViewWindowFactory) {
+		this.detailViewWindowFactory = detailViewWindowFactory;
+	}
+
+	/**
+	 * @param detailViewFactory
+	 *            setter, see {@link detailViewFactory}
+	 */
+	public void setDetailViewFactory(IDetailViewFactory detailViewFactory) {
+		this.detailViewFactory = detailViewFactory;
+	}
+
+	@Override
+	public GLElement createDetailView() {
+		if (detailViewFactory == null)
+			detailViewFactory = DetailViewFactories.createDefaultDetailViewWindowFactory(relationshipExplorer);
+		return detailViewFactory.create(this);
+	}
+
+	protected abstract IColumnFactory getDefaultColumnFactory();
 
 }

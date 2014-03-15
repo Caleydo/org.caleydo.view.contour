@@ -7,7 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -17,12 +16,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.media.opengl.GL;
-
 import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
@@ -31,8 +27,6 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
-import org.caleydo.core.view.opengl.layout2.basic.GLButton;
-import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
 import org.caleydo.core.view.opengl.layout2.dnd.EDnDType;
@@ -44,8 +38,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -54,7 +46,6 @@ import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
@@ -473,31 +464,13 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return idMappingUpdateHandler;
 	}
 
-	protected static final URL UPDATE_ON_SELECTION_ICON = AEntityColumn.class
-			.getResource("/org/caleydo/view/relationshipexplorer/icons/update_selection.png");
 
-	public void showDetailView(IEntityCollection srcCollection, final GLElement detailView, ILabeled labeled) {
+	public void showDetailView(IEntityCollection srcCollection) {
 
 		GLElementWindow window = detailMap.get(srcCollection);
-		GLButton button = new GLButton(EButtonMode.CHECKBOX);
-		button.setSize(16, 16);
-		button.setVisibility(EVisibility.PICKABLE);
-		button.setRenderer(GLRenderers.fillImage(UPDATE_ON_SELECTION_ICON));
-		button.setSelectedRenderer(new IGLRenderer() {
-			@Override
-			public void render(GLGraphics g, float w, float h, GLElement parent) {
-				g.fillImage(UPDATE_ON_SELECTION_ICON, 0, 0, w, h);
-				g.gl.glEnable(GL.GL_BLEND);
-				g.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-				g.gl.glEnable(GL.GL_LINE_SMOOTH);
-				g.color(new Color(1, 1, 1, 0.5f)).fillRoundedRect(0, 0, w, h, Math.min(w, h) * 0.25f);
-				g.gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_ALPHA);
-			}
-		});
-		button.setTooltip("Update when selection changes");
 
 		if (window == null) {
-			window = new GLElementWindow(labeled);
+			window = srcCollection.createDetailViewWindow();
 			window.onClose(new ICloseWindowListener() {
 
 				@Override
@@ -509,8 +482,6 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(2));
 				}
 			});
-			// FIXME, Christian - removed because it results in compilation error
-			// window.addTitleElement(button, false);
 			detailMap.put(srcCollection, window);
 		}
 
@@ -519,8 +490,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			detailWindowQueue.add(window);
 		}
 
-		window.setContent(detailView);
-		window.getTitleBar().setLabelProvider(labeled);
+		window.setContent(srcCollection.createDetailView());
+		window.getTitleBar().setLabelProvider(srcCollection);
 		window.setShowCloseButton(true);
 
 		Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
@@ -586,7 +557,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		}
 	}
 
-	protected void updateDetailHeight() {
+	public void updateDetailHeight() {
 		IGLCanvas canvas = findParent(AGLElementView.class).getParentGLCanvas();
 		Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
 		float detailHeight = Math.max(0,

@@ -216,8 +216,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				new IContextMenuCommand() {
 					@Override
 					public void execute() {
-						ShowDetailCommand o = new ShowDetailCommand(AEntityColumn.this,
-								relationshipExplorer.getHistory());
+						ShowDetailCommand o = new ShowDetailCommand(entityCollection, relationshipExplorer);
 						o.execute();
 						relationshipExplorer.getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(1));
 					}
@@ -1122,6 +1121,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected abstract GLElement newElement(Object elementID);
 
-	public abstract void showDetailView();
+	// public abstract void showDetailView();
 
 }

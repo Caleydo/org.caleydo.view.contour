@@ -5,10 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import gleem.linalg.Vec2f;
-
 import java.util.Comparator;
-import java.util.List;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
@@ -17,19 +14,13 @@ import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
-import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTSActivityItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -37,8 +28,6 @@ import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-
-import com.google.common.base.Predicate;
 
 /**
  * @author Christian
@@ -180,37 +169,37 @@ public class TabularDataColumn extends AEntityColumn {
 	// return ID_COMPARATOR;
 	// }
 
-	@Override
-	public void showDetailView() {
-		GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
-		List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
-				new Predicate<String>() {
-
-					@Override
-					public boolean apply(String input) {
-						return input.equals("paco");
-					}
-				});
-
-		GLElement detailView = null;
-		if (suppliers.isEmpty()) {
-			detailView = new GLElement() {
-				@Override
-				public Vec2f getMinSize() {
-					return new Vec2f(300, 300);
-				}
-			};
-			detailView.setRenderer(GLRenderers.fillRect(Color.BLUE));
-
-		} else {
-			detailView = suppliers.get(0).get();
-		}
-
-		ParCoordsElement element = new ParCoordsElement(tablePerspective, entityCollection, relationshipExplorer);
-
-		relationshipExplorer.showDetailView(entityCollection, element, this);
-
-	}
+	// @Override
+	// public void showDetailView() {
+	// GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
+	// List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
+	// new Predicate<String>() {
+	//
+	// @Override
+	// public boolean apply(String input) {
+	// return input.equals("paco");
+	// }
+	// });
+	//
+	// GLElement detailView = null;
+	// if (suppliers.isEmpty()) {
+	// detailView = new GLElement() {
+	// @Override
+	// public Vec2f getMinSize() {
+	// return new Vec2f(300, 300);
+	// }
+	// };
+	// detailView.setRenderer(GLRenderers.fillRect(Color.BLUE));
+	//
+	// } else {
+	// detailView = suppliers.get(0).get();
+	// }
+	//
+	// ParCoordsElement element = new ParCoordsElement(tablePerspective, entityCollection, relationshipExplorer);
+	//
+	// relationshipExplorer.showDetailView(entityCollection, element, this);
+	//
+	// }
 
 	// @Override
 	// public void fill(NestableColumn column, NestableColumn parentColumn) {

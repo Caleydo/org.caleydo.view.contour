@@ -15,6 +15,7 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.PathwayDetailViewFactory;
 
 /**
  * @author Christian
@@ -29,6 +30,7 @@ public class PathwayCollection extends AEntityCollection {
 		this.allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel("Pathways");
+		detailViewFactory = new PathwayDetailViewFactory(relationshipExplorer);
 	}
 
 	@Override
@@ -57,7 +59,6 @@ public class PathwayCollection extends AEntityCollection {
 		}
 		return elementIDs;
 	}
-
 
 	@Override
 	protected IColumnFactory getDefaultColumnFactory() {

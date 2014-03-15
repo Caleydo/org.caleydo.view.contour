@@ -5,19 +5,9 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Set;
-
-import org.caleydo.core.id.IDType;
-import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
-import org.caleydo.view.pathway.v2.ui.PathwayElement;
-import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.MultiVertexHighlightAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
 /**
  * @author Christian
@@ -36,31 +26,32 @@ public class PathwayColumn extends ATextColumn {
 		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
-	@Override
-	public void showDetailView() {
-		Set<NestableItem> selectedItems = column.getSelectedItems();
-
-		PathwayGraph pathway = (PathwayGraph) selectedItems.iterator().next().getElementData().iterator().next();
-		if (selectedItems.size() > 1) {
-			pathway = (PathwayGraph) column.getHighlightedItems().iterator().next().getElementData().iterator().next();
-		}
-
-		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
-		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
-		pathwayElement.setPathwayRepresentation(representation);
-		pathwayElement.addForegroundAugmentation(new CompoundGroupPathwayAugmentation(representation, getRelationshipExplorer()));
-
-		// FIXME: hacky, we do not know what id type the gene column has...
-		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType
-				.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()));
-		if (geneCollections.isEmpty())
-			return;
-
-		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
-				.iterator().next(), relationshipExplorer));
-
-		relationshipExplorer.showDetailView(entityCollection, pathwayElement, pathway);
-	}
+	// @Override
+	// public void showDetailView() {
+	// Set<NestableItem> selectedItems = column.getSelectedItems();
+	//
+	// PathwayGraph pathway = (PathwayGraph) selectedItems.iterator().next().getElementData().iterator().next();
+	// if (selectedItems.size() > 1) {
+	// pathway = (PathwayGraph) column.getHighlightedItems().iterator().next().getElementData().iterator().next();
+	// }
+	//
+	// PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
+	// PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
+	// pathwayElement.setPathwayRepresentation(representation);
+	// pathwayElement.addForegroundAugmentation(new CompoundGroupPathwayAugmentation(representation,
+	// getRelationshipExplorer()));
+	//
+	// // FIXME: hacky, we do not know what id type the gene column has...
+	// Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType
+	// .getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()));
+	// if (geneCollections.isEmpty())
+	// return;
+	//
+	// pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
+	// .iterator().next(), relationshipExplorer));
+	//
+	// relationshipExplorer.showDetailView(entityCollection, pathwayElement, pathway);
+	// }
 
 	// @Override
 	// protected GLElement createElement(Object elementID) {

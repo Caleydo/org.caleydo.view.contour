@@ -5,15 +5,10 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import gleem.linalg.Vec2f;
-
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
-import org.caleydo.core.util.color.Color;
-import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 
@@ -152,19 +147,19 @@ public class GroupingColumn extends ATextColumn {
 	// return GROUP_COMPARATOR;
 	// }
 
-	@Override
-	public void showDetailView() {
-		GLElement dummy = new GLElement() {
-			@Override
-			public Vec2f getMinSize() {
-				return new Vec2f(300, 300);
-			}
-		};
-		dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
-
-		relationshipExplorer.showDetailView(groupCollection, dummy, this);
-
-	}
+	// @Override
+	// public void showDetailView() {
+	// GLElement dummy = new GLElement() {
+	// @Override
+	// public Vec2f getMinSize() {
+	// return new Vec2f(300, 300);
+	// }
+	// };
+	// dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
+	//
+	// relationshipExplorer.showDetailView(groupCollection, dummy, this);
+	//
+	// }
 
 	@Override
 	public String getText(Object elementID) {

@@ -5,9 +5,9 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
-import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
  * @author Christian
@@ -15,25 +15,23 @@ import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
  */
 public class ShowDetailCommand implements IHistoryCommand {
 
-	protected final int entityColumnHistoryID;
-	protected final History history;
+	protected final IEntityCollection collection;
+	protected final RelationshipExplorerElement relationshipExplorer;
 
-	public ShowDetailCommand(AEntityColumn column, History history) {
-		this.entityColumnHistoryID = column.getHistoryID();
-		this.history = history;
+	public ShowDetailCommand(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
+		this.collection = collection;
+		this.relationshipExplorer = relationshipExplorer;
 	}
 
 	@Override
 	public Object execute() {
-		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, entityColumnHistoryID);
-		column.showDetailView();
+		relationshipExplorer.showDetailView(collection);
 		return null;
 	}
 
 	@Override
 	public String getDescription() {
-		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, entityColumnHistoryID);
-		return "Shoe Detail View of " + column.getLabel();
+		return "Shoe Detail View of " + collection.getLabel();
 	}
 
 }

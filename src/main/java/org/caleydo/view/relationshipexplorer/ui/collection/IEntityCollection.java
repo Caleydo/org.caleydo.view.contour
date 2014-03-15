@@ -9,7 +9,9 @@ import java.util.Set;
 
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
@@ -59,5 +61,9 @@ public interface IEntityCollection extends ILabeled {
 	public void removeEntityRepresentation(IEntityRepresentation rep);
 
 	public IColumnModel createColumnModel();
+
+	public DetailViewWindow createDetailViewWindow();
+
+	public GLElement createDetailView();
 
 }

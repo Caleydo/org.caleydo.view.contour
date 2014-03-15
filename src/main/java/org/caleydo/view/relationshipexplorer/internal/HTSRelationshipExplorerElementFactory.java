@@ -43,6 +43,8 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCo
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SetSummaryItemFactoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewWindowFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -141,6 +143,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		IDCollection compoundCollection = new IDCollection(IDType.getIDType("COMPOUND_ID"),
 				IDType.getIDType("COMPOUND_ID"), null, relationshipExplorer);
 		compoundCollection.setLabel("Compounds");
+		compoundCollection.setDetailViewWindowFactory(new CompoundDetailViewWindowFactory(relationshipExplorer));
+		compoundCollection.setDetailViewFactory(new CompoundDetailViewFactory());
 
 		TabularDataCollection fingerprintCollection = null;
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {

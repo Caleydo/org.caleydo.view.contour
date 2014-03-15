@@ -161,7 +161,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			for (int j = 0; j < l.size(); j++) {
 				ColumnTree ct = l.get(j);
 
-				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator());
+				columnContainer.add(columnContainer.indexOf(ct), new ColumnSeparator(), 0);
 
 			}
 			columnContainer.add(new ColumnSeparator(), 0);
@@ -322,7 +322,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	public void addColumn(ColumnTree column) {
 		if (cols.size() > 0) {
 			ColumnSeparator columnSeparator = new ColumnSeparator();
-			columnContainer.add(columnContainer.size() - 1, columnSeparator);
+			columnContainer.add(columnContainer.size() - 1, columnSeparator, 0);
 		}
 		columnContainer.add(columnContainer.size() - 1, column);
 		cols.add(column);

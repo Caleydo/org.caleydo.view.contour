@@ -12,11 +12,10 @@ import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
-import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.ESelectionMode;
 
 /**
- * Rendering a cluster for a pathway.
+ * Rendering a compound and it's frequency of bindings with genes.
  *
  * @author Alexander Lex
  *
@@ -36,7 +35,6 @@ public class CompoundRepresentation extends PickableGLElement {
 		mappedGenes = data.getSecond();
 		this.maxMappingGenes = maxMappingGenes;
 		setLayoutData(1);
-		// setSize(, Float.NaN);
 	}
 
 	@Override
@@ -90,18 +88,6 @@ public class CompoundRepresentation extends PickableGLElement {
 		// g.drawLine(width, h, width, 0);
 	}
 
-	@Override
-	protected void onClicked(Pick pick) {
-		// TODO Auto-generated method stub
-		super.onClicked(pick);
-		// this.isSelected = true;
-
-	}
-
-	@Override
-	protected void onMouseOver(Pick pick) {
-		super.onMouseOver(pick);
-	}
 
 	@Override
 	public String getTooltip() {

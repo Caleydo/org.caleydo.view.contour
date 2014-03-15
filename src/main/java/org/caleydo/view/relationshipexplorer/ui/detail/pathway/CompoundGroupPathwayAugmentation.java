@@ -37,11 +37,14 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighligh
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 
 /**
+ * Visualizes compounds and compound cluster on the sides of a pathway.
+ *
  * @author Alexander Lex
+ * @author Christian Partl
  *
  */
 
-public class CompoundAugmentation extends GLElementContainer implements IEntityRepresentation {
+public class CompoundGroupPathwayAugmentation extends GLElementContainer implements IEntityRepresentation {
 
 	public enum ESelectionMode {
 		SELECTED, HIGHLGHTED, FILTERED
@@ -157,7 +160,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 		}
 
 		public void propagateGroupHighlight(Set<Object> compoundIDs) {
-			groupCollection.setHighlightItems(compoundIDs);
+			compoundCollection.setHighlightItems(compoundIDs);
 
 			filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
 					.getBroadcastingIDsFromElementIDs(compoundIDs), this));
@@ -195,7 +198,7 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 
 	}
 
-	public CompoundAugmentation(IPathwayRepresentation pathwayRepresentation,
+	public CompoundGroupPathwayAugmentation(IPathwayRepresentation pathwayRepresentation,
 			RelationshipExplorerElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
@@ -334,20 +337,6 @@ public class CompoundAugmentation extends GLElementContainer implements IEntityR
 	protected void renderImpl(GLGraphics g, float w, float h) {
 		super.renderImpl(g, w, h);
 		centerSpacing.setSize(pathwayRepresentation.getPathwayBounds().width(), h);
-
-		// g.color(Color.RED)
-		// .drawRect(pathwayBounds.x(), pathwayBounds.y(), pathwayBounds.width(), pathwayBounds.height());
-		//
-		// float currentY = 0;
-		//
-		// float heightPerCompound = (pathwayBounds.height() - clusterData.size() * 2) / overallCompoundSize;
-		// for (GroupData gd : clusterData) {
-		// float height = gd.containedCompounds.size() * heightPerCompound;
-		// g.color(Color.BLUE).drawRect(0, currentY, 20, height);
-		// currentY += height + 2;
-		// }
-		// glContainer.render(g);
-
 	}
 
 	@Override

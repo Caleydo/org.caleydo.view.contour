@@ -11,14 +11,14 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.GroupData;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.ESelectionMode;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.GroupData;
 
 /**
- * Rendering a cluster for a pathway.
- *
+ * Rendering a compound group.
+ * 
  * @author Alexander Lex
- *
+ * 
  */
 public class CompoundGroupRepresentation extends PickableGLElement {
 

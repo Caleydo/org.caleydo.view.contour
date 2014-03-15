@@ -15,7 +15,7 @@ import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.MultiVertexHighlightAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
@@ -48,7 +48,7 @@ public class PathwayColumn extends ATextColumn {
 		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
 		pathwayElement.setPathwayRepresentation(representation);
-		pathwayElement.addForegroundAugmentation(new CompoundAugmentation(representation, getRelationshipExplorer()));
+		pathwayElement.addForegroundAugmentation(new CompoundGroupPathwayAugmentation(representation, getRelationshipExplorer()));
 
 		// FIXME: hacky, we do not know what id type the gene column has...
 		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType

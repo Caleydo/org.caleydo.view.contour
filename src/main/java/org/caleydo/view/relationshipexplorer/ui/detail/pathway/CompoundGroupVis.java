@@ -16,20 +16,19 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.ESelectionMode;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundAugmentation.GroupData;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.ESelectionMode;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.GroupData;
 
 import com.google.common.collect.Sets;
 
 /**
+ * Renders the content of a compound group, including an explicit representation of the group, and individual
+ * representations of compounds.
+ *
  * @author Alexander Lex
  *
  */
 public class CompoundGroupVis extends GLElementContainer {
-
-	private GroupData data;
-	private boolean isSelected = false;
-	private boolean isHighlighted = false;
 
 	private GLSizeRestrictiveFlowLayout layout = new GLSizeRestrictiveFlowLayout(false, 0, new GLPadding(0, 0));
 	private GLElementContainer compoundContainer = new GLElementContainer(layout);
@@ -38,9 +37,9 @@ public class CompoundGroupVis extends GLElementContainer {
 
 	// private CompoundAugmentation parent;
 
-	CompoundGroupVis(final CompoundAugmentation parent, final GroupData data, int maxMappingGenes, float width) {
-		// this.parent = parent;
-		this.data = data;
+	CompoundGroupVis(final CompoundGroupPathwayAugmentation parent, final GroupData data, int maxMappingGenes,
+			float width) {
+
 		this.setLayout(GLLayouts.flowHorizontal(2));
 		setLayoutData(data.containedCompounds.size());
 
@@ -55,8 +54,12 @@ public class CompoundGroupVis extends GLElementContainer {
 				parent.propagateGroupSelection(Sets.newHashSet(data.group));
 
 			}
-		});
 
+			@Override
+			protected void mouseOver(Pick pick) {
+				parent.propagateGroupHighlight(Sets.newHashSet(data.group));
+			}
+		});
 
 		add(compoundContainer);
 		for (final Pair<Object, List<Integer>> compound : data.containedCompounds) {
@@ -69,8 +72,12 @@ public class CompoundGroupVis extends GLElementContainer {
 					parent.getCompoundRepresentation().propagateGroupSelection(Sets.newHashSet(compound.getFirst()));
 
 				}
-			});
 
+				@Override
+				protected void mouseOver(Pick pick) {
+					parent.getCompoundRepresentation().propagateGroupHighlight(Sets.newHashSet(compound.getFirst()));
+				}
+			});
 		}
 	}
 

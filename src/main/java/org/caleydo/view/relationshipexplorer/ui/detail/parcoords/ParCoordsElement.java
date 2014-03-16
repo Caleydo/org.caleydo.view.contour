@@ -25,12 +25,14 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighligh
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
+import org.caleydo.view.relationshipexplorer.ui.detail.IShowFilteredItemsListener;
 
 /**
  * @author Christian
  *
  */
-public class ParCoordsElement extends ParallelCoordinateElement implements IEntityRepresentation {
+public class ParCoordsElement extends ParallelCoordinateElement implements IEntityRepresentation,
+		IShowFilteredItemsListener {
 
 	protected final IEntityCollection collection;
 	protected final RelationshipExplorerElement relationshipExplorer;
@@ -170,6 +172,12 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 	@Override
 	public IEntityCollection getCollection() {
 		return collection;
+	}
+
+	@Override
+	public void showFilteredItems(boolean showFilteredItems) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

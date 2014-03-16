@@ -5,15 +5,14 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.detail;
 
-import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 
 /**
  * @author Christian
  *
  */
-public interface IDetailViewFactory {
+public interface IShowFilteredItemsListener extends IHistoryIDOwner {
 
-	public GLElement create(IEntityCollection collection, DetailViewWindow window);
+	public void showFilteredItems(boolean showFilteredItems);
 
 }

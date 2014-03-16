@@ -3,13 +3,15 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.column.operation;
+package org.caleydo.view.relationshipexplorer.ui.command;
 
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingFilterUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterUtil;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.filter.IFilterCommand;

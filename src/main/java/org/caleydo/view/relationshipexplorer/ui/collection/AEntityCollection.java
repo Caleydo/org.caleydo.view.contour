@@ -230,10 +230,10 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public GLElement createDetailView() {
+	public GLElement createDetailView(DetailViewWindow window) {
 		if (detailViewFactory == null)
 			detailViewFactory = DetailViewFactories.createDefaultDetailViewWindowFactory(relationshipExplorer);
-		return detailViewFactory.create(this);
+		return detailViewFactory.create(this, window);
 	}
 
 	protected abstract IColumnFactory getDefaultColumnFactory();

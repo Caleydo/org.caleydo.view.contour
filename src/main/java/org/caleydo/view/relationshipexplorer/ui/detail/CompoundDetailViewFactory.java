@@ -33,7 +33,7 @@ import com.google.common.base.Predicate;
 public class CompoundDetailViewFactory implements IDetailViewFactory {
 
 	@Override
-	public GLElement create(IEntityCollection collection) {
+	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
 		Set<Object> elementIDs = collection.getSelectedElementIDs();
 		if (elementIDs.isEmpty())
 			return null;

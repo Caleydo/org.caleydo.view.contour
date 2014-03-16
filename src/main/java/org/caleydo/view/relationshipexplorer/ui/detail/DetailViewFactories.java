@@ -26,7 +26,7 @@ public final class DetailViewFactories {
 		return new IDetailViewFactory() {
 
 			@Override
-			public GLElement create(IEntityCollection collection) {
+			public GLElement create(IEntityCollection collection, DetailViewWindow window) {
 				GLElement dummy = new GLElement() {
 					@Override
 					public Vec2f getMinSize() {

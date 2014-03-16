@@ -47,9 +47,10 @@ import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.HideDetailCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.RemoveColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.DragAndDropHeader.ColumnDragInfo;
@@ -84,7 +85,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
 	protected FilterPipeline filterPipeline;
-	protected BiMap<IEntityCollection, GLElementWindow> detailMap = HashBiMap.create(2);
+	protected BiMap<IEntityCollection, DetailViewWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
 	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
@@ -467,7 +468,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public void showDetailView(IEntityCollection srcCollection) {
 
-		GLElementWindow window = detailMap.get(srcCollection);
+		DetailViewWindow window = detailMap.get(srcCollection);
 
 		if (window == null) {
 			window = srcCollection.createDetailViewWindow();
@@ -490,7 +491,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			detailWindowQueue.add(window);
 		}
 
-		window.setContent(srcCollection.createDetailView());
+		window.setContent(srcCollection.createDetailView(window));
 		window.getTitleBar().setLabelProvider(srcCollection);
 		window.setShowCloseButton(true);
 

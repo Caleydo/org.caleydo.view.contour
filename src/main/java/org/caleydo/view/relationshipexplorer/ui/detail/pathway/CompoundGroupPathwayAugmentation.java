@@ -35,6 +35,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
+import org.caleydo.view.relationshipexplorer.ui.detail.IShowFilteredItemsListener;
 
 /**
  * Visualizes compounds and compound cluster on the sides of a pathway.
@@ -44,7 +45,8 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedH
  *
  */
 
-public class CompoundGroupPathwayAugmentation extends GLElementContainer implements IEntityRepresentation {
+public class CompoundGroupPathwayAugmentation extends GLElementContainer implements IEntityRepresentation,
+		IShowFilteredItemsListener {
 
 	public enum ESelectionMode {
 		SELECTED, HIGHLGHTED, FILTERED
@@ -387,5 +389,11 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		compoundRepresentation.getCollection().removeEntityRepresentation(compoundRepresentation);
 		groupCollection.removeEntityRepresentation(this);
 		super.takeDown();
+	}
+
+	@Override
+	public void showFilteredItems(boolean showFilteredItems) {
+		respectFilter = showFilteredItems;
+		// TODO: show only filtered items/all items
 	}
 }

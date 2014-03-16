@@ -31,7 +31,7 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 	}
 
 	@Override
-	public GLElement create(IEntityCollection collection) {
+	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
 
 		Set<Object> selectedElements = collection.getSelectedElementIDs();
 		Set<Object> highlightedElements = collection.getHighlightElementIDs();
@@ -46,8 +46,9 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
 		pathwayElement.setPathwayRepresentation(representation);
-		pathwayElement.addForegroundAugmentation(new CompoundGroupPathwayAugmentation(representation,
-				relationshipExplorer));
+		CompoundGroupPathwayAugmentation aug = new CompoundGroupPathwayAugmentation(representation,
+				relationshipExplorer);
+		pathwayElement.addForegroundAugmentation(aug);
 
 		// FIXME: hacky, we do not know what id type the gene column has...
 		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType
@@ -57,6 +58,9 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 
 		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
 				.iterator().next(), relationshipExplorer));
+		window.clearTitleElements();
+		window.addShowFilteredItems(aug, false);
+
 		return pathwayElement;
 	}
 

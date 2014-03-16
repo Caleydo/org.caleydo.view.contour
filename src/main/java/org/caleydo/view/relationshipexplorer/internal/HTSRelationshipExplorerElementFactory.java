@@ -38,11 +38,11 @@ import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMapp
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MedianSummaryItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.AddChildColumnCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.AddColumnTreeCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ColumnSortingCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.CompositeHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.SetSummaryItemFactoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.AddChildColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewWindowFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;

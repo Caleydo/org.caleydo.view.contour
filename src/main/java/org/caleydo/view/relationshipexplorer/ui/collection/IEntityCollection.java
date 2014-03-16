@@ -64,6 +64,6 @@ public interface IEntityCollection extends ILabeled {
 
 	public DetailViewWindow createDetailViewWindow();
 
-	public GLElement createDetailView();
+	public GLElement createDetailView(DetailViewWindow window);
 
 }

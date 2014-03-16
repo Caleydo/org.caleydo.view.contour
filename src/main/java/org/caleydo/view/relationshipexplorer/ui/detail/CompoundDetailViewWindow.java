@@ -7,7 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui.detail;
 
 import java.util.Set;
 
-import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
@@ -16,30 +15,25 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
  * @author Christian
  *
  */
-public class CompoundDetailViewWindow extends DetailViewWindow implements IEntityRepresentation {
+public class CompoundDetailViewWindow extends DetailViewWindow implements IEntityRepresentation,
+		IShowSelectedItemsListener {
 
-	protected final IEntityCollection collection;
-	protected boolean changeViewOnSelection = true;
+	protected boolean showSelectedItems = true;
 
 	/**
 	 * @param titleLabelProvider
 	 * @param relationshipExplorer
 	 */
-	public CompoundDetailViewWindow(ILabeled titleLabelProvider, RelationshipExplorerElement relationshipExplorer,
-			IEntityCollection collection) {
-		super(titleLabelProvider, relationshipExplorer);
-		this.collection = collection;
+	public CompoundDetailViewWindow(IEntityCollection collection,
+			RelationshipExplorerElement relationshipExplorer) {
+		super(collection, relationshipExplorer);
 		collection.addEntityRepresentation(this);
-	}
-
-	public void changeViewOnSelection(boolean change) {
-		this.changeViewOnSelection = change;
 	}
 
 	@Override
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		if (changeViewOnSelection && srcRep.getCollection() == collection && srcRep != this) {
-			setContent(collection.createDetailView());
+		if (showSelectedItems && srcRep.getCollection() == collection && srcRep != this) {
+			setContent(collection.createDetailView(this));
 			relationshipExplorer.updateDetailHeight();
 		}
 	}
@@ -65,6 +59,12 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 	protected void takeDown() {
 		collection.removeEntityRepresentation(this);
 		super.takeDown();
+	}
+
+	@Override
+	public void showSelectedItems(boolean showSelectedItems) {
+		showSelectedItems = showSelectedItems;
+
 	}
 
 }

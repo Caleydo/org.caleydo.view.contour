@@ -16,8 +16,8 @@ import org.caleydo.core.view.opengl.layout2.dnd.IUIDragInfo;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.AddChildColumnCommand;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.RemoveColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.AddChildColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
 
 /**
  * @author Christian

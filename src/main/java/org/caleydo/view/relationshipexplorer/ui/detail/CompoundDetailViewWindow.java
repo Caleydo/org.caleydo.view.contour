@@ -40,6 +40,7 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
 		if (changeViewOnSelection && srcRep.getCollection() == collection && srcRep != this) {
 			setContent(collection.createDetailView());
+			relationshipExplorer.updateDetailHeight();
 		}
 	}
 

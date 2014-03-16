@@ -5,10 +5,14 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.detail.parcoords;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.data.perspective.variable.Perspective;
+import org.caleydo.core.data.perspective.variable.PerspectiveInitializationData;
 import org.caleydo.core.data.selection.SelectionManager;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
@@ -20,6 +24,7 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.parcoords.v2.ParallelCoordinateElement;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
@@ -34,21 +39,40 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IShowFilteredItemsListene
 public class ParCoordsElement extends ParallelCoordinateElement implements IEntityRepresentation,
 		IShowFilteredItemsListener {
 
-	protected final IEntityCollection collection;
+	protected final TabularDataCollection collection;
 	protected final RelationshipExplorerElement relationshipExplorer;
 	protected final int historyID;
+	protected boolean showFilteredItemsOnly = false;
 
 	/**
 	 * @param tablePerspective
 	 * @param detailLevel
 	 */
-	public ParCoordsElement(TablePerspective tablePerspective, IEntityCollection collection,
+	public ParCoordsElement(TablePerspective tablePerspective, TabularDataCollection collection,
 			RelationshipExplorerElement relationshipExplorer) {
 		super(tablePerspective, EDetailLevel.HIGH);
 		this.collection = collection;
 		collection.addEntityRepresentation(this);
 		this.relationshipExplorer = relationshipExplorer;
 		this.historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
+		onVAUpdate(createTablePerspectiveFromCollectionIDs(collection.getAllElementIDs()));
+	}
+
+	protected TablePerspective createTablePerspectiveFromCollectionIDs(Set<Object> elementIDs) {
+		Perspective dimensionPerspective = collection.getDimensionPerspective();
+
+		Perspective recordPerspective = new Perspective(collection.getDataDomain(), collection.getItemIDType());
+		List<Integer> indices = new ArrayList<>(elementIDs.size());
+		for (Object elementID : elementIDs) {
+			indices.add((Integer) elementID);
+		}
+		PerspectiveInitializationData data = new PerspectiveInitializationData();
+		data.setData(indices);
+		recordPerspective.init(data);
+
+		TablePerspective tablePerspective = new TablePerspective(collection.getDataDomain(), recordPerspective,
+				dimensionPerspective);
+		return tablePerspective;
 	}
 
 	@Override
@@ -74,26 +98,6 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 		case RIGHT_CLICKED:
 			ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this));
-			// IContextMenuCommand selectionCommand = new IContextMenuCommand() {
-			//
-			// @Override
-			// public void execute() {
-			// propagateSelection();
-			// }
-			//
-			// };
-			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
-			// relationshipExplorer);
-			// IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
-			// relationshipExplorer);
-			// IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, relationshipExplorer);
-			//
-			// contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
-			// new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
-			// contextMenuCreator.add(new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
-			// new CompositeContextMenuCommand(intersectionCommand, selectionCommand)).to(this)));
-			// contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
-			// new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
 
 			context.getSWTLayer().showContextMenu(contextMenuCreator);
 			break;
@@ -165,7 +169,9 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 
 	@Override
 	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// TODO Auto-generated method stub
+		if (showFilteredItemsOnly) {
+			onVAUpdate(createTablePerspectiveFromCollectionIDs(filteredElementIDs));
+		}
 
 	}
 
@@ -176,7 +182,14 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 
 	@Override
 	public void showFilteredItems(boolean showFilteredItems) {
-		// TODO Auto-generated method stub
+		if (showFilteredItemsOnly != showFilteredItems) {
+			showFilteredItemsOnly = showFilteredItems;
+			if (showFilteredItems) {
+				onVAUpdate(createTablePerspectiveFromCollectionIDs(collection.getFilteredElementIDs()));
+			} else {
+				onVAUpdate(createTablePerspectiveFromCollectionIDs(collection.getAllElementIDs()));
+			}
+		}
 
 	}
 

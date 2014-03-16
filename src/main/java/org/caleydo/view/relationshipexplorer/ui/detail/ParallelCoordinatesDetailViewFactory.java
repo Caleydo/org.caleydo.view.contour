@@ -51,7 +51,8 @@ public class ParallelCoordinatesDetailViewFactory implements IDetailViewFactory 
 		// detailView = suppliers.get(0).get();
 		// }
 
-		ParCoordsElement element = new ParCoordsElement(tablePerspective, collection, relationshipExplorer);
+		ParCoordsElement element = new ParCoordsElement(tablePerspective, (TabularDataCollection) collection,
+				relationshipExplorer);
 
 		window.clearTitleElements();
 		window.addShowFilteredItems(element, false);

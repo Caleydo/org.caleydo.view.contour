@@ -58,7 +58,7 @@ public class MappingSummaryItemFactory implements ISummaryItemFactory {
 		mappingRenderer.setSelectedValue(numSelections);
 		mappingRenderer.setFilteredValue(filteredElementIDs.size());
 		mappingRenderer.setAllValue(mappedElementIDs.size());
-		mappingRenderer.setSize(80, Float.NaN);
+		// mappingRenderer.setSize(80, Float.NaN);
 		// layeredRenderer.setRenderer(GLRenderers.drawRect(Color.RED));
 		// mappingRenderer.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelections);
 		// mappingRenderer.getElement(SELECTED_ELEMENTS_KEY).setNormalizedValue(

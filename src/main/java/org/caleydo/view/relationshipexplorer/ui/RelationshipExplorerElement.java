@@ -20,7 +20,6 @@ import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
-import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -221,23 +220,23 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 						RelationshipExplorerElement.this);
 				c.setIndex(columnContainer.indexOf(this));
 				c.execute();
-				history.addHistoryCommand(c, Color.DARK_BLUE);
+				history.addHistoryCommand(c);
 
 			} else {
 				if (info.getModel().getColumn().isRoot()) {
 					ReorderColumnTreesCommand c = new ReorderColumnTreesCommand(info.getModel(), this);
 					c.execute();
-					history.addHistoryCommand(c, Color.DARK_BLUE);
+					history.addHistoryCommand(c);
 				} else {
 					AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
 							RelationshipExplorerElement.this);
 					c.setIndex(columnContainer.indexOf(this));
 					c.execute();
-					history.addHistoryCommand(c, Color.DARK_BLUE);
+					history.addHistoryCommand(c);
 
 					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), RelationshipExplorerElement.this);
 					rc.execute();
-					history.addHistoryCommand(rc, Color.DARK_BLUE);
+					history.addHistoryCommand(rc);
 				}
 			}
 		}
@@ -480,7 +479,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					HideDetailCommand o = new HideDetailCommand(collection, RelationshipExplorerElement.this);
 
 					o.execute();
-					getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(2));
+					getHistory().addHistoryCommand(o);
 				}
 			});
 			detailMap.put(srcCollection, window);

@@ -167,7 +167,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 		c.execute();
 
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 
 		// geneCollection.setSelectedItems(selectedElementIDs, this);
 		//

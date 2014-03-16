@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.dnd.EDnDType;
 import org.caleydo.core.view.opengl.layout2.dnd.IDnDItem;
@@ -94,16 +93,16 @@ public class DragAndDropHeader implements IDragGLSource, IDropGLTarget {
 			AddChildColumnCommand c = new AddChildColumnCommand(info.getModel().getCollection(), column
 					.getColumnModel().getHistoryID(), relationshipExplorer);
 			c.execute();
-			history.addHistoryCommand(c, Color.DARK_BLUE);
+			history.addHistoryCommand(c);
 		} else {
 			AddChildColumnCommand c = new AddChildColumnCommand(info.getModel().getCollection(), column
 					.getColumnModel().getHistoryID(), relationshipExplorer);
 			c.execute();
-			history.addHistoryCommand(c, Color.DARK_BLUE);
+			history.addHistoryCommand(c);
 
 			RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), relationshipExplorer);
 			rc.execute();
-			history.addHistoryCommand(rc, Color.DARK_BLUE);
+			history.addHistoryCommand(rc);
 		}
 
 	}

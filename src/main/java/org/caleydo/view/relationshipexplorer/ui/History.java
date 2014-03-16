@@ -75,11 +75,15 @@ public class History extends AnimatedGLElementContainer {
 	}
 
 	protected class HistoryCommandElement extends PickableGLElement {
+		protected IHistoryCommand command;
 		protected Color color;
 		protected boolean hovered = false;
 
-		public HistoryCommandElement(Color color) {
-			this.color = color;
+		public HistoryCommandElement(IHistoryCommand command) {
+			this.command = command;
+			color = command instanceof ResetCommand ? Color.GRAY : Color.LIGHT_GRAY;
+			setTooltip(command.getDescription());
+			setSize(command instanceof ResetCommand ? 60 : 16, Float.NaN);
 		}
 
 		@Override
@@ -88,6 +92,9 @@ public class History extends AnimatedGLElementContainer {
 			if (hovered || index == currentPosition) {
 				renderFilled(g, w, h, 1);
 				renderOutline(g, w, h);
+				if (command instanceof ResetCommand) {
+					g.drawText("Reset", 0, 0, w, h - 4);
+				}
 				return;
 			}
 
@@ -96,6 +103,10 @@ public class History extends AnimatedGLElementContainer {
 				renderOutline(g, w, h);
 			} else {
 				renderFilled(g, w, h, 0.3f);
+			}
+
+			if (command instanceof ResetCommand) {
+				g.drawText("Reset", 0, 0, w, h - 4);
 			}
 		}
 
@@ -141,7 +152,7 @@ public class History extends AnimatedGLElementContainer {
 	public History(RelationshipExplorerElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		setLayout(new GLSizeRestrictiveFlowLayout(true, 2, new GLPadding(2, 2, 2, 2)));
-		addHistoryCommand(new ResetCommand(), Color.GRAY);
+		addHistoryCommand(new ResetCommand());
 	}
 
 	// public void addColumnOperation(IEntityCollection collection, IColumnOperation columnOperation) {
@@ -160,7 +171,7 @@ public class History extends AnimatedGLElementContainer {
 	//
 	// }
 
-	public synchronized void addHistoryCommand(IHistoryCommand command, Color color) {
+	public synchronized void addHistoryCommand(IHistoryCommand command) {
 		if (currentPosition < commands.size() - 1) {
 			int numElementsToRemove = (commands.size() - 1) - currentPosition;
 			for (int i = 0; i < numElementsToRemove; i++) {
@@ -169,9 +180,7 @@ public class History extends AnimatedGLElementContainer {
 			commands = commands.subList(0, currentPosition + 1);
 		}
 		commands.add(command);
-		HistoryCommandElement element = new HistoryCommandElement(color);
-		element.setTooltip(command.getDescription());
-		element.setSize(16, Float.NaN);
+		HistoryCommandElement element = new HistoryCommandElement(command);
 		add(element);
 		currentPosition++;
 		relayoutParent();

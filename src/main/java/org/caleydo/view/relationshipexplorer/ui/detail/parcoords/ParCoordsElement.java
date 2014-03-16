@@ -16,7 +16,6 @@ import org.caleydo.core.data.perspective.variable.PerspectiveInitializationData;
 import org.caleydo.core.data.selection.SelectionManager;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.canvas.EDetailLevel;
 import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
@@ -123,7 +122,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 				collection.getBroadcastingIDsFromElementIDs(selectedElementIDs), relationshipExplorer);
 		c.execute();
 
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 
 		// geneCollection.setSelectedItems(selectedElementIDs, this);
 		//

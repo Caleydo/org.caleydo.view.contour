@@ -17,7 +17,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.collection.Pair;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
@@ -158,7 +157,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), compoundIDs,
 					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), filteredMapping);
 			c.execute();
-			filteredMapping.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+			filteredMapping.getHistory().addHistoryCommand(c);
 		}
 
 		public void propagateGroupHighlight(Set<Object> compoundIDs) {
@@ -276,7 +275,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), groups,
 				groupCollection.getBroadcastingIDsFromElementIDs(groups), filteredMapping);
 		c.execute();
-		filteredMapping.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+		filteredMapping.getHistory().addHistoryCommand(c);
 	}
 
 	protected void propagateGroupHighlight(Set<Object> groups) {

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.caleydo.core.util.base.ILabeled;
-import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLContextLocal;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
@@ -196,7 +195,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 		if (filterCommands.contains(filterCommand)) {
 			ReapplyFiltersCommand c = new ReapplyFiltersCommand(Lists.newArrayList(filterCommand));
 			c.execute();
-			relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+			relationshipExplorer.getHistory().addHistoryCommand(c);
 		}
 	}
 

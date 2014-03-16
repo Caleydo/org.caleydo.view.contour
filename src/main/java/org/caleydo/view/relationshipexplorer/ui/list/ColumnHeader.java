@@ -135,7 +135,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 				model.sortBy(model.getCurrentComparator());
 				ColumnSortingCommand c = new ColumnSortingCommand(model, model.getDefaultComparator(), null, history);
 				c.execute();
-				history.addHistoryCommand(c, Color.MAGENTA);
+				history.addHistoryCommand(c);
 			}
 
 			@Override

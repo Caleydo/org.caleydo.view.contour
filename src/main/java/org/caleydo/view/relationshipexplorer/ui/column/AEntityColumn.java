@@ -17,8 +17,6 @@ import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
-import org.caleydo.core.util.color.Color;
-import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -158,7 +156,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				DuplicateColumnCommand c = new DuplicateColumnCommand(AEntityColumn.this, relationshipExplorer);
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c, Color.DARK_BLUE);
+				relationshipExplorer.getHistory().addHistoryCommand(c);
 			}
 		});
 
@@ -170,7 +168,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				RemoveColumnCommand c = new RemoveColumnCommand(AEntityColumn.this, relationshipExplorer);
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c, Color.DARK_BLUE);
+				relationshipExplorer.getHistory().addHistoryCommand(c);
 			}
 		});
 
@@ -218,7 +216,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					public void execute() {
 						ShowDetailCommand o = new ShowDetailCommand(entityCollection, relationshipExplorer);
 						o.execute();
-						relationshipExplorer.getHistory().addHistoryCommand(o, ColorBrewer.Greens.getColors(3).get(1));
+						relationshipExplorer.getHistory().addHistoryCommand(o);
 					}
 				}).to(this));
 
@@ -348,7 +346,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		AttributeFilterCommand c = new AttributeFilterCommand(this, event.getFilter(), ESetOperation.INTERSECTION,
 				relationshipExplorer.getHistory());
 		c.execute();
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 	}
 
 	// @Override
@@ -387,7 +385,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		c.execute();
 
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.SELECTION_ORANGE);
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 
 		// entityCollection.setSelectedItems(elementIDs, this);
 		//
@@ -1077,7 +1075,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		ColumnSortingCommand c = new ColumnSortingCommand(this, event.getComparator(), event.getScoreProvider(),
 				relationshipExplorer.getHistory());
 		c.execute();
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.MAGENTA);
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 
 	}
 

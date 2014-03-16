@@ -7,7 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui.contextmenu;
 
 import java.util.Set;
 
-import org.caleydo.core.util.color.Color;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
@@ -38,7 +37,7 @@ public class FilterCommand implements IContextMenuCommand {
 		SelectionBasedFilterOperation c = new SelectionBasedFilterOperation(representation.getHistoryID(), elementIDs,
 				broadcastIDs, setOperation, relationshipExplorer);
 		c.execute();
-		relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 	}
 
 }

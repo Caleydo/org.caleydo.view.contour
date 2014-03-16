@@ -69,7 +69,7 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 				UpdateDetailContentWithSelectionCommand c = new UpdateDetailContentWithSelectionCommand(listener,
 						DetailViewWindow.this, selected, relationshipExplorer.getHistory());
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c, Color.YELLOW);
+				relationshipExplorer.getHistory().addHistoryCommand(c);
 			}
 		});
 	}
@@ -83,7 +83,7 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 				ShowFilteredItemsInDetailViewCommand c = new ShowFilteredItemsInDetailViewCommand(listener,
 						DetailViewWindow.this, selected, relationshipExplorer.getHistory());
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c, Color.YELLOW);
+				relationshipExplorer.getHistory().addHistoryCommand(c);
 			}
 		});
 	}

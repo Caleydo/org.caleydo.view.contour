@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
@@ -34,6 +35,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.detail.IShowFilteredItemsListener;
 
 /**
@@ -153,14 +155,14 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			return historyId;
 		}
 
-		public void propagateGroupSelection(Set<Object> compoundIDs) {
+		public void propagateCompoundSelection(Set<Object> compoundIDs) {
 			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), compoundIDs,
 					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), filteredMapping);
 			c.execute();
 			filteredMapping.getHistory().addHistoryCommand(c);
 		}
 
-		public void propagateGroupHighlight(Set<Object> compoundIDs) {
+		public void propagateCompoundHighlight(Set<Object> compoundIDs) {
 			compoundCollection.setHighlightItems(compoundIDs);
 
 			filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
@@ -400,5 +402,17 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		updateMapping();
 		repaint();
 		// TODO: show only filtered items/all items
+	}
+
+	/**
+	 * @return the filteredMapping, see {@link #filteredMapping}
+	 */
+	public RelationshipExplorerElement getRelationshipExplorer() {
+		return filteredMapping;
+	}
+
+	@ListenTo(sendToMe = true)
+	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
+		event.getCommand().execute();
 	}
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.util.collection.Pair;
+import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
@@ -16,6 +17,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.ESelectionMode;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation.GroupData;
 
@@ -59,6 +61,19 @@ public class CompoundGroupVis extends GLElementContainer {
 			protected void mouseOver(Pick pick) {
 				parent.propagateGroupHighlight(Sets.newHashSet(data.group));
 			}
+
+			@Override
+			protected void rightClicked(Pick pick) {
+				parent.propagateGroupSelection(Sets.newHashSet(data.group));
+
+				ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+
+				contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
+						parent.getRelationshipExplorer(), parent, parent));
+
+				context.getSWTLayer().showContextMenu(contextMenuCreator);
+			}
+
 		});
 
 		add(compoundContainer);
@@ -69,14 +84,27 @@ public class CompoundGroupVis extends GLElementContainer {
 			rep.onPick(new APickingListener() {
 				@Override
 				protected void clicked(Pick pick) {
-					parent.getCompoundRepresentation().propagateGroupSelection(Sets.newHashSet(compound.getFirst()));
+					parent.getCompoundRepresentation().propagateCompoundSelection(Sets.newHashSet(compound.getFirst()));
 
 				}
 
 				@Override
 				protected void mouseOver(Pick pick) {
-					parent.getCompoundRepresentation().propagateGroupHighlight(Sets.newHashSet(compound.getFirst()));
+					parent.getCompoundRepresentation().propagateCompoundHighlight(Sets.newHashSet(compound.getFirst()));
 				}
+
+				@Override
+				protected void rightClicked(Pick pick) {
+					parent.getCompoundRepresentation().propagateCompoundSelection(Sets.newHashSet(compound.getFirst()));
+
+					ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+
+					contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
+							parent.getRelationshipExplorer(), parent.getCompoundRepresentation(), parent));
+
+					context.getSWTLayer().showContextMenu(contextMenuCreator);
+				}
+
 			});
 		}
 	}

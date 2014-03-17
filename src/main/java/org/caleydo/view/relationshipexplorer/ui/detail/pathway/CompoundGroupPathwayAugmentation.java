@@ -340,6 +340,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	protected void renderImpl(GLGraphics g, float w, float h) {
 		super.renderImpl(g, w, h);
 		centerSpacing.setSize(pathwayRepresentation.getPathwayBounds().width(), h);
+
 	}
 
 	@Override

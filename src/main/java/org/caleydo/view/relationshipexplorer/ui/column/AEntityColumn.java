@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,15 +18,19 @@ import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
+import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.EButtonMode;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
+import org.caleydo.core.view.opengl.layout2.basic.GLComboBox;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactory;
@@ -37,6 +42,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.DuplicateColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ShowDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
@@ -88,8 +94,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected List<GLElement> headerButtons = new ArrayList<>();
 
-	protected Set<ISummaryItemFactory> summaryItemFactories = new HashSet<>();
+	protected Set<ISummaryItemFactory> summaryItemFactories = new LinkedHashSet<>();
 	protected ISummaryItemFactory summaryItemFactory;
+
+	protected GLComboBox<ISummaryItemFactory> summaryPlots;
 
 	protected int historyID;
 
@@ -146,6 +154,36 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		// selectionMappingComparator, visibleMappingComparator, totalMappingComparator, getDefaultComparator());
 		initialized = true;
 
+		// if (parentColumn != null) {
+
+		// }
+
+		summaryPlots = new GLComboBox<>(new ArrayList<>(summaryItemFactories), new IGLRenderer() {
+
+			@Override
+			public void render(GLGraphics g, float w, float h, GLElement parent) {
+				ISummaryItemFactory f = parent.getLayoutDataAs(ISummaryItemFactory.class, null);
+				g.fillImage(f.getIconURL(), 0, 0, w, h);
+
+			}
+		}, GLRenderers.fillRect(Color.WHITE));
+		summaryPlots.setSize(16, 16);
+		summaryPlots.setVisibility(EVisibility.HIDDEN);
+
+		summaryPlots.setCallback(new GLComboBox.ISelectionCallback<ISummaryItemFactory>() {
+
+			@Override
+			public void onSelectionChanged(GLComboBox<? extends ISummaryItemFactory> widget, ISummaryItemFactory item) {
+				setSummaryItemFactory(item);
+				SetSummaryItemFactoryCommand c = new SetSummaryItemFactoryCommand(AEntityColumn.this, item.getClass(),
+						relationshipExplorer.getHistory(), false);
+				// c.execute();
+				relationshipExplorer.getHistory().addHistoryCommand(c);
+			}
+		});
+
+		headerButtons.add(summaryPlots);
+
 		headerButtons.add(new GLElement());
 
 		final GLButton duplicateColumnButton = addHeaderButton(DUPLICATE_ICON);
@@ -171,6 +209,15 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				relationshipExplorer.getHistory().addHistoryCommand(c);
 			}
 		});
+
+	}
+
+	protected void updateSummaryPlots() {
+		if (parentColumn == null || summaryItemFactories.size() <= 1)
+			return;
+		summaryPlots.setVisibility(EVisibility.PICKABLE);
+		summaryPlots.setModel(new ArrayList<>(summaryItemFactories));
+		summaryPlots.setSelectedItemSilent(summaryItemFactory);
 
 	}
 
@@ -721,6 +768,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		}
 
+		updateSummaryPlots();
+
 		if (scoreProvider != null)
 			updateScores();
 	}
@@ -950,12 +999,16 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	public void addSummaryItemFactory(ISummaryItemFactory factory) {
 		summaryItemFactories.add(factory);
+		updateSummaryPlots();
 	}
 
 	public void setSummaryItemFactory(ISummaryItemFactory factory) {
 		summaryItemFactory = factory;
-		if (column != null)
+		updateSummaryPlots();
+		if (column != null) {
 			column.updateSummaryItems(EUpdateCause.OTHER);
+			column.getColumnTree().relayout();
+		}
 	}
 
 	@Override

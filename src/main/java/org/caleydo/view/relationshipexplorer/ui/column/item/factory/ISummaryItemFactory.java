@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
+import java.net.URL;
 import java.util.Set;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -20,5 +21,7 @@ public interface ISummaryItemFactory {
 	public GLElement createSummaryItem(NestableItem parentItem, Set<NestableItem> items);
 
 	public boolean needsUpdate(EUpdateCause cause);
+
+	public URL getIconURL();
 
 }

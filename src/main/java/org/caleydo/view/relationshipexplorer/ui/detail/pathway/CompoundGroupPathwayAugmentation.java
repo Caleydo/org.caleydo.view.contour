@@ -134,8 +134,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	private CompoundRepresentation compoundRepresentation;
 
-	/** If set only the compounds/clusters that are not filtered are shown. Else, all */
-	private boolean respectFilter = false;
+	/** If true all compounds/clusters mapped to this pathway are shown, including those that are filtered. */
+	private boolean showFilteredItems = true;
 
 	protected class CompoundRepresentation implements IEntityRepresentation {
 
@@ -188,8 +188,9 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 		private void updateSelection(ESelectionMode selectionMode, Set<Object> highlightElementIDs) {
 			for (GroupData group : containedGroups) {
-				group.glRepresentation.setCompoundHighlighted(selectionMode, highlightElementIDs);
-
+				if (group.glRepresentation != null) {
+					group.glRepresentation.setCompoundHighlighted(selectionMode, highlightElementIDs);
+				}
 			}
 		}
 
@@ -271,6 +272,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			overallCompoundSize += gd.containedCompounds.size();
 		}
 
+		filterChanged(groupCollection.getFilteredElementIDs(), this);
+
 	}
 
 	protected void propagateGroupSelection(Set<Object> groups) {
@@ -289,7 +292,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	private void updateGroups() {
 		List<GroupData> groupList;
-		if (respectFilter && filteredGroupData != null) {
+		if (showFilteredItems && filteredGroupData != null) {
 			groupList = filteredGroupData;
 		} else {
 			groupList = containedGroups;
@@ -325,6 +328,15 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 				rightClusterContainer.add(element);
 			}
 		}
+
+		selectionChanged(groupCollection.getSelectedElementIDs(), this);
+		selectionChanged(groupCollection.getHighlightElementIDs(), this);
+
+		compoundRepresentation.highlightChanged(compoundRepresentation.compoundCollection.getHighlightElementIDs(),
+				compoundRepresentation);
+
+		compoundRepresentation.selectionChanged(compoundRepresentation.compoundCollection.getSelectedElementIDs(),
+				compoundRepresentation);
 
 		// leftClusterContainer.setSize(30, 100);
 
@@ -362,24 +374,13 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	private void updateSelection(ESelectionMode selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
 		for (GroupData group : containedGroups) {
-			group.glRepresentation.setClusterHighlighted(selected, highlightElementIDs);
-
-		}
-	}
-
-	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		respectFilter = true;
-		filteredGroupData.clear();
-		for (GroupData group : containedGroups) {
-			if (filteredElementIDs.contains(group.group)) {
-				filteredGroupData.add(group);
+			if (group.glRepresentation != null) {
+				group.glRepresentation.setClusterHighlighted(selected, highlightElementIDs);
 			}
-
 		}
-		updateGroups();
-
 	}
+
+
 
 	@Override
 	public IEntityCollection getCollection() {
@@ -395,14 +396,28 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	@Override
 	public void showFilteredItems(boolean showFilteredItems) {
-		respectFilter = showFilteredItems;
+		this.showFilteredItems = showFilteredItems;
+		reactOnFilterChanges();
+	}
+
+	@Override
+	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+		filteredGroupData.clear();
+		for (GroupData group : containedGroups) {
+			if (filteredElementIDs.contains(group.group)) {
+				filteredGroupData.add(group);
+			}
+		}
+		reactOnFilterChanges();
+
+	}
+
+	private void reactOnFilterChanges() {
 		leftClusterContainer.clear();
 		rightClusterContainer.clear();
-		containedGroups.clear();
 		updateGroups();
-		updateMapping();
+		// updateMapping();
 		repaint();
-		// TODO: show only filtered items/all items
 	}
 
 	/**

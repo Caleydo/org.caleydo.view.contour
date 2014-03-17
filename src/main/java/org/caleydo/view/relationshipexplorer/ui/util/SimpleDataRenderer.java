@@ -105,8 +105,14 @@ public class SimpleDataRenderer extends GLElement {
 			float normalizedDataCenter) {
 		float val = dataDomain
 				.getNormalizedValue(recordIDType, recordID, dimensionPerspective.getIdType(), dimensionID);
-		g.color(dataDomain.getColor()).fillRect(
-				new Rect(posX, normalizedDataCenter * h, width, (normalizedDataCenter * h) - (val * h)));
+		if (Float.isNaN(val)) {
+			// g.color(Color.LIGHT_GRAY).fillRect(new Rect(posX, normalizedDataCenter * h - 2, width, 4));
+		} else {
+			g.color(new Color(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 0.3f)).fillRect(
+					new Rect(posX, 0, width, h));
+			g.color(dataDomain.getColor()).fillRect(
+					new Rect(posX, normalizedDataCenter * h, width, (normalizedDataCenter * h) - (val * h)));
+		}
 	}
 
 	protected void renderCategoricalValue(GLGraphics g, float posX, float h, float width, int dimensionID,

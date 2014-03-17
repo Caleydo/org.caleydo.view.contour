@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.History;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -124,6 +125,43 @@ public final class ItemComparators {
 					.getColumn().getColumnModel().getCollection(), mappingColumn.getColumnModel().getCollection());
 			return mappedIDs.size();
 		}
+	}
+
+	public static class NumericalAttributeComparator implements Comparator<NestableItem> {
+
+		protected final TabularDataCollection collection;
+		protected final int dimensionID;
+
+		public NumericalAttributeComparator(TabularDataCollection collection, int dimensionID) {
+			this.collection = collection;
+			this.dimensionID = dimensionID;
+		}
+
+		@Override
+		public int compare(NestableItem item1, NestableItem item2) {
+			return Float.compare(getAttributeValue(item2), getAttributeValue(item1));
+		}
+
+		protected float getAttributeValue(NestableItem item) {
+			return (float) collection.getDataDomain().getRaw(collection.getBroadcastingIDType(),
+					(Integer) item.getElementData().iterator().next(),
+					collection.getDimensionPerspective().getIdType(), dimensionID);
+		}
+
+		/**
+		 * @return the dimensionID, see {@link #dimensionID}
+		 */
+		public int getDimensionID() {
+			return dimensionID;
+		}
+
+		/**
+		 * @return the collection, see {@link #collection}
+		 */
+		public TabularDataCollection getCollection() {
+			return collection;
+		}
+
 	}
 
 	public ItemComparators() {

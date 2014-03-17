@@ -14,20 +14,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.caleydo.core.data.collection.column.container.CategoricalClassDescription;
+import org.caleydo.core.data.collection.table.Table;
+import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.gui.util.AHelpButtonDialog;
+import org.caleydo.core.io.DataDescription;
+import org.caleydo.core.io.NumericalProperties;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.AEnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScore;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.MaxEnrichmentScoreComparator;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.AMappingComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.NumericalAttributeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.SelectionMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -57,13 +65,16 @@ public class SortingDialog extends AHelpButtonDialog {
 	protected Button considerSelectionsButton;
 	protected Button sortByNumberOfChildItemsButton;
 	protected Button sortByEnrichmentScoreButton;
+	protected Button sortByAttributeButton;
 
 	protected Combo scoreCombo;
 	protected Combo childColumnCombo;
+	protected Combo attributeCombo;
 	protected Group criteriaGroup;
 
 	protected Map<Integer, IColumnModel> childColumnMap = new HashMap<>();
 	protected Map<Integer, EnrichmentScore> scoreMap = new HashMap<>();
+	protected Map<Integer, Integer> attributeMap = new HashMap<>();
 
 	protected Comparator<NestableItem> definedComparator;
 
@@ -125,12 +136,15 @@ public class SortingDialog extends AHelpButtonDialog {
 		List<NestableColumn> childColumns = column.getColumn().getChildren();
 		AMappingComparator mappingComparator = null;
 		EnrichmentScore enrichmentScore = null;
+		NumericalAttributeComparator numericalAttributeComparator = null;
 		for (Comparator<NestableItem> c : currentComparators) {
 			if (c instanceof AMappingComparator) {
 				mappingComparator = (AMappingComparator) c;
 				break;
 			} else if (c instanceof AEnrichmentScoreComparator) {
 				enrichmentScore = ((AEnrichmentScoreComparator) c).getEnrichmentScore();
+			} else if (c instanceof NumericalAttributeComparator) {
+				numericalAttributeComparator = (NumericalAttributeComparator) c;
 			}
 		}
 		if (!childColumns.isEmpty()) {
@@ -189,6 +203,25 @@ public class SortingDialog extends AHelpButtonDialog {
 			}
 		});
 
+		if (column instanceof TabularDataColumn) {
+			sortByAttributeButton = new Button(criteriaGroup, SWT.RADIO);
+			sortByAttributeButton.setText("Sort by attribute");
+			if (numericalAttributeComparator != null)
+				sortByAttributeButton.setSelection(true);
+			sortByAttributeButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					attributeCombo.setEnabled(sortByAttributeButton.getSelection());
+				}
+			});
+
+			attributeCombo = new Combo(criteriaGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+			attributeCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+			attributeCombo.setEnabled(numericalAttributeComparator != null);
+			updateAttributeCombo(numericalAttributeComparator);
+
+		}
+
 		considerSelectionsButton = new Button(parentComposite, SWT.CHECK);
 		considerSelectionsButton.setText("Rank selected items on top");
 		considerSelectionsButton.setSelection(currentComparators.contains(ItemComparators.SELECTED_ITEMS_COMPARATOR));
@@ -219,6 +252,48 @@ public class SortingDialog extends AHelpButtonDialog {
 		}
 		if (allScores.size() == 1)
 			scoreCombo.select(0);
+	}
+
+	protected void updateAttributeCombo(NumericalAttributeComparator c) {
+		TabularDataCollection collection = (TabularDataCollection) column.getCollection();
+		ATableBasedDataDomain dataDomain = collection.getDataDomain();
+		Table table = dataDomain.getTable();
+		int i = 0;
+		// TODO: Currently only available for numerical columns
+		if (table.isDataHomogeneous()) {
+			DataDescription desc = dataDomain.getDataSetDescription().getDataDescription();
+			CategoricalClassDescription<?> categoricalClassDesc = desc.getCategoricalClassDescription();
+			if (categoricalClassDesc == null) {
+				for (int dimensionID : collection.getDimensionPerspective().getVirtualArray()) {
+					String label = dataDomain.getDimensionLabel(dimensionID);
+					attributeCombo.add(label);
+					attributeMap.put(i, dimensionID);
+					if (c != null && c.getDimensionID() == dimensionID) {
+						attributeCombo.select(i);
+					}
+					i++;
+				}
+			}
+
+		} else {
+			for (int dimensionID : collection.getDimensionPerspective().getVirtualArray()) {
+				Object dataClassDesc = table.getDataClassSpecificDescription(dimensionID);
+				if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
+					String label = dataDomain.getDimensionLabel(dimensionID);
+					attributeCombo.add(label);
+					attributeMap.put(i, dimensionID);
+					if (c != null && c.getDimensionID() == dimensionID) {
+						attributeCombo.select(i);
+					}
+					i++;
+				}
+
+			}
+		}
+
+		if (attributeMap.size() == 1)
+			attributeCombo.select(0);
+
 	}
 
 	@Override
@@ -266,6 +341,12 @@ public class SortingDialog extends AHelpButtonDialog {
 							comparator.add(c);
 						}
 
+					} else if (button == sortByAttributeButton) {
+						Integer dimensionID = attributeMap.get(attributeCombo.getSelectionIndex());
+						if (dimensionID == null)
+							return;
+						comparator.add(new NumericalAttributeComparator((TabularDataCollection) column.getCollection(),
+								dimensionID));
 					} else {
 						comparator.add((Comparator<NestableItem>) button.getData());
 					}

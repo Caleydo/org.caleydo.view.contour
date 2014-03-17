@@ -17,6 +17,7 @@ import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.function.AdvancedDoubleStatistics;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
@@ -104,6 +105,10 @@ public class SimpleAggregateDataRenderer extends GLElement {
 		// currentBarPos = 0;
 		List<Vec2f> path = new ArrayList<>(aggregatedNormalizedValues.size());
 		for (Float value : aggregatedNormalizedValues) {
+			if (!Float.isNaN(value)) {
+				g.color(new Color(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 0.3f)).fillRect(
+						new Rect(currentBarPos, 0, barWidth, h));
+			}
 			path.add(new Vec2f(currentBarPos, h - (value * h)));
 			// renderNumericalValue(g, currentBarPos, h, barWidth, value);
 

@@ -393,6 +393,12 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	@Override
 	public void showFilteredItems(boolean showFilteredItems) {
 		respectFilter = showFilteredItems;
+		leftClusterContainer.clear();
+		rightClusterContainer.clear();
+		containedGroups.clear();
+		updateGroups();
+		updateMapping();
+		repaint();
 		// TODO: show only filtered items/all items
 	}
 }

@@ -58,6 +58,7 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 
 		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
 				.iterator().next(), relationshipExplorer));
+
 		window.clearTitleElements();
 		window.addShowFilteredItems(aug, false);
 

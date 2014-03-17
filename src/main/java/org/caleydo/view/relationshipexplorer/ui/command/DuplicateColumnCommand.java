@@ -48,7 +48,7 @@ public class DuplicateColumnCommand implements IHistoryCommand {
 		// TODO: Add all present summary item factories, copy comparators
 		if (!(column.getSummaryItemFactory() instanceof MappingSummaryItemFactory)) {
 			SetSummaryItemFactoryCommand c = new SetSummaryItemFactoryCommand(duplicate, column.getSummaryItemFactory()
-					.getClass(), history);
+					.getClass(), history, false);
 			c.execute();
 		}
 

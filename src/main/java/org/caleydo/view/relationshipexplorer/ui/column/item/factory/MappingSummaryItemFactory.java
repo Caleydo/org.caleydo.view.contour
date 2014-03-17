@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +22,9 @@ import org.caleydo.view.relationshipexplorer.ui.util.MappingRenderer;
  *
  */
 public class MappingSummaryItemFactory implements ISummaryItemFactory {
+
+	protected static final URL BARS_ICON = MappingSummaryItemFactory.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/hbar.png");
 
 	protected static final Integer SELECTED_ELEMENTS_KEY = Integer.valueOf(2);
 	protected static final Integer FILTERED_ELEMENTS_KEY = Integer.valueOf(3);
@@ -101,6 +105,11 @@ public class MappingSummaryItemFactory implements ISummaryItemFactory {
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
 		return true;
+	}
+
+	@Override
+	public URL getIconURL() {
+		return BARS_ICON;
 	}
 
 }

@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +25,9 @@ import org.caleydo.view.relationshipexplorer.ui.util.SimpleAggregateDataRenderer
  *
  */
 public class MedianSummaryItemFactory implements ISummaryItemFactory {
+
+	protected static final URL LINE_CHART_ICON = MedianSummaryItemFactory.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/chart_line.png");
 
 	protected TabularDataCollection collection;
 
@@ -59,6 +63,11 @@ public class MedianSummaryItemFactory implements ISummaryItemFactory {
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
 		return cause != EUpdateCause.SELECTION;
+	}
+
+	@Override
+	public URL getIconURL() {
+		return LINE_CHART_ICON;
 	}
 
 }

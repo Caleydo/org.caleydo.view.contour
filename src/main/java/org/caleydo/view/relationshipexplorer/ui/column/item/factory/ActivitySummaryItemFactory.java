@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +37,9 @@ import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
  *
  */
 public class ActivitySummaryItemFactory implements ISummaryItemFactory {
+
+	protected static final URL BOX_AND_WHISKERS_ICON = ActivitySummaryItemFactory.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/chart_boxandwhiskers.png");
 
 	protected final TabularDataColumn column;
 	protected final TabularDataCollection collection;
@@ -344,6 +348,11 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
 		return cause != EUpdateCause.SELECTION;
+	}
+
+	@Override
+	public URL getIconURL() {
+		return BOX_AND_WHISKERS_ICON;
 	}
 
 }

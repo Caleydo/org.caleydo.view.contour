@@ -265,7 +265,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		// ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
 
 		c = new SetSummaryItemFactoryCommand((AEntityColumn) fCol.getColumnModel(), MedianSummaryItemFactory.class,
-				relationshipExplorer.getHistory());
+				relationshipExplorer.getHistory(), true);
 		initCommand.add(c);
 		c.execute();
 

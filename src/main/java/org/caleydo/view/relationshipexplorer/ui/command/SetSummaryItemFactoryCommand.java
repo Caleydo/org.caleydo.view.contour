@@ -23,13 +23,15 @@ public class SetSummaryItemFactoryCommand implements IHistoryCommand {
 	protected final History history;
 	protected final Class<? extends AEntityColumn> columnClass;
 	protected final Class<? extends ISummaryItemFactory> factoryClass;
+	protected final boolean addFactory;
 
 	public SetSummaryItemFactoryCommand(AEntityColumn column, Class<? extends ISummaryItemFactory> factoryClass,
-			History history) {
+			History history, boolean addFactory) {
 		this.tabularColumnHistoryID = column.getHistoryID();
 		this.columnClass = column.getClass();
 		this.factoryClass = factoryClass;
 		this.history = history;
+		this.addFactory = addFactory;
 	}
 
 	@Override
@@ -39,11 +41,22 @@ public class SetSummaryItemFactoryCommand implements IHistoryCommand {
 		ISummaryItemFactory f;
 		try {
 			f = factoryClass.getConstructor(columnClass).newInstance(col);
-			col.addSummaryItemFactory(f);
+			if (addFactory)
+				col.addSummaryItemFactory(f);
 			col.setSummaryItemFactory(f);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
-			e.printStackTrace();
+			try {
+				f = factoryClass.getConstructor(AEntityColumn.class).newInstance(col);
+				if (addFactory)
+					col.addSummaryItemFactory(f);
+				col.setSummaryItemFactory(f);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e1) {
+
+				e1.printStackTrace();
+			}
+
 		}
 
 		return null;

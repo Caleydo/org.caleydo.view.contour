@@ -368,6 +368,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		super.renderImpl(g, w, h);
 		centerSpacing.setSize(pathwayRepresentation.getPathwayBounds().width(), h);
 
+
 		Color color = new Color("#807dba");
 		Color noMapping = new Color("#ffffcc");
 		for (PathwayGraph pathway : pathwayRepresentation.getPathways()) {

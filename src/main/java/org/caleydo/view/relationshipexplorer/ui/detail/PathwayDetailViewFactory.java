@@ -48,7 +48,7 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 		pathwayElement.setPathwayRepresentation(representation);
 		CompoundGroupPathwayAugmentation aug = new CompoundGroupPathwayAugmentation(representation,
 				relationshipExplorer);
-		pathwayElement.addForegroundAugmentation(aug);
+		pathwayElement.addBackgroundAugmentation(aug);
 
 		// FIXME: hacky, we do not know what id type the gene column has...
 		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType

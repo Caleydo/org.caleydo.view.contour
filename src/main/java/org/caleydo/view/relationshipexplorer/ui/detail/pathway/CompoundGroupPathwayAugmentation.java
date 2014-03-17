@@ -8,8 +8,11 @@ package org.caleydo.view.relationshipexplorer.ui.detail.pathway;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.event.EventListenerManager.ListenTo;
@@ -18,15 +21,18 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.collection.Pair;
+import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
+import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.IPathwayRepresentation;
+import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
@@ -77,7 +83,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 					Set<Integer> mappedDavids = idManager.getIDAsSet(compoundIDType, davidIDType, compoundID);
 					List<Integer> inPathwayDavidsForCompound = new ArrayList<>();
 					for (Integer david : mappedDavids) {
-						if (davidIDs.contains(david)) {
+						if (davidIDsToCompounds.containsKey(david)) {
 							inPathwayDavidsForCompound.add(david);
 						}
 					}
@@ -119,7 +125,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	private List<GroupData> containedGroups;
 	private List<GroupData> filteredGroupData = new ArrayList<>();
 
-	private Set<Integer> davidIDs;
+	private Map<Integer, Set<Object>> davidIDsToCompounds;
+	private Integer maxCompounds = 0;
 
 	private int overallCompoundSize = 0;
 	/** The highest number of genes a compound maps to */
@@ -241,16 +248,24 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 		maxMappingGenes = 0;
 
-		davidIDs = new HashSet<>();
+		davidIDsToCompounds = new HashMap<>();
 		for (PathwayVertexRep vertex : pathwayRepresentation.getPathway().vertexSet()) {
-			davidIDs.addAll(vertex.getDavidIDs());
+			for (Integer david : vertex.getDavidIDs()) {
+				davidIDsToCompounds.put(david, new HashSet<Object>());
+			}
 		}
 
 		compoundIDs = new HashSet<>();
-		for (Integer davidID : davidIDs) {
+		for (Entry<Integer, Set<Object>> entries : davidIDsToCompounds.entrySet()) {
+			Integer davidID = entries.getKey();
 			Set<Object> currentCompounds = idManager.getIDAsSet(davidIDType, compoundIDType, davidID);
-			if (currentCompounds != null)
+			if (currentCompounds != null) {
 				compoundIDs.addAll(currentCompounds);
+				entries.getValue().addAll(currentCompounds);
+				if (currentCompounds.size() > maxCompounds) {
+					maxCompounds = currentCompounds.size();
+				}
+			}
 		}
 
 		for (IEntityCollection collection : filteredMapping.getEntityCollections()) {
@@ -352,6 +367,28 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	protected void renderImpl(GLGraphics g, float w, float h) {
 		super.renderImpl(g, w, h);
 		centerSpacing.setSize(pathwayRepresentation.getPathwayBounds().width(), h);
+
+		Color color = new Color("#807dba");
+		Color noMapping = new Color("#ffffcc");
+		for (PathwayGraph pathway : pathwayRepresentation.getPathways()) {
+			for (PathwayVertexRep vertexRep : pathway.vertexSet()) {
+				Set<Object> currentCompounds = new HashSet<>();
+				for (Integer davidID : vertexRep.getDavidIDs()) {
+					currentCompounds.addAll(davidIDsToCompounds.get(davidID));
+				}
+				List<Rect> boundsList = pathwayRepresentation.getVertexRepsBounds(vertexRep);
+				for (Rect bounds : boundsList) {
+					if (currentCompounds.size() != 0) {
+						g.gl.glColor4f(color.r, color.g, color.b, (float) currentCompounds.size() / maxCompounds);
+						g.fillRect(bounds);
+					} else {
+						g.color(noMapping);
+						g.fillRect(bounds);
+					}
+				}
+			}
+		}
+
 	}
 
 	@Override
@@ -378,8 +415,6 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			}
 		}
 	}
-
-
 
 	@Override
 	public IEntityCollection getCollection() {

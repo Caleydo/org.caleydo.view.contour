@@ -139,7 +139,7 @@ public final class ItemComparators {
 
 		@Override
 		public int compare(NestableItem item1, NestableItem item2) {
-			return Float.compare(getAttributeValue(item2), getAttributeValue(item1));
+			return Float.compare(getAttributeValue(item1), getAttributeValue(item2));
 		}
 
 		protected float getAttributeValue(NestableItem item) {

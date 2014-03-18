@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.collection;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,7 +30,6 @@ import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
-import com.google.common.collect.Table.Cell;
 
 /**
  * @author Christian
@@ -38,11 +38,8 @@ import com.google.common.collect.Table.Cell;
 public class EnrichmentScores {
 
 	protected final RelationshipExplorerElement relationshipExplorer;
-	/**
-	 * Holds all {@link EnrichmentScore}s defined via 4 dimensions: MappingCollection, TargetCollection,
-	 * EnrichmentCollection, and, whether the score is based on filtered (Pair.second) or all items (Pair.first)
-	 */
-	protected Map<IEntityCollection, Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>>> allScores = new HashMap<>();
+
+	protected List<EnrichmentScore> allScores = new ArrayList<>();
 
 	// protected Table<IEntityCollection, IEntityCollection, EnrichmentScore> allScores = HashBasedTable.create();
 
@@ -52,6 +49,7 @@ public class EnrichmentScores {
 		protected final IEntityCollection rowCollection;
 		protected final IEntityCollection columnCollection;
 		protected final IEntityCollection mappingCollection;
+		protected final int threshold;
 		/**
 		 * Determines whether the scores are calculated for filtered or all elements of the collections.
 		 */
@@ -59,13 +57,14 @@ public class EnrichmentScores {
 		protected Table<Object, Object, Float> scoreTable = HashBasedTable.create();
 
 		public EnrichmentScore(IEntityCollection rowCollection, IEntityCollection columnCollection,
-				IEntityCollection mappingCollection, boolean isFilteredItemScore,
+				IEntityCollection mappingCollection, boolean isFilteredItemScore, int threshold,
 				RelationshipExplorerElement relationshipExplorer) {
 			this.rowCollection = rowCollection;
 			this.columnCollection = columnCollection;
 			this.mappingCollection = mappingCollection;
 			this.isFilteredItemScore = isFilteredItemScore;
 			this.relationshipExplorer = relationshipExplorer;
+			this.threshold = threshold;
 			updateScores();
 		}
 
@@ -109,9 +108,12 @@ public class EnrichmentScores {
 					float b = 0;
 					float c = 0;
 					if (isFilteredItemScore) {
+						// common items of row and column entry from the filtered mapping collection
 						a = Sets.intersection(rowEntry.getValue().getSecond(), columnEntry.getValue().getSecond())
 								.size();
-						b = columnEntry.getValue().getSecond().size() - a;
+						// items of the column entry from the whole mapping collection minus a
+						b = columnEntry.getValue().getFirst().size() - a;
+						// items of the row entry from the filtered mapping collection
 						c = rowEntry.getValue().getSecond().size();
 					} else {
 						a = Sets.intersection(rowEntry.getValue().getFirst(), columnEntry.getValue().getFirst()).size();
@@ -120,7 +122,7 @@ public class EnrichmentScores {
 					}
 					float d = mappingCollection.getAllElementIDs().size() - c;
 
-					float score = (a / (a + b)) / (c / (c + d));
+					float score = a < threshold ? 0 : (a / (a + b)) / (c / (c + d));
 					if (Float.isNaN(score))
 						score = 0;
 
@@ -245,11 +247,31 @@ public class EnrichmentScores {
 			return mappingCollection;
 		}
 
+		/**
+		 * @return the threshold, see {@link #threshold}
+		 */
+		public int getThreshold() {
+			return threshold;
+		}
+
+		/**
+		 * @return the isFilteredItemScore, see {@link #isFilteredItemScore}
+		 */
+		public boolean isFilteredItemScore() {
+			return isFilteredItemScore;
+		}
+
 		@Override
 		public String getLabel() {
-			return "Enrichment of " + columnCollection.getLabel() + " for " + rowCollection.getLabel() + " via "
-					+ mappingCollection.getLabel() + " considering "
-					+ (isFilteredItemScore ? "filtered items" : "all items");
+			return "Enrichment of "
+					+ columnCollection.getLabel()
+					+ " for "
+					+ rowCollection.getLabel()
+					+ " via "
+					+ mappingCollection.getLabel()
+					+ " considering "
+					+ ((isFilteredItemScore ? "filtered items" : "all items") + " with a threshold of " + threshold + mappingCollection
+							.getLabel());
 		}
 	}
 
@@ -327,28 +349,21 @@ public class EnrichmentScores {
 	}
 
 	public EnrichmentScore getOrCreateEnrichmentScore(IEntityCollection targetCollection,
-			IEntityCollection enrichmentCollection, IEntityCollection mappingCollection, boolean isFilteredItemScore) {
+			IEntityCollection enrichmentCollection, IEntityCollection mappingCollection, boolean isFilteredItemScore,
+			int threshold) {
 
-		Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table = allScores
-				.get(mappingCollection);
-		if (table == null) {
-			table = HashBasedTable.create();
-			allScores.put(mappingCollection, table);
+		EnrichmentScore score = null;
+		for (EnrichmentScore s : allScores) {
+			if (s.getTargetCollection() == targetCollection && s.getEnrichmentCollection() == enrichmentCollection
+					&& s.getMappingCollection() == mappingCollection && s.isFilteredItemScore() == isFilteredItemScore
+					&& threshold == s.getThreshold()) {
+				score = s;
+			}
 		}
-		Pair<EnrichmentScore, EnrichmentScore> scores = table.get(targetCollection, enrichmentCollection);
-		if (scores == null) {
-			scores = new Pair<>();
-			table.put(targetCollection, enrichmentCollection, scores);
-		}
-		EnrichmentScore score = isFilteredItemScore ? scores.getSecond() : scores.getFirst();
 		if (score == null) {
 			score = new EnrichmentScore(targetCollection, enrichmentCollection, mappingCollection, isFilteredItemScore,
-					relationshipExplorer);
-			if (isFilteredItemScore) {
-				scores.setSecond(score);
-			} else {
-				scores.setFirst(score);
-			}
+					threshold, relationshipExplorer);
+			allScores.add(score);
 		}
 
 		return score;
@@ -356,16 +371,9 @@ public class EnrichmentScores {
 
 	public Collection<EnrichmentScore> getScoresForTargetCollection(IEntityCollection targetCollection) {
 		Set<EnrichmentScore> scores = new HashSet<>();
-		for (Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table : allScores
-				.values()) {
-			Map<IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> row = table.row(targetCollection);
-			if (row != null) {
-				for (Pair<EnrichmentScore, EnrichmentScore> pair : row.values()) {
-					if (pair.getFirst() != null)
-						scores.add(pair.getFirst());
-					if (pair.getSecond() != null)
-						scores.add(pair.getSecond());
-				}
+		for (EnrichmentScore s : allScores) {
+			if (s.getTargetCollection() == targetCollection) {
+				scores.add(s);
 			}
 		}
 		return scores;
@@ -373,16 +381,9 @@ public class EnrichmentScores {
 
 	public Collection<EnrichmentScore> getScoresForEnrichmentCollection(IEntityCollection enrichmentCollection) {
 		Set<EnrichmentScore> scores = new HashSet<>();
-		for (Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table : allScores
-				.values()) {
-			Map<IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> column = table.column(enrichmentCollection);
-			if (column != null) {
-				for (Pair<EnrichmentScore, EnrichmentScore> pair : column.values()) {
-					if (pair.getFirst() != null)
-						scores.add(pair.getFirst());
-					if (pair.getSecond() != null)
-						scores.add(pair.getSecond());
-				}
+		for (EnrichmentScore s : allScores) {
+			if (s.getEnrichmentCollection() == enrichmentCollection) {
+				scores.add(s);
 			}
 		}
 		return scores;
@@ -400,13 +401,9 @@ public class EnrichmentScores {
 	}
 
 	public void updateScores() {
-		for (Table<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> table : allScores
-				.values()) {
-			for (Cell<IEntityCollection, IEntityCollection, Pair<EnrichmentScore, EnrichmentScore>> cell : table
-					.cellSet()) {
-				// Only second (filter based scores) need update
-				if (cell.getValue().getSecond() != null)
-					cell.getValue().getSecond().updateScores();
+		for (EnrichmentScore s : allScores) {
+			if (s.isFilteredItemScore()) {
+				s.updateScores();
 			}
 		}
 	}

@@ -15,6 +15,8 @@ import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScore;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -22,6 +24,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 
 /**
  * @author Christian
@@ -33,6 +36,9 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 	protected Combo enrichmentCollectionCombo;
 	protected Combo mappingCollectionCombo;
 	protected Combo itemModeCombo;
+	protected Spinner thresholdSpinner;
+	protected Label thresholdLabel;
+
 	protected EnrichmentScores enrichmentScores;
 	protected Collection<IEntityCollection> collections;
 
@@ -59,7 +65,7 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 
 		Composite parentComposite = new Composite(parent, SWT.NONE);
 		parentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		parentComposite.setLayout(new GridLayout(8, false));
+		parentComposite.setLayout(new GridLayout(11, false));
 
 		Label l = new Label(parentComposite, SWT.NONE);
 		l.setText("Calculate enrichment of");
@@ -75,6 +81,12 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 		l.setText("via");
 
 		mappingCollectionCombo = addCollectionCombo(parentComposite);
+		mappingCollectionCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				thresholdLabel.setText(mappingCollectionCombo.getText());
+			}
+		});
 
 		l = new Label(parentComposite, SWT.NONE);
 		l.setText("considering");
@@ -88,6 +100,20 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 			collectionMap.put(i, collection);
 			i++;
 		}
+
+		l = new Label(parentComposite, SWT.NONE);
+		l.setText("with a threshold of");
+
+		thresholdSpinner = new Spinner(parentComposite, SWT.BORDER);
+		thresholdSpinner.setMinimum(1);
+		thresholdSpinner.setMaximum(Integer.MAX_VALUE);
+		thresholdSpinner.setIncrement(1);
+		thresholdSpinner.setSelection(2);
+
+		thresholdLabel = new Label(parentComposite, SWT.NONE);
+		GridData gd = new GridData();
+		gd.widthHint = 80;
+		thresholdLabel.setLayoutData(gd);
 
 		return super.createDialogArea(parent);
 	}
@@ -117,7 +143,7 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 			return;
 
 		score = enrichmentScores.getOrCreateEnrichmentScore(targetCollection, enrichmentCollection, mappingCollection,
-				itemModeIndex == 0 ? false : true);
+				itemModeIndex == 0 ? false : true, thresholdSpinner.getSelection());
 
 		super.okPressed();
 	}

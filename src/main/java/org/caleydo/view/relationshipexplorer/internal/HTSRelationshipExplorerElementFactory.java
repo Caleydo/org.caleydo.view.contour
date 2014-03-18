@@ -165,7 +165,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 			}
 		}
 
-		GroupCollection clusterCollection = getClusterColumn(relationshipExplorer, "clus");
+		GroupCollection clusterCollection100 = getClusterColumn(relationshipExplorer, "100");
+		GroupCollection clusterCollection50 = getClusterColumn(relationshipExplorer, "50");
 
 		GroupCollection therapeuticGroupCollection = getClusterColumn(relationshipExplorer, "therap");
 
@@ -193,7 +194,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		initCommand.add(c);
 		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
-		c = new AddChildColumnCommand(clusterCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
+		c = new AddChildColumnCommand(clusterCollection100, pathwayColumn.getRootColumn().getColumnModel()
+				.getHistoryID(),
 				relationshipExplorer);
 		// c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 		// relationshipExplorer.getHistory());
@@ -255,24 +257,28 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 
 		// ----
 
-		c = new AddColumnTreeCommand(clusterCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(clusterCollection50, relationshipExplorer);
 		initCommand.add(c);
-		ColumnTree clusterColumn = (ColumnTree) c.execute();
+		ColumnTree cluster50Column = (ColumnTree) c.execute();
 
-		c = new AddChildColumnCommand(fingerprintCollection, clusterColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer);
+		c = new AddColumnTreeCommand(clusterCollection100, relationshipExplorer);
 		initCommand.add(c);
-		NestableColumn fCol = (NestableColumn) c.execute();
-
-		// ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
-
-		c = new SetSummaryItemFactoryCommand((AEntityColumn) fCol.getColumnModel(), MedianSummaryItemFactory.class,
-				relationshipExplorer.getHistory(), true);
-		initCommand.add(c);
-		c.execute();
-
-		addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
-				fCol.getColumnModel(), initCommand);
+		ColumnTree cluster100Column = (ColumnTree) c.execute();
+		//
+		// c = new AddChildColumnCommand(fingerprintCollection, clusterColumn.getRootColumn().getColumnModel()
+		// .getHistoryID(), relationshipExplorer);
+		// initCommand.add(c);
+		// NestableColumn fCol = (NestableColumn) c.execute();
+		//
+		// // ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
+		//
+		// c = new SetSummaryItemFactoryCommand((AEntityColumn) fCol.getColumnModel(), MedianSummaryItemFactory.class,
+		// relationshipExplorer.getHistory(), true);
+		// initCommand.add(c);
+		// c.execute();
+		//
+		// addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
+		// fCol.getColumnModel(), initCommand);
 
 		// ---------
 
@@ -292,7 +298,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		initCommand.add(c);
 		c.execute();
 
-		addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
+		addDefaultSortingCommand(relationshipExplorer, groupColumn.getRootColumn().getColumnModel(),
 				col.getColumnModel(), initCommand);
 
 		relationshipExplorer.getHistory().setInitCommand(initCommand);

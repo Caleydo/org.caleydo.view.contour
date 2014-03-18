@@ -165,7 +165,9 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 			}
 		}
 
-		GroupCollection clusterCollection = getClusterColumn(relationshipExplorer);
+		GroupCollection clusterCollection = getClusterColumn(relationshipExplorer, "clus");
+
+		GroupCollection therapeuticGroupCollection = getClusterColumn(relationshipExplorer, "therap");
 
 		// float totalMinSize = 0;
 		// for (AEntityColumn column : columns) {
@@ -272,6 +274,27 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
 				fCol.getColumnModel(), initCommand);
 
+		// ---------
+
+		c = new AddColumnTreeCommand(therapeuticGroupCollection, relationshipExplorer);
+		initCommand.add(c);
+		ColumnTree groupColumn = (ColumnTree) c.execute();
+
+		c = new AddChildColumnCommand(fingerprintCollection, groupColumn.getRootColumn().getColumnModel()
+				.getHistoryID(), relationshipExplorer);
+		initCommand.add(c);
+		NestableColumn col = (NestableColumn) c.execute();
+
+		// ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
+
+		c = new SetSummaryItemFactoryCommand((AEntityColumn) col.getColumnModel(), MedianSummaryItemFactory.class,
+				relationshipExplorer.getHistory(), true);
+		initCommand.add(c);
+		c.execute();
+
+		addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
+				col.getColumnModel(), initCommand);
+
 		relationshipExplorer.getHistory().setInitCommand(initCommand);
 
 		// System.out.println("Before overlap computation");
@@ -299,7 +322,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		initCommand.add(c);
 	}
 
-	protected GroupCollection getClusterColumn(RelationshipExplorerElement relationshipExplorer) {
+	protected GroupCollection getClusterColumn(RelationshipExplorerElement relationshipExplorer, String name) {
 		for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
 			if (dataDomain instanceof ATableBasedDataDomain && dataDomain.getLabel().contains("Finger")) {
 				ATableBasedDataDomain dd = (ATableBasedDataDomain) dataDomain;
@@ -315,7 +338,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getDimensionPerspective(perspectiveID);
-								return new GroupCollection(perspective, null, relationshipExplorer);
+								if (perspective.getLabel().toLowerCase().contains(name))
+									return new GroupCollection(perspective, null, relationshipExplorer);
 							}
 						}
 
@@ -326,7 +350,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 						for (String perspectiveID : perspectiveIDs) {
 							if (!perspectiveID.equals(defaultPerspectiveID)) {
 								Perspective perspective = dd.getTable().getRecordPerspective(perspectiveID);
-								return new GroupCollection(perspective, null, relationshipExplorer);
+								if (perspective.getLabel().toLowerCase().contains(name))
+									return new GroupCollection(perspective, null, relationshipExplorer);
 							}
 						}
 					}

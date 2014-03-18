@@ -942,6 +942,20 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				// entityCollection.getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
 
+				// boolean add = true;
+				// for (NestableItem parentItem : parentItems) {
+				// if (parentItem.getParentItem() != null) {
+				// add = hasParentItemElementMapping(parentItem.getParentItem(), id);
+				// }
+				//
+				// if (add) {
+				// ScoreElement element = createElement(id, parentItem);
+				// if (element != null) {
+				// addItem(element, id, column, parentItem);
+				// }
+				// }
+				// }
+
 				for (NestableItem parentItem : parentItems) {
 
 					List<NestableItem> childItems = parentItem.getChildItems(column);
@@ -953,10 +967,22 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						}
 					}
 					if (createItem) {
-						ScoreElement element = createElement(id, parentItem);
-						if (element != null) {
-							addItem(element, id, column, parentItem);
+						boolean add = true;
+						if (parentItem.getParentItem() != null) {
+							add = hasParentItemElementMapping(parentItem.getParentItem(), id);
 						}
+
+						if (add) {
+							ScoreElement element = createElement(id, parentItem);
+							if (element != null) {
+								addItem(element, id, column, parentItem);
+							}
+						}
+
+						// ScoreElement element = createElement(id, parentItem);
+						// if (element != null) {
+						// addItem(element, id, column, parentItem);
+						// }
 					}
 				}
 			}

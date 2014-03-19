@@ -269,8 +269,9 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		}
 
 		for (IEntityCollection collection : filteredMapping.getEntityCollections()) {
-			if (collection instanceof GroupCollection)
+			if (collection instanceof GroupCollection && collection.getLabel().contains("100")) {
 				groupCollection = (GroupCollection) collection;
+			}
 		}
 		if (groupCollection == null)
 			return;
@@ -367,7 +368,6 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	protected void renderImpl(GLGraphics g, float w, float h) {
 		super.renderImpl(g, w, h);
 		centerSpacing.setSize(pathwayRepresentation.getPathwayBounds().width(), h);
-
 
 		Color color = new Color("#807dba");
 		Color noMapping = new Color("#ffffcc");

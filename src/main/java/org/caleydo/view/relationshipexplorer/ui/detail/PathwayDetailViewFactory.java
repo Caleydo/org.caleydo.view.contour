@@ -8,7 +8,9 @@ package org.caleydo.view.relationshipexplorer.ui.detail;
 import java.util.Set;
 
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLZoomPanContainer;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
@@ -45,6 +47,8 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 
 		PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
 		PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
+		representation.setMinHeight(pathway.getHeight());
+		representation.setMinWidth(pathway.getWidth());
 		pathwayElement.setPathwayRepresentation(representation);
 		CompoundGroupPathwayAugmentation aug = new CompoundGroupPathwayAugmentation(representation,
 				relationshipExplorer);
@@ -62,7 +66,14 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 		window.clearTitleElements();
 		window.addShowFilteredItems(aug, false);
 
-		return pathwayElement;
+		GLZoomPanContainer container = new GLZoomPanContainer();
+		container.add(pathwayElement);
+		container.setBackgroundColor(Color.TRANSPARENT);
+		container.setScaleLimits(0.1f, 1f);
+
+		// container.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(new Vec2f(300, 600)));
+
+		return container;
 	}
 
 }

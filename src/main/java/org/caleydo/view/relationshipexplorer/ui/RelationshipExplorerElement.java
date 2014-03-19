@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui;
 
 import gleem.linalg.Vec2f;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -26,6 +27,8 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton;
+import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
 import org.caleydo.core.view.opengl.layout2.dnd.EDnDType;
@@ -37,6 +40,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -45,6 +49,7 @@ import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivitySummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
@@ -69,6 +74,11 @@ import com.google.common.collect.Iterables;
  */
 public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
+	protected static final URL UP_ARROW_ICON = ActivitySummaryItemFactory.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_top_small.png");
+	protected static final URL DOWN_ARROW_ICON = ActivitySummaryItemFactory.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_bottom_small.png");
+
 	protected final static int MIN_HISTORY_HEIGHT = 30;
 	protected final static int MIN_FILTER_PIPELINE_HEIGHT = 16;
 	protected final static int MIN_COLUMN_HEIGHT = 200;
@@ -79,6 +89,42 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	// ------------
 	protected EnrichmentScores enrichmentScores = new EnrichmentScores(this);
 
+	protected enum EViewSplit {
+		TOP, MIDDLE, BOTTOM;
+
+		public EViewSplit next() {
+			switch (this) {
+			case TOP:
+				return TOP;
+
+			case MIDDLE:
+				return TOP;
+
+			case BOTTOM:
+				return MIDDLE;
+			default:
+				return TOP;
+
+			}
+		}
+
+		public EViewSplit prev() {
+			switch (this) {
+			case TOP:
+				return MIDDLE;
+
+			case MIDDLE:
+				return BOTTOM;
+
+			case BOTTOM:
+				return BOTTOM;
+			default:
+				return BOTTOM;
+
+			}
+		}
+	}
+
 	// protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
 	protected AnimatedGLElementContainer detailContainer;
@@ -88,6 +134,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
 
 	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
+
+	protected EViewSplit split = EViewSplit.MIDDLE;
+	protected GLButton moveUpButton;
+	protected GLButton moveDownButton;
 
 	public interface IIDMappingUpdateHandler {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation);
@@ -270,12 +320,21 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	public RelationshipExplorerElement() {
 		super(new GLSizeRestrictiveFlowLayout(false, 5, GLPadding.ZERO));
+		AnimatedGLElementContainer container = new AnimatedGLElementContainer((new GLSizeRestrictiveFlowLayout2(false,
+				2, GLPadding.ZERO)));
+
+		container.setLayoutData(1f);
+		add(container);
 		columnContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 0, GLPadding.ZERO));
 		detailContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 5, GLPadding.ZERO));
 		detailContainer.setSize(Float.NaN, 0);
-		add(detailContainer);
+		container.add(detailContainer);
+		container.add(createMoveUpButton(), 0);
+		container.add(createMoveDownButton(), 0);
+		container.add(columnContainer);
+		// add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
-		add(columnContainer);
+		// add(columnContainer);
 		history = new History(this);
 
 		columnContainer.add(new ColumnSeparator(), 0);
@@ -288,13 +347,50 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		scrollingDecorator.setSize(Float.NaN, MIN_FILTER_PIPELINE_HEIGHT);
 		add(scrollingDecorator);
 
-
 		scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(false), 8,
 				EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(history);
 		scrollingDecorator.setSize(Float.NaN, MIN_HISTORY_HEIGHT);
 		add(scrollingDecorator);
 
+	}
+
+	protected GLButton createMoveUpButton() {
+		moveUpButton = new GLButton();
+		moveUpButton.setSize(16, 7);
+		moveUpButton.setRenderer(GLRenderers.fillImage(UP_ARROW_ICON));
+		moveUpButton.setVisibility(EVisibility.NONE);
+		moveUpButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				if (split == EViewSplit.TOP)
+					return;
+				split = split.next();
+				updateDetailHeight();
+
+			}
+		});
+		return moveUpButton;
+	}
+
+	protected GLButton createMoveDownButton() {
+		moveDownButton = new GLButton();
+		moveDownButton.setSize(16, 7);
+		moveDownButton.setRenderer(GLRenderers.fillImage(DOWN_ARROW_ICON));
+		moveDownButton.setVisibility(EVisibility.NONE);
+		moveDownButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				if (split == EViewSplit.BOTTOM)
+					return;
+				split = split.prev();
+				updateDetailHeight();
+
+			}
+		});
+		return moveDownButton;
 	}
 
 	/**
@@ -464,7 +560,6 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return idMappingUpdateHandler;
 	}
 
-
 	public void showDetailView(IEntityCollection srcCollection) {
 
 		DetailViewWindow window = detailMap.get(srcCollection);
@@ -558,12 +653,47 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	}
 
 	public void updateDetailHeight() {
-		IGLCanvas canvas = findParent(AGLElementView.class).getParentGLCanvas();
-		Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
-		float detailHeight = Math.max(0,
-				Math.min(canvas.getDIPHeight() - (MIN_COLUMN_HEIGHT + MIN_HISTORY_HEIGHT), detailContainerMinSize.y()));
+		if (detailContainer.size() <= 0) {
+			detailContainer.setSize(Float.NaN, 0);
+			// resizeChild(detailContainer, Float.NaN, 0);
+			columnContainer.setLayoutData(1f);
+			moveDownButton.setVisibility(EVisibility.NONE);
+			moveUpButton.setVisibility(EVisibility.NONE);
+		} else {
+			detailContainer.setSize(Float.NaN, Float.NaN);
+			switch (split) {
+			case BOTTOM:
+				detailContainer.setLayoutData(0.725f);
+				columnContainer.setLayoutData(0.275f);
+				moveDownButton.setVisibility(EVisibility.PICKABLE);
+				moveUpButton.setVisibility(EVisibility.PICKABLE);
+				break;
+			case MIDDLE:
+				detailContainer.setLayoutData(0.5);
+				columnContainer.setLayoutData(0.5);
+				moveDownButton.setVisibility(EVisibility.PICKABLE);
+				moveUpButton.setVisibility(EVisibility.PICKABLE);
+				break;
+			case TOP:
+				detailContainer.setLayoutData(0.275);
+				columnContainer.setLayoutData(0.725);
+				moveDownButton.setVisibility(EVisibility.PICKABLE);
+				moveUpButton.setVisibility(EVisibility.PICKABLE);
+				break;
+			default:
+				break;
 
-		resizeChild(detailContainer, Float.NaN, detailHeight);
+			}
+
+		}
+
+		// IGLCanvas canvas = findParent(AGLElementView.class).getParentGLCanvas();
+		// Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5,
+		// GLPadding.ZERO);
+		// float detailHeight = Math.max(0,
+		// Math.min(canvas.getDIPHeight() - (MIN_COLUMN_HEIGHT + MIN_HISTORY_HEIGHT), detailContainerMinSize.y()));
+		//
+		// resizeChild(detailContainer, Float.NaN, detailHeight);
 	}
 
 	/**

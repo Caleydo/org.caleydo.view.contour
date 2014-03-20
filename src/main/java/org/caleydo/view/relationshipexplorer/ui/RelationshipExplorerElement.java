@@ -25,6 +25,7 @@ import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
@@ -55,11 +56,15 @@ import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.dialog.AddColumnDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.DragAndDropHeader.ColumnDragInfo;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.BiMap;
@@ -78,6 +83,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_top_small.png");
 	protected static final URL DOWN_ARROW_ICON = ActivitySummaryItemFactory.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_bottom_small.png");
+	protected static final URL ADD_COLUMN_ICON = ActivitySummaryItemFactory.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/add.png");
 
 	protected final static int MIN_HISTORY_HEIGHT = 30;
 	protected final static int MIN_FILTER_PIPELINE_HEIGHT = 16;
@@ -127,6 +134,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	// protected List<AEntityColumn> columns = new ArrayList<>();
 	protected AnimatedGLElementContainer columnContainer;
+	protected AnimatedGLElementContainer columnContainerRow;
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
 	protected FilterPipeline filterPipeline;
@@ -325,13 +333,18 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 		container.setLayoutData(1f);
 		add(container);
+		columnContainerRow = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 2, new GLPadding(0,
+				0, 2, 0)));
 		columnContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 0, GLPadding.ZERO));
 		detailContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 5, GLPadding.ZERO));
 		detailContainer.setSize(Float.NaN, 0);
 		container.add(detailContainer);
 		container.add(createMoveUpButton(), 0);
 		container.add(createMoveDownButton(), 0);
-		container.add(columnContainer);
+		container.add(columnContainerRow);
+
+		columnContainerRow.add(columnContainer);
+		columnContainerRow.add(createAddColumnButton());
 		// add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
 		// add(columnContainer);
@@ -391,6 +404,38 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			}
 		});
 		return moveDownButton;
+	}
+
+	protected GLButton createAddColumnButton() {
+		GLButton button = new GLButton();
+		button.setSize(32, 32);
+		button.setRenderer(GLRenderers.fillImage(ADD_COLUMN_ICON));
+		button.setVisibility(EVisibility.PICKABLE);
+		button.setTooltip("Add Columns");
+		button.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				context.getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+						AddColumnDialog dialog = new AddColumnDialog(canvas.getShell(),
+								RelationshipExplorerElement.this);
+						if (dialog.open() == Window.OK) {
+							Set<IEntityCollection> collections = dialog.getCollections();
+							for (IEntityCollection collection : collections) {
+								AddColumnTreeCommand c = new AddColumnTreeCommand(collection,
+										RelationshipExplorerElement.this);
+								c.execute();
+								history.addHistoryCommand(c);
+							}
+						}
+					}
+				});
+
+			}
+		});
+		return button;
 	}
 
 	/**
@@ -656,7 +701,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		if (detailContainer.size() <= 0) {
 			detailContainer.setSize(Float.NaN, 0);
 			// resizeChild(detailContainer, Float.NaN, 0);
-			columnContainer.setLayoutData(1f);
+			columnContainerRow.setLayoutData(1f);
 			moveDownButton.setVisibility(EVisibility.NONE);
 			moveUpButton.setVisibility(EVisibility.NONE);
 		} else {
@@ -664,19 +709,19 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			switch (split) {
 			case BOTTOM:
 				detailContainer.setLayoutData(0.725f);
-				columnContainer.setLayoutData(0.275f);
+				columnContainerRow.setLayoutData(0.275f);
 				moveDownButton.setVisibility(EVisibility.PICKABLE);
 				moveUpButton.setVisibility(EVisibility.PICKABLE);
 				break;
 			case MIDDLE:
 				detailContainer.setLayoutData(0.5);
-				columnContainer.setLayoutData(0.5);
+				columnContainerRow.setLayoutData(0.5);
 				moveDownButton.setVisibility(EVisibility.PICKABLE);
 				moveUpButton.setVisibility(EVisibility.PICKABLE);
 				break;
 			case TOP:
 				detailContainer.setLayoutData(0.275);
-				columnContainer.setLayoutData(0.725);
+				columnContainerRow.setLayoutData(0.725);
 				moveDownButton.setVisibility(EVisibility.PICKABLE);
 				moveUpButton.setVisibility(EVisibility.PICKABLE);
 				break;

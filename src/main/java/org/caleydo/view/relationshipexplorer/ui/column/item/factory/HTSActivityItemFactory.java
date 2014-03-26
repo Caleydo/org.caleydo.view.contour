@@ -25,6 +25,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTreeRenderStyle;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
 /**
@@ -69,6 +70,8 @@ public class HTSActivityItemFactory implements IItemFactory {
 				// TODO: use correct data center
 				ic50Renderer = new SimpleBarRenderer();
 				ic50Renderer.setHorizontal(true);
+				ic50Renderer.setShowTooltip(true);
+				ic50Renderer.setBarWidth(ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT - 4);
 
 				float rawValue = (float) dataDomain.getRaw(recordIDType, (int) elementID,
 						dimensionPerspective.getIdType(), dimensionID);

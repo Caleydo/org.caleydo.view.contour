@@ -269,6 +269,10 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 			}
 		}
 
+		// TODO: implement
+		Button useGlobalFilterButton = new Button(parentComposite, SWT.CHECK);
+		useGlobalFilterButton.setText("Filter column only");
+
 		return super.createDialogArea(parent);
 	}
 

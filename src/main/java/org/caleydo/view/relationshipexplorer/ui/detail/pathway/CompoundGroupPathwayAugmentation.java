@@ -270,7 +270,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		}
 
 		for (IEntityCollection collection : filteredMapping.getEntityCollections()) {
-			if (collection instanceof GroupCollection && collection.getLabel().contains("100")) {
+			if (collection instanceof GroupCollection && collection.getLabel().contains("luster")) {
 				groupCollection = (GroupCollection) collection;
 			}
 		}

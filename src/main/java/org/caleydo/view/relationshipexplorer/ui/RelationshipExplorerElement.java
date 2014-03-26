@@ -362,6 +362,8 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		filterPipeline.setLayoutData(0.4f);
 		supportViewContainer.add(filterPipeline);
 
+		add(supportViewContainer);
+
 		AnimatedGLElementContainer container = new AnimatedGLElementContainer((new GLSizeRestrictiveFlowLayout2(false,
 				2, GLPadding.ZERO)));
 
@@ -386,7 +388,6 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		columnContainer.add(new ColumnSeparator(), 0);
 		columnContainer.add(new ColumnSeparator(), 0);
 
-		add(supportViewContainer);
 
 	}
 

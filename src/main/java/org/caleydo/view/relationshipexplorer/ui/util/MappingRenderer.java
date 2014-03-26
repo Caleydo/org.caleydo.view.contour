@@ -13,6 +13,7 @@ import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
+import org.caleydo.view.relationshipexplorer.ui.list.ColumnTreeRenderStyle;
 
 /**
  * @author Christian
@@ -24,7 +25,7 @@ public class MappingRenderer extends KeyBasedGLElementContainer<SimpleBarRendere
 	protected static final Integer ALL_ELEMENTS_KEY = Integer.valueOf(4);
 
 	protected int maxValue = 1;
-	protected float barWidth = 16;
+	protected float barWidth = ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT;
 
 	public MappingRenderer(int maxValue) {
 		setLayout(GLLayouts.LAYERS);
@@ -37,6 +38,7 @@ public class MappingRenderer extends KeyBasedGLElementContainer<SimpleBarRendere
 		setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.1f));
 		setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.2f));
 		setElement(SELECTED_ELEMENTS_KEY, createDefaultBarRenderer(SelectionType.SELECTION.getColor(), 0.3f));
+		updateBarWidth();
 	}
 
 	@Override

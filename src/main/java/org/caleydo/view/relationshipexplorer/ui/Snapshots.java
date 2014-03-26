@@ -43,7 +43,7 @@ public class Snapshots extends GLElementContainer {
 
 		public SnapshotElement(IHistoryCommand command) {
 			this.command = command;
-			color = Color.LIGHT_GRAY;
+			color = Color.GRAY;
 			// if (command instanceof ResetCommand)
 			// setRenderer(GLRenderers.drawText("Reset", VAlign.CENTER));
 			setTooltip(command.getDescription());
@@ -55,13 +55,14 @@ public class Snapshots extends GLElementContainer {
 		protected void renderImpl(GLGraphics g, float w, float h) {
 			if (hovered) {
 				renderFilled(g, w, h, 1);
-				renderOutline(g, w, h);
+
 
 			} else {
 				renderFilled(g, w, h, 0.3f);
 			}
+			renderOutline(g, w, h);
 
-			g.drawText(command.getDescription(), 0, 0, w, h - 2, VAlign.CENTER);
+			g.drawText(command.getDescription(), 2, 0, w - 2, h - 2, VAlign.CENTER);
 		}
 
 		private void renderOutline(GLGraphics g, float w, float h) {

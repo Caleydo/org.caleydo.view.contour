@@ -11,9 +11,9 @@ package org.caleydo.view.relationshipexplorer.ui.list;
  */
 public final class ColumnTreeRenderStyle {
 
-	public static final int CAPTION_HEIGHT = 20;
+	public static final int CAPTION_HEIGHT = 16;
 	public static final int COLUMN_SUMMARY_BAR_HEIGHT = 12;
-	public static final int COLLAPSE_BUTTON_SIZE = 16;
+	public static final int COLLAPSE_BUTTON_SIZE = 12;
 	public static final int HEADER_TOP_PADDING = 10;
 	public static final int HORIZONTAL_PADDING = 4;
 	public static final int HORIZONTAL_SPACING = 4;

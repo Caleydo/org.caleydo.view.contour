@@ -11,11 +11,13 @@ import java.util.Comparator;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
+import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
@@ -40,7 +42,6 @@ public abstract class ATextColumn extends AEntityColumn {
 
 	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
 
-
 		@Override
 		public int compare(NestableItem o1, NestableItem o2) {
 			MinSizeTextElement r1 = (MinSizeTextElement) ((ScoreElement) o1.getElement()).getElement();
@@ -60,7 +61,7 @@ public abstract class ATextColumn extends AEntityColumn {
 		private Vec2f minSize;
 
 		public MinSizeTextElement(String text) {
-			setRenderer(GLRenderers.drawText(text));
+			setRenderer(GLRenderers.drawText(text, VAlign.LEFT, new GLPadding(0, 0, 0, 2)));
 			this.text = text;
 		}
 

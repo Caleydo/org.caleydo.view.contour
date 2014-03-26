@@ -155,7 +155,9 @@ public class SimpleBarRenderer extends PickableGLElement {
 
 	@Override
 	public String getTooltip() {
-		return String.valueOf(value);
+		if (showTooltip)
+			return String.valueOf(value);
+		return null;
 		// return String.format("%8f", value);
 	}
 
@@ -172,6 +174,14 @@ public class SimpleBarRenderer extends PickableGLElement {
 	 */
 	public float getValue() {
 		return value;
+	}
+
+	/**
+	 * @param showTooltip
+	 *            setter, see {@link showTooltip}
+	 */
+	public void setShowTooltip(boolean showTooltip) {
+		this.showTooltip = showTooltip;
 	}
 
 }

@@ -17,6 +17,7 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
@@ -74,7 +75,8 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		spacingContainer.add(captionContainer);
 		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.BLUE));
 
-		final GLElementContainer buttonBar = new GLElementContainer(GLLayouts.sizeRestrictiveFlowHorizontal(1));
+		final GLElementContainer buttonBar = new GLElementContainer(new GLSizeRestrictiveFlowLayout(true, 1,
+				new GLPadding(0, -9, 0, 9)));
 		// buttonBar.setRenderer(GLRenderers.drawRect(Color.RED));
 
 		headerContainer.add(spacingContainer);

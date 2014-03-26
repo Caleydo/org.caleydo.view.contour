@@ -109,7 +109,7 @@ public class History extends AnimatedGLElementContainer {
 			if (hovered || index == currentPosition) {
 				renderFilled(g, w, h, 1);
 				renderOutline(g, w, h);
-				g.drawText(label, 0, 0, w, h - 2, VAlign.CENTER);
+				g.drawText(label, 2, 0, w - 2, h - 2, VAlign.CENTER);
 				// if (command instanceof ResetCommand) {
 				// g.drawText("Reset", 0, 0, w, h - 2, VAlign.CENTER);
 				// }
@@ -126,7 +126,7 @@ public class History extends AnimatedGLElementContainer {
 			super.renderImpl(g, w, h);
 			g.decZ();
 
-			g.drawText(label, 0, 0, w, h - 2, VAlign.CENTER);
+			g.drawText(label, 2, 0, w - 2, h - 2, VAlign.CENTER);
 			// if (command instanceof ResetCommand) {
 			// g.drawText("Reset", 0, 0, w, h - 2, VAlign.CENTER);
 			// }
@@ -228,7 +228,7 @@ public class History extends AnimatedGLElementContainer {
 		HistoryCommandElement element = new HistoryCommandElement(command);
 		historyElementsContainer.add(element);
 		currentPosition++;
-		relayoutParent();
+		historyElementsContainer.getParent().relayout();
 
 		// if (command instanceof IFilterCommand)
 		// relationshipExplorer.getFilterPipeline().addFilterCommand((IFilterCommand) command);

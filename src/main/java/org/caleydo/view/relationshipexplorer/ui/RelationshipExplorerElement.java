@@ -18,6 +18,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
@@ -43,12 +44,14 @@ import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
+import org.caleydo.view.relationshipexplorer.internal.toolbar.SelectionOperationEvent;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivitySummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
@@ -137,6 +140,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected FilterPipeline filterPipeline;
 	protected BiMap<IEntityCollection, DetailViewWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
+	protected ESetOperation multiItemSelectionSetOperation = ESetOperation.UNION;
 
 	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
 
@@ -330,7 +334,6 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 				(new GLSizeRestrictiveFlowLayout2(false, 2, new GLPadding(2, 2, 0, 2))));
 		supportViewContainer.setSize(100, Float.NaN);
 
-
 		history = new History(this);
 		// ScrollingDecorator scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(
 		// false), 8, EDimension.RECORD);
@@ -359,8 +362,6 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		filterPipeline.setLayoutData(0.4f);
 		supportViewContainer.add(filterPipeline);
 
-
-
 		AnimatedGLElementContainer container = new AnimatedGLElementContainer((new GLSizeRestrictiveFlowLayout2(false,
 				2, GLPadding.ZERO)));
 
@@ -381,7 +382,6 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		// add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
 		// add(columnContainer);
-
 
 		columnContainer.add(new ColumnSeparator(), 0);
 		columnContainer.add(new ColumnSeparator(), 0);
@@ -791,4 +791,36 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return enrichmentScores;
 	}
 
+	/**
+	 * @return the multiItemSelectionSetOperation, see {@link #multiItemSelectionSetOperation}
+	 */
+	public ESetOperation getMultiItemSelectionSetOperation() {
+		return multiItemSelectionSetOperation;
+	}
+
+	@ListenTo
+	public void onSelectionOperationChanged(final SelectionOperationEvent event) {
+
+		IHistoryCommand c = new IHistoryCommand() {
+
+			@Override
+			public String getDescription() {
+				return "Set selection mode to " + (event.isIntersection() ? "intersection" : "union");
+			}
+
+			@Override
+			public Object execute() {
+				if (event.isIntersection()) {
+					multiItemSelectionSetOperation = ESetOperation.INTERSECTION;
+				} else {
+					multiItemSelectionSetOperation = ESetOperation.UNION;
+				}
+				return null;
+			}
+		};
+
+		c.execute();
+		history.addHistoryCommand(c);
+
+	}
 }

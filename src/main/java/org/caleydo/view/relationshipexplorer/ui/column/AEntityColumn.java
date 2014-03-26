@@ -452,7 +452,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		entityCollection.setHighlightItems(elementIDs);
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(entityCollection
-				.getBroadcastingIDsFromElementIDs(elementIDs), this));
+				.getBroadcastingIDsFromElementIDs(elementIDs), this, relationshipExplorer
+				.getMultiItemSelectionSetOperation()));
 
 	}
 

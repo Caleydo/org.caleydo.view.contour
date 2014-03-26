@@ -173,7 +173,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			compoundCollection.setHighlightItems(compoundIDs);
 
 			filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
-					.getBroadcastingIDsFromElementIDs(compoundIDs), this));
+					.getBroadcastingIDsFromElementIDs(compoundIDs), this, filteredMapping
+					.getMultiItemSelectionSetOperation()));
 		}
 
 		@Override
@@ -303,7 +304,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		groupCollection.setHighlightItems(groups);
 
 		filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection
-				.getBroadcastingIDsFromElementIDs(groups), this));
+				.getBroadcastingIDsFromElementIDs(groups), this, filteredMapping.getMultiItemSelectionSetOperation()));
 	}
 
 	private void updateGroups() {

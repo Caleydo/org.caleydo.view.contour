@@ -37,7 +37,7 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 		representation.getCollection().setSelectedItems(selectedElementIDs);
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
-				representation));
+				representation, relationshipExplorer.getMultiItemSelectionSetOperation()));
 		return null;
 	}
 

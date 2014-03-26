@@ -22,8 +22,9 @@ public class MappingSelectionUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingSelectionUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep) {
-		super(srcBroadcastIDs, srcRep, ESetOperation.INTERSECTION);
+	public MappingSelectionUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep,
+			ESetOperation multiItemSelectionSetOperation) {
+		super(srcBroadcastIDs, srcRep, ESetOperation.INTERSECTION, multiItemSelectionSetOperation);
 	}
 
 	@Override

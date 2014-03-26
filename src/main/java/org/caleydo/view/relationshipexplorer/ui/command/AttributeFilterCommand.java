@@ -47,7 +47,7 @@ public class AttributeFilterCommand implements IFilterCommand {
 		// column.updateSorting();
 		column.getRelationshipExplorer().applyIDMappingUpdate(
 				new MappingFilterUpdateOperation(collection.getBroadcastingIDsFromElementIDs(filteredElementIDs),
-						column, setOperation));
+						column, setOperation, ESetOperation.UNION));
 
 		column.getRelationshipExplorer().getFilterPipeline().addFilterCommand(this);
 		return null;

@@ -138,7 +138,8 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 		collection.setHighlightItems(highlightElementIDs);
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection
-				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this));
+				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this, relationshipExplorer
+				.getMultiItemSelectionSetOperation()));
 	}
 
 	@Override

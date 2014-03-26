@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
@@ -30,8 +29,6 @@ import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
-import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
-import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
 import org.caleydo.core.view.opengl.layout2.dnd.EDnDType;
 import org.caleydo.core.view.opengl.layout2.dnd.IDnDItem;
 import org.caleydo.core.view.opengl.layout2.dnd.IDragInfo;
@@ -327,7 +324,43 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	}
 
 	public RelationshipExplorerElement() {
-		super(new GLSizeRestrictiveFlowLayout(false, 5, GLPadding.ZERO));
+		super(new GLSizeRestrictiveFlowLayout(true, 5, GLPadding.ZERO));
+
+		AnimatedGLElementContainer supportViewContainer = new AnimatedGLElementContainer(
+				(new GLSizeRestrictiveFlowLayout2(false, 2, new GLPadding(2, 2, 0, 2))));
+		supportViewContainer.setSize(100, Float.NaN);
+
+
+		history = new History(this);
+		// ScrollingDecorator scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(
+		// false), 8, EDimension.RECORD);
+		// scrollingDecorator.setMinSizeProvider(history);
+		// scrollingDecorator.setSize(80, Float.NaN);
+		history.setLayoutData(0.4f);
+		supportViewContainer.add(history);
+
+		supportViewContainer.add(createVSeparator());
+
+		Snapshots snapshots = new Snapshots(this);
+		// scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
+		// new ScrollBar(false), 8, EDimension.RECORD);
+		// filterPipeline.setMinSizeProvider(filterPipeline);
+		// scrollingDecorator.setSize(80, Float.NaN);
+		snapshots.setLayoutData(0.2f);
+		supportViewContainer.add(snapshots);
+
+		supportViewContainer.add(createVSeparator());
+
+		filterPipeline = new FilterPipeline(this);
+		// scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
+		// new ScrollBar(false), 8, EDimension.RECORD);
+		// filterPipeline.setMinSizeProvider(filterPipeline);
+		// scrollingDecorator.setSize(80, Float.NaN);
+		filterPipeline.setLayoutData(0.4f);
+		supportViewContainer.add(filterPipeline);
+
+
+
 		AnimatedGLElementContainer container = new AnimatedGLElementContainer((new GLSizeRestrictiveFlowLayout2(false,
 				2, GLPadding.ZERO)));
 
@@ -348,24 +381,19 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		// add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
 		// add(columnContainer);
-		history = new History(this);
+
 
 		columnContainer.add(new ColumnSeparator(), 0);
 		columnContainer.add(new ColumnSeparator(), 0);
 
-		filterPipeline = new FilterPipeline(this);
-		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
-				new ScrollBar(false), 8, EDimension.RECORD);
-		scrollingDecorator.setMinSizeProvider(filterPipeline);
-		scrollingDecorator.setSize(Float.NaN, MIN_FILTER_PIPELINE_HEIGHT);
-		add(scrollingDecorator);
+		add(supportViewContainer);
 
-		scrollingDecorator = new ScrollingDecorator(history, new ScrollBar(true), new ScrollBar(false), 8,
-				EDimension.RECORD);
-		scrollingDecorator.setMinSizeProvider(history);
-		scrollingDecorator.setSize(Float.NaN, MIN_HISTORY_HEIGHT);
-		add(scrollingDecorator);
+	}
 
+	protected GLElement createVSeparator() {
+		GLElement separator = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
+		separator.setSize(Float.NaN, 2);
+		return separator;
 	}
 
 	protected GLButton createMoveUpButton() {
@@ -708,10 +736,10 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			detailContainer.setSize(Float.NaN, Float.NaN);
 			switch (split) {
 			case BOTTOM:
-				detailContainer.setLayoutData(0.725f);
-				columnContainerRow.setLayoutData(0.275f);
-				// detailContainer.setLayoutData(0.6f);
-				// columnContainerRow.setLayoutData(0.4f);
+				// detailContainer.setLayoutData(0.725f);
+				// columnContainerRow.setLayoutData(0.275f);
+				detailContainer.setLayoutData(0.6f);
+				columnContainerRow.setLayoutData(0.4f);
 				moveDownButton.setVisibility(EVisibility.PICKABLE);
 				moveUpButton.setVisibility(EVisibility.PICKABLE);
 				break;

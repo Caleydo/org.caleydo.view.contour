@@ -14,15 +14,23 @@ import java.util.Map;
 
 import javax.media.opengl.GL2;
 
+import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
+import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
+import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 
 /**
  * TODO: Possible performance improvements: Take snapshots of the whole setup every now and then. The reset command
@@ -35,6 +43,7 @@ public class History extends AnimatedGLElementContainer {
 
 	protected RelationshipExplorerElement relationshipExplorer;
 	protected List<IHistoryCommand> commands = new ArrayList<>();
+	protected GLElementContainer historyElementsContainer;
 	protected int currentPosition = -1;
 
 	protected AMappingUpdateOperation lastMappingUpdateOperation;
@@ -69,7 +78,7 @@ public class History extends AnimatedGLElementContainer {
 
 		@Override
 		public String getDescription() {
-			return "Initial State";
+			return "Reset";
 		}
 
 	}
@@ -82,19 +91,28 @@ public class History extends AnimatedGLElementContainer {
 		public HistoryCommandElement(IHistoryCommand command) {
 			this.command = command;
 			color = command instanceof ResetCommand ? Color.GRAY : Color.LIGHT_GRAY;
+			// if (command instanceof ResetCommand)
+			// setRenderer(GLRenderers.drawText("Reset", VAlign.CENTER));
 			setTooltip(command.getDescription());
-			setSize(command instanceof ResetCommand ? 60 : 16, Float.NaN);
+			setSize(Float.NaN, 16);
+			// setSize(command instanceof ResetCommand ? 60 : 16, Float.NaN);
 		}
 
 		@Override
 		protected void renderImpl(GLGraphics g, float w, float h) {
-			float index = indexOf(this);
+			float index = historyElementsContainer.indexOf(this);
+			String label = command.getDescription();
+			int newlineIndex = command.getDescription().indexOf("\n");
+			if (newlineIndex != -1) {
+				label = label.substring(0, newlineIndex);
+			}
 			if (hovered || index == currentPosition) {
 				renderFilled(g, w, h, 1);
 				renderOutline(g, w, h);
-				if (command instanceof ResetCommand) {
-					g.drawText("Reset", 0, 0, w, h - 4);
-				}
+				g.drawText(label, 0, 0, w, h - 2, VAlign.CENTER);
+				// if (command instanceof ResetCommand) {
+				// g.drawText("Reset", 0, 0, w, h - 2, VAlign.CENTER);
+				// }
 				return;
 			}
 
@@ -104,10 +122,14 @@ public class History extends AnimatedGLElementContainer {
 			} else {
 				renderFilled(g, w, h, 0.3f);
 			}
+			g.incZ();
+			super.renderImpl(g, w, h);
+			g.decZ();
 
-			if (command instanceof ResetCommand) {
-				g.drawText("Reset", 0, 0, w, h - 4);
-			}
+			g.drawText(label, 0, 0, w, h - 2, VAlign.CENTER);
+			// if (command instanceof ResetCommand) {
+			// g.drawText("Reset", 0, 0, w, h - 2, VAlign.CENTER);
+			// }
 		}
 
 		private void renderOutline(GLGraphics g, float w, float h) {
@@ -128,7 +150,7 @@ public class History extends AnimatedGLElementContainer {
 
 		@Override
 		protected void onClicked(Pick pick) {
-			applyHistoryState(indexOf(this));
+			applyHistoryState(historyElementsContainer.indexOf(this));
 		}
 
 		@Override
@@ -151,8 +173,31 @@ public class History extends AnimatedGLElementContainer {
 
 	public History(RelationshipExplorerElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
-		setLayout(new GLSizeRestrictiveFlowLayout(true, 2, new GLPadding(2, 2, 2, 2)));
+		setLayout(new GLSizeRestrictiveFlowLayout(false, 4, GLPadding.ZERO));
+		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this, 4, GLPadding.ZERO));
+
+		historyElementsContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4, new GLPadding(2, 2,
+				2, 2)));
+		historyElementsContainer.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(
+				historyElementsContainer, 4, new GLPadding(2, 2, 2, 2)));
+		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(historyElementsContainer, new ScrollBar(true),
+				new ScrollBar(false), 8, EDimension.RECORD);
+		scrollingDecorator.setMinSizeProvider(historyElementsContainer);
+
+		GLElement caption = new GLElement(GLRenderers.drawText("History", VAlign.CENTER));
+		caption.setSize(Float.NaN, 16);
+		add(caption);
+		add(scrollingDecorator);
 		addHistoryCommand(new ResetCommand());
+	}
+
+	public IHistoryCommand createSnapshotCommand(String label) {
+		CompositeHistoryCommand c = new CompositeHistoryCommand();
+		c.setDescription(label);
+		for (int i = 0; i <= currentPosition; i++) {
+			c.add(commands.get(i));
+		}
+		return c;
 	}
 
 	// public void addColumnOperation(IEntityCollection collection, IColumnOperation columnOperation) {
@@ -175,13 +220,13 @@ public class History extends AnimatedGLElementContainer {
 		if (currentPosition < commands.size() - 1) {
 			int numElementsToRemove = (commands.size() - 1) - currentPosition;
 			for (int i = 0; i < numElementsToRemove; i++) {
-				remove(size() - 1);
+				historyElementsContainer.remove(size() - 1);
 			}
 			commands = commands.subList(0, currentPosition + 1);
 		}
 		commands.add(command);
 		HistoryCommandElement element = new HistoryCommandElement(command);
-		add(element);
+		historyElementsContainer.add(element);
 		currentPosition++;
 		relayoutParent();
 
@@ -209,23 +254,23 @@ public class History extends AnimatedGLElementContainer {
 		repaintAll();
 	}
 
-	@Override
-	public Vec2f getMinSize() {
-		float maxHeight = Float.MIN_VALUE;
-		float sumWidth = 0;
-		int numItems = 0;
-		for (GLElement child : this) {
-			if (child.getVisibility() != EVisibility.NONE) {
-				Vec2f minSize = child.getMinSize();
-				sumWidth += minSize.x();
-				if (maxHeight < minSize.y())
-					maxHeight = minSize.y();
-
-				numItems++;
-			}
-		}
-		return new Vec2f(4 + sumWidth + (numItems - 1) * 2, 4 + maxHeight);
-	}
+	// @Override
+	// public Vec2f getMinSize() {
+	// float maxHeight = Float.MIN_VALUE;
+	// float sumWidth = 0;
+	// int numItems = 0;
+	// for (GLElement child : this) {
+	// if (child.getVisibility() != EVisibility.NONE) {
+	// Vec2f minSize = child.getMinSize();
+	// sumWidth += minSize.x();
+	// if (maxHeight < minSize.y())
+	// maxHeight = minSize.y();
+	//
+	// numItems++;
+	// }
+	// }
+	// return new Vec2f(4 + sumWidth + (numItems - 1) * 2, 4 + maxHeight);
+	// }
 
 	public int registerHistoryObject(Object o) {
 		lastHistoryObjectID++;

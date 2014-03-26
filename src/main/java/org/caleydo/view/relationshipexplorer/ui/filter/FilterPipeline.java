@@ -9,18 +9,21 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.caleydo.core.data.collection.EDimension;
 import org.caleydo.core.util.base.ILabeled;
-import org.caleydo.core.view.opengl.layout2.GLContextLocal;
+import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
-import org.caleydo.core.view.opengl.layout2.IGLElementParent;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
+import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
+import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
@@ -49,6 +52,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 	protected final RelationshipExplorerElement relationshipExplorer;
 
 	protected List<IFilterCommand> filterCommands = new ArrayList<>();
+	protected GLElementContainer filterContainer;
 
 	protected class ReapplyFiltersCommand implements IHistoryCommand {
 
@@ -93,7 +97,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 
 		public FilterRepresentation(IFilterCommand filterCommand) {
 			this.filterCommand = filterCommand;
-			// setSize(150, 16);
+			setSize(Float.NaN, 16);
 			setLayout(GLLayouts.LAYERS);
 			setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(this));
 			setVisibility(EVisibility.PICKABLE);
@@ -116,17 +120,18 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			contentBar.add(icon);
 
 			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getCollection().getLabel()));
-			// icon.setSize(16, 16);
-			IGLElementParent parent = getParent();
-			while (parent.getParent() != null) {
-				parent = parent.getParent();
-			}
-			GLContextLocal local = parent.getLayoutDataAs(GLContextLocal.class, null);
-			float textWidth = local.getText().getTextWidth(filterCommand.getCollection().getLabel(), 16) + 5;
-			text.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(textWidth, 16));
+			text.setSize(Float.NaN, 14);
+			// IGLElementParent parent = getParent();
+			// while (parent.getParent() != null) {
+			// parent = parent.getParent();
+			// }
+			// GLContextLocal local = parent.getLayoutDataAs(GLContextLocal.class, null);
+			// float textWidth = local.getText().getTextWidth(filterCommand.getCollection().getLabel(), 16) + 5;
+			// text.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(textWidth, 16));
 			contentBar.add(text);
 
-			setSize(textWidth + 17, 16);
+			// setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(textWidth + 17, 16));
+			setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(Float.NaN, 16));
 
 			final GLElementContainer buttonBar = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1,
 					GLPadding.ZERO));
@@ -175,7 +180,21 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 	}
 
 	public FilterPipeline(RelationshipExplorerElement relationshipExplorer) {
-		setLayout(new GLSizeRestrictiveFlowLayout2(true, 2, GLPadding.ZERO));
+		setLayout(new GLSizeRestrictiveFlowLayout2(false, 4, GLPadding.ZERO));
+
+		filterContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4, new GLPadding(2, 2, 2, 2)));
+		filterContainer.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(filterContainer, 4,
+				new GLPadding(2, 2, 2, 2)));
+
+		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(filterContainer, new ScrollBar(true),
+				new ScrollBar(false), 8, EDimension.RECORD);
+		scrollingDecorator.setMinSizeProvider(filterContainer);
+
+		GLElement caption = new GLElement(GLRenderers.drawText("Filters", VAlign.CENTER));
+		caption.setSize(Float.NaN, 16);
+		add(caption);
+		add(scrollingDecorator);
+
 		this.relationshipExplorer = relationshipExplorer;
 	}
 
@@ -183,12 +202,12 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 		if (filterCommand.getSetOperation() == ESetOperation.REPLACE)
 			clearFilterCommands();
 		filterCommands.add(filterCommand);
-		add(new FilterRepresentation(filterCommand));
+		filterContainer.add(new FilterRepresentation(filterCommand));
 	}
 
 	public void clearFilterCommands() {
 		filterCommands.clear();
-		clear();
+		filterContainer.clear();
 	}
 
 	protected void removeFilter(IFilterCommand filterCommand) {

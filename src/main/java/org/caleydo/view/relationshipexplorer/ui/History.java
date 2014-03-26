@@ -220,7 +220,7 @@ public class History extends AnimatedGLElementContainer {
 		if (currentPosition < commands.size() - 1) {
 			int numElementsToRemove = (commands.size() - 1) - currentPosition;
 			for (int i = 0; i < numElementsToRemove; i++) {
-				historyElementsContainer.remove(size() - 1);
+				historyElementsContainer.remove(historyElementsContainer.size() - 1);
 			}
 			commands = commands.subList(0, currentPosition + 1);
 		}

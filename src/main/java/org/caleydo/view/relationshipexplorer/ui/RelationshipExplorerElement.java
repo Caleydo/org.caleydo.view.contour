@@ -44,6 +44,7 @@ import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow.ICloseWindowListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.internal.Activator;
+import org.caleydo.view.relationshipexplorer.internal.toolbar.AddColumnsEvent;
 import org.caleydo.view.relationshipexplorer.internal.toolbar.SelectionOperationEvent;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
@@ -137,6 +138,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	protected AnimatedGLElementContainer columnContainerRow;
 	protected AnimatedGLElementContainer detailContainer;
 	protected History history;
+	protected Snapshots snapshots;
 	protected FilterPipeline filterPipeline;
 	protected BiMap<IEntityCollection, DetailViewWindow> detailMap = HashBiMap.create(2);
 	protected Queue<GLElementWindow> detailWindowQueue = new LinkedList<>();
@@ -331,7 +333,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		super(new GLSizeRestrictiveFlowLayout(true, 5, GLPadding.ZERO));
 
 		AnimatedGLElementContainer supportViewContainer = new AnimatedGLElementContainer(
-				(new GLSizeRestrictiveFlowLayout2(false, 2, new GLPadding(2, 2, 0, 2))));
+				(new GLSizeRestrictiveFlowLayout2(false, 2, new GLPadding(0, 2, 2, 2))));
 		supportViewContainer.setSize(100, Float.NaN);
 
 		history = new History(this);
@@ -344,7 +346,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 		supportViewContainer.add(createVSeparator());
 
-		Snapshots snapshots = new Snapshots(this);
+		snapshots = new Snapshots(this);
 		// scrollingDecorator = new ScrollingDecorator(filterPipeline, new ScrollBar(true),
 		// new ScrollBar(false), 8, EDimension.RECORD);
 		// filterPipeline.setMinSizeProvider(filterPipeline);
@@ -362,7 +364,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		filterPipeline.setLayoutData(0.4f);
 		supportViewContainer.add(filterPipeline);
 
-		add(supportViewContainer);
+
 
 		AnimatedGLElementContainer container = new AnimatedGLElementContainer((new GLSizeRestrictiveFlowLayout2(false,
 				2, GLPadding.ZERO)));
@@ -380,7 +382,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		container.add(columnContainerRow);
 
 		columnContainerRow.add(columnContainer);
-		columnContainerRow.add(createAddColumnButton());
+		// columnContainerRow.add(createAddColumnButton());
 		// add(detailContainer);
 		// columnContainer.setLayoutData(0.9f);
 		// add(columnContainer);
@@ -388,7 +390,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		columnContainer.add(new ColumnSeparator(), 0);
 		columnContainer.add(new ColumnSeparator(), 0);
 
-
+		add(supportViewContainer);
 	}
 
 	protected GLElement createVSeparator() {
@@ -799,6 +801,16 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		return multiItemSelectionSetOperation;
 	}
 
+	@ListenTo(sendToMe = true)
+	public void onAddColumns(AddColumnsEvent event) {
+		Set<IEntityCollection> collections = event.getCollections();
+		for (IEntityCollection collection : collections) {
+			AddColumnTreeCommand c = new AddColumnTreeCommand(collection, RelationshipExplorerElement.this);
+			c.execute();
+			history.addHistoryCommand(c);
+		}
+	}
+
 	@ListenTo
 	public void onSelectionOperationChanged(final SelectionOperationEvent event) {
 
@@ -823,5 +835,12 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		c.execute();
 		history.addHistoryCommand(c);
 
+	}
+
+	/**
+	 * @return the snapshots, see {@link #snapshots}
+	 */
+	public Snapshots getSnapshots() {
+		return snapshots;
 	}
 }

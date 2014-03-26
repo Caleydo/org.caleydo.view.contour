@@ -30,6 +30,7 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	public static final String VIEW_NAME = "RelationshipExplorer";
 
 	private static final Logger log = Logger.create(GLRelationshipExplorerView.class);
+	private RelationshipExplorerElement relationshipExplorer;
 
 	public GLRelationshipExplorerView(IGLCanvas glCanvas) {
 		super(glCanvas, VIEW_TYPE, VIEW_NAME);
@@ -39,7 +40,8 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
 		HTSRelationshipExplorerElementFactory factory = new HTSRelationshipExplorerElementFactory();
-		getRootDecorator().setContent(factory.create(null));
+		relationshipExplorer = (RelationshipExplorerElement) factory.create(null);
+		getRootDecorator().setContent(relationshipExplorer);
 		// AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,
 		// GLPadding.ZERO));
 		// ColumnTree columnTree = new ColumnTree(new IDColumn(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()),
@@ -68,6 +70,13 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 		// row.add(columnTree);
 		// // row.add(new ColumnTree());
 		// getRootDecorator().setContent(row);
+	}
+
+	/**
+	 * @return the relationshipExplorer, see {@link #relationshipExplorer}
+	 */
+	public RelationshipExplorerElement getRelationshipExplorer() {
+		return relationshipExplorer;
 	}
 
 	@Override

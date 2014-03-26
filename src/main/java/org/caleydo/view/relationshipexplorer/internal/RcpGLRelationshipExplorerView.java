@@ -9,6 +9,7 @@ import org.caleydo.core.view.ARcpGLElementViewPart;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
+import org.caleydo.view.relationshipexplorer.internal.toolbar.AddColumnsAction;
 import org.caleydo.view.relationshipexplorer.internal.toolbar.SelectionOperationAction;
 import org.caleydo.view.relationshipexplorer.internal.toolbar.SnapshotAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -33,5 +34,6 @@ public class RcpGLRelationshipExplorerView extends ARcpGLElementViewPart {
 	protected void addToolBarContent(IToolBarManager toolBarManager) {
 		toolBarManager.add(new SnapshotAction());
 		toolBarManager.add(new SelectionOperationAction());
+		toolBarManager.add(new AddColumnsAction((GLRelationshipExplorerView) view));
 	}
 }

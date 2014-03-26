@@ -44,6 +44,7 @@ public class History extends AnimatedGLElementContainer {
 	protected RelationshipExplorerElement relationshipExplorer;
 	protected List<IHistoryCommand> commands = new ArrayList<>();
 	protected GLElementContainer historyElementsContainer;
+	protected ScrollingDecorator scrollingDecorator;
 	protected int currentPosition = -1;
 
 	protected AMappingUpdateOperation lastMappingUpdateOperation;
@@ -84,9 +85,12 @@ public class History extends AnimatedGLElementContainer {
 	}
 
 	protected class HistoryCommandElement extends PickableGLElement {
+		protected static final float ELEMENT_HEIGHT = 16;
+
 		protected IHistoryCommand command;
 		protected Color color;
 		protected boolean hovered = false;
+		protected boolean isNewlyAdded = true;
 
 		public HistoryCommandElement(IHistoryCommand command) {
 			this.command = command;
@@ -94,12 +98,16 @@ public class History extends AnimatedGLElementContainer {
 			// if (command instanceof ResetCommand)
 			// setRenderer(GLRenderers.drawText("Reset", VAlign.CENTER));
 			setTooltip(command.getDescription());
-			setSize(Float.NaN, 16);
+			setSize(Float.NaN, ELEMENT_HEIGHT);
 			// setSize(command instanceof ResetCommand ? 60 : 16, Float.NaN);
 		}
 
 		@Override
 		protected void renderImpl(GLGraphics g, float w, float h) {
+			if (isNewlyAdded) {
+				isNewlyAdded = false;
+				scrollingDecorator.moveContentTo(new Vec2f(0, Float.MAX_VALUE));
+			}
 			float index = historyElementsContainer.indexOf(this);
 			String label = command.getDescription();
 			int newlineIndex = command.getDescription().indexOf("\n");
@@ -180,7 +188,7 @@ public class History extends AnimatedGLElementContainer {
 				2, 2)));
 		historyElementsContainer.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(
 				historyElementsContainer, 4, new GLPadding(2, 2, 2, 2)));
-		ScrollingDecorator scrollingDecorator = new ScrollingDecorator(historyElementsContainer, new ScrollBar(true),
+		scrollingDecorator = new ScrollingDecorator(historyElementsContainer, new ScrollBar(true),
 				new ScrollBar(false), 8, EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(historyElementsContainer);
 
@@ -227,6 +235,7 @@ public class History extends AnimatedGLElementContainer {
 		commands.add(command);
 		HistoryCommandElement element = new HistoryCommandElement(command);
 		historyElementsContainer.add(element);
+
 		currentPosition++;
 		historyElementsContainer.getParent().relayout();
 
@@ -293,5 +302,6 @@ public class History extends AnimatedGLElementContainer {
 	 */
 	public void setInitCommand(IHistoryCommand initCommand) {
 		this.initCommand = initCommand;
+		// relationshipExplorer.getSnapshots().addSnapshot(commands.get(0));
 	}
 }

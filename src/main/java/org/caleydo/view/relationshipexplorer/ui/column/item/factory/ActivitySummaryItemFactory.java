@@ -266,8 +266,8 @@ public class ActivitySummaryItemFactory implements ISummaryItemFactory {
 				g.color(Color.BLACK).drawRect(firstQuantrileBoundary, y,
 						thirdQuantrileBoundary - firstQuantrileBoundary, hi);
 
-				final float iqrMin = (float) normalize.apply(nearestIQRMin) * w;
-				final float iqrMax = (float) normalize.apply(nearestIQRMax) * w;
+				final float iqrMin = (float) Math.min(normalize.apply(nearestIQRMin) * w, firstQuantrileBoundary);
+				final float iqrMax = (float) Math.max(normalize.apply(nearestIQRMax) * w, thirdQuantrileBoundary);
 
 				// Median
 				float median = (float) normalize.apply(stats.getMedian()) * w;

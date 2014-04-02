@@ -27,7 +27,7 @@ import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
  */
 public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementView {
 	public static final String VIEW_TYPE = "org.caleydo.view.relationshipexplorer";
-	public static final String VIEW_NAME = "RelationshipExplorer";
+	public static final String VIEW_NAME = "ConTour";
 
 	private static final Logger log = Logger.create(GLRelationshipExplorerView.class);
 	private RelationshipExplorerElement relationshipExplorer;
@@ -39,7 +39,7 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
-		HTSRelationshipExplorerElementFactory factory = new HTSRelationshipExplorerElementFactory();
+		HTSVideoFactory factory = new HTSVideoFactory();
 		relationshipExplorer = (RelationshipExplorerElement) factory.create(null);
 		getRootDecorator().setContent(relationshipExplorer);
 		// AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,

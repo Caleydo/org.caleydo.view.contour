@@ -271,7 +271,8 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 
 		// TODO: implement
 		Button useGlobalFilterButton = new Button(parentComposite, SWT.CHECK);
-		useGlobalFilterButton.setText("Filter column only");
+		useGlobalFilterButton.setSelection(true);
+		useGlobalFilterButton.setText("Update all columns");
 
 		return super.createDialogArea(parent);
 	}

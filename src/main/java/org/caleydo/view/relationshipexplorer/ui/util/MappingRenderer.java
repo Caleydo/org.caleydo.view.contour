@@ -10,6 +10,7 @@ import gleem.linalg.Vec2f;
 import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
@@ -33,6 +34,8 @@ public class MappingRenderer extends KeyBasedGLElementContainer<SimpleBarRendere
 
 		// setRenderer(GLRenderers.drawRect(Color.GREEN));
 		// barLayerRenderer.setSize(80, Float.NaN);
+		// Add empty element to get rid of weird highlight overlapping bug...
+		add(new GLElement());
 		setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(this));
 		setVisibility(EVisibility.PICKABLE);
 		setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.1f));

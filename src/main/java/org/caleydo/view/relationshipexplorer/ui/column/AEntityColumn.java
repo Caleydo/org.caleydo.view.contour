@@ -391,9 +391,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		// event.getFilter());
 
 		AttributeFilterCommand c = new AttributeFilterCommand(this, event.getFilter(), ESetOperation.INTERSECTION,
-				relationshipExplorer.getHistory());
+				event.getFilterElementIDPool(), event.isSave(), relationshipExplorer.getHistory());
 		c.execute();
-		relationshipExplorer.getHistory().addHistoryCommand(c);
+		if (event.isSave())
+			relationshipExplorer.getHistory().addHistoryCommand(c);
 	}
 
 	// @Override
@@ -768,6 +769,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				}
 			}
 		}
+
+		updateSelections(null);
 
 		updateSummaryPlots();
 

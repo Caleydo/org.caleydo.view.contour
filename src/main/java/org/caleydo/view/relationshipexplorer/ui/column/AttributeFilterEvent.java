@@ -5,6 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
+import java.util.Set;
+
 import org.caleydo.core.event.ADirectedEvent;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 
@@ -15,9 +17,13 @@ import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 public class AttributeFilterEvent extends ADirectedEvent {
 
 	protected IEntityFilter filter;
+	protected boolean save;
+	protected Set<Object> filterElementIDPool;
 
-	public AttributeFilterEvent(IEntityFilter filter) {
+	public AttributeFilterEvent(IEntityFilter filter, Set<Object> filterElementIDPool, boolean save) {
 		this.filter = filter;
+		this.save = save;
+		this.filterElementIDPool = filterElementIDPool;
 	}
 
 	/**
@@ -33,6 +39,36 @@ public class AttributeFilterEvent extends ADirectedEvent {
 	 */
 	public IEntityFilter getFilter() {
 		return filter;
+	}
+
+	/**
+	 * @return the save, see {@link #save}
+	 */
+	public boolean isSave() {
+		return save;
+	}
+
+	/**
+	 * @param save
+	 *            setter, see {@link save}
+	 */
+	public void setSave(boolean save) {
+		this.save = save;
+	}
+
+	/**
+	 * @return the filterElementIDPool, see {@link #filterElementIDPool}
+	 */
+	public Set<Object> getFilterElementIDPool() {
+		return filterElementIDPool;
+	}
+
+	/**
+	 * @param filterElementIDPool
+	 *            setter, see {@link filterElementIDPool}
+	 */
+	public void setFilterElementIDPool(Set<Object> filterElementIDPool) {
+		this.filterElementIDPool = filterElementIDPool;
 	}
 
 }

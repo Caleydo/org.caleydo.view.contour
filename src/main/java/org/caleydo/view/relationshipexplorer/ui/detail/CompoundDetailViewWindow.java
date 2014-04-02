@@ -63,7 +63,7 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 
 	@Override
 	public void showSelectedItems(boolean showSelectedItems) {
-		showSelectedItems = showSelectedItems;
+		this.showSelectedItems = showSelectedItems;
 
 	}
 

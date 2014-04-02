@@ -28,28 +28,33 @@ public class AttributeFilterCommand implements IFilterCommand {
 	protected final History history;
 	protected final int columnHistoryID;
 	protected final ESetOperation setOperation;
+	protected final Set<Object> filterElementIDPool;
+	protected final boolean saveFilter;
 
 	public AttributeFilterCommand(AEntityColumn column, IEntityFilter filter, ESetOperation setOperation,
-			History history) {
+			Set<Object> filterElementIDPool, boolean saveFilter, History history) {
 		this.columnHistoryID = column.getHistoryID();
 		this.collection = column.getCollection();
 		this.filter = filter;
 		this.history = history;
 		this.setOperation = setOperation;
+		this.filterElementIDPool = filterElementIDPool;
+		this.saveFilter = saveFilter;
 	}
 
 	@Override
 	public Object execute() {
 		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, columnHistoryID);
 
-		Set<Object> filteredElementIDs = FilterUtil.filter(collection.getFilteredElementIDs(), filter);
+		Set<Object> filteredElementIDs = FilterUtil.filter(filterElementIDPool, filter);
 		collection.setFilteredItems(filteredElementIDs);
 		// column.updateSorting();
 		column.getRelationshipExplorer().applyIDMappingUpdate(
 				new MappingFilterUpdateOperation(collection.getBroadcastingIDsFromElementIDs(filteredElementIDs),
 						column, setOperation, ESetOperation.UNION));
 
-		column.getRelationshipExplorer().getFilterPipeline().addFilterCommand(this);
+		if (saveFilter)
+			column.getRelationshipExplorer().getFilterPipeline().addFilterCommand(this);
 		return null;
 
 	}

@@ -65,6 +65,7 @@ public class ListElement extends GLElementContainer {
 					gl.glVertex2f(0, 0);
 					gl.glEnd();
 				}
+				// g.color(primaryColor);
 
 				g.incZ(0.5f);
 				// g.gl.glPushAttrib(GL2.GL_LINE_BIT);
@@ -105,7 +106,9 @@ public class ListElement extends GLElementContainer {
 		contentContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 0, GLPadding.ZERO));
 		contentContainer.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(contentContainer, 0,
 				GLPadding.ZERO));
+		contentContainer.setzDelta(1f);
 		add(contentContainer);
+
 	}
 
 	/**
@@ -117,6 +120,7 @@ public class ListElement extends GLElementContainer {
 			return;
 		this.highlightColor = highlightColor;
 		repaint();
+		contentContainer.relayout();
 	}
 
 	/**

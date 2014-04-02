@@ -9,7 +9,7 @@
             class="org.caleydo.view.relationshipexplorer.internal.RcpGLRelationshipExplorerView"
             icon="resources/icons/icon.png"
             id="org.caleydo.view.relationshipexplorer"
-            name="RelationshipExplorer">
+            name="ConTour">
       </view>
       <view
             category="org.caleydo.core.views"
@@ -40,7 +40,7 @@
       <command
             defaultHandler="org.caleydo.view.relationshipexplorer.internal.OpenViewHandler"
             id="org.caleydo.view.relationshipexplorer.command.open"
-            name="RelationshipExplorer">
+            name="ConTour">
       </command>
       <command
             defaultHandler="org.caleydo.view.relationshipexplorer.structure.OpenStructureViewHandler"

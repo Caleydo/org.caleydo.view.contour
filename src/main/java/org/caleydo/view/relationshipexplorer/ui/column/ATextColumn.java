@@ -116,7 +116,11 @@ public abstract class ATextColumn extends AEntityColumn {
 
 						if (dialog.open() == Window.OK) {
 							IEntityFilter filter = dialog.getFilter();
-							EventPublisher.trigger(new AttributeFilterEvent(filter).to(ATextColumn.this));
+							EventPublisher.trigger(new AttributeFilterEvent(filter, dialog.getFilterElementIDPool(),
+									true).to(ATextColumn.this));
+						} else {
+							// EventPublisher.trigger(new ResetAttributeFilterEvent(dialog.getOriginalFilteredItemIDs())
+							// .to(ATextColumn.this.relationshipExplorer));
 						}
 					}
 				});

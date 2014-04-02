@@ -16,6 +16,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
 import org.caleydo.view.relationshipexplorer.ui.command.AddChildColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
 
 /**
@@ -95,14 +96,21 @@ public class DragAndDropHeader implements IDragGLSource, IDropGLTarget {
 			c.execute();
 			history.addHistoryCommand(c);
 		} else {
+
+			CompositeHistoryCommand comp = new CompositeHistoryCommand();
+			comp.setDescription("Moved Column " + column.getColumnModel().getLabel());
+
 			AddChildColumnCommand c = new AddChildColumnCommand(info.getModel().getCollection(), column
 					.getColumnModel().getHistoryID(), relationshipExplorer);
-			c.execute();
-			history.addHistoryCommand(c);
+			comp.add(c);
+			// c.execute();
+			// history.addHistoryCommand(c);
 
 			RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), relationshipExplorer);
-			rc.execute();
-			history.addHistoryCommand(rc);
+			comp.add(rc);
+			comp.execute();
+			// rc.execute();
+			history.addHistoryCommand(comp);
 		}
 
 	}

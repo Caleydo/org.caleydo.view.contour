@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 
@@ -50,10 +52,12 @@ import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.ResetAttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivitySummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
@@ -289,15 +293,22 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					c.execute();
 					history.addHistoryCommand(c);
 				} else {
+
+					CompositeHistoryCommand comp = new CompositeHistoryCommand();
+					comp.setDescription("Moved Column " + info.getModel().getLabel());
+
 					AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
 							RelationshipExplorerElement.this);
 					c.setIndex(columnContainer.indexOf(this));
-					c.execute();
-					history.addHistoryCommand(c);
+					comp.add(c);
+					// c.execute();
+					// history.addHistoryCommand(c);
 
 					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), RelationshipExplorerElement.this);
-					rc.execute();
-					history.addHistoryCommand(rc);
+					comp.add(rc);
+					comp.execute();
+					// rc.execute();
+					history.addHistoryCommand(comp);
 				}
 			}
 		}
@@ -835,6 +846,15 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 		c.execute();
 		history.addHistoryCommand(c);
 
+	}
+
+	@ListenTo(sendToMe = true)
+	public void onResetAttributeFilter(ResetAttributeFilterEvent event) {
+		Map<IEntityCollection, Set<Object>> originalFilteredItemIDs = event.getOriginalFilteredItemIDs();
+		for (Entry<IEntityCollection, Set<Object>> entry : originalFilteredItemIDs.entrySet()) {
+			entry.getKey().setFilteredItems(entry.getValue());
+			entry.getKey().notifyFilterUpdate(null);
+		}
 	}
 
 	/**

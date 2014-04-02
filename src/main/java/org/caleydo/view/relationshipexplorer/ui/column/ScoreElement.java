@@ -28,6 +28,8 @@ public class ScoreElement extends GLElementContainer {
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, 1, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(this, 1, GLPadding.ZERO));
 		this.element = element;
+		// Add empty element to get rid of weird highlight overlapping bug...
+		add(new GLElement().setSize(0, 0));
 		add(element);
 	}
 
@@ -49,14 +51,14 @@ public class ScoreElement extends GLElementContainer {
 		if (scoreRenderer == null) {
 			createScoreRenderer(0);
 		}
-		if (size() < 2) {
-			add(0, scoreRenderer);
+		if (size() <= 2) {
+			add(1, scoreRenderer);
 		}
 	}
 
 	public void hideScore() {
-		if (size() > 1) {
-			remove(0);
+		if (size() > 2) {
+			remove(1);
 		}
 	}
 

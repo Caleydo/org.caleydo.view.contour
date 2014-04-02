@@ -5,8 +5,17 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.view.relationshipexplorer.ui.History;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -15,6 +24,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
@@ -31,6 +41,9 @@ public class StringFilterDialog extends Dialog {
 	protected Point loc;
 	// protected Map<Object, GLElement> itemPool;
 	protected final ATextColumn column;
+	// protected Set<Object> filterElementIDPool;
+	protected Map<IEntityCollection, Set<Object>> originalFilteredItemIDs;
+
 	protected Text queryText;
 	protected String query = "";
 
@@ -66,6 +79,12 @@ public class StringFilterDialog extends Dialog {
 		super(parentShell);
 		this.title = title;
 		this.column = column;
+
+		originalFilteredItemIDs = new HashMap<>();
+		for (IEntityCollection collection : column.getRelationshipExplorer().getEntityCollections()) {
+			originalFilteredItemIDs.put(collection, new HashSet<>(collection.getFilteredElementIDs()));
+		}
+
 		// this.receiver = receiver;
 		this.loc = loc;
 		// this.itemPool = itemPool;
@@ -96,6 +115,10 @@ public class StringFilterDialog extends Dialog {
 		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		addQueryText(composite);
+		// TODO: implement
+		Button useGlobalFilterButton = new Button(composite, SWT.CHECK);
+		useGlobalFilterButton.setSelection(true);
+		useGlobalFilterButton.setText("Update all columns");
 		// addOKButton(composite);
 
 		composite.pack();
@@ -130,6 +153,9 @@ public class StringFilterDialog extends Dialog {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				query = queryText.getText();
+
+				IEntityFilter filter = getFilter();
+				EventPublisher.trigger(new AttributeFilterEvent(filter, getFilterElementIDPool(), false).to(column));
 				// triggerEvent(false);
 			}
 		});
@@ -180,6 +206,27 @@ public class StringFilterDialog extends Dialog {
 
 	public IEntityFilter getFilter() {
 		return new TextFilter(column.getHistoryID(), query, column.getRelationshipExplorer().getHistory());
+	}
+
+	/**
+	 * @return the filterElementIDPool, see {@link #filterElementIDPool}
+	 */
+	public Set<Object> getFilterElementIDPool() {
+		return originalFilteredItemIDs.get(column.getCollection());
+	}
+
+	/**
+	 * @return the originalFilteredItemIDs, see {@link #originalFilteredItemIDs}
+	 */
+	public Map<IEntityCollection, Set<Object>> getOriginalFilteredItemIDs() {
+		return originalFilteredItemIDs;
+	}
+
+	public void restoreOriginalState() {
+		for (Entry<IEntityCollection, Set<Object>> entry : originalFilteredItemIDs.entrySet()) {
+			entry.getKey().setFilteredItems(entry.getValue());
+			entry.getKey().notifyFilterUpdate(null);
+		}
 	}
 
 }

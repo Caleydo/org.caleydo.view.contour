@@ -106,7 +106,8 @@ public class TabularDataColumn extends AEntityColumn {
 								TabularDataColumn.this);
 						if (dialog.open() == Window.OK) {
 							IEntityFilter filter = dialog.getFilter();
-							EventPublisher.trigger(new AttributeFilterEvent(filter).to(TabularDataColumn.this));
+							EventPublisher.trigger(new AttributeFilterEvent(filter, entityCollection
+									.getFilteredElementIDs(), true).to(TabularDataColumn.this));
 						}
 					}
 				});

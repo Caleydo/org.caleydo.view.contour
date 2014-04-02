@@ -16,6 +16,20 @@ import com.google.common.base.Predicate;
  *
  */
 public final class FilterUtil {
+
+	public static final IEntityFilter ALL_PASS_FILTER = new IEntityFilter() {
+
+		@Override
+		public boolean apply(Object input) {
+			return true;
+		}
+
+		@Override
+		public String getDescription() {
+			return "All pass";
+		}
+	};
+
 	public static <T> Set<T> filter(Collection<T> itemsToFilter, Predicate<T> filter) {
 		Set<T> resultSet = new HashSet<>();
 		for (T item : itemsToFilter) {
@@ -25,4 +39,5 @@ public final class FilterUtil {
 		}
 		return resultSet;
 	}
+
 }

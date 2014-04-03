@@ -6,7 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.command;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
@@ -16,9 +16,9 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 public class HideDetailCommand implements IHistoryCommand {
 
 	protected IEntityCollection collection;
-	protected RelationshipExplorerElement relationshipExplorer;
+	protected ConTourElement relationshipExplorer;
 
-	public HideDetailCommand(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
+	public HideDetailCommand(IEntityCollection collection, ConTourElement relationshipExplorer) {
 		this.collection = collection;
 		this.relationshipExplorer = relationshipExplorer;
 	}

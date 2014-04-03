@@ -29,7 +29,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
@@ -49,7 +49,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 	protected static final URL ADD_FILTER_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/add.png");
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
 	protected List<IFilterCommand> filterCommands = new ArrayList<>();
 	protected GLElementContainer filterContainer;
@@ -179,7 +179,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 		}
 	}
 
-	public FilterPipeline(RelationshipExplorerElement relationshipExplorer) {
+	public FilterPipeline(ConTourElement relationshipExplorer) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(false, 4, GLPadding.ZERO));
 
 		filterContainer = new GLElementContainer(new GLSizeRestrictiveFlowLayout(false, 4, new GLPadding(2, 2, 2, 2)));

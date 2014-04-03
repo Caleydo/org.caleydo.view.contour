@@ -21,7 +21,7 @@ import org.caleydo.core.view.opengl.canvas.EDetailLevel;
 import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.parcoords.v2.ParallelCoordinateElement;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
@@ -39,7 +39,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 		IShowFilteredItemsListener {
 
 	protected final TabularDataCollection collection;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected final int historyID;
 	protected boolean showFilteredItemsOnly = false;
 
@@ -48,7 +48,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 	 * @param detailLevel
 	 */
 	public ParCoordsElement(TablePerspective tablePerspective, TabularDataCollection collection,
-			RelationshipExplorerElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		super(tablePerspective, EDetailLevel.HIGH);
 		this.collection = collection;
 		collection.addEntityRepresentation(this);

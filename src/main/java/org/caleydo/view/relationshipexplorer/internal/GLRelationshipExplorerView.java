@@ -18,7 +18,7 @@ import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.GLElementDecorator;
 import org.caleydo.core.view.opengl.layout2.view.AMultiTablePerspectiveElementView;
 import org.caleydo.view.relationshipexplorer.internal.serial.SerializedRelationshipExplorerView;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 
 /**
  *
@@ -30,7 +30,7 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	public static final String VIEW_NAME = "ConTour";
 
 	private static final Logger log = Logger.create(GLRelationshipExplorerView.class);
-	private RelationshipExplorerElement relationshipExplorer;
+	private ConTourElement relationshipExplorer;
 
 	public GLRelationshipExplorerView(IGLCanvas glCanvas) {
 		super(glCanvas, VIEW_TYPE, VIEW_NAME);
@@ -39,8 +39,9 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
-		HTSVideoFactory factory = new HTSVideoFactory();
-		relationshipExplorer = (RelationshipExplorerElement) factory.create(null);
+		// HTSVideoFactory factory = new HTSVideoFactory();
+		HTIFactory factory = new HTIFactory();
+		relationshipExplorer = (ConTourElement) factory.create(null);
 		getRootDecorator().setContent(relationshipExplorer);
 		// AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,
 		// GLPadding.ZERO));
@@ -75,7 +76,7 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	/**
 	 * @return the relationshipExplorer, see {@link #relationshipExplorer}
 	 */
-	public RelationshipExplorerElement getRelationshipExplorer() {
+	public ConTourElement getRelationshipExplorer() {
 		return relationshipExplorer;
 	}
 
@@ -90,8 +91,8 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	}
 
 	@Override
-	protected RelationshipExplorerElement getContent() {
-		return (RelationshipExplorerElement) super.getContent();
+	protected ConTourElement getContent() {
+		return (ConTourElement) super.getContent();
 	}
 
 	@Override

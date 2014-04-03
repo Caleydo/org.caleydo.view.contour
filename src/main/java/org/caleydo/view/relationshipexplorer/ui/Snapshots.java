@@ -33,7 +33,7 @@ import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
  */
 public class Snapshots extends GLElementContainer {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected GLElementContainer snapshotContainer;
 
 	protected class SnapshotElement extends PickableGLElement {
@@ -109,7 +109,7 @@ public class Snapshots extends GLElementContainer {
 		}
 	}
 
-	public Snapshots(RelationshipExplorerElement relationshipExplorer) {
+	public Snapshots(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		setLayout(new GLSizeRestrictiveFlowLayout(false, 4, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this, 4, GLPadding.ZERO));

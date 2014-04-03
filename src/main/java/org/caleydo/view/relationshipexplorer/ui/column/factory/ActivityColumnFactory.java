@@ -5,10 +5,11 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.factory;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivitySummaryItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTSActivityItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
@@ -18,9 +19,9 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 public class ActivityColumnFactory implements IColumnFactory {
 
 	protected final TabularDataCollection collection;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
-	public ActivityColumnFactory(TabularDataCollection collection, RelationshipExplorerElement relationshipExplorer) {
+	public ActivityColumnFactory(TabularDataCollection collection, ConTourElement relationshipExplorer) {
 		this.collection = collection;
 		this.relationshipExplorer = relationshipExplorer;
 	}
@@ -31,6 +32,7 @@ public class ActivityColumnFactory implements IColumnFactory {
 		ActivitySummaryItemFactory f = new ActivitySummaryItemFactory(column);
 		column.addSummaryItemFactory(f);
 		column.setSummaryItemFactory(f);
+		column.setItemFactory(new HTSActivityItemFactory(column));
 		column.init();
 		return column;
 	}

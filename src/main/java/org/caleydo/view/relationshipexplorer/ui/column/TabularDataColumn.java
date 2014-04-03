@@ -14,17 +14,15 @@ import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTSActivityItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.SimpleTabularDataItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
-import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -42,21 +40,6 @@ public class TabularDataColumn extends AEntityColumn {
 	protected final VirtualArray va;
 	protected final Perspective perspective;
 	protected final IDType mappingIDType;
-
-	// public static final Comparator<GLElement> ID_COMPARATOR = new Comparator<GLElement>() {
-	//
-	// @Override
-	// public int compare(GLElement arg0, GLElement arg1) {
-	// @SuppressWarnings("unchecked")
-	// SimpleDataRenderer r1 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg0)
-	// .getElement(DATA_KEY);
-	// @SuppressWarnings("unchecked")
-	// SimpleDataRenderer r2 = (SimpleDataRenderer) ((KeyBasedGLElementContainer<GLElement>) arg1)
-	// .getElement(DATA_KEY);
-	//
-	// return r1.getRecordID() - r2.getRecordID();
-	// }
-	// };
 
 	public static final Comparator<NestableItem> ITEM_ID_COMPARATOR = new Comparator<NestableItem>() {
 
@@ -79,8 +62,7 @@ public class TabularDataColumn extends AEntityColumn {
 	};
 
 	public TabularDataColumn(TabularDataCollection tabularDataCollection,
-			RelationshipExplorerElement relationshipExplorer) {
-
+			ConTourElement relationshipExplorer) {
 		super(tabularDataCollection, relationshipExplorer);
 		this.itemIDCategory = tabularDataCollection.getItemIDCategory();
 		this.tablePerspective = tabularDataCollection.getTablePerspective();
@@ -89,6 +71,7 @@ public class TabularDataColumn extends AEntityColumn {
 		this.va = tabularDataCollection.getVa();
 		this.itemIDType = tabularDataCollection.getItemIDType();
 		this.perspective = tabularDataCollection.getDimensionPerspective();
+		setItemFactory(new SimpleTabularDataItemFactory(tabularDataCollection));
 
 		final GLButton filterButton = addHeaderButton(FILTER_ICON);
 
@@ -115,127 +98,18 @@ public class TabularDataColumn extends AEntityColumn {
 		});
 
 		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
-		// this.mappingIDType = dataDomain.getDatasetDescriptionIDType(itemIDCategory);
-		//
-		// if (dataDomain.getDimensionIDCategory() == itemIDCategory) {
-		// va = tablePerspective.getDimensionPerspective().getVirtualArray();
-		// itemIDType = tablePerspective.getDimensionPerspective().getIdType();
-		// perspective = tablePerspective.getRecordPerspective();
-		//
-		// } else {
-		// va = tablePerspective.getRecordPerspective().getVirtualArray();
-		// itemIDType = tablePerspective.getRecordPerspective().getIdType();
-		// perspective = tablePerspective.getDimensionPerspective();
-		// }
-
-		// filteredElementIDs.addAll(va.getIDs());
 	}
 
-	// @ListenTo
 	// @Override
-	// public void onAttributeFilter(AttributeFilterEvent event) {
-	// // if (event.getReceiver() != this)
-	// // return;
-	// Set<Object> newFilteredItems = FilterUtil.filter(entityCollection.getFilteredElementIDs(), event.getFilter());
+	// public GLElement newElement(Object elementID) {
 	//
-	// AttributeFilterCommand c = new AttributeFilterCommand(this, newFilteredItems, relationshipExplorer.getHistory());
-	// c.execute();
-	// relationshipExplorer.getHistory().addHistoryCommand(c, Color.LIGHT_BLUE);
+	// // FIXME: Temporary hack -> use factory to create columns in entitycollection specifying the summary and item
+	// // renderers for a column
+	// if (dataDomain.getLabel().toLowerCase().contains("activity")) {
+	// return new HTSActivityItemFactory(this).createItem(elementID);
 	// }
-
-	// @Override
-	// protected void setContent() {
-	// // for (int id : va) {
-	// // addItem(dataDomain, itemIDType, id, perspective);
-	// // }
+	// return new SimpleDataRenderer(dataDomain, itemIDType, (Integer) elementID, perspective);
 	// }
-
-	// @Override
-	// public IDType getBroadcastingIDType() {
-	// return itemIDType;
-	// }
-	//
-	// @Override
-	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID) {
-	// return Sets.newHashSet(elementID);
-	// }
-	//
-	// @Override
-	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID) {
-	// return Sets.newHashSet((Object) broadcastingID);
-	// }
-
-	// @Override
-	// public Comparator<GLElement> getDefaultElementComparator() {
-	// return ID_COMPARATOR;
-	// }
-
-	// @Override
-	// public void showDetailView() {
-	// GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
-	// List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
-	// new Predicate<String>() {
-	//
-	// @Override
-	// public boolean apply(String input) {
-	// return input.equals("paco");
-	// }
-	// });
-	//
-	// GLElement detailView = null;
-	// if (suppliers.isEmpty()) {
-	// detailView = new GLElement() {
-	// @Override
-	// public Vec2f getMinSize() {
-	// return new Vec2f(300, 300);
-	// }
-	// };
-	// detailView.setRenderer(GLRenderers.fillRect(Color.BLUE));
-	//
-	// } else {
-	// detailView = suppliers.get(0).get();
-	// }
-	//
-	// ParCoordsElement element = new ParCoordsElement(tablePerspective, entityCollection, relationshipExplorer);
-	//
-	// relationshipExplorer.showDetailView(entityCollection, element, this);
-	//
-	// }
-
-	// @Override
-	// public void fill(NestableColumn column, NestableColumn parentColumn) {
-	// this.column = column;
-	// this.parentColumn = parentColumn;
-	//
-	// if (parentColumn == null) {
-	// for (Object id : filteredElementIDs) {
-	// addItem(dataDomain, itemIDType, (Integer) id, perspective, null, column);
-	// }
-	// } else {
-	// for (Object id : filteredElementIDs) {
-	// Set<Object> foreignElementIDs = parentColumn.getColumnModel().getElementIDsFromForeignIDs(
-	// getBroadcastingIDsFromElementID(id), getBroadcastingIDType());
-	// Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
-	//
-	// for (NestableItem parentItem : parentItems) {
-	// addItem(dataDomain, itemIDType, (Integer) id, perspective, parentItem, column);
-	//
-	// }
-	// }
-	// }
-	//
-	// }
-
-	@Override
-	public GLElement newElement(Object elementID) {
-
-		// FIXME: Temporary hack -> use factory to create columns in entitycollection specifying the summary and item
-		// renderers for a column
-		if (dataDomain.getLabel().toLowerCase().contains("activity")) {
-			return new HTSActivityItemFactory(this).createItem(elementID);
-		}
-		return new SimpleDataRenderer(dataDomain, itemIDType, (Integer) elementID, perspective);
-	}
 
 	@Override
 	public Comparator<NestableItem> getDefaultComparator() {

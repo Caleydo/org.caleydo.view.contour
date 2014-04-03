@@ -6,7 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.command;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
@@ -15,10 +15,10 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
  */
 public class RemoveColumnCommand implements IHistoryCommand {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected final int columnHistoryID;
 
-	public RemoveColumnCommand(IColumnModel model, RelationshipExplorerElement relationshipExplorer) {
+	public RemoveColumnCommand(IColumnModel model, ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		this.columnHistoryID = model.getHistoryID();
 	}

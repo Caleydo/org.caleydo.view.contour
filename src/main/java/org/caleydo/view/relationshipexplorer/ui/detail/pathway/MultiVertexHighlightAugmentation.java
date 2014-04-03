@@ -27,7 +27,7 @@ import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
@@ -50,14 +50,14 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	protected Set<PathwayVertexRep> highlightedVertexReps = new HashSet<>();
 	// protected AEntityColumn referenceColumn;
 	protected IEntityCollection geneCollection;
-	protected RelationshipExplorerElement relationshipExplorer;
+	protected ConTourElement relationshipExplorer;
 	protected int historyID;
 
 	/**
 	 * @param pathwayRepresentation
 	 */
 	public MultiVertexHighlightAugmentation(IPathwayRepresentation pathwayRepresentation,
-			IEntityCollection geneCollection, RelationshipExplorerElement relationshipExplorer) {
+			IEntityCollection geneCollection, ConTourElement relationshipExplorer) {
 		super(pathwayRepresentation);
 		this.geneCollection = geneCollection;
 		this.relationshipExplorer = relationshipExplorer;

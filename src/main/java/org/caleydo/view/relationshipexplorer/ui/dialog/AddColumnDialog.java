@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.core.gui.util.AHelpButtonDialog;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -26,14 +26,14 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public class AddColumnDialog extends AHelpButtonDialog {
 
-	protected final RelationshipExplorerElement relationshipExplorerElement;
+	protected final ConTourElement relationshipExplorerElement;
 	protected Table collectionList;
 	protected Set<IEntityCollection> collections;
 
 	/**
 	 * @param shell
 	 */
-	public AddColumnDialog(Shell shell, RelationshipExplorerElement relationshipExplorerElement) {
+	public AddColumnDialog(Shell shell, ConTourElement relationshipExplorerElement) {
 		super(shell);
 		this.relationshipExplorerElement = relationshipExplorerElement;
 	}

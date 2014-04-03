@@ -8,7 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 
 /**
  * @author Christian
@@ -18,10 +18,10 @@ public abstract class ASelectionBasedOperation extends ASetBasedColumnOperation 
 
 	protected final Set<Object> selectedElementIDs;
 	protected final Set<Object> selectedBroadcastIDs;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
 	public ASelectionBasedOperation(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs, ESetOperation op,
-			RelationshipExplorerElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		super(op);
 		this.selectedElementIDs = selectedElementIDs;
 		this.selectedBroadcastIDs = selectedBroadcastIDs;

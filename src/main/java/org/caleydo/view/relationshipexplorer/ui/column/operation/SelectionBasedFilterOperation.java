@@ -8,7 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.filter.IFilterCommand;
@@ -27,7 +27,7 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation impl
 	 * @param op
 	 */
 	public SelectionBasedFilterOperation(int representationHistoryID, Set<Object> selectedElementIDs,
-			Set<Object> selectedBroadcastIDs, ESetOperation op, RelationshipExplorerElement relationshipExplorer) {
+			Set<Object> selectedBroadcastIDs, ESetOperation op, ConTourElement relationshipExplorer) {
 		super(selectedElementIDs, selectedBroadcastIDs, op, relationshipExplorer);
 		this.representationHistoryID = representationHistoryID;
 	}

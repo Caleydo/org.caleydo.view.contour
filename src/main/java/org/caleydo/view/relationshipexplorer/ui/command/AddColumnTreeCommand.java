@@ -6,7 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.command;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 
@@ -17,10 +17,10 @@ import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 public class AddColumnTreeCommand implements IHistoryCommand {
 
 	protected final IEntityCollection collection;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected int index = -1;
 
-	public AddColumnTreeCommand(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
+	public AddColumnTreeCommand(IEntityCollection collection, ConTourElement relationshipExplorer) {
 		this.collection = collection;
 		this.relationshipExplorer = relationshipExplorer;
 	}

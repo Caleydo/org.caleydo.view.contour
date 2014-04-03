@@ -19,7 +19,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.command.ShowFilteredItemsInDetailViewCommand;
@@ -37,7 +37,7 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
 
 	protected final int historyID;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected final IEntityCollection collection;
 
 	protected GLButton showSelectedItemsButton;
@@ -46,7 +46,7 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 	/**
 	 * @param titleLabelProvider
 	 */
-	public DetailViewWindow(IEntityCollection collection, RelationshipExplorerElement relationshipExplorer) {
+	public DetailViewWindow(IEntityCollection collection, ConTourElement relationshipExplorer) {
 		super(collection);
 		this.collection = collection;
 		this.relationshipExplorer = relationshipExplorer;

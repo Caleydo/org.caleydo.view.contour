@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.caleydo.core.gui.util.AHelpButtonDialog;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScore;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
@@ -48,7 +48,7 @@ public class CreateEnrichmentScoreDialog extends AHelpButtonDialog {
 	/**
 	 * @param shell
 	 */
-	protected CreateEnrichmentScoreDialog(Shell shell, RelationshipExplorerElement relationshipExplorer) {
+	protected CreateEnrichmentScoreDialog(Shell shell, ConTourElement relationshipExplorer) {
 		super(shell);
 		this.enrichmentScores = relationshipExplorer.getEnrichmentScores();
 		this.collections = relationshipExplorer.getEntityCollections();

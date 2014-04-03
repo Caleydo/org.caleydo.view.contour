@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.detail;
+package org.caleydo.view.relationshipexplorer.ui.detail.pathway;
 
 import java.util.Set;
 
@@ -15,10 +15,10 @@ import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.CompoundGroupPathwayAugmentation;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.MultiVertexHighlightAugmentation;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
 
 /**
  * @author Christian
@@ -26,9 +26,9 @@ import org.caleydo.view.relationshipexplorer.ui.detail.pathway.MultiVertexHighli
  */
 public class PathwayDetailViewFactory implements IDetailViewFactory {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
-	public PathwayDetailViewFactory(RelationshipExplorerElement relationshipExplorer) {
+	public PathwayDetailViewFactory(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 	}
 

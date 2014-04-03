@@ -31,8 +31,9 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.basic.GLComboBox;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
@@ -64,15 +65,6 @@ import com.google.common.collect.Sets;
  *
  */
 public abstract class AEntityColumn implements ILabeled, IColumnModel {
-	// protected static final int HEADER_HEIGHT = 20;
-	// protected static final int HEADER_BODY_SPACING = 5;
-	//
-	// protected static final Integer DATA_KEY = Integer.valueOf(0);
-	// protected static final Integer MAPPING_KEY = Integer.valueOf(1);
-	//
-	// protected static final Integer SELECTED_ELEMENTS_KEY = Integer.valueOf(2);
-	// protected static final Integer FILTERED_ELEMENTS_KEY = Integer.valueOf(3);
-	// protected static final Integer ALL_ELEMENTS_KEY = Integer.valueOf(4);
 
 	protected static final URL FILTER_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
@@ -96,6 +88,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected Set<ISummaryItemFactory> summaryItemFactories = new LinkedHashSet<>();
 	protected ISummaryItemFactory summaryItemFactory;
+	protected IItemFactory itemFactory;
 
 	protected GLComboBox<ISummaryItemFactory> summaryPlots;
 
@@ -109,9 +102,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	protected boolean initialized = false;
 
 	// -----------------
-	protected RelationshipExplorerElement relationshipExplorer;
+	protected ConTourElement relationshipExplorer;
 
-	public AEntityColumn(IEntityCollection entityCollection, RelationshipExplorerElement relationshipExplorer) {
+	public AEntityColumn(IEntityCollection entityCollection, ConTourElement relationshipExplorer) {
 		// super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.entityCollection = entityCollection;
 		entityCollection.addEntityRepresentation(this);
@@ -230,32 +223,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return button;
 	}
 
-	// @Override
-	// protected void init(IGLElementContext context) {
-	// super.init(context);
-	//
-	// // setContent();
-	//
-	// // itemList.addContextMenuItems(getContextMenuItems());
-	//
-	// // header.setElement(DATA_KEY, new GLElement(GLRenderers.drawText(getLabel(), VAlign.CENTER)));
-	// // itemList.addElementSelectionListener(this);
-	// // sort(getDefaultElementComparator());
-	// // mapFilteredElements.putAll(mapIDToElement);
-	// }
 
 	protected List<AContextMenuItem> getContextMenuItems() {
-		// AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
-		// "Replace current Set by Relationships for selected " + entityCollection.getLabel(),
-		// new ContextMenuCommandEvent(new FilterCommand(ESetOperation.REPLACE, this, relationshipExplorer))
-		// .to(this));
-		// AContextMenuItem andFilterITem = new
-		// GenericContextMenuItem("Filter current Set by Relationships for selected "
-		// + entityCollection.getLabel(), new ContextMenuCommandEvent(new FilterCommand(
-		// ESetOperation.INTERSECTION, this, relationshipExplorer)).to(this));
-		// AContextMenuItem orFilterITem = new GenericContextMenuItem("Add all Relationships for selected "
-		// + entityCollection.getLabel(), new ContextMenuCommandEvent(new FilterCommand(ESetOperation.UNION, this,
-		// relationshipExplorer)).to(this));
 		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this);
 		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
 				new IContextMenuCommand() {
@@ -272,16 +241,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return items;
 	}
 
-	// protected void addElement(GLElement element, Object elementID) {
-	//
-	// KeyBasedGLElementContainer<GLElement> row = new KeyBasedGLElementContainer<>(
-	// GLLayouts.sizeRestrictiveFlowHorizontal(2));
-	// row.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(row, 2, GLPadding.ZERO));
-	// row.setElement(DATA_KEY, element);
-	// mapIDToElement.put(elementID, row);
-	// itemList.add(row);
-	// }
-
 	protected void addItem(ScoreElement element, Object elementID, NestableColumn column, NestableItem parentItem) {
 
 		NestableItem item = column.addElement(element, parentItem);
@@ -294,49 +253,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		item.setElementData(Sets.newHashSet(elementID));
 	}
 
-	// protected KeyBasedGLElementContainer<SimpleBarRenderer> createLayeredBarRenderer() {
-	// KeyBasedGLElementContainer<SimpleBarRenderer> barLayerRenderer = new KeyBasedGLElementContainer<>(
-	// GLLayouts.LAYERS);
-	//
-	// // barLayerRenderer.setSize(80, Float.NaN);
-	// barLayerRenderer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(barLayerRenderer));
-	// barLayerRenderer.setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.1f));
-	// barLayerRenderer.setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.2f));
-	// barLayerRenderer.setElement(SELECTED_ELEMENTS_KEY,
-	// createDefaultBarRenderer(SelectionType.SELECTION.getColor(), 0.3f));
-	// // barLayerRenderer.setRenderer(GLRenderers.drawRect(Color.BLUE));
-	// return barLayerRenderer;
-	// }
-	//
-	// protected SimpleBarRenderer createDefaultBarRenderer(Color color, float zDelta) {
-	// SimpleBarRenderer renderer = new SimpleBarRenderer(0, true);
-	// renderer.setMinSize(new Vec2f(80, 16));
-	// // renderer.setSize(80, Float.NaN);
-	// renderer.setColor(color);
-	// renderer.setBarWidth(12);
-	// renderer.setzDelta(zDelta);
-	// return renderer;
-	// }
-
 	@Override
 	public String getLabel() {
 		return entityCollection.getLabel();
 	}
 
-	// @Override
-	// public Vec2f getMinSize() {
-	// return itemList.getMinSize();
-	// }
-	//
-	// protected AEntityColumn getForeignColumnWithMappingIDType(IDType idType) {
-	//
-	// return getFirstForeignColumn(relationshipExplorer.getCollectionsWithMappingIDType(idType));
-	// }
-	//
-	// protected AEntityColumn getForeignColumnWithBroadcastIDType(IDType idType) {
-	//
-	// return getFirstForeignColumn(relationshipExplorer.getColumnsWithBroadcastIDType(idType));
-	// }
 
 	protected AEntityColumn getFirstForeignColumn(List<AEntityColumn> foreignColumns) {
 		AEntityColumn foreignColumn = null;
@@ -348,34 +269,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return foreignColumn;
 	}
 
-	// @Override
-	// public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType) {
-	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-	//
-	// Set<Object> elementIDs = new HashSet<>();
-	// Set<Object> broadcastIDs = mappingManager.getIDTypeMapper(foreignIDType, getBroadcastingIDType()).apply(
-	// foreignIDs);
-	// for (Object bcID : broadcastIDs) {
-	// elementIDs.addAll(getElementIDsFromBroadcastingID((Integer) bcID));
-	// }
-	//
-	// return elementIDs;
-	// }
-
-	// /**
-	// * @return the selectedElementIDs, see {@link #selectedElementIDs}
-	// */
-	// @Override
-	// public Set<Object> getSelectedElementIDs() {
-	// return selectedElementIDs;
-	// }
-	//
-	// @Override
-	// public Set<Object> getHighlightElementIDs() {
-	// return highlightElementIDs;
-	// }
-
-	// @ListenTo(sendToMe = true)
 	@Override
 	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
 		event.getCommand().execute();
@@ -397,27 +290,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			relationshipExplorer.getHistory().addHistoryCommand(c);
 	}
 
-	// @Override
-	// public void onSelectionChanged(GLElementList list) {
-	// Set<Object> broadcastIDs = new HashSet<>();
-	// Set<Object> elementIDs = new HashSet<>();
-	// fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs, itemList.getSelectedElements());
-	//
-	// // SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(elementIDs, broadcastIDs,
-	// // relationshipExplorer);
-	// // o.execute(this);
-	// // relationshipExplorer.getHistory().addColumnOperation(this, o);
-	// }
-
-	// @Override
-	// public void onHighlightChanged(GLElementList list) {
-	// Set<Object> broadcastIDs = new HashSet<>();
-	// Set<Object> elementIDs = new HashSet<>();
-	// fillSelectedElementAndBroadcastIDs(elementIDs, broadcastIDs, itemList.getHighlightElements());
-	// highlightElementIDs = elementIDs;
-	//
-	// relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(broadcastIDs, this), false);
-	// }
 
 	@Override
 	public void onSelectionChanged(NestableColumn column) {
@@ -434,11 +306,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		c.execute();
 
 		relationshipExplorer.getHistory().addHistoryCommand(c);
-
-		// entityCollection.setSelectedItems(elementIDs, this);
-		//
-		// relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(
-		// getBroadcastingIDsFromElementIDs(elementIDs), this), true);
 	}
 
 	@Override
@@ -458,267 +325,12 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	}
 
-	// private void fillSelectedElementAndBroadcastIDs(Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs,
-	// Set<GLElement> selectedElements) {
-	// for (GLElement el : selectedElements) {
-	// Object elementID = mapIDToElement.inverse().get(el);
-	// selectedElementIDs.add(elementID);
-	// selectedBroadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-	// }
-	// }
-
-	// @Override
-	// public void setFilteredItems(Set<Object> elementIDs, IEntityRepresentation srcRep) {
-	// mapFilteredElements = new HashMap<>(elementIDs.size());
-	// for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
-	//
-	// GLElement element = entry.getValue();
-	// boolean visible = false;
-	//
-	// if (elementIDs.contains(entry.getKey())) {
-	// visible = true;
-	// // itemList.show(element);
-	// if (!itemList.hasElement(element)) {
-	// itemList.add(element);
-	// itemList.asGLElement().relayout();
-	// }
-	// mapFilteredElements.put(entry.getKey(), entry.getValue());
-	// }
-	//
-	// if (!visible) {
-	// itemList.removeElement(element);
-	// // itemList.hide(element);
-	// itemList.asGLElement().relayout();
-	// }
-	//
-	// }
-	// updateSelections();
-	// }
-
-	// public void showAllItems() {
-	// mapFilteredElements.clear();
-	// for (Entry<Object, GLElement> entry : mapIDToElement.entrySet()) {
-	//
-	// GLElement element = entry.getValue();
-	// // itemList.show(element);
-	// if (!itemList.hasElement(element)) {
-	// itemList.add(element);
-	// itemList.asGLElement().relayout();
-	// }
-	// mapFilteredElements.put(entry.getKey(), entry.getValue());
-	// }
-	// }
-
-	// @Override
-	// public void setSelectedItems(Set<Object> elementIDs, IEntityRepresentation srcRep) {
-	// selectedElementIDs = elementIDs;
-	// updateSelections();
-	// }
-
-	// protected void updateSelections() {
-	// itemList.clearSelection();
-	//
-	// for (Object elementID : selectedElementIDs) {
-	// GLElement element = mapIDToElement.get(elementID);
-	// if (element != null) {
-	// itemList.addToSelection(element);
-	// }
-	// }
-	// }
-
-	// @Override
-	// public void setHighlightItems(Set<Object> elementIDs, IEntityRepresentation srcRep) {
-	// if (srcRep == this)
-	// highlightElementIDs = elementIDs;
-	// itemList.clearHighlight();
-	//
-	// for (Object elementID : elementIDs) {
-	// GLElement element = mapIDToElement.get(elementID);
-	// if (element != null) {
-	// itemList.addToHighlight(element);
-	// }
-	// }
-	// }
-	//
-	// @Override
-	// @SuppressWarnings("null")
-	// public void updateSelectionMappings(IEntityRepresentation srcRep) {
-	//
-	// IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(getBroadcastingIDType());
-	// IIDTypeMapper<Object, Object> mapper = mappingManager.getIDTypeMapper(srcRep.getCollection()
-	// .getBroadcastingIDType(), getBroadcastingIDType());
-	// List<MappingType> path = mapper.getPath();
-	//
-	// AEntityColumn foreignColumn = getNearestMappingColumn(path);
-	//
-	// int maxMappedElements = Integer.MIN_VALUE;
-	// for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
-	//
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<GLElement> row = (KeyBasedGLElementContainer<GLElement>) entry.getValue();
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>)
-	// row
-	// .getElement(MAPPING_KEY);
-	//
-	// if (srcRep == this) {
-	// if (mappingRenderer != null)
-	// mappingRenderer.setVisibility(EVisibility.NONE);
-	// } else {
-	// if (mappingRenderer == null) {
-	// mappingRenderer = createLayeredBarRenderer();
-	// row.setElement(MAPPING_KEY, mappingRenderer);
-	// }
-	// mappingRenderer.setVisibility(EVisibility.PICKABLE);
-	// fillMappedElementCounts(row, foreignColumn, mappingRenderer);
-	// int numMappedElements = (int) (mappingRenderer.getElement(ALL_ELEMENTS_KEY)).getValue();
-	// if (numMappedElements > maxMappedElements)
-	// maxMappedElements = numMappedElements;
-	// }
-	// }
-	// boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
-	//
-	// if (srcRep == this) {
-	// // itemList.setHighlightSelections(true);
-	// if (mappingHeaderExists) {
-	// header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
-	// }
-	// return;
-	// }
-	// if (!mappingHeaderExists) {
-	// GLElement mappingHeader = new GLElement(GLRenderers.drawText(foreignColumn.getLabel(), VAlign.CENTER));
-	// mappingHeader.setSize(80, 12);
-	// header.setElement(MAPPING_KEY, mappingHeader);
-	// } else {
-	// GLElement mappingHeader = header.getElement(MAPPING_KEY);
-	// mappingHeader.setVisibility(EVisibility.PICKABLE);
-	// mappingHeader.setRenderer(GLRenderers.drawText(foreignColumn.getLabel(), VAlign.CENTER));
-	// }
-	//
-	// // itemList.setHighlightSelections(false);
-	//
-	// for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
-	//
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<GLElement> row = (KeyBasedGLElementContainer<GLElement>) entry.getValue();
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>)
-	// row
-	// .getElement(MAPPING_KEY);
-	// SimpleBarRenderer barRenderer = mappingRenderer.getElement(ALL_ELEMENTS_KEY);
-	// barRenderer.setNormalizedValue(barRenderer.getValue() / maxMappedElements);
-	// barRenderer = mappingRenderer.getElement(FILTERED_ELEMENTS_KEY);
-	// barRenderer.setNormalizedValue(barRenderer.getValue() / maxMappedElements);
-	// barRenderer = mappingRenderer.getElement(SELECTED_ELEMENTS_KEY);
-	// barRenderer.setNormalizedValue(barRenderer.getValue() / maxMappedElements);
-	// }
-	//
-	// @SuppressWarnings("unchecked")
-	// ComparatorChain<GLElement> chain = new ComparatorChain<>(Lists.newArrayList(SELECTED_ELEMENTS_COMPARATOR,
-	// SELECTED_FOREIGN_ELEMENTS_COMPARATOR, FILTERED_FOREIGN_ELEMENTS_COMPARATOR,
-	// ALL_FOREIGN_ELEMENTS_COMPARATOR, getDefaultElementComparator()));
-	// sort(chain);
-	// }
-
-	// public void hideMappings() {
-	// boolean mappingHeaderExists = header.hasElement(MAPPING_KEY);
-	//
-	// // itemList.setHighlightSelections(true);
-	// if (mappingHeaderExists) {
-	// header.getElement(MAPPING_KEY).setVisibility(EVisibility.NONE);
-	// }
-	//
-	// for (Entry<Object, GLElement> entry : mapFilteredElements.entrySet()) {
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<GLElement> row = (KeyBasedGLElementContainer<GLElement>) entry.getValue();
-	// @SuppressWarnings("unchecked")
-	// KeyBasedGLElementContainer<SimpleBarRenderer> mappingRenderer = (KeyBasedGLElementContainer<SimpleBarRenderer>)
-	// row
-	// .getElement(MAPPING_KEY);
-	// if (mappingRenderer != null)
-	// mappingRenderer.setVisibility(EVisibility.NONE);
-	// }
-	//
-	// }
-	//
-	// public void sort(Comparator<GLElement> comparator) {
-	// if (comparator == null)
-	// return;
-	// this.currentComparator = comparator;
-	// itemList.sortBy(comparator);
-	// }
-
-	// protected void fillMappedElementCounts(GLElement element, AEntityColumn foreignColumn,
-	// KeyBasedGLElementContainer<SimpleBarRenderer> layeredBars) {
-	// Set<Object> broadcastIDs = getBroadcastingIDsFromElementID(mapIDToElement.inverse().get(element));
-	//
-	// int numSelectedElements = 0;
-	// int numFilteredElements = 0;
-	// Set<Object> foreignMappedElementIDs = foreignColumn.getElementIDsFromForeignIDs(broadcastIDs,
-	// getBroadcastingIDType());
-	// Set<Object> foreignFilteredElements = foreignColumn.getFilteredElementIDs();
-	// Set<Object> foreignSelectedElements = foreignColumn.getSelectedElementIDs();
-	// for (Object elementID : foreignMappedElementIDs) {
-	// if (foreignFilteredElements.contains(elementID)) {
-	// numFilteredElements++;
-	// // Only filtered elements can be selected
-	// if (foreignSelectedElements.contains(elementID))
-	// numSelectedElements++;
-	// }
-	// }
-	// layeredBars.getElement(ALL_ELEMENTS_KEY).setValue(foreignMappedElementIDs.size());
-	// layeredBars.getElement(FILTERED_ELEMENTS_KEY).setValue(numFilteredElements);
-	// layeredBars.getElement(SELECTED_ELEMENTS_KEY).setValue(numSelectedElements);
-	// }
-
-	// @Override
-	// public Set<Object> getFilteredElementIDs() {
-	// return mapIDToFilteredItems.keySet();
-	// }
-
-	// protected AEntityColumn getNearestMappingColumn(List<MappingType> path) {
-	// if (path == null) {
-	// AEntityColumn foreignColumn = getForeignColumnWithMappingIDType(getMappingIDType());
-	// if (foreignColumn == null)
-	// foreignColumn = getForeignColumnWithBroadcastIDType(getBroadcastingIDType());
-	// if (foreignColumn != null)
-	// return foreignColumn;
-	// } else {
-	// for (int i = path.size() - 1; i >= 0; i--) {
-	// AEntityColumn foreignColumn = getForeignColumnWithMappingIDType(path.get(i).getFromIDType());
-	// if (foreignColumn != null)
-	// return foreignColumn;
-	// }
-	//
-	// }
-	// return this;
-	// }
-
-	// @Override
-	// public Set<Object> getAllElementIDs() {
-	// return Collections.unmodifiableSet(mapIDToElement.keySet());
-	// }
-
 	/**
 	 * @return the relationshipExplorer, see {@link #relationshipExplorer}
 	 */
-	public RelationshipExplorerElement getRelationshipExplorer() {
+	public ConTourElement getRelationshipExplorer() {
 		return relationshipExplorer;
 	}
-
-	// @Override
-	// public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs) {
-	// Set<Object> broadcastIDs = new HashSet<>();
-	// for (Object elementID : elementIDs) {
-	// broadcastIDs.addAll(getBroadcastingIDsFromElementID(elementID));
-	// }
-	//
-	// return broadcastIDs;
-	// }
-
-	// public void updateSorting() {
-	// sort(currentComparator);
-	// }
 
 	@Override
 	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
@@ -939,26 +551,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			for (Object id : elementIDs) {
 				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, entityCollection,
 						parentColumn.getColumnModel().getCollection());
-				// Set<Object> foreignElementIDs = parentColumn
-				// .getColumnModel()
-				// .getCollection()
-				// .getElementIDsFromForeignIDs(entityCollection.getBroadcastingIDsFromElementID(id),
-				// entityCollection.getBroadcastingIDType());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
-
-				// boolean add = true;
-				// for (NestableItem parentItem : parentItems) {
-				// if (parentItem.getParentItem() != null) {
-				// add = hasParentItemElementMapping(parentItem.getParentItem(), id);
-				// }
-				//
-				// if (add) {
-				// ScoreElement element = createElement(id, parentItem);
-				// if (element != null) {
-				// addItem(element, id, column, parentItem);
-				// }
-				// }
-				// }
 
 				for (NestableItem parentItem : parentItems) {
 
@@ -982,11 +575,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 								addItem(element, id, column, parentItem);
 							}
 						}
-
-						// ScoreElement element = createElement(id, parentItem);
-						// if (element != null) {
-						// addItem(element, id, column, parentItem);
-						// }
 					}
 				}
 			}
@@ -1163,16 +751,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	protected ScoreElement createElement(Object elementID, NestableItem parentItem) {
-		GLElement element = newElement(elementID);
+		GLElement element = itemFactory.createItem(elementID);
 		ScoreElement scoreElement = new ScoreElement(element);
 		if (scoreProvider != null) {
 			scoreElement.showScore();
-			// if (parentItem == null) {
-			// scoreElement.setScore(scoreProvider.getScore(elementID, entityCollection, null, null));
-			// } else {
-			// scoreElement.setScore(scoreProvider.getScore(elementID, entityCollection, parentItem.getElementData()
-			// .iterator().next(), parentColumn.getColumnModel().getCollection()));
-			// }
 		}
 		return scoreElement;
 	}
@@ -1200,8 +782,12 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return summaryItemFactories;
 	}
 
-	protected abstract GLElement newElement(Object elementID);
-
-	// public abstract void showDetailView();
+	/**
+	 * @param itemFactory
+	 *            setter, see {@link itemFactory}
+	 */
+	public void setItemFactory(IItemFactory itemFactory) {
+		this.itemFactory = itemFactory;
+	}
 
 }

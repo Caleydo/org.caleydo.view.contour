@@ -3,14 +3,15 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.detail;
+package org.caleydo.view.relationshipexplorer.ui.detail.parcoords;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElement;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
 
 /**
  * @author Christian
@@ -18,9 +19,9 @@ import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsElemen
  */
 public class ParallelCoordinatesDetailViewFactory implements IDetailViewFactory {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
-	public ParallelCoordinatesDetailViewFactory(RelationshipExplorerElement relationshipExplorer) {
+	public ParallelCoordinatesDetailViewFactory(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 	}
 

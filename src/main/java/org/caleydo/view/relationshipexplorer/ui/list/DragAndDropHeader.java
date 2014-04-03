@@ -14,7 +14,7 @@ import org.caleydo.core.view.opengl.layout2.dnd.IDropGLTarget;
 import org.caleydo.core.view.opengl.layout2.dnd.IUIDragInfo;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.History;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.command.AddChildColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
@@ -87,7 +87,7 @@ public class DragAndDropHeader implements IDragGLSource, IDropGLTarget {
 		IDragInfo i = item.getInfo();
 		if (!(i instanceof ColumnDragInfo))
 			return;
-		RelationshipExplorerElement relationshipExplorer = column.getColumnTree().getRelationshipExplorer();
+		ConTourElement relationshipExplorer = column.getColumnTree().getRelationshipExplorer();
 		History history = relationshipExplorer.getHistory();
 		ColumnDragInfo info = (ColumnDragInfo) i;
 		if (item.getType() == EDnDType.COPY) {

@@ -9,7 +9,7 @@ import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 
 /**
@@ -37,7 +37,7 @@ public class GroupingColumn extends ATextColumn {
 	// }
 	// };
 
-	public GroupingColumn(GroupCollection groupCollection, RelationshipExplorerElement relationshipExplorer) {
+	public GroupingColumn(GroupCollection groupCollection, ConTourElement relationshipExplorer) {
 		super(groupCollection, relationshipExplorer);
 		this.groupCollection = groupCollection;
 		this.perspective = groupCollection.getPerspective();

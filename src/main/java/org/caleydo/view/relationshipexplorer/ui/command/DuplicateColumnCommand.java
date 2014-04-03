@@ -7,7 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.command;
 
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
@@ -21,10 +21,10 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 public class DuplicateColumnCommand implements IHistoryCommand {
 
 	protected final History history;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected final int columnHistoryID;
 
-	public DuplicateColumnCommand(AEntityColumn column, RelationshipExplorerElement relationshipExplorer) {
+	public DuplicateColumnCommand(AEntityColumn column, ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		this.history = relationshipExplorer.getHistory();
 		this.columnHistoryID = column.getHistoryID();

@@ -12,7 +12,7 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewFactories;
@@ -30,7 +30,7 @@ import com.google.common.collect.Sets;
  */
 public abstract class AEntityCollection implements IEntityCollection {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 	protected String label = "";
 	protected Set<Object> allElementIDs = new HashSet<>();
 	protected Set<Object> filteredElementIDs = new HashSet<>();
@@ -44,7 +44,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	protected IDetailViewWindowFactory detailViewWindowFactory;
 	protected IDetailViewFactory detailViewFactory;
 
-	public AEntityCollection(RelationshipExplorerElement relationshipExplorer) {
+	public AEntityCollection(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		relationshipExplorer.registerEntityCollection(this);
 	}

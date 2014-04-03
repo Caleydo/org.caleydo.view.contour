@@ -14,7 +14,7 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.group.Group;
 import org.caleydo.core.data.virtualarray.group.GroupList;
 import org.caleydo.core.id.IDType;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 
@@ -29,7 +29,7 @@ public class GroupCollection extends AEntityCollection {
 	protected final GroupList groupList;
 
 	public GroupCollection(Perspective perspective, IElementIDProvider elementIDProvider,
-			RelationshipExplorerElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		super(relationshipExplorer);
 		this.perspective = perspective;
 		this.dataDomain = (ATableBasedDataDomain) perspective.getDataDomain();

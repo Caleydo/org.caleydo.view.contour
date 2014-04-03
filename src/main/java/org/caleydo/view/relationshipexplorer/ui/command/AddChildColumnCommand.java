@@ -6,7 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.command;
 
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -19,10 +19,10 @@ public class AddChildColumnCommand implements IHistoryCommand {
 
 	protected final IEntityCollection collection;
 	protected final int parentColumnModelHistoryID;
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
 	public AddChildColumnCommand(IEntityCollection collection, int parentColumnModelHistoryID,
-			RelationshipExplorerElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		this.collection = collection;
 		this.parentColumnModelHistoryID = parentColumnModelHistoryID;
 		this.relationshipExplorer = relationshipExplorer;

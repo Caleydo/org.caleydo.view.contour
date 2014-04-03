@@ -8,7 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 
 /**
@@ -25,7 +25,7 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 	 * @param op
 	 */
 	public SelectionBasedHighlightOperation(int representationHistoryID, Set<Object> selectedElementIDs,
-			Set<Object> selectedBroadcastIDs, RelationshipExplorerElement relationshipExplorer) {
+			Set<Object> selectedBroadcastIDs, ConTourElement relationshipExplorer) {
 		super(selectedElementIDs, selectedBroadcastIDs, ESetOperation.INTERSECTION, relationshipExplorer);
 		this.representationHistoryID = representationHistoryID;
 	}

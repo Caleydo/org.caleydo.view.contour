@@ -41,7 +41,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
  */
 public class History extends AnimatedGLElementContainer {
 
-	protected RelationshipExplorerElement relationshipExplorer;
+	protected ConTourElement relationshipExplorer;
 	protected List<IHistoryCommand> commands = new ArrayList<>();
 	protected GLElementContainer historyElementsContainer;
 	protected ScrollingDecorator scrollingDecorator;
@@ -179,7 +179,7 @@ public class History extends AnimatedGLElementContainer {
 		}
 	}
 
-	public History(RelationshipExplorerElement relationshipExplorer) {
+	public History(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 		setLayout(new GLSizeRestrictiveFlowLayout(false, 4, GLPadding.ZERO));
 		setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this, 4, GLPadding.ZERO));

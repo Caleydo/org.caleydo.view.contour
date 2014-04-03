@@ -12,15 +12,15 @@ import java.util.Comparator;
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
-import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.TextItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -37,16 +37,23 @@ public abstract class ATextColumn extends AEntityColumn {
 
 	// protected Map<Object, Set<NestableItem>> mapIDToItems = new HashMap<>();
 
-	protected static final int MIN_TEXT_WIDTH = 150;
-	protected static final int ITEM_HEIGHT = 16;
+	protected final TextItemComparator textItemComparator;
 
-	protected final static Comparator<NestableItem> TEXT_ITEM_COMPARATOR = new Comparator<NestableItem>() {
+	protected static class TextItemComparator implements Comparator<NestableItem> {
+
+		protected final ATextColumn column;
+
+		public TextItemComparator(ATextColumn column) {
+			this.column = column;
+		}
 
 		@Override
 		public int compare(NestableItem o1, NestableItem o2) {
-			MinSizeTextElement r1 = (MinSizeTextElement) ((ScoreElement) o1.getElement()).getElement();
-			MinSizeTextElement r2 = (MinSizeTextElement) ((ScoreElement) o2.getElement()).getElement();
-			return r1.getLabel().compareTo(r2.getLabel());
+			String label1 = column.getText(o1.getElementData().iterator().next());
+			String label2 = column.getText(o2.getElementData().iterator().next());
+			// MinSizeTextElement r1 = (MinSizeTextElement) ((ScoreElement) o1.getElement()).getElement();
+			// MinSizeTextElement r2 = (MinSizeTextElement) ((ScoreElement) o2.getElement()).getElement();
+			return label1.compareTo(label2);
 		}
 
 		@Override
@@ -93,9 +100,10 @@ public abstract class ATextColumn extends AEntityColumn {
 	/**
 	 * @param relationshipExplorer
 	 */
-	public ATextColumn(IEntityCollection entityCollection, RelationshipExplorerElement relationshipExplorer) {
+	public ATextColumn(IEntityCollection entityCollection, ConTourElement relationshipExplorer) {
 		super(entityCollection, relationshipExplorer);
-
+		this.textItemComparator = new TextItemComparator(this);
+		setItemFactory(new TextItemFactory(this));
 		final GLButton filterButton = addHeaderButton(FILTER_ICON);
 
 		filterButton.setCallback(new ISelectionCallback() {
@@ -128,21 +136,21 @@ public abstract class ATextColumn extends AEntityColumn {
 		});
 	}
 
-	public MinSizeTextElement createTextItem(String text) {
-		MinSizeTextElement el = new MinSizeTextElement(text);
-		el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
-		return el;
-	}
+	// public MinSizeTextElement createTextItem(String text) {
+	// MinSizeTextElement el = new MinSizeTextElement(text);
+	// el.setMinSize(new Vec2f(MIN_TEXT_WIDTH, ITEM_HEIGHT));
+	// return el;
+	// }
 
 	@Override
 	public Comparator<NestableItem> getDefaultComparator() {
-		return TEXT_ITEM_COMPARATOR;
+		return textItemComparator;
 	}
 
-	@Override
-	protected GLElement newElement(Object elementID) {
-		return createTextItem(getText(elementID));
-	}
+	// @Override
+	// protected GLElement newElement(Object elementID) {
+	// return createTextItem(getText(elementID));
+	// }
 
 	public abstract String getText(Object elementID);
 

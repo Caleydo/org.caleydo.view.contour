@@ -24,7 +24,7 @@ import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
@@ -108,7 +108,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
 
-		final RelationshipExplorerElement relationshipExplorer = new RelationshipExplorerElement();
+		final ConTourElement relationshipExplorer = new ConTourElement();
 
 		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), relationshipExplorer);
 
@@ -359,7 +359,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 		return relationshipExplorer;
 	}
 
-	protected void addDefaultSortingCommand(RelationshipExplorerElement relationshipExplorer,
+	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer,
 			IColumnModel parentColumn, IColumnModel childColumn, CompositeHistoryCommand initCommand) {
 		CompositeComparator<NestableItem> comparator = new CompositeComparator<>(
 				ItemComparators.SELECTED_ITEMS_COMPARATOR, new SelectionMappingComparator(childColumn,
@@ -373,7 +373,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 		initCommand.add(c);
 	}
 
-	protected GroupCollection getClusterColumn(RelationshipExplorerElement relationshipExplorer, String name) {
+	protected GroupCollection getClusterColumn(ConTourElement relationshipExplorer, String name) {
 		for (IDataDomain dataDomain : DataDomainManager.get().getAllDataDomains()) {
 			if (dataDomain instanceof ATableBasedDataDomain && dataDomain.getLabel().contains("Finger")) {
 				ATableBasedDataDomain dd = (ATableBasedDataDomain) dataDomain;

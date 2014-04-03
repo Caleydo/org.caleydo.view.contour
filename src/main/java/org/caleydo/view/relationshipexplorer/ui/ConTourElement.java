@@ -82,7 +82,7 @@ import com.google.common.collect.Iterables;
  * @author Christian
  *
  */
-public class RelationshipExplorerElement extends AnimatedGLElementContainer {
+public class ConTourElement extends AnimatedGLElementContainer {
 
 	protected static final URL UP_ARROW_ICON = ActivitySummaryItemFactory.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_top_small.png");
@@ -282,7 +282,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 			if (item.getType() == EDnDType.COPY) {
 
 				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
-						RelationshipExplorerElement.this);
+						ConTourElement.this);
 				c.setIndex(columnContainer.indexOf(this));
 				c.execute();
 				history.addHistoryCommand(c);
@@ -298,13 +298,13 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					comp.setDescription("Moved Column " + info.getModel().getLabel());
 
 					AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
-							RelationshipExplorerElement.this);
+							ConTourElement.this);
 					c.setIndex(columnContainer.indexOf(this));
 					comp.add(c);
 					// c.execute();
 					// history.addHistoryCommand(c);
 
-					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), RelationshipExplorerElement.this);
+					RemoveColumnCommand rc = new RemoveColumnCommand(info.getModel(), ConTourElement.this);
 					comp.add(rc);
 					comp.execute();
 					// rc.execute();
@@ -340,7 +340,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 
 	}
 
-	public RelationshipExplorerElement() {
+	public ConTourElement() {
 		super(new GLSizeRestrictiveFlowLayout(true, 5, GLPadding.ZERO));
 
 		AnimatedGLElementContainer supportViewContainer = new AnimatedGLElementContainer(
@@ -462,12 +462,12 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 					@Override
 					public void run(Display display, Composite canvas) {
 						AddColumnDialog dialog = new AddColumnDialog(canvas.getShell(),
-								RelationshipExplorerElement.this);
+								ConTourElement.this);
 						if (dialog.open() == Window.OK) {
 							Set<IEntityCollection> collections = dialog.getCollections();
 							for (IEntityCollection collection : collections) {
 								AddColumnTreeCommand c = new AddColumnTreeCommand(collection,
-										RelationshipExplorerElement.this);
+										ConTourElement.this);
 								c.execute();
 								history.addHistoryCommand(c);
 							}
@@ -658,7 +658,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 				@Override
 				public void onWindowClosed(GLElementWindow window) {
 					IEntityCollection collection = detailMap.inverse().get(window);
-					HideDetailCommand o = new HideDetailCommand(collection, RelationshipExplorerElement.this);
+					HideDetailCommand o = new HideDetailCommand(collection, ConTourElement.this);
 
 					o.execute();
 					getHistory().addHistoryCommand(o);
@@ -816,7 +816,7 @@ public class RelationshipExplorerElement extends AnimatedGLElementContainer {
 	public void onAddColumns(AddColumnsEvent event) {
 		Set<IEntityCollection> collections = event.getCollections();
 		for (IEntityCollection collection : collections) {
-			AddColumnTreeCommand c = new AddColumnTreeCommand(collection, RelationshipExplorerElement.this);
+			AddColumnTreeCommand c = new AddColumnTreeCommand(collection, ConTourElement.this);
 			c.execute();
 			history.addHistoryCommand(c);
 		}

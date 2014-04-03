@@ -22,7 +22,7 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.collection.Pair;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
@@ -37,7 +37,7 @@ import com.google.common.collect.Table;
  */
 public class EnrichmentScores {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
 	protected List<EnrichmentScore> allScores = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class EnrichmentScores {
 
 	public static class EnrichmentScore implements ILabeled {
 
-		protected final RelationshipExplorerElement relationshipExplorer;
+		protected final ConTourElement relationshipExplorer;
 		protected final IEntityCollection rowCollection;
 		protected final IEntityCollection columnCollection;
 		protected final IEntityCollection mappingCollection;
@@ -58,7 +58,7 @@ public class EnrichmentScores {
 
 		public EnrichmentScore(IEntityCollection rowCollection, IEntityCollection columnCollection,
 				IEntityCollection mappingCollection, boolean isFilteredItemScore, int threshold,
-				RelationshipExplorerElement relationshipExplorer) {
+				ConTourElement relationshipExplorer) {
 			this.rowCollection = rowCollection;
 			this.columnCollection = columnCollection;
 			this.mappingCollection = mappingCollection;
@@ -344,7 +344,7 @@ public class EnrichmentScores {
 
 	}
 
-	public EnrichmentScores(RelationshipExplorerElement relationshipExplorer) {
+	public EnrichmentScores(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 	}
 

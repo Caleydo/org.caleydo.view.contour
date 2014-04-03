@@ -11,7 +11,7 @@ import java.util.Set;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 
@@ -27,7 +27,7 @@ public class IDCollection extends AEntityCollection {
 	protected final IDType displayedIDType;
 
 	public IDCollection(IDType idType, IDType displayedIDType, IElementIDProvider elementIDProvider,
-			RelationshipExplorerElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		super(relationshipExplorer);
 		this.idType = idType;
 		this.displayedIDType = displayedIDType;

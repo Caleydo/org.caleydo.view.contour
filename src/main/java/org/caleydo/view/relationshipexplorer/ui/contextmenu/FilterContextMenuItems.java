@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 
@@ -25,7 +25,7 @@ public final class FilterContextMenuItems {
 
 	}
 
-	public static List<AContextMenuItem> getDefaultFilterItems(RelationshipExplorerElement relationshipExplorer,
+	public static List<AContextMenuItem> getDefaultFilterItems(ConTourElement relationshipExplorer,
 			IEntityRepresentation representation, Object contextMenuCommandReceiver) {
 		AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
 				"Replace items with those related to the selected " + representation.getCollection().getLabel(),

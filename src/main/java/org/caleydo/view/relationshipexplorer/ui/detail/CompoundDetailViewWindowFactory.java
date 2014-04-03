@@ -5,7 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.detail;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
@@ -14,9 +14,9 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
  */
 public class CompoundDetailViewWindowFactory implements IDetailViewWindowFactory {
 
-	protected final RelationshipExplorerElement relationshipExplorer;
+	protected final ConTourElement relationshipExplorer;
 
-	public CompoundDetailViewWindowFactory(RelationshipExplorerElement relationshipExplorer) {
+	public CompoundDetailViewWindowFactory(ConTourElement relationshipExplorer) {
 		this.relationshipExplorer = relationshipExplorer;
 	}
 

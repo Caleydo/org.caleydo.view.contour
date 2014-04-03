@@ -14,10 +14,10 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.virtualarray.VirtualArray;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.ParallelCoordinatesDetailViewFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParallelCoordinatesDetailViewFactory;
 
 import com.google.common.collect.Sets;
 
@@ -36,7 +36,7 @@ public class TabularDataCollection extends AEntityCollection {
 	protected final IDType mappingIDType;
 
 	public TabularDataCollection(TablePerspective tablePerspective, IDCategory itemIDCategory,
-			IElementIDProvider elementIDProvider, RelationshipExplorerElement relationshipExplorer) {
+			IElementIDProvider elementIDProvider, ConTourElement relationshipExplorer) {
 		super(relationshipExplorer);
 		dataDomain = tablePerspective.getDataDomain();
 

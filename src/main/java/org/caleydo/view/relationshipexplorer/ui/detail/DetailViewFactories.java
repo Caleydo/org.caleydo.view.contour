@@ -10,7 +10,7 @@ import gleem.linalg.Vec2f;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
@@ -22,7 +22,7 @@ public final class DetailViewFactories {
 	}
 
 	public static IDetailViewFactory createDefaultDetailViewWindowFactory(
-			final RelationshipExplorerElement relationshipExplorer) {
+			final ConTourElement relationshipExplorer) {
 		return new IDetailViewFactory() {
 
 			@Override

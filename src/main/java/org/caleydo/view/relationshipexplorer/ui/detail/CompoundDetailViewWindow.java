@@ -7,7 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.detail;
 
 import java.util.Set;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 
@@ -25,7 +25,7 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 	 * @param relationshipExplorer
 	 */
 	public CompoundDetailViewWindow(IEntityCollection collection,
-			RelationshipExplorerElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		super(collection, relationshipExplorer);
 		collection.addEntityRepresentation(this);
 	}

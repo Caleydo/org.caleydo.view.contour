@@ -12,10 +12,10 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.PathwayDetailViewFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.PathwayDetailViewFactory;
 
 /**
  * @author Christian
@@ -23,7 +23,7 @@ import org.caleydo.view.relationshipexplorer.ui.detail.PathwayDetailViewFactory;
  */
 public class PathwayCollection extends AEntityCollection {
 
-	public PathwayCollection(IElementIDProvider elementIDProvider, RelationshipExplorerElement relationshipExplorer) {
+	public PathwayCollection(IElementIDProvider elementIDProvider, ConTourElement relationshipExplorer) {
 		super(relationshipExplorer);
 		if (elementIDProvider == null)
 			elementIDProvider = getDefaultElementIDProvider();

@@ -6,7 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.column;
 
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 
 /**
@@ -20,43 +20,12 @@ public class PathwayColumn extends ATextColumn {
 	/**
 	 * @param relationshipExplorer
 	 */
-	public PathwayColumn(PathwayCollection pathwayCollection, RelationshipExplorerElement relationshipExplorer) {
+	public PathwayColumn(PathwayCollection pathwayCollection, ConTourElement relationshipExplorer) {
 		super(pathwayCollection, relationshipExplorer);
 		this.pathwayCollection = pathwayCollection;
 		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
-	// @Override
-	// public void showDetailView() {
-	// Set<NestableItem> selectedItems = column.getSelectedItems();
-	//
-	// PathwayGraph pathway = (PathwayGraph) selectedItems.iterator().next().getElementData().iterator().next();
-	// if (selectedItems.size() > 1) {
-	// pathway = (PathwayGraph) column.getHighlightedItems().iterator().next().getElementData().iterator().next();
-	// }
-	//
-	// PathwayElement pathwayElement = new PathwayElement("dummy_eventspace");
-	// PathwayTextureRepresentation representation = new PathwayTextureRepresentation(pathway);
-	// pathwayElement.setPathwayRepresentation(representation);
-	// pathwayElement.addForegroundAugmentation(new CompoundGroupPathwayAugmentation(representation,
-	// getRelationshipExplorer()));
-	//
-	// // FIXME: hacky, we do not know what id type the gene column has...
-	// Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType
-	// .getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()));
-	// if (geneCollections.isEmpty())
-	// return;
-	//
-	// pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
-	// .iterator().next(), relationshipExplorer));
-	//
-	// relationshipExplorer.showDetailView(entityCollection, pathwayElement, pathway);
-	// }
-
-	// @Override
-	// protected GLElement createElement(Object elementID) {
-	// return createTextItem(((PathwayGraph) elementID).getLabel());
-	// }
 
 	@Override
 	public String getText(Object elementID) {

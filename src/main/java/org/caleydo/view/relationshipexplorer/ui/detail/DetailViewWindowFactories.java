@@ -5,7 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.detail;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
@@ -18,7 +18,7 @@ public final class DetailViewWindowFactories {
 	}
 
 	public static IDetailViewWindowFactory createDefaultDetailViewWindowFactory(
-			final RelationshipExplorerElement relationshipExplorer) {
+			final ConTourElement relationshipExplorer) {
 		return new IDetailViewWindowFactory() {
 
 			@Override

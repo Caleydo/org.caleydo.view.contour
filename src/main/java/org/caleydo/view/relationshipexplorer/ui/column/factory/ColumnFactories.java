@@ -5,7 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.factory;
 
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
@@ -27,7 +27,7 @@ public final class ColumnFactories {
 	}
 
 	public static IColumnFactory createDefaultGroupColumnFactory(final GroupCollection collection,
-			final RelationshipExplorerElement relationshipExplorer) {
+			final ConTourElement relationshipExplorer) {
 		return new IColumnFactory() {
 
 			@Override
@@ -40,7 +40,7 @@ public final class ColumnFactories {
 	}
 
 	public static IColumnFactory createDefaultIDColumnFactory(final IDCollection collection,
-			final RelationshipExplorerElement relationshipExplorer) {
+			final ConTourElement relationshipExplorer) {
 		return new IColumnFactory() {
 
 			@Override
@@ -53,7 +53,7 @@ public final class ColumnFactories {
 	}
 
 	public static IColumnFactory createDefaultPathwayColumnFactory(final PathwayCollection collection,
-			final RelationshipExplorerElement relationshipExplorer) {
+			final ConTourElement relationshipExplorer) {
 		return new IColumnFactory() {
 
 			@Override
@@ -66,7 +66,7 @@ public final class ColumnFactories {
 	}
 
 	public static IColumnFactory createDefaultTabularDataColumnFactory(final TabularDataCollection collection,
-			final RelationshipExplorerElement relationshipExplorer) {
+			final ConTourElement relationshipExplorer) {
 		return new IColumnFactory() {
 
 			@Override

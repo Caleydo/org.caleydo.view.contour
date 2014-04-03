@@ -35,7 +35,7 @@ import org.caleydo.datadomain.pathway.IPathwayRepresentation;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
-import org.caleydo.view.relationshipexplorer.ui.RelationshipExplorerElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
@@ -120,7 +120,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	private IDMappingManager idManager = IDMappingManagerRegistry.get().getIDMappingManager(geneIDCategory);
 
-	private RelationshipExplorerElement filteredMapping;
+	private ConTourElement filteredMapping;
 
 	private List<GroupData> containedGroups;
 	private List<GroupData> filteredGroupData = new ArrayList<>();
@@ -211,7 +211,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	}
 
 	public CompoundGroupPathwayAugmentation(IPathwayRepresentation pathwayRepresentation,
-			RelationshipExplorerElement filteredMapping) {
+			ConTourElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
 		this.filteredMapping = filteredMapping;
@@ -459,7 +459,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	/**
 	 * @return the filteredMapping, see {@link #filteredMapping}
 	 */
-	public RelationshipExplorerElement getRelationshipExplorer() {
+	public ConTourElement getRelationshipExplorer() {
 		return filteredMapping;
 	}
 

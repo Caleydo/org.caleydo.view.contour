@@ -8,17 +8,24 @@ package org.caleydo.view.relationshipexplorer.internal;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.datadomain.DataDomainManager;
+import org.caleydo.core.data.datadomain.IDataDomain;
+import org.caleydo.core.id.IDCategory;
+import org.caleydo.core.id.IDMappingManager;
+import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
+import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.image.ImageDataDomain;
 import org.caleydo.datadomain.image.LayeredImage;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
@@ -30,6 +37,28 @@ import org.caleydo.view.relationshipexplorer.ui.detail.image.HTIImageDetailViewF
  */
 public class HTIFactory implements IGLElementFactory {
 
+	private class GeneIDProvider implements IElementIDProvider {
+
+		@Override
+		public Set<Object> getElementIDs() {
+			IDType geneIDType = IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name());
+			IDType compoundIDType = IDType.getIDType("MUTATION_SAMPLE");
+			IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(
+					geneIDType.getIDCategory());
+			Set<Object> allGeneIDs = new HashSet<Object>(mappingManager.getAllMappedIDs(geneIDType));
+			Set<Object> filteredGeneIDs = new HashSet<>();
+			for (Object geneID : allGeneIDs) {
+				Set<Object> compoundIDs = mappingManager.getIDAsSet(geneIDType, compoundIDType, geneID);
+				if (compoundIDs != null && !compoundIDs.isEmpty()) {
+					filteredGeneIDs.add(geneID);
+				}
+			}
+
+			return filteredGeneIDs;
+		}
+
+	}
+
 	@Override
 	public String getId() {
 		return "relationship explorer";
@@ -38,7 +67,11 @@ public class HTIFactory implements IGLElementFactory {
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
 
-		ConTourElement relationshipExplorer = new ConTourElement();
+		ConTourElement contour = new ConTourElement();
+
+		IDCollection patientCollection = new IDCollection(IDType.getIDType("PATIENT"), IDType.getIDType("PATIENT"),
+				null, contour);
+		patientCollection.setLabel("Patients");
 
 		final ImageDataDomain imageDD = (ImageDataDomain) DataDomainManager.get().getDataDomainByType(
 				ImageDataDomain.DATA_DOMAIN_TYPE);
@@ -57,20 +90,60 @@ public class HTIFactory implements IGLElementFactory {
 				}
 				return elementIDs;
 			}
-		}, relationshipExplorer);
+		}, contour);
 		layerCollection.setLabel("Areas");
-		layerCollection.setColumnFactory(new ImageAreaColumnFactory(layerCollection, imageDD, relationshipExplorer));
-		layerCollection.setDetailViewFactory(new HTIImageDetailViewFactory(imageDD, relationshipExplorer));
+		layerCollection.setColumnFactory(new ImageAreaColumnFactory(layerCollection, imageDD, contour));
+		layerCollection.setDetailViewFactory(new HTIImageDetailViewFactory(imageDD, contour));
+
+		TabularDataCollection mutationsCollection = null;
+
+		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
+			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Mutations")) {
+				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
+				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
+					// ColumnTree activityColumn = new ColumnTree();
+					mutationsCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					mutationsCollection.setLabel("Mutations");
+				}
+				break;
+			}
+		}
+
+		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()),
+				IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()), new GeneIDProvider(), contour);
 
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
-		IHistoryCommand c = new AddColumnTreeCommand(layerCollection, relationshipExplorer);
+		// -----
+
+		IHistoryCommand c = new AddColumnTreeCommand(patientCollection, contour);
 		initCommand.add(c);
 		c.execute();
 
-		relationshipExplorer.getHistory().setInitCommand(initCommand);
+		// -----
 
-		return relationshipExplorer;
+		c = new AddColumnTreeCommand(layerCollection, contour);
+		initCommand.add(c);
+		c.execute();
+
+		// -----
+
+		c = new AddColumnTreeCommand(mutationsCollection, contour);
+		initCommand.add(c);
+		c.execute();
+
+		// -----
+
+		c = new AddColumnTreeCommand(geneCollection, contour);
+		initCommand.add(c);
+		c.execute();
+
+		// -----
+
+		contour.getHistory().setInitCommand(initCommand);
+
+		return contour;
 	}
 
 	@Override

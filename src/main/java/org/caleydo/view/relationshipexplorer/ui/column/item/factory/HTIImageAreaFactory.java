@@ -60,7 +60,9 @@ public class HTIImageAreaFactory extends TextItemFactory {
 			imageElement.add(new GLImageElement(img.getBaseImage().thumbnail.getAbsolutePath()));
 			Layer layer = img.getLayer((String) elementID);
 			if (layer.area != null) {
-				imageElement.add(new GLImageElement(layer.area.thumbnail.getAbsolutePath()));
+				GLImageElement el = new GLImageElement(layer.area.thumbnail.getAbsolutePath());
+				el.setColor(Color.BLUE);
+				imageElement.add(el);
 			}
 			// imageElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(IMAGE_SIZE, IMAGE_SIZE));
 			cont.add(imageElement);

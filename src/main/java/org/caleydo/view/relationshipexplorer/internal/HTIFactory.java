@@ -43,7 +43,7 @@ public class HTIFactory implements IGLElementFactory {
 		final ImageDataDomain imageDD = (ImageDataDomain) DataDomainManager.get().getDataDomainByType(
 				ImageDataDomain.DATA_DOMAIN_TYPE);
 
-		IDType layerIDType = IDType.getIDType(imageDD.getImageSet().getIDTypeLayer());
+		IDType layerIDType = imageDD.getImageSet().getIDTypeLayer();
 
 		IDCollection layerCollection = new IDCollection(layerIDType, layerIDType, new IElementIDProvider() {
 
@@ -67,6 +67,8 @@ public class HTIFactory implements IGLElementFactory {
 		IHistoryCommand c = new AddColumnTreeCommand(layerCollection, relationshipExplorer);
 		initCommand.add(c);
 		c.execute();
+
+		relationshipExplorer.getHistory().setInitCommand(initCommand);
 
 		return relationshipExplorer;
 	}

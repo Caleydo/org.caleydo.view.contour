@@ -225,7 +225,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 
 	protected List<AContextMenuItem> getContextMenuItems() {
-		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this);
+		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this);
 		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
 				new IContextMenuCommand() {
 					@Override
@@ -234,7 +234,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						o.execute();
 						relationshipExplorer.getHistory().addHistoryCommand(o);
 					}
-				}).to(this));
+				}).to(relationshipExplorer));
 
 		items.add(detailItem);
 
@@ -267,15 +267,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		}
 		return foreignColumn;
-	}
-
-	@Override
-	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
-		event.getCommand().execute();
-
-		// applyFilter(event.type, elementIDs);
-		// triggerIDUpdate(broadcastIDs, event.type);
-		// triggerIDUpdate(broadcastIDs, EUpdateType.SELECTION);
 	}
 
 	@Override

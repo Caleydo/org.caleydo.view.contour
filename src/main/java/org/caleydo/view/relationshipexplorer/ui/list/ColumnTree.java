@@ -32,7 +32,6 @@ import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.column.ScoreElement;
 import org.caleydo.view.relationshipexplorer.ui.column.SortingEvent;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 
 /**
@@ -128,13 +127,13 @@ public class ColumnTree extends AnimatedGLElementContainer {
 			}
 		}
 
-		@ListenTo
-		public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
-			IColumnModel model = findReceiver(event.getReceiver());
-			if (model != null) {
-				model.onHandleContextMenuOperation(event);
-			}
-		}
+		// @ListenTo
+		// public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
+		// IColumnModel model = findReceiver(event.getReceiver());
+		// if (model != null) {
+		// model.onHandleContextMenuOperation(event);
+		// }
+		// }
 
 		protected IColumnModel findReceiver(Object receiver) {
 			for (NestableColumn column : allColumns) {

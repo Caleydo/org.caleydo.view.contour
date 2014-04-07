@@ -26,17 +26,17 @@ public final class FilterContextMenuItems {
 	}
 
 	public static List<AContextMenuItem> getDefaultFilterItems(ConTourElement relationshipExplorer,
-			IEntityRepresentation representation, Object contextMenuCommandReceiver) {
+			IEntityRepresentation representation) {
 		AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
 				"Replace items with those related to the selected " + representation.getCollection().getLabel(),
 				new ContextMenuCommandEvent(new FilterCommand(ESetOperation.REPLACE, representation,
-						relationshipExplorer)).to(contextMenuCommandReceiver));
+						relationshipExplorer)).to(relationshipExplorer));
 		AContextMenuItem andFilterITem = new GenericContextMenuItem("Filter items to those related to the selected "
 				+ representation.getCollection().getLabel(), new ContextMenuCommandEvent(new FilterCommand(
-				ESetOperation.INTERSECTION, representation, relationshipExplorer)).to(contextMenuCommandReceiver));
+				ESetOperation.INTERSECTION, representation, relationshipExplorer)).to(relationshipExplorer));
 		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add all items related to the selected "
 				+ representation.getCollection().getLabel(), new ContextMenuCommandEvent(new FilterCommand(
-				ESetOperation.UNION, representation, relationshipExplorer)).to(contextMenuCommandReceiver));
+				ESetOperation.UNION, representation, relationshipExplorer)).to(relationshipExplorer));
 
 		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem);
 	}

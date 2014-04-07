@@ -12,7 +12,6 @@ import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
@@ -32,7 +31,6 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSelectionHandler;
@@ -94,7 +92,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 			//
 			// };
 
-			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this));
+			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this));
 			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
 			// relationshipExplorer);
 			// IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
@@ -216,11 +214,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		}
 
 		return geneCollection.getElementIDsFromForeignIDs(davidIDs, IDType.getIDType(EGeneIDTypes.DAVID.name()));
-	}
-
-	@ListenTo(sendToMe = true)
-	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
-		event.getCommand().execute();
 	}
 
 	// @Override

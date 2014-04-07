@@ -60,6 +60,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
 import org.caleydo.view.relationshipexplorer.ui.dialog.AddColumnDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
@@ -862,5 +863,10 @@ public class ConTourElement extends AnimatedGLElementContainer {
 	 */
 	public Snapshots getSnapshots() {
 		return snapshots;
+	}
+
+	@ListenTo(sendToMe = true)
+	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
+		event.getCommand().execute();
 	}
 }

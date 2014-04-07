@@ -69,7 +69,7 @@ public class CompoundGroupVis extends GLElementContainer {
 				ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 				contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
-						parent.getRelationshipExplorer(), parent, parent));
+						parent.getRelationshipExplorer(), parent));
 
 				context.getSWTLayer().showContextMenu(contextMenuCreator);
 			}
@@ -100,7 +100,7 @@ public class CompoundGroupVis extends GLElementContainer {
 					ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 					contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
-							parent.getRelationshipExplorer(), parent.getCompoundRepresentation(), parent));
+							parent.getRelationshipExplorer(), parent.getCompoundRepresentation()));
 
 					context.getSWTLayer().showContextMenu(contextMenuCreator);
 				}

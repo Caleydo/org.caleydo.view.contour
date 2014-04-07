@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
@@ -41,7 +40,6 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.detail.IShowFilteredItemsListener;
 
 /**
@@ -463,8 +461,4 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		return filteredMapping;
 	}
 
-	@ListenTo(sendToMe = true)
-	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
-		event.getCommand().execute();
-	}
 }

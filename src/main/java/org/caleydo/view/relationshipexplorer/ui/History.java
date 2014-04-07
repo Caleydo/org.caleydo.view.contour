@@ -91,10 +91,12 @@ public class History extends AnimatedGLElementContainer {
 		protected Color color;
 		protected boolean hovered = false;
 		protected boolean isNewlyAdded = true;
+		protected String label;
 
 		public HistoryCommandElement(IHistoryCommand command) {
 			this.command = command;
 			color = command instanceof ResetCommand ? Color.GRAY : Color.LIGHT_GRAY;
+			label = command.getDescription();
 			// if (command instanceof ResetCommand)
 			// setRenderer(GLRenderers.drawText("Reset", VAlign.CENTER));
 			setTooltip(command.getDescription());
@@ -109,8 +111,8 @@ public class History extends AnimatedGLElementContainer {
 				scrollingDecorator.moveContentTo(new Vec2f(0, Float.MAX_VALUE));
 			}
 			float index = historyElementsContainer.indexOf(this);
-			String label = command.getDescription();
-			int newlineIndex = command.getDescription().indexOf("\n");
+
+			int newlineIndex = label.indexOf("\n");
 			if (newlineIndex != -1) {
 				label = label.substring(0, newlineIndex);
 			}

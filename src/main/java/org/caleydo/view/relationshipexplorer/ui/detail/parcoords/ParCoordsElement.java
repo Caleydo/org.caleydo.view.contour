@@ -15,7 +15,6 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.perspective.variable.PerspectiveInitializationData;
 import org.caleydo.core.data.selection.SelectionManager;
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.canvas.EDetailLevel;
 import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
@@ -27,7 +26,6 @@ import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.detail.IShowFilteredItemsListener;
 
@@ -96,7 +94,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 			break;
 		case RIGHT_CLICKED:
 			ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
-			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this, this));
+			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this));
 
 			context.getSWTLayer().showContextMenu(contextMenuCreator);
 			break;
@@ -107,11 +105,6 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 		selections.fireRecordSelectionDelta();
 		repaint();
 
-	}
-
-	@ListenTo(sendToMe = true)
-	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
-		event.getCommand().execute();
 	}
 
 	public void propagateSelection() {

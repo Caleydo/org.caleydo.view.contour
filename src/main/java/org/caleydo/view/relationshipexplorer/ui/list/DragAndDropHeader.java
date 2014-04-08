@@ -13,8 +13,8 @@ import org.caleydo.core.view.opengl.layout2.dnd.IDragInfo;
 import org.caleydo.core.view.opengl.layout2.dnd.IDropGLTarget;
 import org.caleydo.core.view.opengl.layout2.dnd.IUIDragInfo;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
-import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.command.AddChildColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
@@ -67,6 +67,12 @@ public class DragAndDropHeader implements IDragGLSource, IDropGLTarget {
 
 	@Override
 	public void onDropped(IDnDItem info) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void onDropLeave() {
 		// TODO Auto-generated method stub
 
 	}

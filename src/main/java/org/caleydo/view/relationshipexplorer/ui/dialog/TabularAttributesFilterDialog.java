@@ -81,7 +81,6 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 			return b.toString();
 		}
 
-
 	}
 
 	protected interface IAttributeFilterFactory {
@@ -114,15 +113,17 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 
 				@Override
 				public boolean apply(Object elementID) {
-					float value = (float) collection.getDataDomain().getRaw(collection.getItemIDType(),
-							(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID);
+					float value = ((Number) collection.getDataDomain().getRaw(collection.getItemIDType(),
+							(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID))
+							.floatValue();
 					return value >= lowerLimit && value <= upperLimit;
 				}
 
 				@Override
 				public String getDescription() {
 					StringBuilder b = new StringBuilder();
-					b.append(attribute).append(": ").append("Lower Limit: ").append(lowerLimit).append(", Upper Limit: " + upperLimit);
+					b.append(attribute).append(": ").append("Lower Limit: ").append(lowerLimit)
+							.append(", Upper Limit: " + upperLimit);
 					return b.toString();
 				}
 			};
@@ -169,13 +170,13 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 				public String getDescription() {
 					StringBuilder b = new StringBuilder();
 					b.append(attribute).append(": ");
-					for(int i = 0; i < validCategories.size() && i < 3; i++) {
+					for (int i = 0; i < validCategories.size() && i < 3; i++) {
 						b.append(validCategories.get(i));
-						if(i < validCategories.size() - 1 && i < 2) {
+						if (i < validCategories.size() - 1 && i < 2) {
 							b.append(", ");
 						}
 					}
-					if(validCategories.size() > 3)
+					if (validCategories.size() > 3)
 						b.append("...");
 
 					return b.toString();
@@ -242,14 +243,17 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 			for (int dimensionID : collection.getDimensionPerspective().getVirtualArray()) {
 				Object dataClassDesc = table.getDataClassSpecificDescription(dimensionID);
 				String label = dataDomain.getDimensionLabel(dimensionID);
-				if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
+				if (dataClassDesc == null)
+					continue;
+				if (dataClassDesc instanceof NumericalProperties) {
 
 					float min = Float.POSITIVE_INFINITY;
 					float max = Float.NEGATIVE_INFINITY;
 
 					for (Object elementID : collection.getAllElementIDs()) {
-						float value = (float) collection.getDataDomain().getRaw(collection.getItemIDType(),
-								(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID);
+						float value = ((Number) collection.getDataDomain().getRaw(collection.getItemIDType(),
+								(int) elementID, collection.getDimensionPerspective().getIdType(), dimensionID))
+								.floatValue();
 						if (value < min) {
 							min = value;
 						}
@@ -364,7 +368,7 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 	@Override
 	protected void okPressed() {
 		filter = new CompositeAttributeFilter();
-		for(IAttributeFilterFactory f : filterFactories) {
+		for (IAttributeFilterFactory f : filterFactories) {
 			if (f.use()) {
 				filter.add(f.createFilter());
 			}

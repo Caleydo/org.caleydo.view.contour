@@ -78,9 +78,17 @@ public class SimpleDataRenderer extends GLElement {
 				Object dataClassDesc = dataDomain.getDataClassSpecificDescription(recordIDType, recordID,
 						dimensionPerspective.getIdType(), dimensionID);
 
-				if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
-					// TODO: use correct data center
+				if (dataClassDesc == null)
 					renderNumericalValue(g, currentBarPos, h, barWidth, dimensionID, 0);
+				else if (dataClassDesc instanceof NumericalProperties) {
+
+					Double dataCenter = ((NumericalProperties) dataClassDesc).getDataCenter();
+					float dc = 0;
+
+					if (dataCenter != null)
+						dc = dataCenter.floatValue();
+					// TODO: use correct (normalized) data center
+					renderNumericalValue(g, currentBarPos, h, barWidth, dimensionID, dc);
 				} else {
 					renderCategoricalValue(g, currentBarPos, h, barWidth, dimensionID,
 							(CategoricalClassDescription<?>) dataClassDesc);
@@ -110,8 +118,10 @@ public class SimpleDataRenderer extends GLElement {
 		} else {
 			g.color(new Color(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 0.3f)).fillRect(
 					new Rect(posX, 0, width, h));
-			g.color(dataDomain.getColor()).fillRect(
-					new Rect(posX, normalizedDataCenter * h, width, (normalizedDataCenter * h) - (val * h)));
+			g.color(dataDomain.getColor())
+					.fillRect(
+					new Rect(posX, h - (normalizedDataCenter * h), width, (normalizedDataCenter * h)
+									- (val * h)));
 		}
 	}
 

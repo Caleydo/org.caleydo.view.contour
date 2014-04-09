@@ -21,10 +21,13 @@ import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.image.ImageDataDomain;
 import org.caleydo.datadomain.image.LayeredImage;
+import org.caleydo.datadomain.pathway.graph.PathwayGraph;
+import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
+import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
@@ -55,6 +58,28 @@ public class HTIFactory implements IGLElementFactory {
 			}
 
 			return filteredGeneIDs;
+		}
+
+	}
+
+	private class PathwayIDProvider implements IElementIDProvider {
+
+		@Override
+		public Set<Object> getElementIDs() {
+			Set<PathwayGraph> allPathways = new HashSet<>(PathwayManager.get().getAllItems());
+
+			IDType mutSampleIDType = IDType.getIDType("MUTATION_SAMPLE");
+
+			Set<Object> filteredPathways = new HashSet<>();
+			for (PathwayGraph pathway : allPathways) {
+				if (pathway.getLabel().toLowerCase().contains("metabolic pathway"))
+					continue;
+				Set<Object> compoundIDs = PathwayManager.get().getPathwayGeneIDs(pathway, mutSampleIDType);
+				if (compoundIDs != null && !compoundIDs.isEmpty())
+					filteredPathways.add(pathway);
+			}
+
+			return filteredPathways;
 		}
 
 	}
@@ -110,8 +135,25 @@ public class HTIFactory implements IGLElementFactory {
 			}
 		}
 
+		TabularDataCollection mutationSamplesCollection = null;
+
+		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
+			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Mutation Samples")) {
+				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
+				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
+					// ColumnTree activityColumn = new ColumnTree();
+					mutationSamplesCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					mutationSamplesCollection.setLabel("Mutation Samples");
+				}
+				break;
+			}
+		}
+
 		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()),
 				IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()), new GeneIDProvider(), contour);
+
+		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), contour);
 
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
@@ -129,6 +171,12 @@ public class HTIFactory implements IGLElementFactory {
 
 		// -----
 
+		c = new AddColumnTreeCommand(mutationSamplesCollection, contour);
+		initCommand.add(c);
+		c.execute();
+
+		// -----
+
 		c = new AddColumnTreeCommand(mutationsCollection, contour);
 		initCommand.add(c);
 		c.execute();
@@ -141,6 +189,11 @@ public class HTIFactory implements IGLElementFactory {
 
 		// -----
 
+		c = new AddColumnTreeCommand(pathwayCollection, contour);
+		initCommand.add(c);
+		c.execute();
+
+		// -----
 		contour.getHistory().setInitCommand(initCommand);
 
 		return contour;

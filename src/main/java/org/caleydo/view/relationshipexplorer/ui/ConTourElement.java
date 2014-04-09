@@ -315,6 +315,11 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		}
 
 		@Override
+		public void onDropLeave() {
+
+		}
+
+		@Override
 		public void onItemChanged(IDnDItem item) {
 			if (!isDraggedOver && isOver) {
 				isDraggedOver = true;

@@ -5,13 +5,13 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.detail.pathway;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLZoomPanContainer;
-import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
@@ -24,17 +24,32 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
  * @author Christian
  *
  */
-public class PathwayDetailViewFactory implements IDetailViewFactory {
+public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 
-	protected final ConTourElement relationshipExplorer;
+	protected final ConTourElement contour;
 
-	public PathwayDetailViewFactory(ConTourElement relationshipExplorer) {
-		this.relationshipExplorer = relationshipExplorer;
+	protected List<IPathwayAugmentationFactory> foregroundAugmentationFactories = new ArrayList<>();
+	protected List<IPathwayAugmentationFactory> backgroundAugmentationFactories = new ArrayList<>();
+
+	public DefaultPathwayDetailViewFactory(ConTourElement contour) {
+		this.contour = contour;
 	}
 
 	@Override
 	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+		return createZoomPanContainer(createPathwayElement(collection));
+	}
 
+	protected GLZoomPanContainer createZoomPanContainer(GLElement element) {
+		GLZoomPanContainer container = new GLZoomPanContainer();
+		container.add(element);
+		container.setBackgroundColor(Color.TRANSPARENT);
+		container.setScaleLimits(0.1f, 1f);
+		container.scaleToFit();
+		return container;
+	}
+
+	protected PathwayElement createPathwayElement(IEntityCollection collection) {
 		Set<Object> selectedElements = collection.getSelectedElementIDs();
 		Set<Object> highlightedElements = collection.getHighlightElementIDs();
 		if (selectedElements.isEmpty() && highlightedElements.isEmpty())
@@ -50,30 +65,25 @@ public class PathwayDetailViewFactory implements IDetailViewFactory {
 		representation.setMinHeight(pathway.getHeight());
 		representation.setMinWidth(pathway.getWidth());
 		pathwayElement.setPathwayRepresentation(representation);
-		CompoundGroupPathwayAugmentation aug = new CompoundGroupPathwayAugmentation(representation,
-				relationshipExplorer);
-		pathwayElement.addBackgroundAugmentation(aug);
 
-		// FIXME: hacky, we do not know what id type the gene column has...
-		Set<IEntityCollection> geneCollections = relationshipExplorer.getCollectionsWithBroadcastIDType(IDType
-				.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()));
-		if (geneCollections.isEmpty())
-			return null;
+		for (IPathwayAugmentationFactory f : backgroundAugmentationFactories) {
+			pathwayElement.addBackgroundAugmentation(f.create(representation));
+		}
+		for (IPathwayAugmentationFactory f : foregroundAugmentationFactories) {
+			pathwayElement.addForegroundAugmentation(f.create(representation));
+		}
 
-		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, geneCollections
-				.iterator().next(), relationshipExplorer));
+		return pathwayElement;
+	}
 
-		window.clearTitleElements();
-		window.addShowFilteredItems(aug, false);
+	public DefaultPathwayDetailViewFactory addForegroundAugmentationFactory(IPathwayAugmentationFactory f) {
+		foregroundAugmentationFactories.add(f);
+		return this;
+	}
 
-		GLZoomPanContainer container = new GLZoomPanContainer();
-		container.add(pathwayElement);
-		container.setBackgroundColor(Color.TRANSPARENT);
-		container.setScaleLimits(0.1f, 1f);
-
-		// container.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(new Vec2f(300, 600)));
-
-		return container;
+	public DefaultPathwayDetailViewFactory addBackgroundAugmentationFactory(IPathwayAugmentationFactory f) {
+		backgroundAugmentationFactories.add(f);
+		return this;
 	}
 
 }

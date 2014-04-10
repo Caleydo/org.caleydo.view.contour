@@ -23,8 +23,8 @@ import org.caleydo.core.view.opengl.layout2.manage.IGLElementFactory;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
-import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
@@ -45,6 +45,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewWindowFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.pathway.HTSPathwayDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -115,6 +116,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
 				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), new GeneIDProvider(),
 				relationshipExplorer);
+
+		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory(relationshipExplorer, geneCollection));
 
 		TabularDataCollection activityCollection = null;
 

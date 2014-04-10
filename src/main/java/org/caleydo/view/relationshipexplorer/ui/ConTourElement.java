@@ -756,10 +756,10 @@ public class ConTourElement extends AnimatedGLElementContainer {
 			detailContainer.setSize(Float.NaN, Float.NaN);
 			switch (split) {
 			case BOTTOM:
-				// detailContainer.setLayoutData(0.725f);
-				// columnContainerRow.setLayoutData(0.275f);
-				detailContainer.setLayoutData(0.6f);
-				columnContainerRow.setLayoutData(0.4f);
+				detailContainer.setLayoutData(0.725f);
+				columnContainerRow.setLayoutData(0.275f);
+				// detailContainer.setLayoutData(0.6f);
+				// columnContainerRow.setLayoutData(0.4f);
 				moveDownButton.setVisibility(EVisibility.PICKABLE);
 				moveUpButton.setVisibility(EVisibility.PICKABLE);
 				break;

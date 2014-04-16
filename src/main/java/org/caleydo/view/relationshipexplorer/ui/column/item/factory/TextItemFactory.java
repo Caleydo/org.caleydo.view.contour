@@ -30,8 +30,12 @@ public class TextItemFactory implements IItemFactory {
 
 	@Override
 	public GLElement createItem(Object elementID) {
-		PickableGLElement element = new PickableGLElement();
 		String text = column.getText(elementID);
+		return createTextElement(text);
+	}
+
+	public static PickableGLElement createTextElement(String text) {
+		PickableGLElement element = new PickableGLElement();
 		element.setRenderer(GLRenderers.drawText(text, VAlign.LEFT, new GLPadding(0, 0, 0, 2)));
 		element.setTooltip(text);
 		element.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(MIN_TEXT_WIDTH, ITEM_HEIGHT));

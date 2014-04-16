@@ -29,9 +29,12 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.GeneSequenceItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIMutationItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIVariantCallItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
@@ -133,9 +136,21 @@ public class HTIFactory implements IGLElementFactory {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					// ColumnTree activityColumn = new ColumnTree();
-					mutationsCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
+					final TabularDataCollection coll = new TabularDataCollection(
+							dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					mutationsCollection = coll;
 					mutationsCollection.setLabel("Variant Descriptions");
+					mutationsCollection.setColumnFactory(new IColumnFactory() {
+
+						@Override
+						public IColumnModel create() {
+							TabularDataColumn column = new TabularDataColumn(coll, contour);
+							column.setItemFactory(new HTIMutationItemFactory(coll));
+							column.init();
+							return column;
+						}
+					});
 				}
 				break;
 			}
@@ -168,8 +183,18 @@ public class HTIFactory implements IGLElementFactory {
 			}
 		}
 
-		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()),
+		final IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()),
 				IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()), new GeneIDProvider(), contour);
+		geneCollection.setColumnFactory(new IColumnFactory() {
+
+			@Override
+			public IColumnModel create() {
+				IDColumn column = new IDColumn(geneCollection, contour);
+				column.setItemFactory(new GeneSequenceItemFactory(geneCollection));
+				column.init();
+				return column;
+			}
+		});
 
 		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), contour);
 		pathwayCollection

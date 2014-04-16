@@ -77,7 +77,8 @@ public class ScoreElement extends GLElementContainer {
 	}
 
 	protected void createScoreRenderer(float value) {
-		scoreRenderer = new SimpleBarRenderer(value, true, true);
+		scoreRenderer = new SimpleBarRenderer(value, true);
+		scoreRenderer.setTooltip(Float.valueOf(value).toString());
 		scoreRenderer.setMinSize(new Vec2f(40, 16));
 		scoreRenderer.setColor(Color.DARK_GRAY);
 	}

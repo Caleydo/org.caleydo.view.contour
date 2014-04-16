@@ -23,7 +23,7 @@ public class SimpleBarRenderer extends PickableGLElement {
 	private Color color = Color.GRAY;
 	private Vec2f minSize = new Vec2f(0, 0);
 	private float barWidth = Float.NaN;
-	private boolean showTooltip;
+	// private boolean showTooltip;
 	private float maximumWidthPercentage = 0.9f;
 
 	/**
@@ -32,11 +32,11 @@ public class SimpleBarRenderer extends PickableGLElement {
 	public SimpleBarRenderer() {
 	}
 
-	public SimpleBarRenderer(float value, boolean isHorizontal, boolean showTooltip) {
-		this.normalizedValue = value;
-		this.value = value;
+	public SimpleBarRenderer(float normalizedValue, boolean isHorizontal) {
+		this.normalizedValue = normalizedValue;
+		this.value = normalizedValue;
 		this.isHorizontal = isHorizontal;
-		this.showTooltip = showTooltip;
+		// this.showTooltip = showTooltip;
 	}
 
 	@Override
@@ -64,6 +64,7 @@ public class SimpleBarRenderer extends PickableGLElement {
 			}
 			g.color(color).fillRect(posX, 0, Float.isNaN(barWidth) ? w : barWidth, barSize);
 		}
+
 	}
 
 	/**
@@ -72,11 +73,6 @@ public class SimpleBarRenderer extends PickableGLElement {
 	 */
 	public void setMaximumWidthPercentage(float maximumWidthPercentage) {
 		this.maximumWidthPercentage = maximumWidthPercentage;
-	}
-
-	@Override
-	protected void renderPickImpl(GLGraphics g, float w, float h) {
-		renderImpl(g, w, h);
 	}
 
 	/**
@@ -153,13 +149,13 @@ public class SimpleBarRenderer extends PickableGLElement {
 		return barWidth;
 	}
 
-	@Override
-	public String getTooltip() {
-		if (showTooltip)
-			return String.valueOf(value);
-		return null;
-		// return String.format("%8f", value);
-	}
+	// @Override
+	// public String getTooltip() {
+	// if (showTooltip)
+	// return String.valueOf(value);
+	// return null;
+	// // return String.format("%8f", value);
+	// }
 
 	/**
 	 * @param value
@@ -176,12 +172,12 @@ public class SimpleBarRenderer extends PickableGLElement {
 		return value;
 	}
 
-	/**
-	 * @param showTooltip
-	 *            setter, see {@link showTooltip}
-	 */
-	public void setShowTooltip(boolean showTooltip) {
-		this.showTooltip = showTooltip;
-	}
+	// /**
+	// * @param showTooltip
+	// * setter, see {@link showTooltip}
+	// */
+	// public void setShowTooltip(boolean showTooltip) {
+	// this.showTooltip = showTooltip;
+	// }
 
 }

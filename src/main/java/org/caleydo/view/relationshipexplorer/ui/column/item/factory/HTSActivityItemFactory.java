@@ -70,7 +70,7 @@ public class HTSActivityItemFactory implements IItemFactory {
 				// TODO: use correct data center
 				ic50Renderer = new SimpleBarRenderer();
 				ic50Renderer.setHorizontal(true);
-				ic50Renderer.setShowTooltip(true);
+				// ic50Renderer.setShowTooltip(true);
 				ic50Renderer.setBarWidth(ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT - 4);
 
 				float rawValue = (float) dataDomain.getRaw(recordIDType, (int) elementID,

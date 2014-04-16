@@ -114,7 +114,7 @@ public class MappingRenderer extends KeyBasedGLElementContainer<SimpleBarRendere
 	}
 
 	protected SimpleBarRenderer createDefaultBarRenderer(Color color, float zDelta) {
-		SimpleBarRenderer renderer = new SimpleBarRenderer(0, true, false);
+		SimpleBarRenderer renderer = new SimpleBarRenderer(0, true);
 		renderer.setMinSize(new Vec2f(80, barWidth));
 		// renderer.setSize(80, Float.NaN);
 		renderer.setColor(color);

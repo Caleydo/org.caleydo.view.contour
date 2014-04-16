@@ -69,7 +69,7 @@ public class HCSActivityItemFactory implements IItemFactory {
 				// TODO: use correct data center
 				ic50Renderer = new SimpleBarRenderer();
 				ic50Renderer.setHorizontal(true);
-				ic50Renderer.setShowTooltip(true);
+				// ic50Renderer.setShowTooltip(true);
 
 				float rawValue = (float) dataDomain.getRaw(recordIDType, (int) elementID,
 						dimensionPerspective.getIdType(), dimensionID);

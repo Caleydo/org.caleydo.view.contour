@@ -193,6 +193,61 @@ public class HTIMutationItemFactory implements IItemFactory {
 		return barRenderer;
 	}
 
+	// protected GLElement createPositionElement(Object elementID, ATableBasedDataDomain dataDomain, IDType
+	// recordIDType) {
+	// String chromosome = (String) dataDomain.getRaw(recordIDType, (int) elementID,
+	// HTIMutationItemFactory.this.collection.getDimensionPerspective().getIdType(),
+	// columnToIndex.get(EColumn.CHROMOSOME));
+	// // Builder builder = GLElementFactoryContext.builder();
+	// Set<Object> bcids = collection.getBroadcastingIDsFromElementID(elementID);
+	// List<Integer> ids = new ArrayList<>(bcids.size());
+	//
+	// for (Object id : bcids) {
+	// ids.add((Integer) id);
+	// }
+	//
+	// // and maybe their id type
+	// // IDType idType = context.get(IDType.class, null);
+	//
+	// // @SuppressWarnings("unchecked")
+	// // Function<Integer, Vec2i> id2position = context.get("id2position", Function.class, null);
+	// // String chromosome = context.get("chromosome", String.class, null);
+	//
+	// ID2ChromosomeLocation id2range = new ID2ChromosomeLocation(chromosome, idToPosition);
+	// ChromosomeLocationElement element = new ChromosomeLocationElement(EDimension.DIMENSION, ids,
+	// collection.getBroadcastingIDType(), id2range);
+	// // String tooltip = context.get("tooltip", String.class, null);
+	// // if (tooltip != null)
+	// element.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(100, 16));
+	// element.setTooltip("Position: " + idToPosition.apply((Integer) elementID).x());
+	// return element;
+	// //
+	// // builder.put(List.class, ids).put(IDType.class, collection.getBroadcastingIDType())
+	// // .put("chromosome", chromosome).put("id2position", idToPosition)
+	// // .put("tooltip", "Position: " + idToPosition.apply((Integer) elementID).x());
+	// //
+	// // GLElementFactoryContext context = builder.build();
+	// // List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
+	// // new Predicate<String>() {
+	// //
+	// // @Override
+	// // public boolean apply(String input) {
+	// // return input.equals("mutationlocation");
+	// // }
+	// // });
+	// //
+	// // if (!suppliers.isEmpty()) {
+	// // GLElement sequenceView = suppliers.get(0).get();
+	// // if (sequenceView == null)
+	// // return null;
+	// // sequenceView.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(100, 16));
+	// //
+	// // return sequenceView;
+	// // }
+	// //
+	// // return null;
+	// }
+
 	protected GLElement createPositionElement(Object elementID, ATableBasedDataDomain dataDomain, IDType recordIDType) {
 		String chromosome = (String) dataDomain.getRaw(recordIDType, (int) elementID,
 				HTIMutationItemFactory.this.collection.getDimensionPerspective().getIdType(),
@@ -205,8 +260,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 			ids.add((Integer) id);
 		}
 
-		builder.put(List.class, ids).put(IDType.class, collection.getBroadcastingIDType())
-				.put("chromosome", chromosome).put("id2position", idToPosition)
+		builder.put(List.class, ids).put("chromosome", chromosome).put("id2position", idToPosition)
 				.put("tooltip", "Position: " + idToPosition.apply((Integer) elementID).x());
 
 		GLElementFactoryContext context = builder.build();

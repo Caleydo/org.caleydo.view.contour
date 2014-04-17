@@ -41,13 +41,14 @@ public class SimpleBarRenderer extends PickableGLElement {
 
 	@Override
 	protected void renderImpl(GLGraphics g, float w, float h) {
+		super.renderImpl(g, w, h);
 		if (isHorizontal) {
 			float posY = 0;
 			if (!Float.isNaN(barWidth)) {
 				posY = (h - barWidth) / 2.0f;
 			}
 			float barSize = w * maximumWidthPercentage * normalizedValue;
-			if (Float.compare(normalizedValue, 0) > 0) {
+			if (Float.compare(value, 0) > 0) {
 				barSize = Math.max(barSize, 2);
 			}
 
@@ -59,7 +60,7 @@ public class SimpleBarRenderer extends PickableGLElement {
 				posX = (w - barWidth) / 2.0f;
 			}
 			float barSize = h * maximumWidthPercentage * normalizedValue;
-			if (Float.compare(normalizedValue, 0) > 0) {
+			if (Float.compare(value, 0) > 0) {
 				barSize = Math.max(barSize, 2);
 			}
 			g.color(color).fillRect(posX, 0, Float.isNaN(barWidth) ? w : barWidth, barSize);

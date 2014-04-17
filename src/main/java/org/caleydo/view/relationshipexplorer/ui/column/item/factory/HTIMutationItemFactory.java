@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
+import gleem.linalg.Vec2f;
 import gleem.linalg.open.Vec2i;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.Set;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.color.Color;
+import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
@@ -27,7 +30,9 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext.Builder;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
@@ -39,6 +44,7 @@ import com.google.common.base.Predicate;
 public class HTIMutationItemFactory implements IItemFactory {
 
 	protected enum EColumn {
+		TYPE("type"),
 		CHROMOSOME("CHROM"),
 		POSITION("POS"),
 		AMINO_ACID(
@@ -111,19 +117,30 @@ public class HTIMutationItemFactory implements IItemFactory {
 		ATableBasedDataDomain dataDomain = collection.getDataDomain();
 
 		IDType recordIDType = dataDomain.getOppositeIDType(collection.getDimensionPerspective().getIdType());
-		container.add(createTextElement(dataDomain, recordIDType, (int) elementID, EColumn.CHROMOSOME));
+
+		container.add(createCategoryElement(dataDomain, recordIDType, (int) elementID, EColumn.TYPE));
+		container.add(createTextElement(dataDomain, recordIDType, (int) elementID, EColumn.CHROMOSOME, 35));
 
 		GLElement positionElement = createPositionElement(elementID, dataDomain, recordIDType);
 		if (positionElement != null) {
 			container.add(positionElement);
 		}
-		container.add(createTextElement(dataDomain, recordIDType, (int) elementID, EColumn.AMINO_ACID));
+		container.add(createCategoryElement(dataDomain, recordIDType, (int) elementID, EColumn.CLASS));
+		container.add(createCategoryElement(dataDomain, recordIDType, (int) elementID, EColumn.IMPACT));
+
+		container.add(createTextElement(dataDomain, recordIDType, (int) elementID, EColumn.AMINO_ACID, 50));
+
+		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.AVSIFT));
+
+		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.CONSERVED));
+		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.IN_THOUSAND));
+		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.COSMIC_NUM));
 
 		return container;
 	}
 
 	protected GLElement createTextElement(ATableBasedDataDomain dataDomain, IDType recordIDType, int elementID,
-			EColumn column) {
+			EColumn column, float minWidth) {
 		String text = (String) dataDomain.getRaw(recordIDType, elementID, HTIMutationItemFactory.this.collection
 				.getDimensionPerspective().getIdType(), columnToIndex.get(column));
 		if (text == null)
@@ -131,8 +148,49 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 		PickableGLElement textElement = TextItemFactory.createTextElement(text);
 		textElement.setTooltip(column.columnCaption + ": " + text);
-		textElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(30, 16));
+		textElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(minWidth, 16));
 		return textElement;
+	}
+
+	protected GLElement createCategoryElement(ATableBasedDataDomain dataDomain, IDType recordIDType, int elementID,
+			EColumn column) {
+		Color color = new Color(dataDomain.getColor(recordIDType, elementID, HTIMutationItemFactory.this.collection
+				.getDimensionPerspective().getIdType(), columnToIndex.get(column)));
+		Object text = dataDomain.getRaw(recordIDType, elementID, HTIMutationItemFactory.this.collection
+				.getDimensionPerspective().getIdType(), columnToIndex.get(column));
+
+		PickableGLElement colorElement = new PickableGLElement();
+		colorElement.setRenderer(GLRenderers.fillRect(color));
+		colorElement.setTooltip(column.columnCaption + ": " + text);
+		colorElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
+		return colorElement;
+	}
+
+	protected GLElement createNumericalElement(ATableBasedDataDomain dataDomain, IDType recordIDType, int elementID,
+			EColumn column) {
+		float normalizedValue = dataDomain
+				.getNormalizedValue(recordIDType, elementID, HTIMutationItemFactory.this.collection
+						.getDimensionPerspective().getIdType(), columnToIndex.get(column));
+		Number value = (Number) dataDomain.getRaw(recordIDType, elementID, HTIMutationItemFactory.this.collection
+				.getDimensionPerspective().getIdType(), columnToIndex.get(column));
+
+		SimpleBarRenderer barRenderer = new SimpleBarRenderer(normalizedValue, true);
+		barRenderer.setValue(value.floatValue());
+		barRenderer.setTooltip(column.columnCaption + ": " + value);
+		barRenderer.setMinSize(new Vec2f(30, 16));
+
+		if (column == EColumn.AVSIFT) {
+			if (value.floatValue() < 0.05f)
+				barRenderer.setColor(ColorBrewer.RdBu.get(3, 0));
+			else
+				barRenderer.setColor(ColorBrewer.RdBu.get(3, 2));
+		} else {
+			barRenderer.setColor(dataDomain.getColor());
+		}
+
+		if (!Float.isNaN(normalizedValue))
+			barRenderer.setRenderer(GLRenderers.fillRect(new Color(0.9f, 0.9f, 0.9f, 0.5f)));
+		return barRenderer;
 	}
 
 	protected GLElement createPositionElement(Object elementID, ATableBasedDataDomain dataDomain, IDType recordIDType) {

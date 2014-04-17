@@ -29,11 +29,9 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.GeneSequenceItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIMutationItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIVariantCallItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
@@ -185,16 +183,16 @@ public class HTIFactory implements IGLElementFactory {
 
 		final IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()),
 				IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()), new GeneIDProvider(), contour);
-		geneCollection.setColumnFactory(new IColumnFactory() {
-
-			@Override
-			public IColumnModel create() {
-				IDColumn column = new IDColumn(geneCollection, contour);
-				column.setItemFactory(new GeneSequenceItemFactory(geneCollection));
-				column.init();
-				return column;
-			}
-		});
+		// geneCollection.setColumnFactory(new IColumnFactory() {
+		//
+		// @Override
+		// public IColumnModel create() {
+		// IDColumn column = new IDColumn(geneCollection, contour);
+		// column.setItemFactory(new GeneSequenceItemFactory(geneCollection));
+		// column.init();
+		// return column;
+		// }
+		// });
 
 		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), contour);
 		pathwayCollection

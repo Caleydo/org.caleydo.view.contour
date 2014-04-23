@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -224,7 +225,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 
-	protected List<AContextMenuItem> getContextMenuItems() {
+	@Override
+	public Collection<? extends AContextMenuItem> getContextMenuItems() {
 		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this);
 		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
 				new IContextMenuCommand() {
@@ -337,7 +339,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	public void fill(NestableColumn column, NestableColumn parentColumn) {
 		this.column = column;
 		this.parentColumn = parentColumn;
-		column.addContextMenuItems(getContextMenuItems());
+		// column.addContextMenuItems(getContextMenuItems());
 
 		if (parentColumn == null) {
 			for (Object id : entityCollection.getFilteredElementIDs()) {

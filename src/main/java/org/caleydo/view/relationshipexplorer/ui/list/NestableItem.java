@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
@@ -70,9 +69,11 @@ public class NestableItem extends AnimatedGLElementContainer {
 
 			@Override
 			public void pick(Pick pick) {
-				ContextMenuCreator contextMenuCreator = NestableItem.this.column.getContextMenuCreator();
-				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED && contextMenuCreator.hasMenuItems()) {
-					context.getSWTLayer().showContextMenu(contextMenuCreator);
+				// ContextMenuCreator contextMenuCreator = NestableItem.this.column.getContextMenuCreator();
+				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
+					NestableItem.this.column.getColumnTree().getRelationshipExplorer()
+							.addContextMenuItems(NestableItem.this.column.getColumnModel().getContextMenuItems());
+					// context.getSWTLayer().showContextMenu(contextMenuCreator);
 				}
 
 			}

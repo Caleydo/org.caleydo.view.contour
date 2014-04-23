@@ -9,6 +9,7 @@ import gleem.linalg.Vec2f;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -20,9 +21,13 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.caleydo.core.data.perspective.table.TablePerspective;
+import org.caleydo.core.event.ADirectedEvent;
 import org.caleydo.core.event.EventListenerManager.ListenTo;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
+import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -154,6 +159,11 @@ public class ConTourElement extends AnimatedGLElementContainer {
 	protected EViewSplit split = EViewSplit.MIDDLE;
 	protected GLButton moveUpButton;
 	protected GLButton moveDownButton;
+
+	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+
+	private class ShowContextMenuEvent extends ADirectedEvent {
+	}
 
 	public interface IIDMappingUpdateHandler {
 		public void handleIDMappingUpdate(AMappingUpdateOperation operation);
@@ -870,8 +880,26 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		return snapshots;
 	}
 
+	public void addContextMenuItem(AContextMenuItem item) {
+		contextMenuCreator.add(item);
+		EventPublisher.trigger(new ShowContextMenuEvent().to(this));
+	}
+
+	public void addContextMenuItems(Collection<? extends AContextMenuItem> items) {
+		contextMenuCreator.addAll(items);
+		EventPublisher.trigger(new ShowContextMenuEvent().to(this));
+	}
+
 	@ListenTo(sendToMe = true)
 	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
 		event.getCommand().execute();
+	}
+
+	@ListenTo(sendToMe = true)
+	protected void onShowContextMenu(ShowContextMenuEvent event) {
+		if (contextMenuCreator.hasMenuItems()) {
+			context.getSWTLayer().showContextMenu(contextMenuCreator);
+			contextMenuCreator.clear();
+		}
 	}
 }

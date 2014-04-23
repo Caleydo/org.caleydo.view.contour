@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 import gleem.linalg.Vec2f;
 import gleem.linalg.open.Vec2i;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -20,7 +21,10 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.color.ColorBrewer;
+import org.caleydo.core.util.system.BrowserUtils;
+import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
@@ -31,7 +35,11 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementS
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext.Builder;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
+import org.caleydo.core.view.opengl.picking.APickingListener;
+import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
 import com.google.common.base.Function;
@@ -55,7 +63,8 @@ public class HTIMutationItemFactory implements IItemFactory {
 		CLASS(
 				"Functional class of the highest-impact effect resulting from the current variant: [NONE, SILENT, MISSENSE, NONSENSE]"),
 		IMPACT("Impact of the highest-impact effect resulting from the current variant [MODIFIER, LOW, MODERATE, HIGH]"),
-		COSMIC_NUM("num of cosmic entries with this NT change");
+		COSMIC_NUM("num of cosmic entries with this NT change"),
+		DBSNP("dbSNP137");
 
 		protected final String columnCaption;
 
@@ -64,13 +73,20 @@ public class HTIMutationItemFactory implements IItemFactory {
 		}
 	}
 
+	protected static final URL CHECK_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/tick.png");
+	protected static final URL CROSS_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/abort.png");
+
 	protected final TabularDataCollection collection;
+	protected final ConTourElement contour;
 
 	protected Map<EColumn, Integer> columnToIndex = new HashMap<>();
 	protected Function<Integer, Vec2i> idToPosition;
 
-	public HTIMutationItemFactory(TabularDataCollection collection) {
+	public HTIMutationItemFactory(TabularDataCollection collection, ConTourElement contour) {
 		this.collection = collection;
+		this.contour = contour;
 
 		final ATableBasedDataDomain dataDomain = collection.getDataDomain();
 		Perspective dimensionPerspective = collection.getDimensionPerspective();
@@ -111,9 +127,10 @@ public class HTIMutationItemFactory implements IItemFactory {
 	@Override
 	public GLElement createItem(Object elementID) {
 
-		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 3, GLPadding.ZERO));
+		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 3, new GLPadding(
+				0, 0, 4, 0)));
 		container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 3,
-				GLPadding.ZERO));
+				new GLPadding(0, 0, 4, 0)));
 		ATableBasedDataDomain dataDomain = collection.getDataDomain();
 
 		IDType recordIDType = dataDomain.getOppositeIDType(collection.getDimensionPerspective().getIdType());
@@ -135,6 +152,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.CONSERVED));
 		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.IN_THOUSAND));
 		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.COSMIC_NUM));
+		container.add(createDBSNPElement(container, elementID, dataDomain, recordIDType));
 
 		return container;
 	}
@@ -163,6 +181,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 		colorElement.setRenderer(GLRenderers.fillRect(color));
 		colorElement.setTooltip(column.columnCaption + ": " + text);
 		colorElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
+		colorElement.setSize(16, 16);
 		return colorElement;
 	}
 
@@ -193,60 +212,40 @@ public class HTIMutationItemFactory implements IItemFactory {
 		return barRenderer;
 	}
 
-	// protected GLElement createPositionElement(Object elementID, ATableBasedDataDomain dataDomain, IDType
-	// recordIDType) {
-	// String chromosome = (String) dataDomain.getRaw(recordIDType, (int) elementID,
-	// HTIMutationItemFactory.this.collection.getDimensionPerspective().getIdType(),
-	// columnToIndex.get(EColumn.CHROMOSOME));
-	// // Builder builder = GLElementFactoryContext.builder();
-	// Set<Object> bcids = collection.getBroadcastingIDsFromElementID(elementID);
-	// List<Integer> ids = new ArrayList<>(bcids.size());
-	//
-	// for (Object id : bcids) {
-	// ids.add((Integer) id);
-	// }
-	//
-	// // and maybe their id type
-	// // IDType idType = context.get(IDType.class, null);
-	//
-	// // @SuppressWarnings("unchecked")
-	// // Function<Integer, Vec2i> id2position = context.get("id2position", Function.class, null);
-	// // String chromosome = context.get("chromosome", String.class, null);
-	//
-	// ID2ChromosomeLocation id2range = new ID2ChromosomeLocation(chromosome, idToPosition);
-	// ChromosomeLocationElement element = new ChromosomeLocationElement(EDimension.DIMENSION, ids,
-	// collection.getBroadcastingIDType(), id2range);
-	// // String tooltip = context.get("tooltip", String.class, null);
-	// // if (tooltip != null)
-	// element.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(100, 16));
-	// element.setTooltip("Position: " + idToPosition.apply((Integer) elementID).x());
-	// return element;
-	// //
-	// // builder.put(List.class, ids).put(IDType.class, collection.getBroadcastingIDType())
-	// // .put("chromosome", chromosome).put("id2position", idToPosition)
-	// // .put("tooltip", "Position: " + idToPosition.apply((Integer) elementID).x());
-	// //
-	// // GLElementFactoryContext context = builder.build();
-	// // List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
-	// // new Predicate<String>() {
-	// //
-	// // @Override
-	// // public boolean apply(String input) {
-	// // return input.equals("mutationlocation");
-	// // }
-	// // });
-	// //
-	// // if (!suppliers.isEmpty()) {
-	// // GLElement sequenceView = suppliers.get(0).get();
-	// // if (sequenceView == null)
-	// // return null;
-	// // sequenceView.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(100, 16));
-	// //
-	// // return sequenceView;
-	// // }
-	// //
-	// // return null;
-	// }
+	protected GLElement createDBSNPElement(GLElementContainer container, Object elementID,
+			ATableBasedDataDomain dataDomain, IDType recordIDType) {
+		final String dbsnpID = (String) dataDomain.getRaw(recordIDType, (int) elementID,
+				HTIMutationItemFactory.this.collection.getDimensionPerspective().getIdType(),
+				columnToIndex.get(EColumn.DBSNP));
+
+		PickableGLElement element = new PickableGLElement();
+		if (dbsnpID != null && !dbsnpID.equals("")) {
+			container.setVisibility(EVisibility.PICKABLE);
+			container.onPick(new APickingListener() {
+				@Override
+				protected void rightClicked(Pick pick) {
+					contour.addContextMenuItem(new ActionBasedContextMenuItem("Show in DBSNP", new Runnable() {
+
+						@Override
+						public void run() {
+							BrowserUtils.openURL("http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs="
+									+ dbsnpID.substring(2));
+						}
+					}));
+				}
+			});
+			element.setRenderer(GLRenderers.fillImage(CHECK_ICON));
+
+		} else {
+			element.setRenderer(GLRenderers.fillImage(CROSS_ICON));
+		}
+
+		element.setTooltip(EColumn.DBSNP.columnCaption + ": " + (dbsnpID != null ? dbsnpID : "None"));
+		element.setSize(16, 16);
+		element.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
+
+		return element;
+	}
 
 	protected GLElement createPositionElement(Object elementID, ATableBasedDataDomain dataDomain, IDType recordIDType) {
 		String chromosome = (String) dataDomain.getRaw(recordIDType, (int) elementID,
@@ -287,41 +286,47 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 	@Override
 	public GLElement createHeaderExtension() {
-		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1, GLPadding.ZERO));
+		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1, new GLPadding(
+				0, 0, 4, 0)));
 		container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 1,
-				GLPadding.ZERO));
+				new GLPadding(0, 0, 4, 0)));
 
-		container.add(createHeaderElement(EColumn.TYPE, 16));
+		container.add(createHeaderElement(EColumn.TYPE, 16, true));
 		container.add(createHeaderSeparatorElement());
-		container.add(createHeaderElement(EColumn.CHROMOSOME, 35));
-		container.add(createHeaderSeparatorElement());
-
-		container.add(createHeaderElement(EColumn.POSITION, 100));
+		container.add(createHeaderElement(EColumn.CHROMOSOME, 35, false));
 		container.add(createHeaderSeparatorElement());
 
-		container.add(createHeaderElement(EColumn.CLASS, 16));
-		container.add(createHeaderSeparatorElement());
-		container.add(createHeaderElement(EColumn.IMPACT, 16));
+		container.add(createHeaderElement(EColumn.POSITION, 100, false));
 		container.add(createHeaderSeparatorElement());
 
-		container.add(createHeaderElement(EColumn.AMINO_ACID, 50));
+		container.add(createHeaderElement(EColumn.CLASS, 16, true));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.IMPACT, 16, true));
 		container.add(createHeaderSeparatorElement());
 
-		container.add(createHeaderElement(EColumn.AVSIFT, 40));
+		container.add(createHeaderElement(EColumn.AMINO_ACID, 50, false));
 		container.add(createHeaderSeparatorElement());
 
-		container.add(createHeaderElement(EColumn.CONSERVED, 40));
+		container.add(createHeaderElement(EColumn.AVSIFT, 40, false));
 		container.add(createHeaderSeparatorElement());
-		container.add(createHeaderElement(EColumn.IN_THOUSAND, 40));
+
+		container.add(createHeaderElement(EColumn.CONSERVED, 40, false));
 		container.add(createHeaderSeparatorElement());
-		container.add(createHeaderElement(EColumn.COSMIC_NUM, 40));
+		container.add(createHeaderElement(EColumn.IN_THOUSAND, 40, false));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.COSMIC_NUM, 40, false));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.DBSNP, 16, true));
 
 		return container;
 	}
 
-	protected GLElement createHeaderElement(EColumn column, float minWidth) {
+	protected GLElement createHeaderElement(EColumn column, float minWidth, boolean isfixedWidth) {
 		GLElement header = TextItemFactory.createTextElement(column.columnCaption);
 		header.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(minWidth, 16));
+		if (isfixedWidth) {
+			header.setSize(minWidth, Float.NaN);
+		}
 		return header;
 	}
 

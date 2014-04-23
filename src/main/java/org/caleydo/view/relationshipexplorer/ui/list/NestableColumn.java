@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.event.EventListenerManager.DeepScan;
-import org.caleydo.core.view.contextmenu.AContextMenuItem;
-import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.column.ScoreElement;
 import org.caleydo.view.relationshipexplorer.ui.list.ListElement.ISelectionModeProvider;
@@ -45,7 +43,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 	protected Set<NestableItem> highlightedItems = new HashSet<>();
 	boolean isDirectSelectionMode = false;
 
-	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+	// protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
 	protected Set<ISelectionUpdateListener> selectionListeners = new HashSet<>();
 
@@ -508,17 +506,17 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 	/**
 	 * @return the contextMenuCreator, see {@link #contextMenuCreator}
 	 */
-	protected ContextMenuCreator getContextMenuCreator() {
-		return contextMenuCreator;
-	}
-
-	public void addContextMenuItem(AContextMenuItem item) {
-		contextMenuCreator.add(item);
-	}
-
-	public void addContextMenuItems(List<AContextMenuItem> items) {
-		contextMenuCreator.addAll(items);
-	}
+	// protected ContextMenuCreator getContextMenuCreator() {
+	// return contextMenuCreator;
+	// }
+	//
+	// public void addContextMenuItem(AContextMenuItem item) {
+	// contextMenuCreator.add(item);
+	// }
+	//
+	// public void addContextMenuItems(List<AContextMenuItem> items) {
+	// contextMenuCreator.addAll(items);
+	// }
 
 	/**
 	 * @return the columnTree, see {@link #columnTree}

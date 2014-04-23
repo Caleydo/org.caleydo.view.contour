@@ -66,12 +66,14 @@ public class CompoundGroupVis extends GLElementContainer {
 			protected void rightClicked(Pick pick) {
 				parent.propagateGroupSelection(Sets.newHashSet(data.group));
 
-				ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
-
-				contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
+				parent.getRelationshipExplorer().addContextMenuItems(
+						FilterContextMenuItems.getDefaultFilterItems(
 						parent.getRelationshipExplorer(), parent));
-
-				context.getSWTLayer().showContextMenu(contextMenuCreator);
+				// ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+				// contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
+				// parent.getRelationshipExplorer(), parent));
+				//
+				// context.getSWTLayer().showContextMenu(contextMenuCreator);
 			}
 
 		});

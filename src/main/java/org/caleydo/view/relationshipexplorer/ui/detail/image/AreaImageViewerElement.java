@@ -11,13 +11,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.data.selection.SelectionType;
-import org.caleydo.core.event.ADirectedEvent;
-import org.caleydo.core.event.EventListenerManager.ListenTo;
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.system.BrowserUtils;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
-import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLImageElement;
 import org.caleydo.core.view.opengl.layout2.GLImageViewer;
 import org.caleydo.core.view.opengl.picking.APickingListener;
@@ -47,10 +43,10 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 	protected final IEntityCollection collection;
 	protected Map<String, GLImageElement> layers = new HashMap<>();
 
-	protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
-
-	private class ShowContextMenuEvent extends ADirectedEvent {
-	}
+	// protected ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+	//
+	// private class ShowContextMenuEvent extends ADirectedEvent {
+	// }
 
 	public AreaImageViewerElement(ConTourElement contour, IEntityCollection collection, LayeredImage img) {
 		this.contour = contour;
@@ -85,10 +81,14 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 
 						if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
 
-							contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
+							AreaImageViewerElement.this.contour.addContextMenuItems(FilterContextMenuItems
+									.getDefaultFilterItems(
 									AreaImageViewerElement.this.contour, AreaImageViewerElement.this));
-
-							EventPublisher.trigger(new ShowContextMenuEvent().to(AreaImageViewerElement.this));
+							//
+							// contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
+							// AreaImageViewerElement.this.contour, AreaImageViewerElement.this));
+							//
+							// EventPublisher.trigger(new ShowContextMenuEvent().to(AreaImageViewerElement.this));
 						}
 
 					}
@@ -101,15 +101,23 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 				@Override
 				protected void rightClicked(Pick pick) {
 
-					contextMenuCreator.add(new ActionBasedContextMenuItem("Open Image in Browser", new Runnable() {
+					AreaImageViewerElement.this.contour.addContextMenuItem(new ActionBasedContextMenuItem(
+							"Open Image in Browser", new Runnable() {
 
 						@Override
 						public void run() {
 							BrowserUtils.openURL(url);
 						}
 					}));
-
-					EventPublisher.trigger(new ShowContextMenuEvent().to(AreaImageViewerElement.this));
+					// contextMenuCreator.add(new ActionBasedContextMenuItem("Open Image in Browser", new Runnable() {
+					//
+					// @Override
+					// public void run() {
+					// BrowserUtils.openURL(url);
+					// }
+					// }));
+					//
+					// EventPublisher.trigger(new ShowContextMenuEvent().to(AreaImageViewerElement.this));
 				}
 			});
 		}
@@ -117,13 +125,13 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 		collection.addEntityRepresentation(this);
 	}
 
-	@ListenTo(sendToMe = true)
-	protected void onShowContextMenu(ShowContextMenuEvent event) {
-		if (contextMenuCreator.hasMenuItems()) {
-			context.getSWTLayer().showContextMenu(contextMenuCreator);
-			contextMenuCreator.clear();
-		}
-	}
+	// @ListenTo(sendToMe = true)
+	// protected void onShowContextMenu(ShowContextMenuEvent event) {
+	// if (contextMenuCreator.hasMenuItems()) {
+	// context.getSWTLayer().showContextMenu(contextMenuCreator);
+	// contextMenuCreator.clear();
+	// }
+	// }
 
 	protected void updateAreaColors() {
 		for (Entry<String, GLImageElement> entry : layers.entrySet()) {

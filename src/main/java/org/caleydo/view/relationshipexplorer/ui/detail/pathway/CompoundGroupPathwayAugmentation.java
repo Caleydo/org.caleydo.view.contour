@@ -118,7 +118,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	private IDMappingManager idManager = IDMappingManagerRegistry.get().getIDMappingManager(geneIDCategory);
 
-	private ConTourElement filteredMapping;
+	protected ConTourElement contour;
 
 	private List<GroupData> containedGroups;
 	private List<GroupData> filteredGroupData = new ArrayList<>();
@@ -148,8 +148,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		protected final IEntityCollection compoundCollection;
 
 		public CompoundRepresentation() {
-			historyId = filteredMapping.getHistory().registerHistoryObject(this);
-			Set<IEntityCollection> collections = filteredMapping.getCollectionsWithBroadcastIDType(IDType
+			historyId = contour.getHistory().registerHistoryObject(this);
+			Set<IEntityCollection> collections = contour.getCollectionsWithBroadcastIDType(IDType
 					.getIDType("COMPOUND_ID"));
 			compoundCollection = collections.iterator().next();
 			compoundCollection.addEntityRepresentation(this);
@@ -162,16 +162,16 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 		public void propagateCompoundSelection(Set<Object> compoundIDs) {
 			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), compoundIDs,
-					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), filteredMapping);
+					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), contour);
 			c.execute();
-			filteredMapping.getHistory().addHistoryCommand(c);
+			contour.getHistory().addHistoryCommand(c);
 		}
 
 		public void propagateCompoundHighlight(Set<Object> compoundIDs) {
 			compoundCollection.setHighlightItems(compoundIDs);
 
-			filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
-					.getBroadcastingIDsFromElementIDs(compoundIDs), this, filteredMapping
+			contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
+					.getBroadcastingIDsFromElementIDs(compoundIDs), this, contour
 					.getMultiItemSelectionSetOperation()));
 		}
 
@@ -212,7 +212,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			ConTourElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
-		this.filteredMapping = filteredMapping;
+		this.contour = filteredMapping;
 		this.compoundRepresentation = new CompoundRepresentation();
 		this.historyID = filteredMapping.getHistory().registerHistoryObject(this);
 
@@ -267,7 +267,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			}
 		}
 
-		for (IEntityCollection collection : filteredMapping.getEntityCollections()) {
+		for (IEntityCollection collection : contour.getEntityCollections()) {
 			if (collection instanceof GroupCollection && collection.getLabel().contains("luster")) {
 				groupCollection = (GroupCollection) collection;
 			}
@@ -293,16 +293,16 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	protected void propagateGroupSelection(Set<Object> groups) {
 		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), groups,
-				groupCollection.getBroadcastingIDsFromElementIDs(groups), filteredMapping);
+				groupCollection.getBroadcastingIDsFromElementIDs(groups), contour);
 		c.execute();
-		filteredMapping.getHistory().addHistoryCommand(c);
+		contour.getHistory().addHistoryCommand(c);
 	}
 
 	protected void propagateGroupHighlight(Set<Object> groups) {
 		groupCollection.setHighlightItems(groups);
 
-		filteredMapping.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection
-				.getBroadcastingIDsFromElementIDs(groups), this, filteredMapping.getMultiItemSelectionSetOperation()));
+		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection
+				.getBroadcastingIDsFromElementIDs(groups), this, contour.getMultiItemSelectionSetOperation()));
 	}
 
 	private void updateGroups() {
@@ -455,10 +455,10 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	}
 
 	/**
-	 * @return the filteredMapping, see {@link #filteredMapping}
+	 * @return the filteredMapping, see {@link #contour}
 	 */
 	public ConTourElement getRelationshipExplorer() {
-		return filteredMapping;
+		return contour;
 	}
 
 }

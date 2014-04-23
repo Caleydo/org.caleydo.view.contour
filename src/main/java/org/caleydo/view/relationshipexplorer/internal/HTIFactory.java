@@ -144,7 +144,7 @@ public class HTIFactory implements IGLElementFactory {
 						@Override
 						public IColumnModel create() {
 							TabularDataColumn column = new TabularDataColumn(coll, contour);
-							column.setItemFactory(new HTIMutationItemFactory(coll));
+							column.setItemFactory(new HTIMutationItemFactory(coll, contour));
 							column.init();
 							return column;
 						}

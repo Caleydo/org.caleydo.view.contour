@@ -5,11 +5,13 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
@@ -64,6 +66,8 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 	public void init();
 
 	public GLElement getHeaderExtension();
+
+	public Collection<? extends AContextMenuItem> getContextMenuItems();
 
 	public void takeDown();
 

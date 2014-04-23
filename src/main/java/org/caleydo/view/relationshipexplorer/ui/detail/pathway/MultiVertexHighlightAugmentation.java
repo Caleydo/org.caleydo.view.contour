@@ -16,7 +16,6 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
-import org.caleydo.core.view.contextmenu.ContextMenuCreator;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -82,7 +81,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 			if (!isSelected(vertexRep))
 				propagateSelection();
-			ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
+			// ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 			// IContextMenuCommand selectionCommand = new IContextMenuCommand() {
 			//
 			// @Override
@@ -92,7 +91,9 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 			//
 			// };
 
-			contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this));
+			relationshipExplorer.addContextMenuItems(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer,
+					this));
+			// contextMenuCreator.addAll();
 			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
 			// relationshipExplorer);
 			// IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
@@ -106,7 +107,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 			// contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
 			// new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
 
-			context.getSWTLayer().showContextMenu(contextMenuCreator);
+			// context.getSWTLayer().showContextMenu(contextMenuCreator);
 		}
 	}
 

@@ -67,4 +67,10 @@ public class GeneSequenceItemFactory implements IItemFactory {
 
 		return new GLElement();
 	}
+
+	@Override
+	public GLElement createHeaderExtension() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

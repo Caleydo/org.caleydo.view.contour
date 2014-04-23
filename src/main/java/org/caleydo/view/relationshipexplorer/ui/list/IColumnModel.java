@@ -63,6 +63,8 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void init();
 
+	public GLElement getHeaderExtension();
+
 	public void takeDown();
 
 }

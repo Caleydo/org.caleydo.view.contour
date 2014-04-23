@@ -781,4 +781,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		this.itemFactory = itemFactory;
 	}
 
+	@Override
+	public GLElement getHeaderExtension() {
+		return itemFactory.createHeaderExtension();
+	}
+
 }

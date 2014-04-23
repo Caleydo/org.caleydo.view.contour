@@ -15,4 +15,6 @@ public interface IItemFactory {
 
 	public GLElement createItem(Object elementID);
 
+	public GLElement createHeaderExtension();
+
 }

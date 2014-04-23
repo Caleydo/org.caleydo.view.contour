@@ -27,4 +27,10 @@ public class SimpleTabularDataItemFactory implements IItemFactory {
 				collection.getDimensionPerspective());
 	}
 
+	@Override
+	public GLElement createHeaderExtension() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

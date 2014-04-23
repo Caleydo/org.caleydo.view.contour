@@ -17,6 +17,7 @@ import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
@@ -79,6 +80,35 @@ public class HTIVariantCallItemFactory implements IItemFactory {
 		renderer.setTooltip(caption + ": " + rawValue);
 		container.add(renderer);
 		renderer.setMinSize(new Vec2f(50, 16));
+	}
+
+	@Override
+	public GLElement createHeaderExtension() {
+		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1, GLPadding.ZERO));
+		container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 1,
+				GLPadding.ZERO));
+
+		container.add(createHeaderElement(VARIANT_FREQUENCY, 50));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(ALLELIC_DEPTH, 50));
+		container.add(createHeaderSeparatorElement());
+
+		container.add(createHeaderElement(GENOTYPE_QUALITY, 50));
+
+		return container;
+	}
+
+	protected GLElement createHeaderElement(String column, float minWidth) {
+		GLElement header = TextItemFactory.createTextElement(column);
+		header.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(minWidth, 16));
+		return header;
+	}
+
+	protected GLElement createHeaderSeparatorElement() {
+		GLElement separator = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
+		separator.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(1, Float.NaN));
+		separator.setSize(1, Float.NaN);
+		return separator;
 	}
 
 }

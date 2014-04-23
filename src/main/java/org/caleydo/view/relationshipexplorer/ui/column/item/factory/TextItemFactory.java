@@ -42,4 +42,10 @@ public class TextItemFactory implements IItemFactory {
 		return element;
 	}
 
+	@Override
+	public GLElement createHeaderExtension() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

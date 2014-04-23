@@ -113,4 +113,10 @@ public class HCSActivityItemFactory implements IItemFactory {
 
 		return container;
 	}
+
+	@Override
+	public GLElement createHeaderExtension() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -111,8 +111,8 @@ public class HTIMutationItemFactory implements IItemFactory {
 	@Override
 	public GLElement createItem(Object elementID) {
 
-		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1, GLPadding.ZERO));
-		container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 1,
+		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 3, GLPadding.ZERO));
+		container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 3,
 				GLPadding.ZERO));
 		ATableBasedDataDomain dataDomain = collection.getDataDomain();
 
@@ -177,7 +177,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 		SimpleBarRenderer barRenderer = new SimpleBarRenderer(normalizedValue, true);
 		barRenderer.setValue(value.floatValue());
 		barRenderer.setTooltip(column.columnCaption + ": " + value);
-		barRenderer.setMinSize(new Vec2f(30, 16));
+		barRenderer.setMinSize(new Vec2f(40, 16));
 
 		if (column == EColumn.AVSIFT) {
 			if (value.floatValue() < 0.05f)
@@ -283,6 +283,53 @@ public class HTIMutationItemFactory implements IItemFactory {
 		}
 
 		return null;
+	}
+
+	@Override
+	public GLElement createHeaderExtension() {
+		GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1, GLPadding.ZERO));
+		container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 1,
+				GLPadding.ZERO));
+
+		container.add(createHeaderElement(EColumn.TYPE, 16));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.CHROMOSOME, 35));
+		container.add(createHeaderSeparatorElement());
+
+		container.add(createHeaderElement(EColumn.POSITION, 100));
+		container.add(createHeaderSeparatorElement());
+
+		container.add(createHeaderElement(EColumn.CLASS, 16));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.IMPACT, 16));
+		container.add(createHeaderSeparatorElement());
+
+		container.add(createHeaderElement(EColumn.AMINO_ACID, 50));
+		container.add(createHeaderSeparatorElement());
+
+		container.add(createHeaderElement(EColumn.AVSIFT, 40));
+		container.add(createHeaderSeparatorElement());
+
+		container.add(createHeaderElement(EColumn.CONSERVED, 40));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.IN_THOUSAND, 40));
+		container.add(createHeaderSeparatorElement());
+		container.add(createHeaderElement(EColumn.COSMIC_NUM, 40));
+
+		return container;
+	}
+
+	protected GLElement createHeaderElement(EColumn column, float minWidth) {
+		GLElement header = TextItemFactory.createTextElement(column.columnCaption);
+		header.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(minWidth, 16));
+		return header;
+	}
+
+	protected GLElement createHeaderSeparatorElement() {
+		GLElement separator = new GLElement(GLRenderers.fillRect(Color.LIGHT_GRAY));
+		separator.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(1, Float.NaN));
+		separator.setSize(1, Float.NaN);
+		return separator;
 	}
 
 }

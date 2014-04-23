@@ -48,12 +48,15 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(ColumnTreeRenderStyle.HORIZONTAL_PADDING,
 						ColumnTreeRenderStyle.HEADER_TOP_PADDING, ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
 
+		GLElement headerExtension = column.getColumnModel().getHeaderExtension();
+
 		AnimatedGLElementContainer captionContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(
 				true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		captionContainer.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(captionContainer,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		captionContainer.setSize(Float.NaN, ColumnTreeRenderStyle.CAPTION_HEIGHT
-				+ ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT + 4);
+				+ ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT + 4
+				+ (headerExtension != null ? (headerExtension.getMinSize().y() + 4) : 0));
 
 		GLElementContainer headerContainer = new GLElementContainer(GLLayouts.LAYERS);
 		headerContainer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(headerContainer));
@@ -105,7 +108,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		this.column = column;
 		this.dragAndDropHeader = new DragAndDropHeader(column);
 		headerItem = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 4, GLPadding.ZERO));
-		headerItem.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(headerItem, 2,
+		headerItem.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(headerItem, 4,
 				GLPadding.ZERO));
 		headerItem.add(ColumnTree.createTextElement(caption, ColumnTreeRenderStyle.CAPTION_HEIGHT));
 		Set<IEntityCollection> allCollections = column.getColumnTree().getRelationshipExplorer().getEntityCollections();
@@ -123,6 +126,10 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		headerItem.add(mappingRenderer);
 
 		captionContainer.add(headerItem);
+
+		if (headerExtension != null) {
+			headerItem.add(headerExtension);
+		}
 
 		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 

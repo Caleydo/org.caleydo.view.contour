@@ -18,10 +18,13 @@ import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
+import org.caleydo.core.id.IDMappingManager;
+import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.color.ColorBrewer;
 import org.caleydo.core.util.system.BrowserUtils;
+import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElement.EVisibility;
@@ -151,7 +154,8 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.CONSERVED));
 		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.IN_THOUSAND));
-		container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.COSMIC_NUM));
+		// container.add(createNumericalElement(dataDomain, recordIDType, (int) elementID, EColumn.COSMIC_NUM));
+		container.add(createCOSMICElement(container, elementID, dataDomain, recordIDType));
 		container.add(createDBSNPElement(container, elementID, dataDomain, recordIDType));
 
 		return container;
@@ -212,14 +216,56 @@ public class HTIMutationItemFactory implements IItemFactory {
 		return barRenderer;
 	}
 
+	protected GLElement createCOSMICElement(GLElementContainer container, Object elementID,
+			ATableBasedDataDomain dataDomain, IDType recordIDType) {
+		IDMappingManager idMappingManager = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
+		final Set<Object> ids = idMappingManager.getIDAsSet(recordIDType, IDType.getIDType("COSMIC"), elementID);
+
+		int numElements = 0;
+		if (ids != null && !ids.isEmpty()) {
+			numElements = ids.size();
+			container.setVisibility(EVisibility.PICKABLE);
+			container.onPick(new APickingListener() {
+				@Override
+				protected void rightClicked(Pick pick) {
+
+					// List<AContextMenuItem> items = new ArrayList<>(ids.size());
+					AContextMenuItem parent = new AContextMenuItem() {
+					};
+					parent.setLabel("Show in COSMIC");
+					for (final Object id : ids) {
+						parent.addSubItem(new ActionBasedContextMenuItem((String) id, new Runnable() {
+
+							@Override
+							public void run() {
+								BrowserUtils.openURL("http://cancer.sanger.ac.uk/cosmic/mutation/overview?id="
+										+ ((String) id).substring(4));
+							}
+						}));
+					}
+
+					contour.addContextMenuItem(parent);
+				}
+			});
+		}
+
+		SimpleBarRenderer barRenderer = new SimpleBarRenderer(1, true);
+		barRenderer.setValue(numElements);
+		barRenderer.setTooltip(EColumn.COSMIC_NUM.columnCaption + ": " + numElements);
+		barRenderer.setMinSize(new Vec2f(40, 16));
+
+		return barRenderer;
+	}
+
 	protected GLElement createDBSNPElement(GLElementContainer container, Object elementID,
 			ATableBasedDataDomain dataDomain, IDType recordIDType) {
-		final String dbsnpID = (String) dataDomain.getRaw(recordIDType, (int) elementID,
-				HTIMutationItemFactory.this.collection.getDimensionPerspective().getIdType(),
-				columnToIndex.get(EColumn.DBSNP));
+		IDMappingManager idMappingManager = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
+		Set<Object> ids = idMappingManager.getIDAsSet(recordIDType, IDType.getIDType("DBSNP"), elementID);
 
 		PickableGLElement element = new PickableGLElement();
-		if (dbsnpID != null && !dbsnpID.equals("")) {
+		if (ids != null && !ids.isEmpty()) {
+			// There should only be one id
+			final String dbsnpID = (String) ids.iterator().next();
 			container.setVisibility(EVisibility.PICKABLE);
 			container.onPick(new APickingListener() {
 				@Override
@@ -235,12 +281,12 @@ public class HTIMutationItemFactory implements IItemFactory {
 				}
 			});
 			element.setRenderer(GLRenderers.fillImage(CHECK_ICON));
-
+			element.setTooltip(EColumn.DBSNP.columnCaption + ": " + dbsnpID);
 		} else {
 			element.setRenderer(GLRenderers.fillImage(CROSS_ICON));
+			element.setTooltip(EColumn.DBSNP.columnCaption + ": None");
 		}
 
-		element.setTooltip(EColumn.DBSNP.columnCaption + ": " + (dbsnpID != null ? dbsnpID : "None"));
 		element.setSize(16, 16);
 		element.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
 

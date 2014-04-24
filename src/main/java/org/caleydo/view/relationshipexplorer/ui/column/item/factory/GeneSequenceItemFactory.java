@@ -19,6 +19,7 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementS
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
 import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -72,5 +73,17 @@ public class GeneSequenceItemFactory implements IItemFactory {
 	public GLElement createHeaderExtension() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

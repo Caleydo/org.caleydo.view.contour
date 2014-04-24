@@ -43,6 +43,7 @@ import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
 import com.google.common.base.Function;
@@ -381,6 +382,18 @@ public class HTIMutationItemFactory implements IItemFactory {
 		separator.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(1, Float.NaN));
 		separator.setSize(1, Float.NaN);
 		return separator;
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

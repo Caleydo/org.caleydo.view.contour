@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleDataRenderer;
 
 /**
@@ -31,6 +32,16 @@ public class SimpleTabularDataItemFactory implements IItemFactory {
 	public GLElement createHeaderExtension() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		return false;
+	}
+
+	@Override
+	public void update() {
+
 	}
 
 }

@@ -25,6 +25,7 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.util.SimpleBarRenderer;
 
 /**
@@ -118,5 +119,17 @@ public class HCSActivityItemFactory implements IItemFactory {
 	public GLElement createHeaderExtension() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+
 	}
 }

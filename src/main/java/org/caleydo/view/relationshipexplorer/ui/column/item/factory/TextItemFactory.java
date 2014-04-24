@@ -12,6 +12,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 /**
  * @author Christian
@@ -46,6 +47,15 @@ public class TextItemFactory implements IItemFactory {
 	public GLElement createHeaderExtension() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void update() {
+	}
+
+	@Override
+	public boolean needsUpdate(EUpdateCause cause) {
+		return false;
 	}
 
 }

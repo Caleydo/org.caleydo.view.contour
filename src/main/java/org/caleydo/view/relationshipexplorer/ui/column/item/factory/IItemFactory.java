@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 /**
  * @author Christian
@@ -16,5 +17,9 @@ public interface IItemFactory {
 	public GLElement createItem(Object elementID);
 
 	public GLElement createHeaderExtension();
+
+	public boolean needsUpdate(EUpdateCause cause);
+
+	public void update();
 
 }

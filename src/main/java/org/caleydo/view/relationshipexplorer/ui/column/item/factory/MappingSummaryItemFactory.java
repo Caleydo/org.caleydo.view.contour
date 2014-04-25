@@ -104,7 +104,9 @@ public class MappingSummaryItemFactory implements ISummaryItemFactory {
 
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
-		return true;
+		if (cause == EUpdateCause.SELECTION || cause == EUpdateCause.FILTER || cause == EUpdateCause.OTHER)
+			return true;
+		return false;
 	}
 
 	@Override

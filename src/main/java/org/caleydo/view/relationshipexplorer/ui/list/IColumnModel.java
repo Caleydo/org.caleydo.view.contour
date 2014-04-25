@@ -28,22 +28,12 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void fill(NestableColumn column, NestableColumn parentColumn);
 
-	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
+	public GLElement getSummaryItemElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
 			EUpdateCause cause);
 
-	public Set<NestableItem> getItems(Set<Object> elementIDs);
+	public GLElement getItemElement(NestableItem item, EUpdateCause cause);
 
-	// public Set<Object> getElementIDsFromForeignIDs(Set<Object> foreignIDs, IDType foreignIDType);
-	//
-	// public IDType getBroadcastingIDType();
-	//
-	// public Set<Object> getBroadcastingIDsFromElementID(Object elementID);
-	//
-	// public Set<Object> getBroadcastingIDsFromElementIDs(Collection<Object> elementIDs);
-	//
-	// public Set<Object> getElementIDsFromBroadcastingID(Integer broadcastingID);
-	//
-	// public Set<Object> getFilteredElementIDs();
+	public Set<NestableItem> getItems(Set<Object> elementIDs);
 
 	public void updateMappings();
 

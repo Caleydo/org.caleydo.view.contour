@@ -16,6 +16,16 @@ import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer
  *
  */
 public class ItemContainer extends AnimatedGLElementContainer {
+
+	protected final NestableColumn column;
+
+	/**
+	 *
+	 */
+	public ItemContainer(NestableColumn column) {
+		this.column = column;
+	}
+
 	public List<NestableItem> getItems() {
 		return getCurrentItems();
 	}
@@ -30,5 +40,12 @@ public class ItemContainer extends AnimatedGLElementContainer {
 
 	public void updateSummaryItems(EUpdateCause cause) {
 
+	}
+
+	public void updateItems(EUpdateCause cause) {
+		for (GLElement i : this) {
+			NestableItem item = (NestableItem) i;
+			item.setElement(column.getColumnModel().getItemElement(item, cause));
+		}
 	}
 }

@@ -40,11 +40,10 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 	protected final GLButton collapseButton;
 	protected final List<NestableItem> items = new ArrayList<>();
 	protected final NestableItem summaryItem;
-	protected final NestableColumn column;
 	protected final NestableItem parentItem;
 
 	public CollapsableItemContainer(NestableColumn column, NestableItem parentItem, ColumnTree columnTree) {
-		this.column = column;
+		super(column);
 		this.parentItem = parentItem;
 		this.columnTree = columnTree;
 
@@ -132,7 +131,7 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 		if (updateMappings) {
 			for (NestableColumn col : column.children) {
-				col.updateSummaryItems(EUpdateCause.OTHER);
+				col.updateSummaryItemsRec(EUpdateCause.OTHER, true);
 			}
 		}
 
@@ -141,6 +140,13 @@ public class CollapsableItemContainer extends ItemContainer implements ISelectio
 
 	public boolean isVisible() {
 		return findParent(ColumnTree.class) != null;
+	}
+
+	@Override
+	public void updateItems(EUpdateCause cause) {
+		for (NestableItem item : items) {
+			item.setElement(column.getColumnModel().getItemElement(item, cause));
+		}
 	}
 
 	@Override

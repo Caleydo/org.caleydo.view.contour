@@ -224,7 +224,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return button;
 	}
 
-
 	@Override
 	public Collection<? extends AContextMenuItem> getContextMenuItems() {
 		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this);
@@ -260,7 +259,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		return entityCollection.getLabel();
 	}
 
-
 	protected AEntityColumn getFirstForeignColumn(List<AEntityColumn> foreignColumns) {
 		AEntityColumn foreignColumn = null;
 		for (AEntityColumn col : foreignColumns) {
@@ -282,7 +280,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		if (event.isSave())
 			relationshipExplorer.getHistory().addHistoryCommand(c);
 	}
-
 
 	@Override
 	public void onSelectionChanged(NestableColumn column) {
@@ -326,7 +323,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
-	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
+	public GLElement getSummaryItemElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
 			EUpdateCause cause) {
 
 		if (summaryItem.getElement() == null || summaryItemFactory.needsUpdate(cause)) {
@@ -343,7 +340,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		if (parentColumn == null) {
 			for (Object id : entityCollection.getFilteredElementIDs()) {
-				ScoreElement element = createElement(id, null);
+				ScoreElement element = createElement(id);
 				if (element != null) {
 					addItem(element, id, column, null);
 				}
@@ -366,7 +363,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					}
 
 					if (add) {
-						ScoreElement element = createElement(id, parentItem);
+						ScoreElement element = createElement(id);
 						if (element != null) {
 							addItem(element, id, column, parentItem);
 						}
@@ -429,15 +426,23 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		updateChildColumnSelections(srcRep);
 
 		column.getHeader().updateItemCounts();
+		if (itemFactory.needsUpdate(EUpdateCause.SELECTION)) {
+			itemFactory.update();
+			column.updateItems(EUpdateCause.SELECTION);
+		}
+		if (summaryItemFactory.needsUpdate(EUpdateCause.SELECTION)) {
+			column.updateSummaryItems(EUpdateCause.SELECTION);
+		}
+
 		if (srcRep == this)
 			return;
 		if (srcRep instanceof IColumnModel) {
 			if (!column.isChild((IColumnModel) srcRep)) {
-				column.updateSummaryItems(EUpdateCause.SELECTION);
+				// column.updateSummaryItems(EUpdateCause.SELECTION);
 				updateSorting();
 			}
 		} else {
-			column.updateSummaryItems(EUpdateCause.SELECTION);
+			// column.updateSummaryItems(EUpdateCause.SELECTION);
 			updateSorting();
 		}
 		column.setDirectSelectionMode(false);
@@ -445,6 +450,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+		if (itemFactory.needsUpdate(EUpdateCause.HIGHLIGHT)) {
+			itemFactory.update();
+			column.updateItems(EUpdateCause.HIGHLIGHT);
+		}
+		if (summaryItemFactory.needsUpdate(EUpdateCause.HIGHLIGHT)) {
+			column.updateSummaryItems(EUpdateCause.HIGHLIGHT);
+		}
 		if (srcRep == this)
 			return;
 		column.clearHighlight();
@@ -502,7 +514,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				}
 			}
 			for (Object elementID : elementsToAdd) {
-				ScoreElement element = createElement(elementID, null);
+				ScoreElement element = createElement(elementID);
 				if (element != null) {
 					addItem(element, elementID, column, null);
 				}
@@ -563,7 +575,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						}
 
 						if (add) {
-							ScoreElement element = createElement(id, parentItem);
+							ScoreElement element = createElement(id);
 							if (element != null) {
 								addItem(element, id, column, parentItem);
 							}
@@ -575,15 +587,21 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		}
 
 		updateChildColumnFilters(srcRep);
-		column.updateSummaryItems(EUpdateCause.FILTER);
 		column.getHeader().updateItemCounts();
+		if (itemFactory.needsUpdate(EUpdateCause.FILTER)) {
+			itemFactory.update();
+			column.updateItems(EUpdateCause.FILTER);
+		}
+		if (summaryItemFactory.needsUpdate(EUpdateCause.FILTER)) {
+			column.updateSummaryItems(EUpdateCause.FILTER);
+		}
 		updateScores();
 
 		if (srcRep == this)
 			return;
 		if (srcRep instanceof IColumnModel) {
 			if (!column.isChild((IColumnModel) srcRep)) {
-				column.updateSummaryItems(EUpdateCause.FILTER);
+				// column.updateSummaryItems(EUpdateCause.FILTER);
 				updateSorting();
 			}
 		}
@@ -743,13 +761,21 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	}
 
-	protected ScoreElement createElement(Object elementID, NestableItem parentItem) {
+	protected ScoreElement createElement(Object elementID) {
 		GLElement element = itemFactory.createItem(elementID);
 		ScoreElement scoreElement = new ScoreElement(element);
 		if (scoreProvider != null) {
 			scoreElement.showScore();
 		}
 		return scoreElement;
+	}
+
+	@Override
+	public GLElement getItemElement(NestableItem item, EUpdateCause cause) {
+		if (itemFactory.needsUpdate(cause) || item.getElement() == null) {
+			return createElement(item.getElementData().iterator().next());
+		}
+		return item.getElement();
 	}
 
 	@Override

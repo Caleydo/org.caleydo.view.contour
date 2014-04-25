@@ -60,7 +60,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	protected class ScrollableItemList extends ItemContainer {
 
-		public ScrollableItemList() {
+		public ScrollableItemList(NestableColumn column) {
+			super(column);
 			setLayout(new GLSizeRestrictiveFlowLayout2(false, ColumnTreeRenderStyle.VERTICAL_SPACING, new GLPadding(
 					ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
 			setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(this,
@@ -284,7 +285,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 	}
 
 	public void updateSummaryItems(EUpdateCause cause) {
-		rootColumn.updateSummaryItems(cause);
+		rootColumn.updateSummaryItemsRec(cause, true);
 	}
 
 	@Override
@@ -320,7 +321,7 @@ public class ColumnTree extends AnimatedGLElementContainer {
 	public NestableColumn addRootColumn(IColumnModel model) {
 		rootColumn = new NestableColumn(model, null, this);
 		rootColumn.header = new ColumnHeader(rootColumn, model.getLabel(), headerRow);
-		rootContainer = new ScrollableItemList();
+		rootContainer = new ScrollableItemList(rootColumn);
 		// rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 		rootColumn.itemContainers.add(rootContainer);
 		scrollingDecorator = new ScrollingDecorator(rootContainer, null, new ScrollBar(false), 8, EDimension.RECORD);

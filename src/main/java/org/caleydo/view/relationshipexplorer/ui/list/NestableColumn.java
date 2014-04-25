@@ -197,7 +197,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 		}
 
 		for (NestableColumn col : children) {
-			col.updateSummaryItems(EUpdateCause.OTHER);
+			col.updateSummaryItemsRec(EUpdateCause.OTHER, true);
 		}
 	}
 
@@ -244,6 +244,10 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 	}
 
 	public void updateSummaryItems(EUpdateCause cause) {
+		updateSummaryItemsRec(cause, false);
+	}
+
+	protected void updateSummaryItemsRec(EUpdateCause cause, boolean updateChildren) {
 		model.updateMappings();
 		for (ItemContainer container : itemContainers) {
 			container.updateSummaryItems(cause);
@@ -253,8 +257,16 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 			// }
 		}
 
-		for (NestableColumn child : children) {
-			child.updateSummaryItems(cause);
+		if (updateChildren) {
+			for (NestableColumn child : children) {
+				child.updateSummaryItemsRec(cause, updateChildren);
+			}
+		}
+	}
+
+	public void updateItems(EUpdateCause cause) {
+		for (ItemContainer container : itemContainers) {
+			container.updateItems(cause);
 		}
 	}
 
@@ -281,7 +293,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 
 	public GLElement getSummaryElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
 			EUpdateCause cause) {
-		return model.getSummaryElement(parentItem, items, summaryItem, cause);
+		return model.getSummaryItemElement(parentItem, items, summaryItem, cause);
 		// return ColumnTree.createTextElement("summary of " + items.size(), 16);
 	}
 
@@ -370,7 +382,6 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 		removeItemContainers(container.summaryItem);
 		container.summaryItem.removed = true;
 	}
-
 
 	protected void removeItemContainers(NestableItem item) {
 		for (Entry<NestableColumn, CollapsableItemContainer> entry : item.itemContainers.entrySet()) {

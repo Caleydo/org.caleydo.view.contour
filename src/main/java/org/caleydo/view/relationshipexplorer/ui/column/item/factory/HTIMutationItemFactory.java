@@ -23,6 +23,8 @@ import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.color.ColorBrewer;
+import org.caleydo.core.util.function.DoubleFunctions;
+import org.caleydo.core.util.function.IInvertableDoubleFunction;
 import org.caleydo.core.util.system.BrowserUtils;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
@@ -40,6 +42,7 @@ import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext.Build
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
+import org.caleydo.view.genesequence.metadata.ChromosomeMetaData;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
@@ -86,6 +89,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 	protected final ConTourElement contour;
 
 	protected Map<EColumn, Integer> columnToIndex = new HashMap<>();
+	protected Map<EColumn, IInvertableDoubleFunction> columnToNormalize = new HashMap<>();
 	protected Function<Integer, Vec2i> idToPosition;
 
 	public HTIMutationItemFactory(TabularDataCollection collection, ConTourElement contour) {
@@ -126,6 +130,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 			}
 		};
 
+		update();
 	}
 
 	@Override
@@ -140,7 +145,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 		IDType recordIDType = dataDomain.getOppositeIDType(collection.getDimensionPerspective().getIdType());
 
 		container.add(createCategoryElement(dataDomain, recordIDType, (int) elementID, EColumn.TYPE));
-		container.add(createTextElement(dataDomain, recordIDType, (int) elementID, EColumn.CHROMOSOME, 35));
+		container.add(createTextElement(dataDomain, recordIDType, (int) elementID, EColumn.CHROMOSOME, 40));
 
 		GLElement positionElement = createPositionElement(elementID, dataDomain, recordIDType);
 		if (positionElement != null) {
@@ -192,15 +197,18 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 	protected GLElement createNumericalElement(ATableBasedDataDomain dataDomain, IDType recordIDType, int elementID,
 			EColumn column) {
-		float normalizedValue = dataDomain
-				.getNormalizedValue(recordIDType, elementID, HTIMutationItemFactory.this.collection
-						.getDimensionPerspective().getIdType(), columnToIndex.get(column));
+
+		// float normalizedValue = dataDomain
+		// .getNormalizedValue(recordIDType, elementID, HTIMutationItemFactory.this.collection
+		// .getDimensionPerspective().getIdType(), columnToIndex.get(column));
 		Number value = (Number) dataDomain.getRaw(recordIDType, elementID, HTIMutationItemFactory.this.collection
 				.getDimensionPerspective().getIdType(), columnToIndex.get(column));
+		float normalizedValue = value.intValue() == Integer.MIN_VALUE ? Float.NaN : (float) columnToNormalize.get(
+				column).apply(value.doubleValue());
 
 		SimpleBarRenderer barRenderer = new SimpleBarRenderer(normalizedValue, true);
 		barRenderer.setValue(value.floatValue());
-		barRenderer.setTooltip(column.columnCaption + ": " + value);
+		barRenderer.setTooltip(column.columnCaption + ": " + (value.intValue() == Integer.MIN_VALUE ? "NaN" : value));
 		barRenderer.setMinSize(new Vec2f(40, 16));
 
 		if (column == EColumn.AVSIFT) {
@@ -212,7 +220,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 			barRenderer.setColor(dataDomain.getColor());
 		}
 
-		if (!Float.isNaN(normalizedValue))
+		if (!Float.isNaN(value.floatValue()) && value.intValue() != Integer.MIN_VALUE)
 			barRenderer.setRenderer(GLRenderers.fillRect(new Color(0.9f, 0.9f, 0.9f, 0.5f)));
 		return barRenderer;
 	}
@@ -250,10 +258,13 @@ public class HTIMutationItemFactory implements IItemFactory {
 			});
 		}
 
-		SimpleBarRenderer barRenderer = new SimpleBarRenderer(1, true);
+		SimpleBarRenderer barRenderer = new SimpleBarRenderer((float) columnToNormalize.get(EColumn.COSMIC_NUM).apply(
+				numElements), true);
 		barRenderer.setValue(numElements);
 		barRenderer.setTooltip(EColumn.COSMIC_NUM.columnCaption + ": " + numElements);
 		barRenderer.setMinSize(new Vec2f(40, 16));
+		barRenderer.setColor(dataDomain.getColor());
+		barRenderer.setRenderer(GLRenderers.fillRect(new Color(0.9f, 0.9f, 0.9f, 0.5f)));
 
 		return barRenderer;
 	}
@@ -323,9 +334,22 @@ public class HTIMutationItemFactory implements IItemFactory {
 			GLElement sequenceView = suppliers.get(0).get();
 			if (sequenceView == null)
 				return null;
-			sequenceView.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(100, 16));
 
-			return sequenceView;
+			GLElementContainer container = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 0,
+					GLPadding.ZERO));
+			container.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(container, 0,
+					GLPadding.ZERO));
+			int chromosomeLength = ChromosomeMetaData.getTotalLength(chromosome);
+			float scale = (float) columnToNormalize.get(EColumn.POSITION).apply(chromosomeLength);
+			float width = scale * 200;
+			sequenceView.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(scale * 200, 16));
+
+			GLElement spacing = new GLElement();
+			spacing.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(200 - width, 16));
+			container.add(sequenceView);
+			container.add(spacing);
+
+			return container;
 		}
 
 		return null;
@@ -340,10 +364,10 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 		container.add(createHeaderElement(EColumn.TYPE, 16, true));
 		container.add(createHeaderSeparatorElement());
-		container.add(createHeaderElement(EColumn.CHROMOSOME, 35, false));
+		container.add(createHeaderElement(EColumn.CHROMOSOME, 40, false));
 		container.add(createHeaderSeparatorElement());
 
-		container.add(createHeaderElement(EColumn.POSITION, 100, false));
+		container.add(createHeaderElement(EColumn.POSITION, 200, false));
 		container.add(createHeaderSeparatorElement());
 
 		container.add(createHeaderElement(EColumn.CLASS, 16, true));
@@ -386,13 +410,57 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
-		// TODO Auto-generated method stub
+		if (cause == EUpdateCause.FILTER)
+			return true;
 		return false;
 	}
 
 	@Override
 	public void update() {
-		// TODO Auto-generated method stub
+		ATableBasedDataDomain dataDomain = collection.getDataDomain();
+		IDType dimensionIDType = collection.getDimensionPerspective().getIdType();
+		IDType recordIDType = dataDomain.getOppositeIDType(dimensionIDType);
+		for (EColumn column : EnumSet.of(EColumn.AVSIFT, EColumn.CONSERVED, EColumn.IN_THOUSAND)) {
+			float min = 0;
+			float max = Float.MIN_VALUE;
+			for (Object elementID : collection.getFilteredElementIDs()) {
+
+				Number rawValue = (Number) dataDomain.getRaw(recordIDType, (int) elementID, dimensionIDType,
+						columnToIndex.get(column));
+
+				if (min > rawValue.floatValue() && rawValue.intValue() != Integer.MIN_VALUE)
+					min = rawValue.floatValue();
+				if (max < rawValue.floatValue())
+					max = rawValue.floatValue();
+
+			}
+			columnToNormalize.put(column, DoubleFunctions.normalize(min, max));
+		}
+		int maxNumCosmics = 0;
+		int maxChromosomeLength = 0;
+
+		for (Object elementID : collection.getFilteredElementIDs()) {
+
+			String chromosome = (String) dataDomain.getRaw(recordIDType, (int) elementID, dimensionIDType,
+					columnToIndex.get(EColumn.CHROMOSOME));
+			int chromosomeLength = ChromosomeMetaData.getTotalLength(chromosome);
+			if (chromosomeLength > maxChromosomeLength)
+				maxChromosomeLength = chromosomeLength;
+
+			IDMappingManager idMappingManager = IDMappingManagerRegistry.get().getIDMappingManager(recordIDType);
+			final Set<Object> ids = idMappingManager.getIDAsSet(recordIDType, IDType.getIDType("COSMIC"), elementID);
+
+			int numCosmics = 0;
+			if (ids != null && !ids.isEmpty()) {
+				numCosmics = ids.size();
+			}
+
+			if (numCosmics > maxNumCosmics)
+				maxNumCosmics = numCosmics;
+		}
+
+		columnToNormalize.put(EColumn.POSITION, DoubleFunctions.normalize(0, maxChromosomeLength));
+		columnToNormalize.put(EColumn.COSMIC_NUM, DoubleFunctions.normalize(0, maxNumCosmics));
 
 	}
 

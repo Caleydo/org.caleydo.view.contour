@@ -149,7 +149,7 @@ public class HTIVariantCallItemFactory implements IItemFactory {
 		IDType dimensionIDType = collection.getDimensionPerspective().getIdType();
 		IDType recordIDType = dataDomain.getOppositeIDType(dimensionIDType);
 		for (EColumn column : EnumSet.allOf(EColumn.class)) {
-			float min = Float.MAX_VALUE;
+			float min = 0;
 			float max = Float.MIN_VALUE;
 			for (Object elementID : collection.getFilteredElementIDs()) {
 

@@ -70,8 +70,8 @@ public class HTIMutationItemFactory implements IItemFactory {
 		CLASS(
 				"Functional class of the highest-impact effect resulting from the current variant: [NONE, SILENT, MISSENSE, NONSENSE]"),
 		IMPACT("Impact of the highest-impact effect resulting from the current variant [MODIFIER, LOW, MODERATE, HIGH]"),
-		COSMIC_NUM("num of cosmic entries with this NT change"),
-		DBSNP("dbSNP137");
+		COSMIC_NUM("COSMIC Linkouts"),
+		DBSNP("dbSNP Linkouts");
 
 		protected final String columnCaption;
 
@@ -80,10 +80,8 @@ public class HTIMutationItemFactory implements IItemFactory {
 		}
 	}
 
-	protected static final URL CHECK_ICON = AEntityColumn.class
-			.getResource("/org/caleydo/view/relationshipexplorer/icons/tick.png");
-	protected static final URL CROSS_ICON = AEntityColumn.class
-			.getResource("/org/caleydo/view/relationshipexplorer/icons/abort.png");
+	protected static final URL EXTERNAL_LINK_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/external.png");
 
 	protected final TabularDataCollection collection;
 	protected final ConTourElement contour;
@@ -231,6 +229,9 @@ public class HTIMutationItemFactory implements IItemFactory {
 		final Set<Object> ids = idMappingManager.getIDAsSet(recordIDType, IDType.getIDType("COSMIC"), elementID);
 
 		int numElements = 0;
+		GLElementContainer element = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1, GLPadding.ZERO));
+		element.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(element, 1, GLPadding.ZERO));
+
 		if (ids != null && !ids.isEmpty()) {
 			numElements = ids.size();
 			container.setVisibility(EVisibility.PICKABLE);
@@ -256,17 +257,34 @@ public class HTIMutationItemFactory implements IItemFactory {
 					contour.addContextMenuItem(parent);
 				}
 			});
+
+			PickableGLElement iconElement = new PickableGLElement(GLRenderers.fillImage(EXTERNAL_LINK_ICON));
+			iconElement.setSize(16, 16);
+			iconElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
+			iconElement.setTooltip(EColumn.COSMIC_NUM.columnCaption + ": " + numElements);
+
+			PickableGLElement textElement = TextItemFactory.createTextElement("(" + numElements + ")");
+			textElement.setTooltip(EColumn.COSMIC_NUM.columnCaption + ": " + numElements);
+			textElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(30, 16));
+
+			element.add(iconElement);
+			element.add(textElement);
+		} else {
+			PickableGLElement spacingElement = new PickableGLElement();
+			spacingElement.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(46, 16));
+			spacingElement.setTooltip(EColumn.COSMIC_NUM.columnCaption + ": " + numElements);
+			element.add(spacingElement);
 		}
 
-		SimpleBarRenderer barRenderer = new SimpleBarRenderer((float) columnToNormalize.get(EColumn.COSMIC_NUM).apply(
-				numElements), true);
-		barRenderer.setValue(numElements);
-		barRenderer.setTooltip(EColumn.COSMIC_NUM.columnCaption + ": " + numElements);
-		barRenderer.setMinSize(new Vec2f(40, 16));
-		barRenderer.setColor(dataDomain.getColor());
-		barRenderer.setRenderer(GLRenderers.fillRect(new Color(0.9f, 0.9f, 0.9f, 0.5f)));
+		// SimpleBarRenderer barRenderer = new SimpleBarRenderer((float)
+		// columnToNormalize.get(EColumn.COSMIC_NUM).apply(
+		// numElements), true);
+		// barRenderer.setValue(numElements);
+		// barRenderer.setMinSize(new Vec2f(40, 16));
+		// barRenderer.setColor(dataDomain.getColor());
+		// barRenderer.setRenderer(GLRenderers.fillRect(new Color(0.9f, 0.9f, 0.9f, 0.5f)));
 
-		return barRenderer;
+		return element;
 	}
 
 	protected GLElement createDBSNPElement(GLElementContainer container, Object elementID,
@@ -292,10 +310,9 @@ public class HTIMutationItemFactory implements IItemFactory {
 					}));
 				}
 			});
-			element.setRenderer(GLRenderers.fillImage(CHECK_ICON));
+			element.setRenderer(GLRenderers.fillImage(EXTERNAL_LINK_ICON));
 			element.setTooltip(EColumn.DBSNP.columnCaption + ": " + dbsnpID);
 		} else {
-			element.setRenderer(GLRenderers.fillImage(CROSS_ICON));
 			element.setTooltip(EColumn.DBSNP.columnCaption + ": None");
 		}
 
@@ -385,7 +402,7 @@ public class HTIMutationItemFactory implements IItemFactory {
 		container.add(createHeaderSeparatorElement());
 		container.add(createHeaderElement(EColumn.IN_THOUSAND, 40, false));
 		container.add(createHeaderSeparatorElement());
-		container.add(createHeaderElement(EColumn.COSMIC_NUM, 40, false));
+		container.add(createHeaderElement(EColumn.COSMIC_NUM, 46, false));
 		container.add(createHeaderSeparatorElement());
 		container.add(createHeaderElement(EColumn.DBSNP, 16, true));
 

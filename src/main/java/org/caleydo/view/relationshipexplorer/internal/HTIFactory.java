@@ -52,7 +52,7 @@ public class HTIFactory implements IGLElementFactory {
 		@Override
 		public Set<Object> getElementIDs() {
 			IDType geneIDType = IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name());
-			IDType compoundIDType = IDType.getIDType("MUTATION_SAMPLE");
+			IDType compoundIDType = IDType.getIDType("VARIANT_CALL_ID");
 			IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(
 					geneIDType.getIDCategory());
 			Set<Object> allGeneIDs = new HashSet<Object>(mappingManager.getAllMappedIDs(geneIDType));
@@ -75,13 +75,13 @@ public class HTIFactory implements IGLElementFactory {
 		public Set<Object> getElementIDs() {
 			Set<PathwayGraph> allPathways = new HashSet<>(PathwayManager.get().getAllItems());
 
-			IDType mutSampleIDType = IDType.getIDType("MUTATION_SAMPLE");
+			IDType mutationIDType = IDType.getIDType("VARIANT_ID");
 
 			Set<Object> filteredPathways = new HashSet<>();
 			for (PathwayGraph pathway : allPathways) {
 				if (pathway.getLabel().toLowerCase().contains("metabolic pathway"))
 					continue;
-				Set<Object> compoundIDs = PathwayManager.get().getPathwayGeneIDs(pathway, mutSampleIDType);
+				Set<Object> compoundIDs = PathwayManager.get().getPathwayGeneIDs(pathway, mutationIDType);
 				if (compoundIDs != null && !compoundIDs.isEmpty())
 					filteredPathways.add(pathway);
 			}
@@ -130,7 +130,7 @@ public class HTIFactory implements IGLElementFactory {
 		TabularDataCollection mutationsCollection = null;
 
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
-			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Mutations")) {
+			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Variants")) {
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					// ColumnTree activityColumn = new ColumnTree();

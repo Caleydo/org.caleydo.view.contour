@@ -143,9 +143,9 @@ public final class ItemComparators {
 		}
 
 		protected float getAttributeValue(NestableItem item) {
-			return (float) collection.getDataDomain().getRaw(collection.getBroadcastingIDType(),
-					(Integer) item.getElementData().iterator().next(),
-					collection.getDimensionPerspective().getIdType(), dimensionID);
+			return ((Number) (collection.getDataDomain().getRaw(collection.getBroadcastingIDType(), (Integer) item
+					.getElementData().iterator().next(), collection.getDimensionPerspective().getIdType(), dimensionID)))
+					.floatValue();
 		}
 
 		/**

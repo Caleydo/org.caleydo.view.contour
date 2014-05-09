@@ -138,8 +138,8 @@ public class HTIVariantCallItemFactory implements IItemFactory {
 
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
-		if (cause == EUpdateCause.FILTER)
-			return true;
+		// if (cause == EUpdateCause.FILTER)
+		// return true;
 		return false;
 	}
 

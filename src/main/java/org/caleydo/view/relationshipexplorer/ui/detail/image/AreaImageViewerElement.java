@@ -54,7 +54,7 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 		this.collection = collection;
 		setVisibility(EVisibility.PICKABLE);
 		scaleToFit();
-		final String url = img.getConfig().getProperty("URL");
+		final String url = img.getConfig().getProperty("url");
 
 		setBackgroundColor(Color.TRANSPARENT);
 		setBaseImage(img.getBaseImage().image.getAbsolutePath());

@@ -11,11 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.caleydo.core.event.EventPublisher;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -154,8 +152,8 @@ public class StringFilterDialog extends Dialog {
 			public void modifyText(ModifyEvent e) {
 				query = queryText.getText();
 
-				IEntityFilter filter = getFilter();
-				EventPublisher.trigger(new AttributeFilterEvent(filter, getFilterElementIDPool(), false).to(column));
+				// IEntityFilter filter = getFilter();
+				// EventPublisher.trigger(new AttributeFilterEvent(filter, getFilterElementIDPool(), false).to(column));
 				// triggerEvent(false);
 			}
 		});

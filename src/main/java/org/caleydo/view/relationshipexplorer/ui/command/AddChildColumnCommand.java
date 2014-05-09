@@ -5,8 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.command;
 
-import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -42,7 +42,7 @@ public class AddChildColumnCommand implements IHistoryCommand {
 	public String getDescription() {
 		IColumnModel model = relationshipExplorer.getHistory().getHistoryObjectAs(IColumnModel.class,
 				parentColumnModelHistoryID);
-		return "Added " + collection.getLabel() + "as child of " + model.getLabel();
+		return "Added " + collection.getLabel() + " as child of " + model.getLabel();
 	}
 
 }

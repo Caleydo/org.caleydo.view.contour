@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +18,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
  * @author Christian
  *
  */
-public class TabularDataHomogeneityComparator implements Comparator<NestableItem> {
+public class TabularDataHomogeneityComparator extends AInvertibleComparator<NestableItem> {
 
 	protected NestableColumn childColumn;
 

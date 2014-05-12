@@ -8,7 +8,6 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -95,8 +94,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected int historyID;
 
-	protected Set<Comparator<NestableItem>> baseComparators = new HashSet<>();
-	protected Comparator<NestableItem> currentComparator;
+	protected Set<IInvertibleComparator<NestableItem>> baseComparators = new HashSet<>();
+	protected IInvertibleComparator<NestableItem> currentComparator;
 
 	protected IScoreProvider scoreProvider;
 
@@ -129,7 +128,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
 						SortingDialog dialog = new SortingDialog(canvas.getShell(), AEntityColumn.this);
 						if (dialog.open() == Window.OK) {
-							Comparator<NestableItem> comparator = dialog.getComparator();
+							IInvertibleComparator<NestableItem> comparator = dialog.getComparator();
 							EventPublisher.trigger(new SortingEvent(comparator, dialog.getScoreProvider())
 									.to(AEntityColumn.this));
 						}
@@ -142,6 +141,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void init() {
+
+
 		// baseComparators.add(ItemComparators.SELECTED_ITEMS_COMPARATOR);
 		baseComparators.add(getDefaultComparator());
 		// currentComparator = new CompositeComparator<NestableItem>(ItemComparators.SELECTED_ITEMS_COMPARATOR,
@@ -655,14 +656,14 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
-	public void sortBy(Comparator<NestableItem> comparator) {
+	public void sortBy(IInvertibleComparator<NestableItem> comparator) {
 		currentComparator = comparator;
 		if (initialized)
 			column.sortBy(comparator);
 	}
 
 	@Override
-	public Comparator<NestableItem> getCurrentComparator() {
+	public IInvertibleComparator<NestableItem> getCurrentComparator() {
 		return currentComparator;
 	}
 
@@ -688,11 +689,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	/**
 	 * @return the baseComparators, see {@link #baseComparators}
 	 */
-	public Set<Comparator<NestableItem>> getComparators() {
+	public Set<IInvertibleComparator<NestableItem>> getComparators() {
 		return baseComparators;
 	}
 
-	public void addComparator(Comparator<NestableItem> comparator) {
+	public void addComparator(IInvertibleComparator<NestableItem> comparator) {
 		baseComparators.add(comparator);
 	}
 
@@ -812,6 +813,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public GLElement getHeaderExtension() {
 		return itemFactory.createHeaderExtension();
+	}
+
+	@Override
+	public IScoreProvider getScoreProvider() {
+		return scoreProvider;
 	}
 
 }

@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +22,12 @@ import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
  */
 public final class ItemComparators {
 
-	public static final Comparator<NestableItem> SELECTED_ITEMS_COMPARATOR = new Comparator<NestableItem>() {
+	public static final AInvertibleComparator<NestableItem> SELECTED_ITEMS_COMPARATOR = new AInvertibleComparator<NestableItem>() {
+
+		@Override
+		public String toString() {
+			return "Item Selection";
+		}
 
 		@Override
 		public int compare(NestableItem o1, NestableItem o2) {
@@ -38,12 +42,13 @@ public final class ItemComparators {
 		}
 
 		@Override
-		public String toString() {
-			return "Item Selection";
+		public IInvertibleComparator<NestableItem> getInverted() {
+			// not invertible
+			return this;
 		}
 	};
 
-	public static abstract class AMappingComparator implements Comparator<NestableItem> {
+	public static abstract class AMappingComparator extends AInvertibleComparator<NestableItem> {
 
 		protected final int mappingColumnHistoryID;
 		protected final History history;
@@ -127,7 +132,7 @@ public final class ItemComparators {
 		}
 	}
 
-	public static class NumericalAttributeComparator implements Comparator<NestableItem> {
+	public static class NumericalAttributeComparator extends AInvertibleComparator<NestableItem> {
 
 		protected final TabularDataCollection collection;
 		protected final int dimensionID;
@@ -164,7 +169,7 @@ public final class ItemComparators {
 
 	}
 
-	public ItemComparators() {
+	private ItemComparators() {
 
 	}
 

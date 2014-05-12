@@ -5,8 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Comparator;
-
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.data.perspective.table.TablePerspective;
 import org.caleydo.core.data.perspective.variable.Perspective;
@@ -41,7 +39,7 @@ public class TabularDataColumn extends AEntityColumn {
 	protected final Perspective perspective;
 	protected final IDType mappingIDType;
 
-	public static final Comparator<NestableItem> ITEM_ID_COMPARATOR = new Comparator<NestableItem>() {
+	public static final AInvertibleComparator<NestableItem> ITEM_ID_COMPARATOR = new AInvertibleComparator<NestableItem>() {
 
 		@Override
 		public int compare(NestableItem arg0, NestableItem arg1) {
@@ -112,7 +110,7 @@ public class TabularDataColumn extends AEntityColumn {
 	// }
 
 	@Override
-	public Comparator<NestableItem> getDefaultComparator() {
+	public IInvertibleComparator<NestableItem> getDefaultComparator() {
 		return ITEM_ID_COMPARATOR;
 	}
 

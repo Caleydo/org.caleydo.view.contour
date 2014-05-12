@@ -6,7 +6,6 @@
 package org.caleydo.view.relationshipexplorer.ui.list;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +15,7 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.column.AttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.column.IInvertibleComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.SortingEvent;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn.ISelectionUpdateListener;
@@ -37,11 +37,11 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public void updateMappings();
 
-	public Comparator<NestableItem> getDefaultComparator();
+	public IInvertibleComparator<NestableItem> getDefaultComparator();
 
-	public Comparator<NestableItem> getCurrentComparator();
+	public IInvertibleComparator<NestableItem> getCurrentComparator();
 
-	public void sortBy(Comparator<NestableItem> comparator);
+	public void sortBy(IInvertibleComparator<NestableItem> comparator);
 
 	public NestableColumn getColumn();
 
@@ -60,5 +60,7 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 	public Collection<? extends AContextMenuItem> getContextMenuItems();
 
 	public void takeDown();
+
+	public IScoreProvider getScoreProvider();
 
 }

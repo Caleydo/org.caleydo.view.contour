@@ -8,7 +8,6 @@ package org.caleydo.view.relationshipexplorer.ui.collection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +22,7 @@ import org.caleydo.core.id.MappingType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.collection.Pair;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.column.AInvertibleComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
@@ -275,7 +275,8 @@ public class EnrichmentScores {
 		}
 	}
 
-	public static abstract class AEnrichmentScoreComparator implements Comparator<NestableItem>, IScoreProvider {
+	public static abstract class AEnrichmentScoreComparator extends AInvertibleComparator<NestableItem> implements
+			IScoreProvider {
 		protected final EnrichmentScore enrichmentScore;
 
 		public AEnrichmentScoreComparator(EnrichmentScore score) {

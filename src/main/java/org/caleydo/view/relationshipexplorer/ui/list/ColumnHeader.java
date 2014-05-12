@@ -24,7 +24,7 @@ import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.ReverseColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.util.AnimationUtil;
 import org.caleydo.view.relationshipexplorer.ui.util.MappingRenderer;
 
@@ -141,8 +141,9 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 			protected void doubleClicked(Pick pick) {
 				IColumnModel model = ColumnHeader.this.column.getColumnModel();
 				History history = ColumnHeader.this.column.getColumnTree().getRelationshipExplorer().getHistory();
-				model.sortBy(model.getCurrentComparator());
-				ColumnSortingCommand c = new ColumnSortingCommand(model, model.getDefaultComparator(), null, history);
+				// model.sortBy(model.getCurrentComparator());
+				ReverseColumnSortingCommand c = new ReverseColumnSortingCommand(model, model.getCurrentComparator(),
+						model.getScoreProvider(), history);
 				c.execute();
 				history.addHistoryCommand(c);
 			}

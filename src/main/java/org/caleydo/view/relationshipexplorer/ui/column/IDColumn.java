@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Comparator;
 import java.util.Set;
 
 import org.caleydo.core.data.collection.EDataType;
@@ -33,7 +32,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 	protected IDMappingManager mappingManager;
 
 
-	public static final Comparator<NestableItem> ID_NUMBER_ITEM_COMPARATOR = new Comparator<NestableItem>() {
+	public static final AInvertibleComparator<NestableItem> ID_NUMBER_ITEM_COMPARATOR = new AInvertibleComparator<NestableItem>() {
 
 		@Override
 		public int compare(NestableItem arg0, NestableItem arg1) {
@@ -73,7 +72,7 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 
 
 	@Override
-	public Comparator<NestableItem> getDefaultComparator() {
+	public IInvertibleComparator<NestableItem> getDefaultComparator() {
 		if (displayedIDType.getDataType() == EDataType.INTEGER)
 			return ID_NUMBER_ITEM_COMPARATOR;
 		return super.getDefaultComparator();

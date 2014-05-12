@@ -7,7 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui.dialog;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +27,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.MaxE
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.IInvertibleComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.AMappingComparator;
@@ -60,7 +60,7 @@ public class SortingDialog extends AHelpButtonDialog {
 
 	protected final AEntityColumn column;
 
-	protected Set<Comparator<NestableItem>> comparators;
+	protected Set<IInvertibleComparator<NestableItem>> comparators;
 
 	protected Button considerSelectionsButton;
 	protected Button sortByNumberOfChildItemsButton;
@@ -76,7 +76,7 @@ public class SortingDialog extends AHelpButtonDialog {
 	protected Map<Integer, EnrichmentScore> scoreMap = new HashMap<>();
 	protected Map<Integer, Integer> attributeMap = new HashMap<>();
 
-	protected Comparator<NestableItem> definedComparator;
+	protected IInvertibleComparator<NestableItem> definedComparator;
 
 	protected IScoreProvider scoreProvider;
 
@@ -98,11 +98,11 @@ public class SortingDialog extends AHelpButtonDialog {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		List<Comparator<NestableItem>> currentComparators = new ArrayList<>();
+		List<IInvertibleComparator<NestableItem>> currentComparators = new ArrayList<>();
 		if (column.getCurrentComparator() instanceof CompositeComparator<?>) {
 			CompositeComparator<?> compositeComparator = (CompositeComparator<?>) column.getCurrentComparator();
 			for (Object o : compositeComparator) {
-				currentComparators.add((Comparator<NestableItem>) o);
+				currentComparators.add((IInvertibleComparator<NestableItem>) o);
 			}
 		} else {
 			currentComparators.add(column.getCurrentComparator());
@@ -120,7 +120,7 @@ public class SortingDialog extends AHelpButtonDialog {
 		criteriaGroup.setText("Sorting Criteria");
 		// final org.eclipse.swt.widgets.Table table = new org.eclipse.swt.widgets.Table(group, SWT.CHECK | SWT.BORDER
 		// | SWT.V_SCROLL | SWT.H_SCROLL);
-		for (Comparator<NestableItem> c : comparators) {
+		for (IInvertibleComparator<NestableItem> c : comparators) {
 
 			Button button = new Button(criteriaGroup, SWT.RADIO);
 			button.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1));
@@ -137,7 +137,7 @@ public class SortingDialog extends AHelpButtonDialog {
 		AMappingComparator mappingComparator = null;
 		EnrichmentScore enrichmentScore = null;
 		NumericalAttributeComparator numericalAttributeComparator = null;
-		for (Comparator<NestableItem> c : currentComparators) {
+		for (IInvertibleComparator<NestableItem> c : currentComparators) {
 			if (c instanceof AMappingComparator) {
 				mappingComparator = (AMappingComparator) c;
 				break;
@@ -348,7 +348,7 @@ public class SortingDialog extends AHelpButtonDialog {
 						comparator.add(new NumericalAttributeComparator((TabularDataCollection) column.getCollection(),
 								dimensionID));
 					} else {
-						comparator.add((Comparator<NestableItem>) button.getData());
+						comparator.add((IInvertibleComparator<NestableItem>) button.getData());
 					}
 				}
 			}
@@ -360,7 +360,7 @@ public class SortingDialog extends AHelpButtonDialog {
 	/**
 	 * @return the definedComparator, see {@link #definedComparator}
 	 */
-	public Comparator<NestableItem> getComparator() {
+	public IInvertibleComparator<NestableItem> getComparator() {
 		return definedComparator;
 	}
 

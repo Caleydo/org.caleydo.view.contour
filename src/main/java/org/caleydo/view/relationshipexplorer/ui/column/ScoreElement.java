@@ -71,7 +71,7 @@ public class ScoreElement extends GLElementContainer {
 			createScoreRenderer(value / maxValue);
 		} else {
 			scoreRenderer.setNormalizedValue(value / maxValue);
-			scoreRenderer.setValue(value);
+			scoreRenderer.setTooltip(Float.valueOf(value).toString());
 		}
 
 	}

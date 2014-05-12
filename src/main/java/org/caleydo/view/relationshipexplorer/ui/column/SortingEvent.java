@@ -5,8 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import java.util.Comparator;
-
 import org.caleydo.core.event.ADirectedEvent;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
@@ -16,10 +14,10 @@ import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
  */
 public class SortingEvent extends ADirectedEvent {
 
-	protected Comparator<NestableItem> comparator;
+	protected IInvertibleComparator<NestableItem> comparator;
 	protected IScoreProvider scoreProvider;
 
-	public SortingEvent(Comparator<NestableItem> comparator, IScoreProvider scoreProvider) {
+	public SortingEvent(IInvertibleComparator<NestableItem> comparator, IScoreProvider scoreProvider) {
 		this.comparator = comparator;
 		this.scoreProvider = scoreProvider;
 	}
@@ -27,7 +25,7 @@ public class SortingEvent extends ADirectedEvent {
 	/**
 	 * @return the comparator, see {@link #comparator}
 	 */
-	public Comparator<NestableItem> getComparator() {
+	public IInvertibleComparator<NestableItem> getComparator() {
 		return comparator;
 	}
 
@@ -35,7 +33,7 @@ public class SortingEvent extends ADirectedEvent {
 	 * @param comparator
 	 *            setter, see {@link comparator}
 	 */
-	public void setComparator(Comparator<NestableItem> comparator) {
+	public void setComparator(IInvertibleComparator<NestableItem> comparator) {
 		this.comparator = comparator;
 	}
 

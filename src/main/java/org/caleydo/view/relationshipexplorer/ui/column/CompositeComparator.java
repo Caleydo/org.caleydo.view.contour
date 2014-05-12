@@ -7,18 +7,19 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 
 /**
  * @author Christian
  *
  */
-public class CompositeComparator<T> extends ArrayList<Comparator<T>> implements Comparator<T> {
+public class CompositeComparator<T> extends ArrayList<IInvertibleComparator<T>> implements IInvertibleComparator<T> {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -4246689097366899024L;
+
+	protected boolean invert = false;
 
 	/**
 	 *
@@ -27,7 +28,7 @@ public class CompositeComparator<T> extends ArrayList<Comparator<T>> implements 
 		// TODO Auto-generated constructor stub
 	}
 
-	public CompositeComparator(Collection<? extends Comparator<T>> collection) {
+	public CompositeComparator(Collection<? extends IInvertibleComparator<T>> collection) {
 		super(collection);
 	}
 
@@ -36,9 +37,9 @@ public class CompositeComparator<T> extends ArrayList<Comparator<T>> implements 
 	}
 
 	@SafeVarargs
-	public CompositeComparator(Comparator<T>... comparators) {
+	public CompositeComparator(IInvertibleComparator<T>... comparators) {
 		super(comparators.length);
-		for (Comparator<T> c : comparators) {
+		for (IInvertibleComparator<T> c : comparators) {
 			add(c);
 		}
 	}
@@ -46,12 +47,22 @@ public class CompositeComparator<T> extends ArrayList<Comparator<T>> implements 
 	@Override
 	public int compare(T o1, T o2) {
 
-		for (Comparator<T> c : this) {
+		for (IInvertibleComparator<T> c : this) {
 			int result = c.compare(o1, o2);
 			if (result != 0)
 				return result;
 		}
 		return 0;
 	}
+
+	@Override
+	public IInvertibleComparator<T> getInverted() {
+		CompositeComparator<T> comp = new CompositeComparator<>(size());
+		for (IInvertibleComparator<T> c : this) {
+			comp.add(c.getInverted());
+		}
+		return comp;
+	}
+
 
 }

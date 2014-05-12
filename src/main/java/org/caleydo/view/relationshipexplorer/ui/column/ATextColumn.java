@@ -7,8 +7,6 @@ package org.caleydo.view.relationshipexplorer.ui.column;
 
 import gleem.linalg.Vec2f;
 
-import java.util.Comparator;
-
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
@@ -39,7 +37,7 @@ public abstract class ATextColumn extends AEntityColumn {
 
 	protected final TextItemComparator textItemComparator;
 
-	protected static class TextItemComparator implements Comparator<NestableItem> {
+	protected static class TextItemComparator extends AInvertibleComparator<NestableItem> {
 
 		protected final ATextColumn column;
 
@@ -143,7 +141,7 @@ public abstract class ATextColumn extends AEntityColumn {
 	// }
 
 	@Override
-	public Comparator<NestableItem> getDefaultComparator() {
+	public IInvertibleComparator<NestableItem> getDefaultComparator() {
 		return textItemComparator;
 	}
 

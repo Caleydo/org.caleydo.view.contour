@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
@@ -17,7 +18,8 @@ import com.google.common.collect.Sets;
  *
  */
 public enum ESetOperation {
-	REPLACE(AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), INTERSECTION(
+	REMOVE(AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), REPLACE(
+			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), INTERSECTION(
 			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), UNION(
 			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/add.png"));
 
@@ -29,6 +31,10 @@ public enum ESetOperation {
 
 	public Set<Object> apply(Set<Object> set1, Set<Object> set2) {
 		switch (this) {
+		case REMOVE:
+			Set<Object> result = new HashSet<>(set2);
+			result.removeAll(set1);
+			return result;
 		case REPLACE:
 			return set1;
 		case INTERSECTION:

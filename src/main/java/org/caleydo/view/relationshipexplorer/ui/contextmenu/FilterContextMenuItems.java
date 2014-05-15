@@ -37,8 +37,11 @@ public final class FilterContextMenuItems {
 		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add all items related to the selected "
 				+ representation.getCollection().getLabel(), new ContextMenuCommandEvent(new FilterCommand(
 				ESetOperation.UNION, representation, relationshipExplorer)).to(relationshipExplorer));
+		AContextMenuItem removeItem = new GenericContextMenuItem("Remove all items related to the selected "
+				+ representation.getCollection().getLabel(), new ContextMenuCommandEvent(new FilterCommand(
+				ESetOperation.REMOVE, representation, relationshipExplorer)).to(relationshipExplorer));
 
-		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem);
+		return Lists.newArrayList(replaceFilterItem, andFilterITem, orFilterITem, removeItem);
 	}
 
 }

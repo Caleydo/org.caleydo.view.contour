@@ -77,6 +77,10 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation impl
 			b.append("Added relationships based on selected ").append(representation.getCollection().getLabel())
 					.append(":\n");
 			break;
+		case REMOVE:
+			b.append("Removed relationships based on selected ").append(representation.getCollection().getLabel())
+					.append(":\n");
+			break;
 		default:
 			return "";
 		}

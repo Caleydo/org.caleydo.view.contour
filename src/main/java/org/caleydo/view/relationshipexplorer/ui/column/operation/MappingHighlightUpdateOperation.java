@@ -23,8 +23,8 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 	 * @param op
 	 */
 	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep,
-			ESetOperation multiItemSelectionSetOperation) {
-		super(srcBroadcastIDs, srcRep, ESetOperation.INTERSECTION, multiItemSelectionSetOperation);
+			ESetOperation multiItemSelectionSetOperation, Set<IEntityCollection> targetCollections) {
+		super(srcBroadcastIDs, srcRep, ESetOperation.INTERSECTION, multiItemSelectionSetOperation, targetCollections);
 	}
 
 	@Override

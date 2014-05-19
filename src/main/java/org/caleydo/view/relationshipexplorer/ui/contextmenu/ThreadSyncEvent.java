@@ -11,18 +11,18 @@ import org.caleydo.core.event.ADirectedEvent;
  * @author Christian
  *
  */
-public class ContextMenuCommandEvent extends ADirectedEvent {
+public class ThreadSyncEvent extends ADirectedEvent {
 
-	protected final IContextMenuCommand command;
+	protected final Runnable runnable;
 
-	public ContextMenuCommandEvent(IContextMenuCommand command) {
-		this.command = command;
+	public ThreadSyncEvent(Runnable runnable) {
+		this.runnable = runnable;
 	}
 
 	/**
 	 * @return the command, see {@link #command}
 	 */
-	public IContextMenuCommand getCommand() {
-		return command;
+	public Runnable getRunnable() {
+		return runnable;
 	}
 }

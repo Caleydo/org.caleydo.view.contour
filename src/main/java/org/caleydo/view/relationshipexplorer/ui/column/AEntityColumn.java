@@ -45,9 +45,8 @@ import org.caleydo.view.relationshipexplorer.ui.command.DuplicateColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ShowDetailCommand;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.IContextMenuCommand;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SortingDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -122,7 +121,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				// final Vec2f location = filterButton.getAbsoluteLocation();
 
-				column.getColumnTree().getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+				AEntityColumn.this.relationshipExplorer.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
 					@Override
 					public void run(Display display, Composite canvas) {
 						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
@@ -141,7 +140,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public void init() {
-
 
 		// baseComparators.add(ItemComparators.SELECTED_ITEMS_COMPARATOR);
 		baseComparators.add(getDefaultComparator());
@@ -228,10 +226,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public Collection<? extends AContextMenuItem> getContextMenuItems() {
 		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this);
-		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ContextMenuCommandEvent(
-				new IContextMenuCommand() {
+		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(
+				new Runnable() {
 					@Override
-					public void execute() {
+					public void run() {
 						ShowDetailCommand o = new ShowDetailCommand(entityCollection, relationshipExplorer);
 						o.execute();
 						relationshipExplorer.getHistory().addHistoryCommand(o);
@@ -312,7 +310,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(entityCollection
 				.getBroadcastingIDsFromElementIDs(elementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation()));
+				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
 
 	}
 

@@ -22,8 +22,9 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep, ESetOperation op, ESetOperation multiItemSelectionSetOperation) {
-		super(srcBroadcastIDs, srcRep, op, multiItemSelectionSetOperation);
+	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep, ESetOperation op,
+			ESetOperation multiItemSelectionSetOperation, Set<IEntityCollection> targetCollections) {
+		super(srcBroadcastIDs, srcRep, op, multiItemSelectionSetOperation, targetCollections);
 	}
 
 	@Override

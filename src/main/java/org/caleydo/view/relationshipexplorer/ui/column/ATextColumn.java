@@ -98,7 +98,7 @@ public abstract class ATextColumn extends AEntityColumn {
 	/**
 	 * @param relationshipExplorer
 	 */
-	public ATextColumn(IEntityCollection entityCollection, ConTourElement relationshipExplorer) {
+	public ATextColumn(IEntityCollection entityCollection, final ConTourElement relationshipExplorer) {
 		super(entityCollection, relationshipExplorer);
 		this.textItemComparator = new TextItemComparator(this);
 		setItemFactory(new TextItemFactory(this));
@@ -110,7 +110,7 @@ public abstract class ATextColumn extends AEntityColumn {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				final Vec2f location = filterButton.getAbsoluteLocation();
 
-				column.getColumnTree().getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+				relationshipExplorer.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
 					@Override
 					public void run(Display display, Composite canvas) {
 

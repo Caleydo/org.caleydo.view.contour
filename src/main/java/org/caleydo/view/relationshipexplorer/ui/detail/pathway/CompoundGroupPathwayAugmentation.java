@@ -171,8 +171,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 			compoundCollection.setHighlightItems(compoundIDs);
 
 			contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
-					.getBroadcastingIDsFromElementIDs(compoundIDs), this, contour
-					.getMultiItemSelectionSetOperation()));
+					.getBroadcastingIDsFromElementIDs(compoundIDs), this, contour.getMultiItemSelectionSetOperation(),
+					contour.getEntityCollections()));
 		}
 
 		@Override
@@ -208,8 +208,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	}
 
-	public CompoundGroupPathwayAugmentation(IPathwayRepresentation pathwayRepresentation,
-			ConTourElement filteredMapping) {
+	public CompoundGroupPathwayAugmentation(IPathwayRepresentation pathwayRepresentation, ConTourElement filteredMapping) {
 		this.pathwayRepresentation = pathwayRepresentation;
 		((PathwayTextureRepresentation) pathwayRepresentation).setPadding(new GLPadding(padding, 0, padding, 0));
 		this.contour = filteredMapping;
@@ -302,7 +301,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		groupCollection.setHighlightItems(groups);
 
 		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection
-				.getBroadcastingIDsFromElementIDs(groups), this, contour.getMultiItemSelectionSetOperation()));
+				.getBroadcastingIDsFromElementIDs(groups), this, contour.getMultiItemSelectionSetOperation(), contour
+				.getEntityCollections()));
 	}
 
 	private void updateGroups() {

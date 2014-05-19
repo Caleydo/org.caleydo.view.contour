@@ -133,7 +133,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection
 				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation()));
+				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
 	}
 
 	@Override

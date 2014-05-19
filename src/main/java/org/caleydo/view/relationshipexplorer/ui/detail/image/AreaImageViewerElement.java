@@ -167,7 +167,7 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 
 		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection
 				.getBroadcastingIDsFromElementIDs(collection.getHighlightElementIDs()), this, contour
-				.getMultiItemSelectionSetOperation()));
+				.getMultiItemSelectionSetOperation(), contour.getEntityCollections()));
 	}
 
 	@Override

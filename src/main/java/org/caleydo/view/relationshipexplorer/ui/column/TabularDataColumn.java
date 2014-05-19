@@ -60,7 +60,7 @@ public class TabularDataColumn extends AEntityColumn {
 	};
 
 	public TabularDataColumn(TabularDataCollection tabularDataCollection,
-			ConTourElement relationshipExplorer) {
+ final ConTourElement relationshipExplorer) {
 		super(tabularDataCollection, relationshipExplorer);
 		this.itemIDCategory = tabularDataCollection.getItemIDCategory();
 		this.tablePerspective = tabularDataCollection.getTablePerspective();
@@ -79,7 +79,7 @@ public class TabularDataColumn extends AEntityColumn {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				// final Vec2f location = filterButton.getAbsoluteLocation();
 
-				column.getColumnTree().getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+				relationshipExplorer.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
 					@Override
 					public void run(Display display, Composite canvas) {
 						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());

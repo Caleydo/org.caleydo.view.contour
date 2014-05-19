@@ -5,6 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.filter;
 
+import java.util.Set;
+
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
@@ -15,7 +17,15 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
  */
 public interface IFilterCommand extends IHistoryCommand {
 
-	public IEntityCollection getCollection();
+	/**
+	 * @return The source collection the filter is based on.
+	 */
+	public IEntityCollection getSourceCollection();
+
+	/**
+	 * @return The collections this filter shall be applied on.
+	 */
+	public Set<IEntityCollection> getTargetCollections();
 
 	public ESetOperation getSetOperation();
 

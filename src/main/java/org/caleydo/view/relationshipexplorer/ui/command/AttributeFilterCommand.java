@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.command;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.History;
@@ -31,6 +32,8 @@ public class AttributeFilterCommand implements IFilterCommand {
 	protected final Set<Object> filterElementIDPool;
 	protected final boolean saveFilter;
 
+	protected Set<IEntityCollection> targetCollections = new HashSet<>();
+
 	public AttributeFilterCommand(AEntityColumn column, IEntityFilter filter, ESetOperation setOperation,
 			Set<Object> filterElementIDPool, boolean saveFilter, History history) {
 		this.columnHistoryID = column.getHistoryID();
@@ -47,11 +50,13 @@ public class AttributeFilterCommand implements IFilterCommand {
 		AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, columnHistoryID);
 
 		Set<Object> filteredElementIDs = FilterUtil.filter(filterElementIDPool, filter);
+		if (targetCollections.contains(collection)) {
 		collection.setFilteredItems(filteredElementIDs);
+		}
 		// column.updateSorting();
 		column.getRelationshipExplorer().applyIDMappingUpdate(
 				new MappingFilterUpdateOperation(collection.getBroadcastingIDsFromElementIDs(filteredElementIDs),
-						column, setOperation, ESetOperation.UNION));
+						column, setOperation, ESetOperation.UNION, targetCollections));
 
 		if (saveFilter)
 			column.getRelationshipExplorer().getFilterPipeline().addFilterCommand(this);
@@ -65,13 +70,30 @@ public class AttributeFilterCommand implements IFilterCommand {
 	}
 
 	@Override
-	public IEntityCollection getCollection() {
+	public IEntityCollection getSourceCollection() {
 		return collection;
 	}
 
 	@Override
 	public ESetOperation getSetOperation() {
 		return setOperation;
+	}
+
+	/**
+	 * @param targetCollections
+	 *            setter, see {@link targetCollections}
+	 */
+	public void setTargetCollections(Set<IEntityCollection> targetCollections) {
+		this.targetCollections = targetCollections;
+	}
+
+	public void addTargetCollection(IEntityCollection collection) {
+		targetCollections.add(collection);
+	}
+
+	@Override
+	public Set<IEntityCollection> getTargetCollections() {
+		return targetCollections;
 	}
 
 }

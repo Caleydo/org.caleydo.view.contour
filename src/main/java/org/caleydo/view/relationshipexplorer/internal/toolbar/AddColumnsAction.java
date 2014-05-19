@@ -9,6 +9,7 @@ import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.gui.SimpleAction;
 import org.caleydo.data.loader.ResourceLoader;
 import org.caleydo.view.relationshipexplorer.internal.GLRelationshipExplorerView;
+import org.caleydo.view.relationshipexplorer.ui.dialog.ASelectCollectionsDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.AddColumnDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
@@ -44,7 +45,7 @@ public class AddColumnsAction extends SimpleAction {
 		// pathEvent.setEventSpace(entourage.getPathEventSpace());
 		// GeneralManager.get().getEventPublisher().triggerEvent(pathEvent);
 
-		AddColumnDialog dialog = new AddColumnDialog(Display.getDefault().getActiveShell(),
+		ASelectCollectionsDialog dialog = new AddColumnDialog(Display.getDefault().getActiveShell(),
 				view.getRelationshipExplorer());
 		if (dialog.open() == Window.OK) {
 			AddColumnsEvent event = new AddColumnsEvent(dialog.getCollections());

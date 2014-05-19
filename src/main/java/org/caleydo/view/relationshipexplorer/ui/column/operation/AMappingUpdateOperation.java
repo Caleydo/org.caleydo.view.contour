@@ -24,18 +24,23 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 	protected final IEntityRepresentation srcRep;
 	protected final ESetOperation multiItemSelectionOperation;
 
+	protected final Set<IEntityCollection> targetCollections;
+
 	// protected final IEntityCollection srcCollection;
 
 	public AMappingUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep, ESetOperation op,
-			ESetOperation multiItemSelectionOperation) {
+			ESetOperation multiItemSelectionOperation, Set<IEntityCollection> targetCollections) {
 		super(op);
 		this.srcBroadcastIDs = srcBroadcastIDs;
 		this.srcRep = srcRep;
 		this.multiItemSelectionOperation = multiItemSelectionOperation;
+		this.targetCollections = targetCollections;
 	}
 
 	@Override
 	public void execute(IEntityCollection collection) {
+		if (!targetCollections.contains(collection))
+			return;
 		Set<Object> elementIDs = null;
 		if (!(collection == srcRep.getCollection())) {
 			if (multiItemSelectionOperation == ESetOperation.INTERSECTION) {
@@ -64,6 +69,12 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 
 	public abstract void triggerUpdate(IEntityCollection collection);
 
+	/**
+	 * Applies the update oparation to the specified collection with the specified ids.
+	 *
+	 * @param collection
+	 * @param elementIDs
+	 */
 	protected abstract void execute(IEntityCollection collection, Set<Object> elementIDs);
 
 	public abstract EUpdateCause getUpdateCause();
@@ -80,6 +91,10 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 	 */
 	public Set<Object> getSrcBroadcastIDs() {
 		return srcBroadcastIDs;
+	}
+
+	public Set<IEntityCollection> getTargetCollections() {
+		return targetCollections;
 	}
 
 }

@@ -182,7 +182,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(geneCollection
 				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation()));
+				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
 	}
 
 	@Override

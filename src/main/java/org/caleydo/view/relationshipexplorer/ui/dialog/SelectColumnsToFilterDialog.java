@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author Christian
  *
  */
-public class AddColumnDialog extends ASelectCollectionsDialog {
+public class SelectColumnsToFilterDialog extends ASelectCollectionsDialog {
 
 	/**
 	 * @param shell
@@ -20,8 +20,8 @@ public class AddColumnDialog extends ASelectCollectionsDialog {
 	 * @param caption
 	 * @param isDefaultChecked
 	 */
-	public AddColumnDialog(Shell shell, ConTourElement relationshipExplorerElement) {
-		super(shell, relationshipExplorerElement, "Add Column", false);
+	public SelectColumnsToFilterDialog(Shell shell, ConTourElement relationshipExplorerElement) {
+		super(shell, relationshipExplorerElement, "Select columns to filter", true);
 	}
 
 }

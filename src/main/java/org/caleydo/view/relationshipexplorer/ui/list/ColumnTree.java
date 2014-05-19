@@ -19,7 +19,6 @@ import org.caleydo.core.event.EventListenerManager.ListenTo;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementAccessor;
-import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollBar;
 import org.caleydo.core.view.opengl.layout2.basic.ScrollingDecorator;
@@ -391,10 +390,6 @@ public class ColumnTree extends AnimatedGLElementContainer {
 	 */
 	public NestableColumn getRootColumn() {
 		return rootColumn;
-	}
-
-	public IGLElementContext getContext() {
-		return context;
 	}
 
 	/**

@@ -32,6 +32,7 @@ import org.caleydo.core.view.opengl.canvas.IGLCanvas;
 import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
+import org.caleydo.core.view.opengl.layout2.IGLElementContext;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.core.view.opengl.layout2.PickableGLElement;
 import org.caleydo.core.view.opengl.layout2.animation.AnimatedGLElementContainer;
@@ -65,7 +66,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
-import org.caleydo.view.relationshipexplorer.ui.contextmenu.ContextMenuCommandEvent;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
 import org.caleydo.view.relationshipexplorer.ui.dialog.AddColumnDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
@@ -292,8 +293,7 @@ public class ConTourElement extends AnimatedGLElementContainer {
 
 			if (item.getType() == EDnDType.COPY) {
 
-				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(),
-						ConTourElement.this);
+				AddColumnTreeCommand c = new AddColumnTreeCommand(info.getModel().getCollection(), ConTourElement.this);
 				c.setIndex(columnContainer.indexOf(this));
 				c.execute();
 				history.addHistoryCommand(c);
@@ -391,8 +391,6 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		filterPipeline.setLayoutData(0.4f);
 		supportViewContainer.add(filterPipeline);
 
-
-
 		AnimatedGLElementContainer container = new AnimatedGLElementContainer((new GLSizeRestrictiveFlowLayout2(false,
 				2, GLPadding.ZERO)));
 
@@ -477,13 +475,11 @@ public class ConTourElement extends AnimatedGLElementContainer {
 				context.getSWTLayer().run(new ISWTLayerRunnable() {
 					@Override
 					public void run(Display display, Composite canvas) {
-						AddColumnDialog dialog = new AddColumnDialog(canvas.getShell(),
-								ConTourElement.this);
+						AddColumnDialog dialog = new AddColumnDialog(canvas.getShell(), ConTourElement.this);
 						if (dialog.open() == Window.OK) {
 							Set<IEntityCollection> collections = dialog.getCollections();
 							for (IEntityCollection collection : collections) {
-								AddColumnTreeCommand c = new AddColumnTreeCommand(collection,
-										ConTourElement.this);
+								AddColumnTreeCommand c = new AddColumnTreeCommand(collection, ConTourElement.this);
 								c.execute();
 								history.addHistoryCommand(c);
 							}
@@ -891,8 +887,8 @@ public class ConTourElement extends AnimatedGLElementContainer {
 	}
 
 	@ListenTo(sendToMe = true)
-	public void onHandleContextMenuOperation(ContextMenuCommandEvent event) {
-		event.getCommand().execute();
+	public void onHandleContextMenuOperation(ThreadSyncEvent event) {
+		event.getRunnable().run();
 	}
 
 	@ListenTo(sendToMe = true)
@@ -901,5 +897,9 @@ public class ConTourElement extends AnimatedGLElementContainer {
 			context.getSWTLayer().showContextMenu(contextMenuCreator);
 			contextMenuCreator.clear();
 		}
+	}
+
+	public IGLElementContext getContext() {
+		return context;
 	}
 }

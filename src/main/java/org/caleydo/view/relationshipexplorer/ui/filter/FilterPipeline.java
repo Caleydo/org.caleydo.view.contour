@@ -119,7 +119,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			icon.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
 			contentBar.add(icon);
 
-			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getCollection().getLabel(), VAlign.LEFT));
+			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getSourceCollection().getLabel(), VAlign.LEFT));
 			text.setSize(Float.NaN, 14);
 			// IGLElementParent parent = getParent();
 			// while (parent.getParent() != null) {

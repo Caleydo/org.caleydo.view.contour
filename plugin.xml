@@ -11,13 +11,6 @@
             id="org.caleydo.view.relationshipexplorer"
             name="ConTour">
       </view>
-      <view
-            category="org.caleydo.core.views"
-            class="org.caleydo.view.relationshipexplorer.structure.RcpGLCompoundStructureView"
-            id="org.caleydo.view.compoundstructure"
-            name="Compound Structure"
-            restorable="true">
-      </view>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -25,11 +18,6 @@
             locationURI="menu:org.caleydo.menu.view.visualization">
          <command
                commandId="org.caleydo.view.relationshipexplorer.command.open"
-               icon="resources/icons/icon.png"
-               style="push">
-         </command>
-         <command
-               commandId="org.caleydo.view.compoundstructure.open"
                icon="resources/icons/icon.png"
                style="push">
          </command>
@@ -42,11 +30,6 @@
             id="org.caleydo.view.relationshipexplorer.command.open"
             name="ConTour">
       </command>
-      <command
-            defaultHandler="org.caleydo.view.relationshipexplorer.structure.OpenStructureViewHandler"
-            id="org.caleydo.view.compoundstructure.open"
-            name="CompoundStructure">
-      </command>
    </extension>
    <extension
          point="org.caleydo.core.data.datadomain.ViewDataDomainAssociation">
@@ -57,12 +40,6 @@
          </dataDomain>
          <dataDomain
                type="org.caleydo.datadomain.generic">
-         </dataDomain>
-      </association>
-      <association
-            view="org.caleydo.view.compoundstructure">
-         <dataDomain
-               type="org.caleydo.datadomain.genetic">
          </dataDomain>
       </association>
    </extension>

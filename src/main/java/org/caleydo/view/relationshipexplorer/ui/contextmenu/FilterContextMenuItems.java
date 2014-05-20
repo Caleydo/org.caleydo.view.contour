@@ -5,12 +5,14 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.contextmenu;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
+import org.caleydo.core.view.contextmenu.GroupContextMenuItem;
 import org.caleydo.core.view.opengl.layout2.ISWTLayer.ISWTLayerRunnable;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
@@ -23,8 +25,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.google.common.collect.Lists;
-
 /**
  * @author Christian
  *
@@ -35,65 +35,45 @@ public final class FilterContextMenuItems {
 
 	}
 
-	public static List<AContextMenuItem> getDefaultFilterItems(final ConTourElement relationshipExplorer,
+	public static List<AContextMenuItem> getDefaultFilterItems(final ConTourElement contour,
 			final IEntityRepresentation representation) {
+
+		List<AContextMenuItem> items = new ArrayList<>();
+		items.add(createFilterItemGroup(ESetOperation.REPLACE, "Replace items with those related to the selected "
+				+ representation.getCollection().getLabel() + " in ...", contour, representation));
+
+		items.add(createFilterItemGroup(ESetOperation.INTERSECTION, "Filter items to those related to the selected "
+				+ representation.getCollection().getLabel() + " in ...", contour, representation));
+
+		items.add(createFilterItemGroup(ESetOperation.UNION, "Add all items related to the selected "
+				+ representation.getCollection().getLabel() + " in ...", contour, representation));
+
+		items.add(createFilterItemGroup(ESetOperation.REMOVE, "Remove all items related to the selected "
+				+ representation.getCollection().getLabel() + " in ...", contour, representation));
+
+		return items;
+	}
+
+	private static AContextMenuItem createFilterItemGroup(ESetOperation operation, String groupItemLabel,
+			ConTourElement contour, IEntityRepresentation representation) {
+		GroupContextMenuItem groupItem = new GroupContextMenuItem(groupItemLabel);
 
 		final Set<Object> elementIDs = representation.getCollection().getSelectedElementIDs();
 		final Set<Object> broadcastIDs = representation.getCollection().getBroadcastingIDsFromElementIDs(elementIDs);
 
 		SelectionBasedFilterOperation c = new SelectionBasedFilterOperation(representation.getHistoryID(), elementIDs,
-				broadcastIDs, ESetOperation.REPLACE, relationshipExplorer);
+				broadcastIDs, operation, contour);
 
-		// AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
-		// "Replace items with those related to the selected " + representation.getCollection().getLabel(),
-		// new ThreadSyncCommandEvent(new FilterCommand(ESetOperation.REPLACE, representation,
-		// relationshipExplorer)).to(relationshipExplorer));
-		AContextMenuItem replaceFilterItem = new GenericContextMenuItem(
-				"Replace items with those related to the selected " + representation.getCollection().getLabel(),
-				new ThreadSyncEvent(new AddHistoryCommandRunnable(c, relationshipExplorer.getHistory()))
-						.to(relationshipExplorer));
+		AContextMenuItem filterAllItem = new GenericContextMenuItem("All columns", new ThreadSyncEvent(
+				new AddHistoryCommandRunnable(c, contour.getHistory())).to(contour));
 
-		AContextMenuItem replaceFilterInItem = new GenericContextMenuItem(
-				"Replace items with those related to the selected " + representation.getCollection().getLabel()
-						+ " in ...", new ThreadSyncEvent(new SelectColumnsRunnable(relationshipExplorer,
-						representation,
-						ESetOperation.REPLACE)).to(relationshipExplorer));
+		AContextMenuItem filterSpecifiedItem = new GenericContextMenuItem("Specified columns", new ThreadSyncEvent(
+				new SelectColumnsRunnable(contour, representation, operation)).to(contour));
 
-		c = new SelectionBasedFilterOperation(representation.getHistoryID(), elementIDs, broadcastIDs,
-				ESetOperation.INTERSECTION, relationshipExplorer);
+		groupItem.add(filterAllItem);
+		groupItem.add(filterSpecifiedItem);
 
-		AContextMenuItem andFilterITem = new GenericContextMenuItem("Filter items to those related to the selected "
-				+ representation.getCollection().getLabel(), new ThreadSyncEvent(new AddHistoryCommandRunnable(c,
-				relationshipExplorer.getHistory())).to(relationshipExplorer));
-
-		AContextMenuItem andFilterInITem = new GenericContextMenuItem("Filter items to those related to the selected "
-				+ representation.getCollection().getLabel() + " in ...", new ThreadSyncEvent(new SelectColumnsRunnable(
-				relationshipExplorer, representation, ESetOperation.INTERSECTION)).to(relationshipExplorer));
-
-		c = new SelectionBasedFilterOperation(representation.getHistoryID(), elementIDs, broadcastIDs,
-				ESetOperation.UNION, relationshipExplorer);
-
-		AContextMenuItem orFilterITem = new GenericContextMenuItem("Add all items related to the selected "
-				+ representation.getCollection().getLabel(), new ThreadSyncEvent(new AddHistoryCommandRunnable(c,
-				relationshipExplorer.getHistory())).to(relationshipExplorer));
-
-		AContextMenuItem orFilterInITem = new GenericContextMenuItem("Add all items related to the selected "
-				+ representation.getCollection().getLabel() + " in ...", new ThreadSyncEvent(new SelectColumnsRunnable(
-				relationshipExplorer, representation, ESetOperation.UNION)).to(relationshipExplorer));
-
-		c = new SelectionBasedFilterOperation(representation.getHistoryID(), elementIDs, broadcastIDs,
-				ESetOperation.REMOVE, relationshipExplorer);
-
-		AContextMenuItem removeItem = new GenericContextMenuItem("Remove all items related to the selected "
-				+ representation.getCollection().getLabel(), new ThreadSyncEvent(new AddHistoryCommandRunnable(c,
-				relationshipExplorer.getHistory())).to(relationshipExplorer));
-
-		AContextMenuItem removeInItem = new GenericContextMenuItem("Remove all items related to the selected "
-				+ representation.getCollection().getLabel() + " in ...", new ThreadSyncEvent(new SelectColumnsRunnable(
-				relationshipExplorer, representation, ESetOperation.REMOVE)).to(relationshipExplorer));
-
-		return Lists.newArrayList(replaceFilterItem, replaceFilterInItem, andFilterITem, andFilterInITem, orFilterITem,
-				orFilterInITem, removeItem, removeInItem);
+		return groupItem;
 	}
 
 	private static class SelectColumnsRunnable implements Runnable {

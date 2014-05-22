@@ -275,6 +275,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		AttributeFilterCommand c = new AttributeFilterCommand(this, event.getFilter(), ESetOperation.INTERSECTION,
 				event.getFilterElementIDPool(), event.isSave(), relationshipExplorer.getHistory());
+		c.setTargetCollections(relationshipExplorer.getEntityCollections());
 		c.execute();
 		if (event.isSave())
 			relationshipExplorer.getHistory().addHistoryCommand(c);

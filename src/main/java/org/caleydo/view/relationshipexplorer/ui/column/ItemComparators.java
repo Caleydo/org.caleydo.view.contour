@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.caleydo.core.data.collection.column.container.CategoricalClassDescription;
+import org.caleydo.core.data.collection.column.container.CategoricalClassDescription.ECategoryType;
+import org.caleydo.core.io.DataDescription;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -151,6 +154,92 @@ public final class ItemComparators {
 			return ((Number) (collection.getDataDomain().getRaw(collection.getBroadcastingIDType(), (Integer) item
 					.getElementData().iterator().next(), collection.getDimensionPerspective().getIdType(), dimensionID)))
 					.floatValue();
+		}
+
+		/**
+		 * @return the dimensionID, see {@link #dimensionID}
+		 */
+		public int getDimensionID() {
+			return dimensionID;
+		}
+
+		/**
+		 * @return the collection, see {@link #collection}
+		 */
+		public TabularDataCollection getCollection() {
+			return collection;
+		}
+
+	}
+
+	public static class CategoricalAttributeComparator extends AInvertibleComparator<NestableItem> {
+
+		protected final TabularDataCollection collection;
+		protected final int dimensionID;
+		protected final CategoricalClassDescription<?> categoryDescription;
+
+		public CategoricalAttributeComparator(TabularDataCollection collection, int dimensionID) {
+			this.collection = collection;
+			this.dimensionID = dimensionID;
+			if (collection.getDataDomain().getTable().isDataHomogeneous()) {
+				DataDescription dataDesc = collection.getDataDomain().getDataSetDescription().getDataDescription();
+				categoryDescription = dataDesc.getCategoricalClassDescription();
+			} else {
+				categoryDescription = (CategoricalClassDescription<?>) collection.getDataDomain().getTable()
+						.getDataClassSpecificDescription(dimensionID);
+			}
+		}
+
+		@Override
+		public int compare(NestableItem item1, NestableItem item2) {
+			if (categoryDescription.getCategoryType() == ECategoryType.ORDINAL) {
+				return categoryDescription.indexOf(getCategory(item1))
+						- categoryDescription.indexOf(getCategory(item2));
+			}
+			return getCategory(item1).compareTo(getCategory(item2));
+		}
+
+		protected String getCategory(NestableItem item) {
+			return ((String) (collection.getDataDomain().getRaw(collection.getBroadcastingIDType(), (Integer) item
+					.getElementData().iterator().next(), collection.getDimensionPerspective().getIdType(), dimensionID)));
+		}
+
+		/**
+		 * @return the dimensionID, see {@link #dimensionID}
+		 */
+		public int getDimensionID() {
+			return dimensionID;
+		}
+
+		/**
+		 * @return the collection, see {@link #collection}
+		 */
+		public TabularDataCollection getCollection() {
+			return collection;
+		}
+	}
+
+	public static class UniqueObjectAttributeComparator extends AInvertibleComparator<NestableItem> {
+
+		protected final TabularDataCollection collection;
+		protected final int dimensionID;
+
+		public UniqueObjectAttributeComparator(TabularDataCollection collection, int dimensionID) {
+			this.collection = collection;
+			this.dimensionID = dimensionID;
+		}
+
+		@Override
+		public int compare(NestableItem item1, NestableItem item2) {
+
+			return getObject(item1).compareTo(getObject(item2));
+		}
+
+		protected String getObject(NestableItem item) {
+			String object = ((String) (collection.getDataDomain().getRaw(collection.getBroadcastingIDType(),
+					(Integer) item
+					.getElementData().iterator().next(), collection.getDimensionPerspective().getIdType(), dimensionID)));
+			return object == null ? "" : object;
 		}
 
 		/**

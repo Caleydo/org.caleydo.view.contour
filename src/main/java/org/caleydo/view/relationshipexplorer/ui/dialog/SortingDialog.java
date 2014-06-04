@@ -13,12 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.caleydo.core.data.collection.column.container.CategoricalClassDescription;
+import org.caleydo.core.data.collection.EDataClass;
 import org.caleydo.core.data.collection.table.Table;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.gui.util.AHelpButtonDialog;
-import org.caleydo.core.io.DataDescription;
-import org.caleydo.core.io.NumericalProperties;
+import org.caleydo.core.util.collection.Pair;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.AEnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScore;
@@ -31,9 +30,11 @@ import org.caleydo.view.relationshipexplorer.ui.column.IInvertibleComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.IScoreProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.AMappingComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.CategoricalAttributeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.NumericalAttributeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.SelectionMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMappingComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.UniqueObjectAttributeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -74,7 +75,7 @@ public class SortingDialog extends AHelpButtonDialog {
 
 	protected Map<Integer, IColumnModel> childColumnMap = new HashMap<>();
 	protected Map<Integer, EnrichmentScore> scoreMap = new HashMap<>();
-	protected Map<Integer, Integer> attributeMap = new HashMap<>();
+	protected Map<Integer, Pair<Integer, EDataClass>> attributeMap = new HashMap<>();
 
 	protected IInvertibleComparator<NestableItem> definedComparator;
 
@@ -261,33 +262,28 @@ public class SortingDialog extends AHelpButtonDialog {
 		int i = 0;
 		// TODO: Currently only available for numerical columns
 		if (table.isDataHomogeneous()) {
-			DataDescription desc = dataDomain.getDataSetDescription().getDataDescription();
-			CategoricalClassDescription<?> categoricalClassDesc = desc.getCategoricalClassDescription();
-			if (categoricalClassDesc == null) {
-				for (int dimensionID : collection.getDimensionPerspective().getVirtualArray()) {
-					String label = dataDomain.getDimensionLabel(dimensionID);
-					attributeCombo.add(label);
-					attributeMap.put(i, dimensionID);
-					if (c != null && c.getDimensionID() == dimensionID) {
-						attributeCombo.select(i);
-					}
-					i++;
+
+			for (int dimensionID : collection.getDimensionPerspective().getVirtualArray()) {
+				String label = dataDomain.getDimensionLabel(dimensionID);
+				attributeCombo.add(label);
+				attributeMap.put(i,
+						Pair.make(dimensionID, dataDomain.getDataSetDescription().getDataDescription().getDataClass()));
+				if (c != null && c.getDimensionID() == dimensionID) {
+					attributeCombo.select(i);
 				}
+				i++;
 			}
 
 		} else {
 			for (int dimensionID : collection.getDimensionPerspective().getVirtualArray()) {
-				Object dataClassDesc = table.getDataClassSpecificDescription(dimensionID);
-				if (dataClassDesc == null || dataClassDesc instanceof NumericalProperties) {
-					String label = dataDomain.getDimensionLabel(dimensionID);
-					attributeCombo.add(label);
-					attributeMap.put(i, dimensionID);
-					if (c != null && c.getDimensionID() == dimensionID) {
-						attributeCombo.select(i);
-					}
-					i++;
+				EDataClass dataClass = table.getDataClass(dimensionID);
+				String label = dataDomain.getDimensionLabel(dimensionID);
+				attributeCombo.add(label);
+				attributeMap.put(i, Pair.make(dimensionID, dataClass));
+				if (c != null && c.getDimensionID() == dimensionID) {
+					attributeCombo.select(i);
 				}
-
+				i++;
 			}
 		}
 
@@ -342,11 +338,24 @@ public class SortingDialog extends AHelpButtonDialog {
 						}
 
 					} else if (button == sortByAttributeButton) {
-						Integer dimensionID = attributeMap.get(attributeCombo.getSelectionIndex());
-						if (dimensionID == null)
+						Pair<Integer, EDataClass> attributePair = attributeMap.get(attributeCombo.getSelectionIndex());
+						if (attributePair.getFirst() == null)
 							return;
-						comparator.add(new NumericalAttributeComparator((TabularDataCollection) column.getCollection(),
-								dimensionID));
+						switch (attributePair.getSecond()) {
+						case CATEGORICAL:
+							comparator.add(new CategoricalAttributeComparator((TabularDataCollection) column
+									.getCollection(), attributePair.getFirst()));
+							break;
+						case UNIQUE_OBJECT:
+							comparator.add(new UniqueObjectAttributeComparator((TabularDataCollection) column
+									.getCollection(), attributePair.getFirst()));
+							break;
+						default:
+							comparator.add(new NumericalAttributeComparator((TabularDataCollection) column
+									.getCollection(), attributePair.getFirst()));
+							break;
+						}
+
 					} else {
 						comparator.add((IInvertibleComparator<NestableItem>) button.getData());
 					}

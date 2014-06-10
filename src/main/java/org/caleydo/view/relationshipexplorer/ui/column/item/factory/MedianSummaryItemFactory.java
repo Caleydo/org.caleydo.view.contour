@@ -62,7 +62,7 @@ public class MedianSummaryItemFactory implements ISummaryItemFactory {
 
 	@Override
 	public boolean needsUpdate(EUpdateCause cause) {
-		return cause != EUpdateCause.SELECTION;
+		return cause != EUpdateCause.SELECTION && cause != EUpdateCause.HIGHLIGHT;
 	}
 
 	@Override

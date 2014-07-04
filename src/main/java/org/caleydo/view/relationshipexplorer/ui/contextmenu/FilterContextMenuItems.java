@@ -39,8 +39,8 @@ public final class FilterContextMenuItems {
 			final IEntityRepresentation representation) {
 
 		List<AContextMenuItem> items = new ArrayList<>();
-		items.add(createFilterItemGroup(ESetOperation.REPLACE, "Replace items with those related to the selected "
-				+ representation.getCollection().getLabel() + " in ...", contour, representation));
+		// items.add(createFilterItemGroup(ESetOperation.REPLACE, "Replace items with those related to the selected "
+		// + representation.getCollection().getLabel() + " in ...", contour, representation));
 
 		items.add(createFilterItemGroup(ESetOperation.INTERSECTION, "Filter items to those related to the selected "
 				+ representation.getCollection().getLabel() + " in ...", contour, representation));

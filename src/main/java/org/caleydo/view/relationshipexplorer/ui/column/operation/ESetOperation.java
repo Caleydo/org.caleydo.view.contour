@@ -18,8 +18,16 @@ import com.google.common.collect.Sets;
  *
  */
 public enum ESetOperation {
-	REMOVE(AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), REPLACE(
-			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), INTERSECTION(
+	REMOVE(AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), /*
+																										 * REPLACE(
+																										 * AEntityColumn
+																										 * .
+																										 * class.getResource
+																										 * (
+																										 * "/org/caleydo/view/relationshipexplorer/icons/delete.png"
+																										 * )),
+																										 */
+	INTERSECTION(
 			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/delete.png")), UNION(
 			AEntityColumn.class.getResource("/org/caleydo/view/relationshipexplorer/icons/add.png"));
 
@@ -35,8 +43,8 @@ public enum ESetOperation {
 			Set<Object> result = new HashSet<>(set2);
 			result.removeAll(set1);
 			return result;
-		case REPLACE:
-			return set1;
+			// case REPLACE:
+			// return set1;
 		case INTERSECTION:
 			return Sets.intersection(set1, set2);
 		case UNION:

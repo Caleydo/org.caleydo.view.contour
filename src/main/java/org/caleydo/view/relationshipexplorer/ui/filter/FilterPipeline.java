@@ -28,11 +28,10 @@ import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.picking.APickingListener;
 import org.caleydo.core.view.opengl.picking.Pick;
-import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 
 import com.google.common.collect.Lists;
 
@@ -119,7 +118,8 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			icon.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
 			contentBar.add(icon);
 
-			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getSourceCollection().getLabel(), VAlign.LEFT));
+			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getSourceCollection().getLabel(),
+					VAlign.LEFT));
 			text.setSize(Float.NaN, 14);
 			// IGLElementParent parent = getParent();
 			// while (parent.getParent() != null) {
@@ -190,17 +190,67 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 				new ScrollBar(false), 8, EDimension.RECORD);
 		scrollingDecorator.setMinSizeProvider(filterContainer);
 
-		GLElement caption = new GLElement(GLRenderers.drawText("Filters", VAlign.CENTER));
-		caption.setSize(Float.NaN, 16);
+		GLElement caption = createCaption();
 		add(caption);
 		add(scrollingDecorator);
 
 		this.relationshipExplorer = relationshipExplorer;
 	}
 
+	protected GLElement createCaption() {
+		GLElementContainer captionContainer = new GLElementContainer(GLLayouts.LAYERS);
+		captionContainer.setSize(Float.NaN, 16);
+		captionContainer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(captionContainer));
+		GLElement caption = new GLElement(GLRenderers.drawText("Filters", VAlign.CENTER));
+		caption.setSize(Float.NaN, 16);
+		captionContainer.add(caption);
+
+		final GLElementContainer buttonBar = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 1,
+				GLPadding.ZERO));
+		buttonBar.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(buttonBar, 1,
+				GLPadding.ZERO));
+		buttonBar.setVisibility(EVisibility.HIDDEN);
+		buttonBar.setzDelta(0.5f);
+		captionContainer.add(buttonBar);
+
+		GLButton removeButton = new GLButton();
+		removeButton.setVisibility(EVisibility.PICKABLE);
+		removeButton.setSize(16, 16);
+		removeButton.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
+		removeButton.setRenderer(GLRenderers.fillImage(REMOVE_ICON));
+
+		removeButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				clearFilters();
+			}
+		});
+		removeButton.setTooltip("Remove All Filters");
+
+		GLElement spacing = new GLElement();
+		buttonBar.add(spacing);
+		buttonBar.add(removeButton);
+
+		captionContainer.setVisibility(EVisibility.PICKABLE);
+		captionContainer.onPick(new APickingListener() {
+			@Override
+			protected void mouseOver(Pick pick) {
+				buttonBar.setVisibility(EVisibility.PICKABLE);
+			}
+
+			@Override
+			protected void mouseOut(Pick pick) {
+				buttonBar.setVisibility(EVisibility.HIDDEN);
+			}
+		});
+
+		return captionContainer;
+	}
+
 	public void addFilterCommand(IFilterCommand filterCommand) {
-		if (filterCommand.getSetOperation() == ESetOperation.REPLACE)
-			clearFilterCommands();
+		// if (filterCommand.getSetOperation() == ESetOperation.REPLACE)
+		// clearFilterCommands();
 		filterCommands.add(filterCommand);
 		filterContainer.add(new FilterRepresentation(filterCommand));
 	}
@@ -216,6 +266,14 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			c.execute();
 			relationshipExplorer.getHistory().addHistoryCommand(c);
 		}
+	}
+
+	protected void clearFilters() {
+		if (filterCommands.isEmpty())
+			return;
+		ReapplyFiltersCommand c = new ReapplyFiltersCommand(Lists.newArrayList(filterCommands));
+		c.execute();
+		relationshipExplorer.getHistory().addHistoryCommand(c);
 	}
 
 }

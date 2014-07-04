@@ -206,7 +206,8 @@ public class HTIMutationItemFactory implements IItemFactory {
 
 		SimpleBarRenderer barRenderer = new SimpleBarRenderer(normalizedValue, true);
 		barRenderer.setValue(value.floatValue());
-		barRenderer.setTooltip(column.columnCaption + ": " + (value.intValue() == Integer.MIN_VALUE ? "NaN" : value));
+		barRenderer.setTooltip(column.columnCaption + ": " + ""
+				+ (value.intValue() == Integer.MIN_VALUE ? "NaN" : value));
 		barRenderer.setMinSize(new Vec2f(40, 16));
 
 		if (column == EColumn.AVSIFT) {

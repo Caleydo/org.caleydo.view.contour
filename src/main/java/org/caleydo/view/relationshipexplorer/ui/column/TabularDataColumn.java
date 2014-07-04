@@ -71,7 +71,7 @@ public class TabularDataColumn extends AEntityColumn {
 		this.perspective = tabularDataCollection.getDimensionPerspective();
 		setItemFactory(new SimpleTabularDataItemFactory(tabularDataCollection));
 
-		final GLButton filterButton = addHeaderButton(FILTER_ICON);
+		final GLButton filterButton = addHeaderButton(FILTER_ICON, "Filter by Attributes");
 
 		filterButton.setCallback(new ISelectionCallback() {
 

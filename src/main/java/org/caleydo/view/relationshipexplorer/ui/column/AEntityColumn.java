@@ -67,6 +67,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected static final URL FILTER_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
+	protected static final URL FIND_ICON = AEntityColumn.class
+			.getResource("/org/caleydo/view/relationshipexplorer/icons/find.png");
 	protected static final URL SORT_ICON = AEntityColumn.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/sort_descending.png");
 	protected static final URL REMOVE_ICON = AEntityColumn.class
@@ -113,7 +115,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 
-		final GLButton sortButton = addHeaderButton(SORT_ICON);
+		final GLButton sortButton = addHeaderButton(SORT_ICON, "Sort column");
 
 		sortButton.setCallback(new ISelectionCallback() {
 
@@ -179,7 +181,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		headerButtons.add(new GLElement());
 
-		final GLButton duplicateColumnButton = addHeaderButton(DUPLICATE_ICON);
+		final GLButton duplicateColumnButton = addHeaderButton(DUPLICATE_ICON, "Duplicate Column");
 
 		duplicateColumnButton.setCallback(new ISelectionCallback() {
 
@@ -191,7 +193,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		});
 
-		final GLButton removeColumnButton = addHeaderButton(REMOVE_ICON);
+		final GLButton removeColumnButton = addHeaderButton(REMOVE_ICON, "Remove Column");
 
 		removeColumnButton.setCallback(new ISelectionCallback() {
 
@@ -214,11 +216,12 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	}
 
-	protected GLButton addHeaderButton(URL iconURL) {
+	protected GLButton addHeaderButton(URL iconURL, String tooltip) {
 		GLButton button = new GLButton(EButtonMode.BUTTON);
 		button.setVisibility(EVisibility.PICKABLE);
 		button.setRenderer(GLRenderers.fillImage(iconURL));
 		button.setSize(16, 16);
+		button.setTooltip(tooltip);
 		headerButtons.add(button);
 		return button;
 	}

@@ -19,6 +19,8 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.TextItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
+import org.caleydo.view.relationshipexplorer.ui.dialog.SearchDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -58,7 +60,7 @@ public abstract class ATextColumn extends AEntityColumn {
 		public String toString() {
 			return "Alphabetical";
 		}
-	};
+	}
 
 	public class MinSizeTextElement extends PickableGLElement implements ILabeled {
 
@@ -102,7 +104,7 @@ public abstract class ATextColumn extends AEntityColumn {
 		super(entityCollection, relationshipExplorer);
 		this.textItemComparator = new TextItemComparator(this);
 		setItemFactory(new TextItemFactory(this));
-		final GLButton filterButton = addHeaderButton(FILTER_ICON);
+		final GLButton filterButton = addHeaderButton(FILTER_ICON, "Filter by Name");
 
 		filterButton.setCallback(new ISelectionCallback() {
 
@@ -127,6 +129,38 @@ public abstract class ATextColumn extends AEntityColumn {
 						} else {
 							// EventPublisher.trigger(new ResetAttributeFilterEvent(dialog.getOriginalFilteredItemIDs())
 							// .to(ATextColumn.this.relationshipExplorer));
+						}
+					}
+				});
+			}
+		});
+
+		final GLButton findButton = addHeaderButton(FIND_ICON, "Search for Items");
+
+		findButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				final Vec2f location = findButton.getAbsoluteLocation();
+
+				relationshipExplorer.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+
+						Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+						// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+						// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
+						SearchDialog dialog = new SearchDialog(canvas.getShell(), "Search " + getLabel(), loc,
+								ATextColumn.this);
+
+						if (dialog.open() != Window.OK) {
+							final IInvertibleComparator<NestableItem> comparator = dialog.getOriginalComparator();
+							EventPublisher.trigger(new ThreadSyncEvent(new Runnable() {
+								@Override
+								public void run() {
+									ATextColumn.this.sortBy(comparator);
+								}
+							}).to(getRelationshipExplorer()));
 						}
 					}
 				});

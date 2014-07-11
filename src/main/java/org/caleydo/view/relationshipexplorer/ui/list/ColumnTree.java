@@ -293,7 +293,11 @@ public class ColumnTree extends AnimatedGLElementContainer {
 			updateWidths(getSize().x());
 		}
 
+		boolean neededScrollingBefore = needsScrolling();
 		super.layout(deltaTimeMs);
+		if (neededScrollingBefore != needsScrolling()) {
+			relayout();
+		}
 	}
 
 	protected void updateWidths(float parentWidth) {
@@ -304,11 +308,21 @@ public class ColumnTree extends AnimatedGLElementContainer {
 			totalWidth += minWidth;
 			minWidths.put(column, minWidth);
 		}
+		NestableColumn rightmostColumn = rootColumn.getRightmostColumn();
 		for (NestableColumn column : allColumns) {
-			column.setColumnWidth((minWidths.get(column) / totalWidth)
-					* (parentWidth - (allColumns.size() - 1) * ColumnTreeRenderStyle.HORIZONTAL_SPACING));
+			float width = (minWidths.get(column) / totalWidth)
+					* (parentWidth - ((allColumns.size() - 1) * ColumnTreeRenderStyle.HORIZONTAL_SPACING));
+			if (rightmostColumn == column && needsScrolling())
+				width -= ColumnTreeRenderStyle.SCROLLBAR_WIDTH;
+			column.setColumnWidth(width);
+			// column.setColumnListWidth((minWidths.get(column) / totalWidth)
+			// * (parentWidth - (allColumns.size() - 1) * ColumnTreeRenderStyle.HORIZONTAL_SPACING));
 		}
 		updateSizes();
+	}
+
+	public boolean needsScrolling() {
+		return scrollingDecorator.needVer();
 	}
 
 	public void updateSizes() {
@@ -319,7 +333,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 
 	public NestableColumn addRootColumn(IColumnModel model) {
 		rootColumn = new NestableColumn(model, null, this);
-		rootColumn.header = new ColumnHeader(rootColumn, model.getLabel(), headerRow);
+		rootColumn.header = new ColumnHeader(rootColumn, model.getLabel());
+		headerRow.add(rootColumn.header);
 		rootContainer = new ScrollableItemList(rootColumn);
 		// rootContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 		rootColumn.itemContainers.add(rootContainer);
@@ -353,7 +368,8 @@ public class ColumnTree extends AnimatedGLElementContainer {
 					+ ", parent: " + parent);
 
 		NestableColumn column = new NestableColumn(model, parent, this);
-		column.header = new ColumnHeader(column, model.getLabel(), parent.header);
+		column.header = new ColumnHeader(column, model.getLabel());
+		parent.header.addChild(column.header);
 		parent.children.add(column);
 		allColumns.add(column);
 		column.parent = parent;

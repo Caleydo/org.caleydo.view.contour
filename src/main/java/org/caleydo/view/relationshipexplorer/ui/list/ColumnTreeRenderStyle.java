@@ -18,6 +18,7 @@ public final class ColumnTreeRenderStyle {
 	public static final int HORIZONTAL_PADDING = 4;
 	public static final int HORIZONTAL_SPACING = 4;
 	public static final int VERTICAL_SPACING = 2;
+	public static final int SCROLLBAR_WIDTH = 8;
 
 	private ColumnTreeRenderStyle() {
 	}

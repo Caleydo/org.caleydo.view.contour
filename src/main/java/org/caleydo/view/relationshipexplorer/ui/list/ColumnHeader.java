@@ -39,8 +39,9 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 	protected GLButton collapseButton;
 	protected MappingRenderer mappingRenderer;
 	protected DragAndDropHeader dragAndDropHeader;
+	protected GLElement scrollbarSpacing;
 
-	public ColumnHeader(NestableColumn column, String caption, AnimatedGLElementContainer headerParent) {
+	public ColumnHeader(NestableColumn column, String caption) {
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(
 				ColumnTreeRenderStyle.HORIZONTAL_PADDING, ColumnTreeRenderStyle.HEADER_TOP_PADDING,
 				ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
@@ -167,8 +168,23 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		});
 
 		setRenderer(GLRenderers.drawRect(Color.GRAY));
+		scrollbarSpacing = new GLElement();
+		scrollbarSpacing.setSize(ColumnTreeRenderStyle.SCROLLBAR_WIDTH - ColumnTreeRenderStyle.HORIZONTAL_SPACING,
+				Float.NaN);
+		// add(scrollbarSpacing);
+	}
 
-		headerParent.add(this);
+	public void addChild(ColumnHeader header) {
+		if (size() == 0) {
+			add(header);
+		} else {
+			GLElement lastElement = get(size() - 1);
+			if (lastElement == scrollbarSpacing)
+				add(size() - 1, header);
+			else
+				add(header);
+		}
+
 	}
 
 	public void updateItemCounts() {
@@ -180,6 +196,12 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 
 	public void updateSize() {
 		float width = column.columnWidth;
+		if (column.isRoot() && column.getColumnTree().needsScrolling()) {
+			width += ColumnTreeRenderStyle.SCROLLBAR_WIDTH;
+			add(scrollbarSpacing);
+		} else {
+			remove(scrollbarSpacing);
+		}
 		width += column.calcNestingWidth();
 		AnimationUtil.resizeElement(this, width, Float.NaN);
 		// if (Float.compare(width, getSize().x()) != 0) {

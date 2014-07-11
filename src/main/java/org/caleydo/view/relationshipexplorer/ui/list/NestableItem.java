@@ -164,7 +164,8 @@ public class NestableItem extends AnimatedGLElementContainer {
 		// ((GLElementContainer) getParent()).setSize(width, Float.NaN);
 		if (column.isRoot()) {
 			AnimationUtil.resizeElement((GLElement) getParent().getParent(), width + 2
-					* ColumnTreeRenderStyle.HORIZONTAL_PADDING, Float.NaN);
+					* ColumnTreeRenderStyle.HORIZONTAL_PADDING
+					+ (column.getColumnTree().needsScrolling() ? ColumnTreeRenderStyle.SCROLLBAR_WIDTH : 0), Float.NaN);
 		} else {
 			AnimationUtil.resizeElement((GLElement) getParent().getParent(), width + 2
 					* ColumnTreeRenderStyle.HORIZONTAL_PADDING + ColumnTreeRenderStyle.HORIZONTAL_SPACING

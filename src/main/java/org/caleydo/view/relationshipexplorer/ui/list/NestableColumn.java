@@ -37,7 +37,7 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 	protected Set<ItemContainer> itemContainers = new HashSet<>();
 	// protected Set<NestableItem> summaryItems = new HashSet<>();
 	protected float columnWidth = 0;
-	protected float relColumnWidth = 0;
+	protected float columnListWidth = 0;
 
 	protected Set<NestableItem> selectedItems = new HashSet<>();
 	protected Set<NestableItem> highlightedItems = new HashSet<>();
@@ -113,6 +113,10 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 		// updateSizes();
 	}
 
+	public void setColumnListWidth(float columnListWidth) {
+		this.columnListWidth = columnListWidth;
+	}
+
 	public void updateSizeRec() {
 		for (NestableColumn child : children) {
 			child.updateSizeRec();
@@ -121,12 +125,19 @@ public class NestableColumn implements IMultiSelectionHandler<NestableItem>, ISe
 		updateSizes();
 	}
 
+	public NestableColumn getRightmostColumn() {
+		if (children.isEmpty())
+			return this;
+		return children.get(children.size() - 1).getRightmostColumn();
+	}
+
 	public void updateSizes() {
 		float headerItemWidth = 0;
 		float itemWidth = getItemWidth();
 
 		if (parent == null) {
-			headerItemWidth = columnWidth - 2 * ColumnTreeRenderStyle.HORIZONTAL_PADDING;
+			headerItemWidth = columnWidth - 2 * ColumnTreeRenderStyle.HORIZONTAL_PADDING
+;
 		} else {
 			headerItemWidth = columnWidth - 2 * ColumnTreeRenderStyle.HORIZONTAL_PADDING
 					- ColumnTreeRenderStyle.CAPTION_HEIGHT - ColumnTreeRenderStyle.HORIZONTAL_SPACING;

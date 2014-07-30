@@ -9,6 +9,9 @@ import java.util.Set;
 
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.datadomain.image.ImageDataDomain;
 import org.caleydo.datadomain.image.LayeredImage;
@@ -46,7 +49,11 @@ public class HTIImageDetailViewFactory implements IDetailViewFactory {
 
 		LayeredImage img = dataDomain.getImageSet().getImageForLayer(imageLayerID);
 		if (img != null) {
-			return new AreaImageViewerElement(contour, collection, img);
+			GLElementContainer minSizeContainer = new GLElementContainer(GLLayouts.LAYERS);
+			// The real size of the texture is unknown up to this point -> set meaningful default size
+			minSizeContainer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(500, 500));
+			minSizeContainer.add(new AreaImageViewerElement(contour, collection, img));
+			return minSizeContainer;
 		}
 		return new GLElement(GLRenderers.fillRect(Color.BLUE));
 

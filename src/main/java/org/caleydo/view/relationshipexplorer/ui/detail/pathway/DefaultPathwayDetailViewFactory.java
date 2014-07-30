@@ -11,7 +11,10 @@ import java.util.Set;
 
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.core.view.opengl.layout2.GLElementContainer;
 import org.caleydo.core.view.opengl.layout2.GLZoomPanContainer;
+import org.caleydo.core.view.opengl.layout2.layout.GLLayouts;
+import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.pathway.v2.ui.PathwayTextureRepresentation;
@@ -37,16 +40,22 @@ public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 
 	@Override
 	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
-		return createZoomPanContainer(createPathwayElement(collection));
+		return createZoomableElement(createPathwayElement(collection));
 	}
 
-	protected GLZoomPanContainer createZoomPanContainer(GLElement element) {
+	protected GLElement createZoomableElement(GLElement element) {
+
 		GLZoomPanContainer container = new GLZoomPanContainer();
 		container.add(element);
 		container.setBackgroundColor(Color.TRANSPARENT);
 		container.setScaleLimits(0.1f, 1f);
 		container.scaleToFit();
-		return container;
+
+		GLElementContainer minSizeContainer = new GLElementContainer(GLLayouts.LAYERS);
+		minSizeContainer.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(element.getMinSize()));
+		minSizeContainer.add(container);
+
+		return minSizeContainer;
 	}
 
 	protected PathwayElement createPathwayElement(IEntityCollection collection) {

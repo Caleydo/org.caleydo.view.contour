@@ -58,6 +58,7 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 
 		setBackgroundColor(Color.TRANSPARENT);
 		setBaseImage(img.getBaseImage().image.getAbsolutePath());
+
 		for (final String layerID : img.getLayers().keySet()) {
 			Layer layer = img.getLayer(layerID);
 			if (layer.area != null && layer.border != null) {

@@ -39,7 +39,7 @@ public class HTSPathwayDetailViewFactory extends DefaultPathwayDetailViewFactory
 		window.clearTitleElements();
 		window.addShowFilteredItems(aug, false);
 
-		return createZoomPanContainer(pathwayElement);
+		return createZoomableElement(pathwayElement);
 	}
 
 }

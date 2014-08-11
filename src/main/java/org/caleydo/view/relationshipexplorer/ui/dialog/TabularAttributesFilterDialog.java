@@ -218,10 +218,11 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 
 		Composite parentComposite = new Composite(scrolledComposite, SWT.NONE);
 		parentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		parentComposite.setLayout(new GridLayout(collection.getDimensionPerspective().getVirtualArray().size(), true));
-		scrolledComposite.setContent(parentComposite);
-		scrolledComposite.setMinSize(collection.getDimensionPerspective().getVirtualArray().size() * 200, 100);
 
+		scrolledComposite.setContent(parentComposite);
+
+
+		int numAttributes = 0;
 		if (table.isDataHomogeneous()) {
 			DataDescription desc = dataDomain.getDataSetDescription().getDataDescription();
 			CategoricalClassDescription<?> categoricalClassDesc = desc.getCategoricalClassDescription();
@@ -236,6 +237,7 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 				} else {
 					addCategoricalAttributeGroup(parentComposite, dimensionID, label, categoricalClassDesc);
 				}
+				numAttributes++;
 			}
 
 		} else {
@@ -269,9 +271,12 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 					addCategoricalAttributeGroup(parentComposite, dimensionID, label,
 							(CategoricalClassDescription<?>) dataClassDesc);
 				}
-
+				numAttributes++;
 			}
 		}
+
+		parentComposite.setLayout(new GridLayout(numAttributes, true));
+		scrolledComposite.setMinSize(numAttributes * 200, 100);
 
 		// TODO: implement
 		Button useGlobalFilterButton = new Button(parentComposite, SWT.CHECK);
@@ -286,7 +291,7 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = 200;
 		group.setLayoutData(gd);
-		group.setText(label);
+		group.setText(label.length() > 30 ? label.substring(0, 30) : label);
 		group.setLayout(new GridLayout(2, false));
 		final Label maxLabel = new Label(group, SWT.NONE);
 		maxLabel.setText("Upper Limit");
@@ -329,8 +334,8 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 		Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = 200;
+		group.setText(label.length() > 30 ? label.substring(0, 30) : label);
 		group.setLayoutData(gd);
-		group.setText(label);
 		group.setLayout(new GridLayout());
 		final org.eclipse.swt.widgets.Table table = new org.eclipse.swt.widgets.Table(group, SWT.CHECK | SWT.BORDER
 				| SWT.V_SCROLL | SWT.H_SCROLL);
@@ -339,7 +344,10 @@ public class TabularAttributesFilterDialog extends AHelpButtonDialog {
 			item.setText(cp.getCategoryName());
 			item.setChecked(true);
 		}
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
+		gd.heightHint = 250;
+		table.setLayoutData(gd);
 		table.setEnabled(false);
 
 		final CategoricalAttributeFilterFactory factory = new CategoricalAttributeFilterFactory(dimensionID, table);

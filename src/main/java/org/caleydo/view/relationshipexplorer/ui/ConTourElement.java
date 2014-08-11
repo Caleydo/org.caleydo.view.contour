@@ -5,8 +5,6 @@
  ******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui;
 
-import gleem.linalg.Vec2f;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,8 +26,6 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.ContextMenuCreator;
-import org.caleydo.core.view.opengl.canvas.IGLCanvas;
-import org.caleydo.core.view.opengl.layout2.AGLElementView;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.IGLElementContext;
@@ -43,7 +39,6 @@ import org.caleydo.core.view.opengl.layout2.dnd.IDnDItem;
 import org.caleydo.core.view.opengl.layout2.dnd.IDragInfo;
 import org.caleydo.core.view.opengl.layout2.dnd.IDropGLTarget;
 import org.caleydo.core.view.opengl.layout2.layout.GLLayoutDatas;
-import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout;
 import org.caleydo.core.view.opengl.layout2.layout.GLSizeRestrictiveFlowLayout2;
@@ -688,17 +683,18 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		window.getTitleBar().setLabelProvider(srcCollection);
 		window.setShowCloseButton(true);
 
-		Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
-		IGLCanvas canvas = findParent(AGLElementView.class).getParentGLCanvas();
-		if (canvas == null)
-			return;
+		// Vec2f detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5,
+		// GLPadding.ZERO);
+		// IGLCanvas canvas = findParent(AGLElementView.class).getParentGLCanvas();
+		// if (canvas == null)
+		// return;
 
-		while (detailContainerMinSize.x() > canvas.getDIPWidth() && detailContainer.size() != 1) {
-			GLElementWindow w = detailWindowQueue.poll();
-			detailContainer.remove(w);
-			detailMap.inverse().remove(w);
-			detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
-		}
+		// while (detailContainerMinSize.x() > canvas.getDIPWidth() && detailContainer.size() != 1) {
+		// GLElementWindow w = detailWindowQueue.poll();
+		// detailContainer.remove(w);
+		// detailMap.inverse().remove(w);
+		// detailContainerMinSize = GLMinSizeProviders.getHorizontalFlowMinSize(detailContainer, 5, GLPadding.ZERO);
+		// }
 		detailContainer.sortBy(new Comparator<GLElement>() {
 
 			@Override

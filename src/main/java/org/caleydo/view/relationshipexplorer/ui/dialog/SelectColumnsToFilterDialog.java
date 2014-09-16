@@ -6,6 +6,11 @@
 package org.caleydo.view.relationshipexplorer.ui.dialog;
 
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -22,6 +27,17 @@ public class SelectColumnsToFilterDialog extends ASelectCollectionsDialog {
 	 */
 	public SelectColumnsToFilterDialog(Shell shell, ConTourElement relationshipExplorerElement) {
 		super(shell, relationshipExplorerElement, "Select columns to filter", true);
+	}
+
+	@Override
+	protected Control createDialogArea(Composite parent) {
+
+		Composite parentComposite = new Composite(parent, SWT.NONE);
+		parentComposite.setLayout(new GridLayout());
+		parentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		createCollectionList(parentComposite);
+
+		return super.createDialogArea(parent);
 	}
 
 }

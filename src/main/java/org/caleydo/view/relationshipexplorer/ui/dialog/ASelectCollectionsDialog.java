@@ -13,9 +13,7 @@ import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -49,13 +47,8 @@ public abstract class ASelectCollectionsDialog extends AHelpButtonDialog {
 		newShell.setText(caption);
 	}
 
-	@Override
-	protected Control createDialogArea(Composite parent) {
 
-		Composite parentComposite = new Composite(parent, SWT.NONE);
-		parentComposite.setLayout(new GridLayout());
-		parentComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
+	protected void createCollectionList(Composite parentComposite) {
 		collectionList = new Table(parentComposite, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		collectionList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		for (IEntityCollection collection : relationshipExplorerElement.getEntityCollections()) {
@@ -64,8 +57,6 @@ public abstract class ASelectCollectionsDialog extends AHelpButtonDialog {
 			item.setChecked(isDefaultChecked);
 			item.setData(collection);
 		}
-
-		return super.createDialogArea(parent);
 	}
 
 	@Override

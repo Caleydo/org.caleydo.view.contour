@@ -5,11 +5,11 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.command;
 
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator.MappingSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -47,8 +47,8 @@ public class DuplicateColumnCommand implements IHistoryCommand {
 
 		// TODO: Add all present summary item factories, copy comparators
 		if (!(column.getSummaryItemFactory() instanceof MappingSummaryItemFactory)) {
-			SetSummaryItemFactoryCommand c = new SetSummaryItemFactoryCommand(duplicate, column.getSummaryItemFactory()
-					.getClass(), history, false);
+			SetSummaryItemFactoryCommand c = new SetSummaryItemFactoryCommand(duplicate,
+					column.getSummaryItemFactoryCreator(), history, false);
 			c.execute();
 		}
 

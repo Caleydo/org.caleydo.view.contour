@@ -80,7 +80,7 @@ public class TabularDataCollection extends AEntityCollection {
 
 	@Override
 	protected IColumnFactory getDefaultColumnFactory() {
-		return ColumnFactories.createDefaultTabularDataColumnFactory(this, relationshipExplorer);
+		return ColumnFactories.createDefaultTabularDataColumnFactory();
 	}
 
 	/**

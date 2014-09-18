@@ -69,7 +69,7 @@ public class GroupCollection extends AEntityCollection {
 
 	@Override
 	protected IColumnFactory getDefaultColumnFactory() {
-		return ColumnFactories.createDefaultGroupColumnFactory(this, relationshipExplorer);
+		return ColumnFactories.createDefaultGroupColumnFactory();
 	}
 
 	@Override

@@ -54,7 +54,6 @@ import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.ResetAttributeFilterEvent;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivitySummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
@@ -86,11 +85,11 @@ import com.google.common.collect.Iterables;
  */
 public class ConTourElement extends AnimatedGLElementContainer {
 
-	protected static final URL UP_ARROW_ICON = ActivitySummaryItemFactory.class
+	protected static final URL UP_ARROW_ICON = ConTourElement.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_top_small.png");
-	protected static final URL DOWN_ARROW_ICON = ActivitySummaryItemFactory.class
+	protected static final URL DOWN_ARROW_ICON = ConTourElement.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/bullet_arrow_bottom_small.png");
-	protected static final URL ADD_COLUMN_ICON = ActivitySummaryItemFactory.class
+	protected static final URL ADD_COLUMN_ICON = ConTourElement.class
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/add.png");
 
 	protected final static int MIN_HISTORY_HEIGHT = 30;

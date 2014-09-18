@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,9 +32,11 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IIconProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MappingSummaryItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
@@ -43,6 +44,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.AttributeFilterCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.DuplicateColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
+import org.caleydo.view.relationshipexplorer.ui.command.SetItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ShowDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
@@ -87,11 +89,29 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	protected List<GLElement> headerButtons = new ArrayList<>();
 
-	protected Set<ISummaryItemFactory> summaryItemFactories = new LinkedHashSet<>();
+	/**
+	 * Creators of item factories for item plots
+	 */
+	protected List<IItemFactoryCreator> itemFactoryCreators = new ArrayList<>();
+	/**
+	 * Currently used {@link IItemFactoryCreator}
+	 */
+	protected IItemFactoryCreator itemFactoryCreator;
+
+	/**
+	 * Creators of summary item factories for summary item plots.
+	 */
+	protected List<ISummaryItemFactoryCreator> summaryItemFactoryCreators = new ArrayList<>();
+	/**
+	 * Currently used {@link ISummaryItemFactoryCreator}
+	 */
+	protected ISummaryItemFactoryCreator summaryItemFactoryCreator;
+
 	protected ISummaryItemFactory summaryItemFactory;
 	protected IItemFactory itemFactory;
 
-	protected GLComboBox<ISummaryItemFactory> summaryPlots;
+	protected GLComboBox<IItemFactoryCreator> itemPlots;
+	protected GLComboBox<ISummaryItemFactoryCreator> summaryPlots;
 
 	protected int historyID;
 
@@ -103,17 +123,17 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	protected boolean initialized = false;
 
 	// -----------------
-	protected ConTourElement relationshipExplorer;
+	protected ConTourElement contour;
 
-	public AEntityColumn(IEntityCollection entityCollection, ConTourElement relationshipExplorer) {
+	public AEntityColumn(IEntityCollection entityCollection, ConTourElement contour) {
 		// super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.entityCollection = entityCollection;
 		entityCollection.addEntityRepresentation(this);
-		this.relationshipExplorer = relationshipExplorer;
-		this.summaryItemFactory = new MappingSummaryItemFactory(this);
-		summaryItemFactories.add(summaryItemFactory);
+		this.contour = contour;
+		// this.summaryItemFactory = new MappingSummaryItemFactory(this);
+		// summaryItemFactoryCreators.add(summaryItemFactory);
 
-		historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
+		historyID = contour.getHistory().registerHistoryObject(this);
 
 		final GLButton sortButton = addHeaderButton(SORT_ICON, "Sort column");
 
@@ -123,7 +143,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				// final Vec2f location = filterButton.getAbsoluteLocation();
 
-				AEntityColumn.this.relationshipExplorer.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+				AEntityColumn.this.contour.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
 					@Override
 					public void run(Display display, Composite canvas) {
 						// Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
@@ -153,29 +173,36 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		// }
 
-		summaryPlots = new GLComboBox<>(new ArrayList<>(summaryItemFactories), new IGLRenderer() {
+		itemPlots = createPlotCombo(itemFactoryCreators);
+		itemPlots.setCallback(new GLComboBox.ISelectionCallback<IItemFactoryCreator>() {
 
 			@Override
-			public void render(GLGraphics g, float w, float h, GLElement parent) {
-				ISummaryItemFactory f = parent.getLayoutDataAs(ISummaryItemFactory.class, null);
-				g.fillImage(f.getIconURL(), 0, 0, w, h);
-
-			}
-		}, GLRenderers.fillRect(Color.WHITE));
-		summaryPlots.setSize(16, 16);
-		summaryPlots.setVisibility(EVisibility.HIDDEN);
-
-		summaryPlots.setCallback(new GLComboBox.ISelectionCallback<ISummaryItemFactory>() {
-
-			@Override
-			public void onSelectionChanged(GLComboBox<? extends ISummaryItemFactory> widget, ISummaryItemFactory item) {
-				setSummaryItemFactory(item);
-				SetSummaryItemFactoryCommand c = new SetSummaryItemFactoryCommand(AEntityColumn.this, item.getClass(),
-						relationshipExplorer.getHistory(), false);
+			public void onSelectionChanged(GLComboBox<? extends IItemFactoryCreator> widget, IItemFactoryCreator item) {
+				setItemFactoryCreator(item);
+				SetItemFactoryCommand c = new SetItemFactoryCommand(AEntityColumn.this, item, contour.getHistory(),
+						false);
 				// c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c);
+				contour.getHistory().addHistoryCommand(c);
 			}
 		});
+		updateItemPlots();
+
+		headerButtons.add(itemPlots);
+
+		summaryPlots = createPlotCombo(summaryItemFactoryCreators);
+		summaryPlots.setCallback(new GLComboBox.ISelectionCallback<ISummaryItemFactoryCreator>() {
+
+			@Override
+			public void onSelectionChanged(GLComboBox<? extends ISummaryItemFactoryCreator> widget,
+					ISummaryItemFactoryCreator item) {
+				setSummaryItemFactoryCreator(item);
+				SetSummaryItemFactoryCommand c = new SetSummaryItemFactoryCommand(AEntityColumn.this, item, contour
+						.getHistory(), false);
+				// c.execute();
+				contour.getHistory().addHistoryCommand(c);
+			}
+		});
+		updateSummaryPlots();
 
 		headerButtons.add(summaryPlots);
 
@@ -187,9 +214,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 			@Override
 			public void onSelectionChanged(GLButton button, boolean selected) {
-				DuplicateColumnCommand c = new DuplicateColumnCommand(AEntityColumn.this, relationshipExplorer);
+				DuplicateColumnCommand c = new DuplicateColumnCommand(AEntityColumn.this, contour);
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c);
+				contour.getHistory().addHistoryCommand(c);
 			}
 		});
 
@@ -199,20 +226,44 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 			@Override
 			public void onSelectionChanged(GLButton button, boolean selected) {
-				RemoveColumnCommand c = new RemoveColumnCommand(AEntityColumn.this, relationshipExplorer);
+				RemoveColumnCommand c = new RemoveColumnCommand(AEntityColumn.this, contour);
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c);
+				contour.getHistory().addHistoryCommand(c);
 			}
 		});
 
 	}
 
+	protected <T extends IIconProvider> GLComboBox<T> createPlotCombo(List<T> plots) {
+		GLComboBox<T> combo = new GLComboBox<>(plots, new IGLRenderer() {
+
+			@Override
+			public void render(GLGraphics g, float w, float h, GLElement parent) {
+				IIconProvider f = parent.getLayoutDataAs(IIconProvider.class, null);
+				g.fillImage(f.getIconURL(), 0, 0, w, h);
+
+			}
+		}, GLRenderers.fillRect(Color.WHITE));
+		combo.setSize(16, 16);
+		combo.setVisibility(EVisibility.HIDDEN);
+
+		return combo;
+	}
+
 	protected void updateSummaryPlots() {
-		if (parentColumn == null || summaryItemFactories.size() <= 1)
+		if (parentColumn == null || summaryItemFactoryCreators.size() <= 1 || !initialized)
 			return;
 		summaryPlots.setVisibility(EVisibility.PICKABLE);
-		summaryPlots.setModel(new ArrayList<>(summaryItemFactories));
-		summaryPlots.setSelectedItemSilent(summaryItemFactory);
+		summaryPlots.setModel(new ArrayList<>(summaryItemFactoryCreators));
+		summaryPlots.setSelectedItemSilent(summaryItemFactoryCreator);
+	}
+
+	protected void updateItemPlots() {
+		if (itemFactoryCreators.size() <= 1 || !initialized)
+			return;
+		itemPlots.setVisibility(EVisibility.PICKABLE);
+		itemPlots.setModel(new ArrayList<>(itemFactoryCreators));
+		itemPlots.setSelectedItemSilent(itemFactoryCreator);
 
 	}
 
@@ -228,16 +279,15 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public Collection<? extends AContextMenuItem> getContextMenuItems() {
-		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this);
-		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(
-				new Runnable() {
-					@Override
-					public void run() {
-						ShowDetailCommand o = new ShowDetailCommand(entityCollection, relationshipExplorer);
-						o.execute();
-						relationshipExplorer.getHistory().addHistoryCommand(o);
-					}
-				}).to(relationshipExplorer));
+		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(contour, this);
+		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(new Runnable() {
+			@Override
+			public void run() {
+				ShowDetailCommand o = new ShowDetailCommand(entityCollection, contour);
+				o.execute();
+				contour.getHistory().addHistoryCommand(o);
+			}
+		}).to(contour));
 
 		items.add(detailItem);
 
@@ -277,11 +327,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		// event.getFilter());
 
 		AttributeFilterCommand c = new AttributeFilterCommand(this, event.getFilter(), ESetOperation.INTERSECTION,
-				event.getFilterElementIDPool(), event.isSave(), relationshipExplorer.getHistory());
-		c.setTargetCollections(relationshipExplorer.getEntityCollections());
+				event.getFilterElementIDPool(), event.isSave(), contour.getHistory());
+		c.setTargetCollections(contour.getEntityCollections());
 		c.execute();
 		if (event.isSave())
-			relationshipExplorer.getHistory().addHistoryCommand(c);
+			contour.getHistory().addHistoryCommand(c);
 	}
 
 	@Override
@@ -294,11 +344,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		}
 
 		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), elementIDs,
-				entityCollection.getBroadcastingIDsFromElementIDs(elementIDs), relationshipExplorer);
+				entityCollection.getBroadcastingIDsFromElementIDs(elementIDs), contour);
 
 		c.execute();
 
-		relationshipExplorer.getHistory().addHistoryCommand(c);
+		contour.getHistory().addHistoryCommand(c);
 	}
 
 	@Override
@@ -312,24 +362,25 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		entityCollection.setHighlightItems(elementIDs);
 
-		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(entityCollection
-				.getBroadcastingIDsFromElementIDs(elementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
+		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(entityCollection
+				.getBroadcastingIDsFromElementIDs(elementIDs), this, contour.getMultiItemSelectionSetOperation(),
+				contour.getEntityCollections()));
 
 	}
 
 	/**
-	 * @return the relationshipExplorer, see {@link #relationshipExplorer}
+	 * @return the relationshipExplorer, see {@link #contour}
 	 */
 	public ConTourElement getRelationshipExplorer() {
-		return relationshipExplorer;
+		return contour;
 	}
 
 	@Override
 	public GLElement getSummaryItemElement(NestableItem parentItem, Set<NestableItem> items, NestableItem summaryItem,
 			EUpdateCause cause) {
 
-		if (summaryItem.getElement() == null || summaryItemFactory.needsUpdate(cause)) {
+		if (summaryItem.getElement() == null || summaryItemFactory.needsUpdate(cause)
+				|| cause == EUpdateCause.PLOT_TYPE_CHANGE) {
 			return summaryItemFactory.createSummaryItem(parentItem, items);
 		}
 		return summaryItem.getElement();
@@ -629,16 +680,40 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		}
 	}
 
-	public void addSummaryItemFactory(ISummaryItemFactory factory) {
-		summaryItemFactories.add(factory);
+	public void addSummaryItemFactoryCreator(ISummaryItemFactoryCreator creator) {
+		summaryItemFactoryCreators.add(creator);
+		if (summaryItemFactoryCreators.size() == 1)
+			setSummaryItemFactoryCreator(creator);
 		updateSummaryPlots();
 	}
 
-	public void setSummaryItemFactory(ISummaryItemFactory factory) {
-		summaryItemFactory = factory;
+	public void setSummaryItemFactoryCreator(ISummaryItemFactoryCreator creator) {
+		summaryItemFactoryCreator = creator;
+		summaryItemFactory = creator.create(entityCollection, this, contour);
 		updateSummaryPlots();
 		if (column != null) {
-			column.updateSummaryItems(EUpdateCause.OTHER);
+			column.updateSummaryItems(EUpdateCause.PLOT_TYPE_CHANGE);
+			column.getColumnTree().relayout();
+		}
+	}
+
+	public void addItemFactoryCreator(IItemFactoryCreator creator) {
+		itemFactoryCreators.add(creator);
+		if (itemFactoryCreators.size() == 1)
+			setItemFactoryCreator(creator);
+		updateItemPlots();
+	}
+
+	/**
+	 * @param itemFactory
+	 *            setter, see {@link itemFactory}
+	 */
+	public void setItemFactoryCreator(IItemFactoryCreator creator) {
+		itemFactoryCreator = creator;
+		this.itemFactory = creator.create(entityCollection, this, contour);
+		updateItemPlots();
+		if (column != null) {
+			column.updateItems(EUpdateCause.PLOT_TYPE_CHANGE);
 			column.getColumnTree().relayout();
 		}
 	}
@@ -758,9 +833,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public void onSort(SortingEvent event) {
 		ColumnSortingCommand c = new ColumnSortingCommand(this, event.getComparator(), event.getScoreProvider(),
-				relationshipExplorer.getHistory());
+				contour.getHistory());
 		c.execute();
-		relationshipExplorer.getHistory().addHistoryCommand(c);
+		contour.getHistory().addHistoryCommand(c);
 
 	}
 
@@ -775,7 +850,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public GLElement getItemElement(NestableItem item, EUpdateCause cause) {
-		if (itemFactory.needsUpdate(cause) || item.getElement() == null) {
+		if (itemFactory.needsUpdate(cause) || item.getElement() == null || cause == EUpdateCause.PLOT_TYPE_CHANGE) {
 			return createElement(item.getElementData().iterator().next());
 		}
 		return item.getElement();
@@ -787,7 +862,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		entityCollection.removeEntityRepresentation(this);
 		mapIDToFilteredItems.clear();
 		baseComparators.clear();
-		summaryItemFactories.clear();
+		summaryItemFactoryCreators.clear();
 	}
 
 	/**
@@ -798,18 +873,24 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	/**
-	 * @return the summaryItemFactories, see {@link #summaryItemFactories}
+	 * @return the summaryItemFactoryCreator, see {@link #summaryItemFactoryCreator}
 	 */
-	public Set<ISummaryItemFactory> getSummaryItemFactories() {
-		return summaryItemFactories;
+	public ISummaryItemFactoryCreator getSummaryItemFactoryCreator() {
+		return summaryItemFactoryCreator;
 	}
 
 	/**
-	 * @param itemFactory
-	 *            setter, see {@link itemFactory}
+	 * @return the itemFactory, see {@link #itemFactory}
 	 */
-	public void setItemFactory(IItemFactory itemFactory) {
-		this.itemFactory = itemFactory;
+	public IItemFactory getItemFactory() {
+		return itemFactory;
+	}
+
+	/**
+	 * @return the itemFactoryCreator, see {@link #itemFactoryCreator}
+	 */
+	public IItemFactoryCreator getItemFactoryCreator() {
+		return itemFactoryCreator;
 	}
 
 	@Override

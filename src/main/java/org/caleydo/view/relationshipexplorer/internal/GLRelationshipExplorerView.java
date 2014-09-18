@@ -40,7 +40,7 @@ public class GLRelationshipExplorerView extends AMultiTablePerspectiveElementVie
 	public void init(GLAutoDrawable drawable) {
 		super.init(drawable);
 		// HTSVideoFactory factory = new HTSVideoFactory();
-		HTIFactory factory = new HTIFactory();
+		 HTIFactory factory = new HTIFactory();
 		relationshipExplorer = (ConTourElement) factory.create(null);
 		getRootDecorator().setContent(relationshipExplorer);
 		// AnimatedGLElementContainer row = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true, 10,

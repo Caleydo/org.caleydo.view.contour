@@ -17,7 +17,6 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton;
 import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.SimpleTabularDataItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.dialog.TabularAttributesFilterDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -59,8 +58,7 @@ public class TabularDataColumn extends AEntityColumn {
 		}
 	};
 
-	public TabularDataColumn(TabularDataCollection tabularDataCollection,
- final ConTourElement relationshipExplorer) {
+	public TabularDataColumn(TabularDataCollection tabularDataCollection, final ConTourElement relationshipExplorer) {
 		super(tabularDataCollection, relationshipExplorer);
 		this.itemIDCategory = tabularDataCollection.getItemIDCategory();
 		this.tablePerspective = tabularDataCollection.getTablePerspective();
@@ -69,7 +67,7 @@ public class TabularDataColumn extends AEntityColumn {
 		this.va = tabularDataCollection.getVa();
 		this.itemIDType = tabularDataCollection.getItemIDType();
 		this.perspective = tabularDataCollection.getDimensionPerspective();
-		setItemFactory(new SimpleTabularDataItemFactory(tabularDataCollection));
+		// setItemFactory(new SimpleTabularDataItemFactory(tabularDataCollection));
 
 		final GLButton filterButton = addHeaderButton(FILTER_ICON, "Filter by Attributes");
 

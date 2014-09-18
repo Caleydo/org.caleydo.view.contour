@@ -55,7 +55,7 @@ public class IDCollection extends AEntityCollection {
 
 	@Override
 	protected IColumnFactory getDefaultColumnFactory() {
-		return ColumnFactories.createDefaultIDColumnFactory(this, relationshipExplorer);
+		return ColumnFactories.createDefaultIDColumnFactory();
 	}
 
 	@Override

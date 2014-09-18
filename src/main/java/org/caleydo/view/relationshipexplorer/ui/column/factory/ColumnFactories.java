@@ -8,13 +8,17 @@ package org.caleydo.view.relationshipexplorer.ui.column.factory;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.GroupingColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.PathwayColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextItemFactoryCreator;
 
 /**
  * @author Christian
@@ -22,60 +26,78 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
  */
 public final class ColumnFactories {
 
+	public static class IDColumnFactory extends AColumnFactory {
+
+		@Override
+		protected AEntityColumn createColumnInstance(IEntityCollection collection, ConTourElement contour) {
+			return new IDColumn((IDCollection) collection, contour);
+		}
+
+	}
+
+	public static class GroupColumnFactory extends AColumnFactory {
+
+		@Override
+		protected AEntityColumn createColumnInstance(IEntityCollection collection, ConTourElement contour) {
+			return new GroupingColumn((GroupCollection) collection, contour);
+		}
+
+	}
+
+	public static class PathwayColumnFactory extends AColumnFactory {
+
+		@Override
+		protected AEntityColumn createColumnInstance(IEntityCollection collection, ConTourElement contour) {
+			return new PathwayColumn((PathwayCollection) collection, contour);
+		}
+
+	}
+
+	public static class TabularDataColumnFactory extends AColumnFactory {
+
+		@Override
+		protected AEntityColumn createColumnInstance(IEntityCollection collection, ConTourElement contour) {
+			return new TabularDataColumn((TabularDataCollection) collection, contour);
+		}
+
+	}
+
 	private ColumnFactories() {
 
 	}
 
-	public static IColumnFactory createDefaultGroupColumnFactory(final GroupCollection collection,
-			final ConTourElement relationshipExplorer) {
-		return new IColumnFactory() {
+	public static GroupColumnFactory createDefaultGroupColumnFactory() {
+		GroupColumnFactory factory = new GroupColumnFactory();
 
-			@Override
-			public IColumnModel create() {
-				GroupingColumn column = new GroupingColumn(collection, relationshipExplorer);
-				column.init();
-				return column;
-			}
-		};
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
+
+		return factory;
 	}
 
-	public static IColumnFactory createDefaultIDColumnFactory(final IDCollection collection,
-			final ConTourElement relationshipExplorer) {
-		return new IColumnFactory() {
+	public static IDColumnFactory createDefaultIDColumnFactory() {
+		IDColumnFactory factory = new IDColumnFactory();
 
-			@Override
-			public IColumnModel create() {
-				IDColumn column = new IDColumn(collection, relationshipExplorer);
-				column.init();
-				return column;
-			}
-		};
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
+
+		return factory;
 	}
 
-	public static IColumnFactory createDefaultPathwayColumnFactory(final PathwayCollection collection,
-			final ConTourElement relationshipExplorer) {
-		return new IColumnFactory() {
+	public static PathwayColumnFactory createDefaultPathwayColumnFactory() {
+		PathwayColumnFactory factory = new PathwayColumnFactory();
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
 
-			@Override
-			public IColumnModel create() {
-				PathwayColumn column = new PathwayColumn(collection, relationshipExplorer);
-				column.init();
-				return column;
-			}
-		};
+		return factory;
 	}
 
-	public static IColumnFactory createDefaultTabularDataColumnFactory(final TabularDataCollection collection,
-			final ConTourElement relationshipExplorer) {
-		return new IColumnFactory() {
+	public static TabularDataColumnFactory createDefaultTabularDataColumnFactory() {
+		TabularDataColumnFactory factory = new TabularDataColumnFactory();
+		factory.addItemFactoryCreator(new SimpleTabularDataItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
 
-			@Override
-			public IColumnModel create() {
-				TabularDataColumn column = new TabularDataColumn(collection, relationshipExplorer);
-				column.init();
-				return column;
-			}
-		};
+		return factory;
 	}
 
 }

@@ -8,36 +8,22 @@ package org.caleydo.view.relationshipexplorer.ui.column.factory;
 import org.caleydo.datadomain.image.ImageDataDomain;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIImageAreaFactory;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.IDColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIImageAreaFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextItemFactoryCreator;
 
 /**
  * @author Christian
  *
  */
-public class ImageAreaColumnFactory implements IColumnFactory {
-
-	protected final IDCollection collection;
-	protected final ImageDataDomain dataDomain;
-	protected final ConTourElement relationshipExplorer;
+public class ImageAreaColumnFactory extends IDColumnFactory {
 
 	public ImageAreaColumnFactory(IDCollection collection, ImageDataDomain dataDomain,
 			ConTourElement relationshipExplorer) {
-		this.collection = collection;
-		this.relationshipExplorer = relationshipExplorer;
-		this.dataDomain = dataDomain;
-	}
-
-	@Override
-	public IColumnModel create() {
-		IDColumn column = new IDColumn(collection, relationshipExplorer);
-		HTIImageAreaFactory f = new HTIImageAreaFactory(dataDomain, column);
-		column.setItemFactory(f);
-		// column.
-		// column.setSummaryItemFactory(f);
-		column.init();
-		return column;
+		addItemFactoryCreator(new HTIImageAreaFactoryCreator(dataDomain), true);
+		addItemFactoryCreator(new TextItemFactoryCreator(), false);
+		addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
 	}
 
 }

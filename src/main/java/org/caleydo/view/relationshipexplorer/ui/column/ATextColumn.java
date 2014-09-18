@@ -18,7 +18,6 @@ import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.TextItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SearchDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
@@ -103,7 +102,7 @@ public abstract class ATextColumn extends AEntityColumn {
 	public ATextColumn(IEntityCollection entityCollection, final ConTourElement relationshipExplorer) {
 		super(entityCollection, relationshipExplorer);
 		this.textItemComparator = new TextItemComparator(this);
-		setItemFactory(new TextItemFactory(this));
+		// setItemFactory(new TextItemFactory(this));
 		final GLButton filterButton = addHeaderButton(FILTER_ICON, "Filter by Name");
 
 		filterButton.setCallback(new ISelectionCallback() {

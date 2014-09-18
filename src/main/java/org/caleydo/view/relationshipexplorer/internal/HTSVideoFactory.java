@@ -30,20 +30,19 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.SelectionMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
-import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MedianSummaryItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewWindowFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.HTSPathwayDetailViewFactory;
@@ -129,8 +128,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
 					activityCollection.setLabel("Activities");
-					activityCollection.setColumnFactory(new ActivityColumnFactory(activityCollection,
-							relationshipExplorer));
+					activityCollection.setColumnFactory(new ActivityColumnFactory());
 
 					// ColumnTree activityColumn = new ColumnTree(activityCollection.createColumnModel());
 					//
@@ -160,17 +158,13 @@ public class HTSVideoFactory implements IGLElementFactory {
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
 					fingerprintCollection = coll;
 					fingerprintCollection.setLabel("Fingerprints");
-					fingerprintCollection.setColumnFactory(new IColumnFactory() {
-
-						@Override
-						public IColumnModel create() {
-							TabularDataColumn column = new TabularDataColumn(coll, relationshipExplorer);
-							MedianSummaryItemFactory f = new MedianSummaryItemFactory(column);
-							column.addSummaryItemFactory(f);
-							column.setSummaryItemFactory(f);
-							column.init();
-							return column;
+					fingerprintCollection.setColumnFactory(new TabularDataColumnFactory() {
+						{
+							addItemFactoryCreator(new SimpleTabularDataItemFactoryCreator(), true);
+							addSummaryItemFactoryCreator(new MedianSummaryItemFactoryCreator(), true);
+							addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), false);
 						}
+
 					});
 
 					// ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
@@ -258,8 +252,6 @@ public class HTSVideoFactory implements IGLElementFactory {
 		initCommand.add(c);
 		ColumnTree compoundColumn = (ColumnTree) c.execute();
 
-
-
 		// c = new AddChildColumnCommand(activityCollection, compoundColumn.getRootColumn().getColumnModel()
 		// .getHistoryID(), relationshipExplorer);
 		// initCommand.add(c);
@@ -274,10 +266,10 @@ public class HTSVideoFactory implements IGLElementFactory {
 		initCommand.add(c);
 		ColumnTree fingerprintColumn = (ColumnTree) c.execute();
 
-		c = new SetSummaryItemFactoryCommand((AEntityColumn) fingerprintColumn.getRootColumn().getColumnModel(),
-				MedianSummaryItemFactory.class, relationshipExplorer.getHistory(), true);
-		initCommand.add(c);
-		c.execute();
+		// c = new SetSummaryItemFactoryCommand((AEntityColumn) fingerprintColumn.getRootColumn().getColumnModel(),
+		// new MedianSummaryItemFactoryCreator(), relationshipExplorer.getHistory(), true);
+		// initCommand.add(c);
+		// c.execute();
 		//
 		// c = new AddChildColumnCommand(compoundCollection, fingerprintColumn.getRootColumn().getColumnModel()
 		// .getHistoryID(), relationshipExplorer);
@@ -362,8 +354,8 @@ public class HTSVideoFactory implements IGLElementFactory {
 		return relationshipExplorer;
 	}
 
-	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer,
-			IColumnModel parentColumn, IColumnModel childColumn, CompositeHistoryCommand initCommand) {
+	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer, IColumnModel parentColumn,
+			IColumnModel childColumn, CompositeHistoryCommand initCommand) {
 		CompositeComparator<NestableItem> comparator = new CompositeComparator<>(
 				ItemComparators.SELECTED_ITEMS_COMPARATOR, new SelectionMappingComparator(childColumn,
 						relationshipExplorer.getHistory()), new VisibleMappingComparator(childColumn,

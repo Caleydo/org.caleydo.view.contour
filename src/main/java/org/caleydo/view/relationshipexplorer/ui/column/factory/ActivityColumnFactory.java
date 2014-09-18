@@ -5,36 +5,21 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.factory;
 
-import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ActivitySummaryItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTSActivityItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTSActivityItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
 
 /**
  * @author Christian
  *
  */
-public class ActivityColumnFactory implements IColumnFactory {
+public class ActivityColumnFactory extends TabularDataColumnFactory {
 
-	protected final TabularDataCollection collection;
-	protected final ConTourElement relationshipExplorer;
-
-	public ActivityColumnFactory(TabularDataCollection collection, ConTourElement relationshipExplorer) {
-		this.collection = collection;
-		this.relationshipExplorer = relationshipExplorer;
-	}
-
-	@Override
-	public IColumnModel create() {
-		TabularDataColumn column = new TabularDataColumn(collection, relationshipExplorer);
-		ActivitySummaryItemFactory f = new ActivitySummaryItemFactory(column);
-		column.addSummaryItemFactory(f);
-		column.setSummaryItemFactory(f);
-		column.setItemFactory(new HTSActivityItemFactory(column));
-		column.init();
-		return column;
+	public ActivityColumnFactory() {
+		addItemFactoryCreator(new HTSActivityItemFactoryCreator(), true);
+		addSummaryItemFactoryCreator(new ActivitySummaryItemFactoryCreator(), true);
+		addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), false);
 	}
 
 }

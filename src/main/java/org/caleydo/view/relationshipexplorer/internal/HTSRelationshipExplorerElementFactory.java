@@ -30,19 +30,16 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.SelectionMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.MedianSummaryItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.command.AddChildColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewWindowFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.HTSPathwayDetailViewFactory;
@@ -129,8 +126,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
 					activityCollection.setLabel("Activities");
-					activityCollection.setColumnFactory(new ActivityColumnFactory(activityCollection,
-							relationshipExplorer));
+					activityCollection.setColumnFactory(new ActivityColumnFactory());
 
 					// ColumnTree activityColumn = new ColumnTree(activityCollection.createColumnModel());
 					//
@@ -201,8 +197,7 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(clusterCollection100, pathwayColumn.getRootColumn().getColumnModel()
-				.getHistoryID(),
-				relationshipExplorer);
+				.getHistoryID(), relationshipExplorer);
 		// c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 		// relationshipExplorer.getHistory());
 		initCommand.add(c);
@@ -278,9 +273,9 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 
 		// ColumnTree clusterColumn = new ColumnTree(clusterCollection.createColumnModel());
 
-		c = new SetSummaryItemFactoryCommand((AEntityColumn) col.getColumnModel(), MedianSummaryItemFactory.class,
-				relationshipExplorer.getHistory(), true);
-		initCommand.add(c);
+		// c = new SetSummaryItemFactoryCommand((AEntityColumn) col.getColumnModel(),
+		// new MedianSummaryItemFactoryCreator(), relationshipExplorer.getHistory(), true);
+		// initCommand.add(c);
 		c.execute();
 
 		addDefaultSortingCommand(relationshipExplorer, cluster100Column.getRootColumn().getColumnModel(),
@@ -307,8 +302,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		initCommand.add(c);
 		ColumnTree groupColumn = (ColumnTree) c.execute();
 
-		c = new AddChildColumnCommand(compoundCollection, groupColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer);
+		c = new AddChildColumnCommand(compoundCollection, groupColumn.getRootColumn().getColumnModel().getHistoryID(),
+				relationshipExplorer);
 		initCommand.add(c);
 		col = (NestableColumn) c.execute();
 
@@ -335,8 +330,8 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 		return relationshipExplorer;
 	}
 
-	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer,
-			IColumnModel parentColumn, IColumnModel childColumn, CompositeHistoryCommand initCommand) {
+	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer, IColumnModel parentColumn,
+			IColumnModel childColumn, CompositeHistoryCommand initCommand) {
 		CompositeComparator<NestableItem> comparator = new CompositeComparator<>(
 				ItemComparators.SELECTED_ITEMS_COMPARATOR, new SelectionMappingComparator(childColumn,
 						relationshipExplorer.getHistory()), new VisibleMappingComparator(childColumn,

@@ -49,7 +49,7 @@ public class PathwayCollection extends AEntityCollection {
 	@Override
 	protected Set<Object> getElementIDsFromBroadcastID(Object broadcastingID) {
 		Set<PathwayGraph> pathways = PathwayManager.get().getPathwayGraphsByGeneID(getBroadcastingIDType(),
-				(Integer) broadcastingID);
+				broadcastingID);
 
 		Set<Object> elementIDs = new HashSet<>(pathways != null ? pathways.size() : 0);
 		if (pathways != null) {
@@ -62,7 +62,7 @@ public class PathwayCollection extends AEntityCollection {
 
 	@Override
 	protected IColumnFactory getDefaultColumnFactory() {
-		return ColumnFactories.createDefaultPathwayColumnFactory(this, relationshipExplorer);
+		return ColumnFactories.createDefaultPathwayColumnFactory();
 	}
 
 	@Override

@@ -8,20 +8,20 @@ package org.caleydo.view.relationshipexplorer.ui.command;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
 
 /**
  * @author Christian
  *
  */
-public class SetSummaryItemFactoryCommand implements IHistoryCommand {
+public class SetItemFactoryCommand implements IHistoryCommand {
 
 	protected final int columnHistoryID;
 	protected final History history;
-	protected final ISummaryItemFactoryCreator creator;
+	protected final IItemFactoryCreator creator;
 	protected final boolean addFactory;
 
-	public SetSummaryItemFactoryCommand(AEntityColumn column, ISummaryItemFactoryCreator creator, History history,
+	public SetItemFactoryCommand(AEntityColumn column, IItemFactoryCreator creator, History history,
 			boolean addFactory) {
 		this.columnHistoryID = column.getHistoryID();
 		this.creator = creator;
@@ -34,8 +34,8 @@ public class SetSummaryItemFactoryCommand implements IHistoryCommand {
 		AEntityColumn col = history.getHistoryObjectAs(AEntityColumn.class, columnHistoryID);
 
 		if (addFactory)
-			col.addSummaryItemFactoryCreator(creator);
-		col.setSummaryItemFactoryCreator(creator);
+			col.addItemFactoryCreator(creator);
+		col.setItemFactoryCreator(creator);
 
 		return null;
 	}
@@ -43,7 +43,7 @@ public class SetSummaryItemFactoryCommand implements IHistoryCommand {
 	@Override
 	public String getDescription() {
 		AEntityColumn col = history.getHistoryObjectAs(AEntityColumn.class, columnHistoryID);
-		return "Changed Summary Item View for " + col.getLabel();
+		return "Changed Item View for " + col.getLabel();
 	}
 
 }

@@ -30,7 +30,7 @@ import com.google.common.collect.Sets;
  */
 public abstract class AEntityCollection implements IEntityCollection {
 
-	protected final ConTourElement relationshipExplorer;
+	protected final ConTourElement contour;
 	protected String label = "";
 	protected Set<Object> allElementIDs = new HashSet<>();
 	protected Set<Object> filteredElementIDs = new HashSet<>();
@@ -45,7 +45,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	protected IDetailViewFactory detailViewFactory;
 
 	public AEntityCollection(ConTourElement relationshipExplorer) {
-		this.relationshipExplorer = relationshipExplorer;
+		this.contour = relationshipExplorer;
 		relationshipExplorer.registerEntityCollection(this);
 	}
 
@@ -194,7 +194,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	public IColumnModel createColumnModel() {
 		if (columnFactory == null)
 			columnFactory = getDefaultColumnFactory();
-		return columnFactory.create();
+		return columnFactory.create(this, contour);
 	}
 
 	/**
@@ -209,7 +209,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	public DetailViewWindow createDetailViewWindow() {
 		if (detailViewWindowFactory == null)
 			detailViewWindowFactory = DetailViewWindowFactories
-					.createDefaultDetailViewWindowFactory(relationshipExplorer);
+.createDefaultDetailViewWindowFactory(contour);
 		return detailViewWindowFactory.createWindow(this);
 	}
 
@@ -232,7 +232,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	@Override
 	public GLElement createDetailView(DetailViewWindow window) {
 		if (detailViewFactory == null)
-			detailViewFactory = DetailViewFactories.createDefaultDetailViewWindowFactory(relationshipExplorer);
+			detailViewFactory = DetailViewFactories.createDefaultDetailViewWindowFactory(contour);
 		return detailViewFactory.create(this, window);
 	}
 

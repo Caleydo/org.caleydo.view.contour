@@ -29,17 +29,16 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
-import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIMutationItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.HTIVariantCallItemFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.image.HTIImageDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.DefaultPathwayDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.MultiVertexHighlightAugmentationFactory;
-import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 /**
  * @author Christian
@@ -139,15 +138,13 @@ public class HTIFactory implements IGLElementFactory {
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
 					mutationsCollection = coll;
 					mutationsCollection.setLabel("Variant Descriptions");
-					mutationsCollection.setColumnFactory(new IColumnFactory() {
+					mutationsCollection.setColumnFactory(new TabularDataColumnFactory() {
 
-						@Override
-						public IColumnModel create() {
-							TabularDataColumn column = new TabularDataColumn(coll, contour);
-							column.setItemFactory(new HTIMutationItemFactory(coll, contour));
-							column.init();
-							return column;
+						{
+							addItemFactoryCreator(new HTIMutationItemFactoryCreator(), true);
+							addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
 						}
+
 					});
 				}
 				break;
@@ -166,15 +163,13 @@ public class HTIFactory implements IGLElementFactory {
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
 					mutationSamplesCollection = coll;
 					mutationSamplesCollection.setLabel("Variant Calls");
-					mutationSamplesCollection.setColumnFactory(new IColumnFactory() {
+					mutationSamplesCollection.setColumnFactory(new TabularDataColumnFactory() {
 
-						@Override
-						public IColumnModel create() {
-							TabularDataColumn column = new TabularDataColumn(coll, contour);
-							column.setItemFactory(new HTIVariantCallItemFactory(coll));
-							column.init();
-							return column;
+						{
+							addItemFactoryCreator(new HTIVariantCallItemFactoryCreator(), true);
+							addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
 						}
+
 					});
 				}
 				break;

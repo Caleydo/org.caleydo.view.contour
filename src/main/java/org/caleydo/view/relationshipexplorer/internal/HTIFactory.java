@@ -26,9 +26,12 @@ import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
-import org.caleydo.view.relationshipexplorer.ui.collection.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ElementIDProviders;
+import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ExcludingPathwayIDProvider;
+import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
+import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.PathwayMappingBasedIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemFactoryCreator;
@@ -188,13 +191,14 @@ public class HTIFactory implements IGLElementFactory {
 		// return column;
 		// }
 		// });
+		PathwayCollection pathwayCollection = new PathwayCollection(ElementIDProviders.intersectionOf(
+				 ExcludingPathwayIDProvider.NO_METABOLIC_PATHWAY_PROVIDER,
+				 new PathwayMappingBasedIDProvider(IDType.getIDType("VARIANT_ID"))), contour);
 
-		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), contour);
 		pathwayCollection
 				.setDetailViewFactory(new DefaultPathwayDetailViewFactory(contour)
 						.addForegroundAugmentationFactory(new MultiVertexHighlightAugmentationFactory(geneCollection,
 								contour)));
-
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
 		// -----

@@ -13,6 +13,7 @@ import org.caleydo.datadomain.genetic.EGeneIDTypes;
 import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.datadomain.pathway.manager.PathwayManager;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.DefaultPathwayDetailViewFactory;

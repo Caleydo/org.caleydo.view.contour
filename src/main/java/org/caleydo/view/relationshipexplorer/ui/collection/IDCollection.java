@@ -12,6 +12,7 @@ import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 

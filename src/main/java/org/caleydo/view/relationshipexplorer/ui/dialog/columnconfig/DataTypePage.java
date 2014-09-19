@@ -5,7 +5,12 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig;
 
+import org.caleydo.core.util.base.ICallback;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.ADataConfigWidget;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.GroupingConfigWidget;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.IdentifierConfigWidget;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.PathwayConfigWidget;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.TabularDataConfigWidget;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -23,9 +28,9 @@ import org.eclipse.swt.widgets.Text;
  * @author Christian
  *
  */
-public class DataTypePage extends WizardPage {
+public class DataTypePage extends WizardPage implements ICallback<ADataConfigWidget> {
 
-	private Composite dataTypeSpecificComposite;
+	private ADataConfigWidget dataTypeSpecificComposite;
 
 	private Text columnNameText;
 
@@ -61,29 +66,25 @@ public class DataTypePage extends WizardPage {
 		addDataTypeButton(selectColumnTypeGroup, "Identifier", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (dataTypeSpecificComposite != null)
-					dataTypeSpecificComposite.dispose();
-				dataTypeSpecificComposite = new IdentifierConfigWidget(parentComposite);
-				getShell().layout(true, true);
-				getShell().pack(true);
+				showConfigWidget(new IdentifierConfigWidget(parentComposite, DataTypePage.this));
 			}
 		});
 		addDataTypeButton(selectColumnTypeGroup, "Dataset", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				showConfigWidget(new TabularDataConfigWidget(parentComposite, DataTypePage.this));
 			}
 		});
-		addDataTypeButton(selectColumnTypeGroup, "Pathways", new SelectionAdapter() {
+		addDataTypeButton(selectColumnTypeGroup, "Pathway", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				showConfigWidget(new PathwayConfigWidget(parentComposite, DataTypePage.this));
 			}
 		});
-		addDataTypeButton(selectColumnTypeGroup, "Groupings", new SelectionAdapter() {
+		addDataTypeButton(selectColumnTypeGroup, "Grouping", new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				showConfigWidget(new GroupingConfigWidget(parentComposite, DataTypePage.this));
 			}
 		});
 
@@ -96,6 +97,27 @@ public class DataTypePage extends WizardPage {
 		button.setText(label);
 		button.addSelectionListener(listener);
 
+	}
+
+	private void showConfigWidget(ADataConfigWidget widget) {
+		if (dataTypeSpecificComposite != null)
+			dataTypeSpecificComposite.dispose();
+		dataTypeSpecificComposite = widget;
+		getShell().layout(true, true);
+		getShell().pack(true);
+		getWizard().getContainer().updateButtons();
+	}
+
+	@Override
+	public boolean isPageComplete() {
+		if (dataTypeSpecificComposite == null || !dataTypeSpecificComposite.isConfigValid())
+			return false;
+		return super.isPageComplete();
+	}
+
+	@Override
+	public void on(ADataConfigWidget data) {
+		getWizard().getContainer().updateButtons();
 	}
 
 }

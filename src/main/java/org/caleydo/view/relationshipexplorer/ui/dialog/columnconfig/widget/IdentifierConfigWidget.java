@@ -7,9 +7,12 @@ package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget;
 
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ICallback;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -20,7 +23,7 @@ import org.eclipse.swt.widgets.Label;
  * @author Christian
  *
  */
-public class IdentifierConfigWidget extends Composite {
+public class IdentifierConfigWidget extends ADataConfigWidget {
 
 	private Combo idCategoryCombo;
 	private Combo idTypeCombo;
@@ -29,8 +32,8 @@ public class IdentifierConfigWidget extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public IdentifierConfigWidget(Composite parent) {
-		super(parent, SWT.NONE);
+	public IdentifierConfigWidget(Composite parent, final ICallback<ADataConfigWidget> callback) {
+		super(parent, callback);
 		setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		setLayout(new GridLayout(2, false));
 
@@ -39,7 +42,7 @@ public class IdentifierConfigWidget extends Composite {
 		idCategoryLabel.setText("Type");
 
 		idCategoryCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-		idCategoryCombo.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
+		idCategoryCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		idCategoryCombo.addModifyListener(new ModifyListener() {
 
 			@Override
@@ -52,6 +55,7 @@ public class IdentifierConfigWidget extends Composite {
 						idTypeCombo.add(idType.getTypeName());
 					}
 				}
+				callback.on(IdentifierConfigWidget.this);
 			}
 		});
 
@@ -66,14 +70,25 @@ public class IdentifierConfigWidget extends Composite {
 		idTypeLabel.setText("Identifier");
 
 		idTypeCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-		idTypeCombo.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
+		idTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		idTypeCombo.setEnabled(false);
+		idTypeCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				callback.on(IdentifierConfigWidget.this);
+			}
+		});
 	}
 
 	public IDType getSelectedIDType() {
 		if (idTypeCombo.getSelectionIndex() == -1)
 			return null;
 		return IDType.getIDType(idTypeCombo.getText());
+	}
+
+	@Override
+	public boolean isConfigValid() {
+		return getSelectedIDType() != null;
 	}
 
 }

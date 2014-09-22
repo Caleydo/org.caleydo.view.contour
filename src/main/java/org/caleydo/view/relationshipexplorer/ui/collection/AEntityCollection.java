@@ -46,7 +46,6 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	public AEntityCollection(ConTourElement relationshipExplorer) {
 		this.contour = relationshipExplorer;
-		relationshipExplorer.registerEntityCollection(this);
 	}
 
 	@Override

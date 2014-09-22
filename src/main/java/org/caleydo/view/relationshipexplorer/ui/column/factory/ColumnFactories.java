@@ -17,8 +17,8 @@ import org.caleydo.view.relationshipexplorer.ui.column.IDColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.PathwayColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.TabularDataColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataConfigurationAddon.SimpleTabularDataItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator;
 
 /**
  * @author Christian

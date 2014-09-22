@@ -10,6 +10,9 @@ import java.util.Set;
 
 import org.caleydo.core.util.base.ICallback;
 import org.caleydo.datadomain.pathway.manager.EPathwayDatabaseType;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ElementIDProviders;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ExcludingPathwayIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
@@ -90,6 +93,11 @@ public class PathwayConfigWidget extends ADataConfigWidget {
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public AEntityCollection getCollection(ConTourElement contour) {
+		return new PathwayCollection(getIDProvider(), contour);
 	}
 
 }

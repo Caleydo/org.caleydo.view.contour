@@ -34,8 +34,8 @@ import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementID
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.PathwayMappingBasedIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemConfigurationAddon.HTIMutationItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallConfigurationAddon.HTIVariantCallItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
@@ -105,6 +105,7 @@ public class HTIFactory implements IGLElementFactory {
 
 		IDCollection patientCollection = new IDCollection(IDType.getIDType("PATIENT"), IDType.getIDType("PATIENT"),
 				null, contour);
+		contour.registerEntityCollection(patientCollection);
 		patientCollection.setLabel("Patients");
 
 		final ImageDataDomain imageDD = (ImageDataDomain) DataDomainManager.get().getDataDomainByType(
@@ -125,6 +126,7 @@ public class HTIFactory implements IGLElementFactory {
 				return elementIDs;
 			}
 		}, contour);
+		contour.registerEntityCollection(layerCollection);
 		layerCollection.setLabel("Areas");
 		layerCollection.setColumnFactory(new ImageAreaColumnFactory(layerCollection, imageDD, contour));
 		layerCollection.setDetailViewFactory(new HTIImageDetailViewFactory(imageDD, contour));
@@ -139,6 +141,7 @@ public class HTIFactory implements IGLElementFactory {
 					final TabularDataCollection coll = new TabularDataCollection(
 							dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					contour.registerEntityCollection(coll);
 					mutationsCollection = coll;
 					mutationsCollection.setLabel("Variant Descriptions");
 					mutationsCollection.setColumnFactory(new TabularDataColumnFactory() {
@@ -164,6 +167,7 @@ public class HTIFactory implements IGLElementFactory {
 					final TabularDataCollection coll = new TabularDataCollection(
 							dataDomain.getDefaultTablePerspective(),
 							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					contour.registerEntityCollection(coll);
 					mutationSamplesCollection = coll;
 					mutationSamplesCollection.setLabel("Variant Calls");
 					mutationSamplesCollection.setColumnFactory(new TabularDataColumnFactory() {
@@ -181,6 +185,7 @@ public class HTIFactory implements IGLElementFactory {
 
 		final IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()),
 				IDType.getIDType(EGeneIDTypes.GENE_SYMBOL.name()), new GeneIDProvider(), contour);
+		contour.registerEntityCollection(geneCollection);
 		// geneCollection.setColumnFactory(new IColumnFactory() {
 		//
 		// @Override
@@ -194,6 +199,7 @@ public class HTIFactory implements IGLElementFactory {
 		PathwayCollection pathwayCollection = new PathwayCollection(ElementIDProviders.intersectionOf(
 				 ExcludingPathwayIDProvider.NO_METABOLIC_PATHWAY_PROVIDER,
 				 new PathwayMappingBasedIDProvider(IDType.getIDType("VARIANT_ID"))), contour);
+		contour.registerEntityCollection(pathwayCollection);
 
 		pathwayCollection
 				.setDetailViewFactory(new DefaultPathwayDetailViewFactory(contour)

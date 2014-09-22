@@ -6,11 +6,14 @@
 package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig;
 
 import org.caleydo.core.util.base.ICallback;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.ADataConfigWidget;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.GroupingConfigWidget;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.IdentifierConfigWidget;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.PathwayConfigWidget;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.TabularDataConfigWidget;
+import org.eclipse.jface.dialogs.IPageChangedListener;
+import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -28,7 +31,7 @@ import org.eclipse.swt.widgets.Text;
  * @author Christian
  *
  */
-public class DataTypePage extends WizardPage implements ICallback<ADataConfigWidget> {
+public class DataTypePage extends WizardPage implements ICallback<ADataConfigWidget>, IPageChangedListener {
 
 	private ADataConfigWidget dataTypeSpecificComposite;
 
@@ -118,6 +121,17 @@ public class DataTypePage extends WizardPage implements ICallback<ADataConfigWid
 	@Override
 	public void on(ADataConfigWidget data) {
 		getWizard().getContainer().updateButtons();
+	}
+
+	@Override
+	public void pageChanged(PageChangedEvent event) {
+		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
+		if (event.getSelectedPage() == getNextPage()) {
+			AEntityCollection collection = dataTypeSpecificComposite.getCollection(wizard.getContour());
+			collection.setLabel(columnNameText.getText());
+			wizard.setCollection(collection);
+		}
+
 	}
 
 }

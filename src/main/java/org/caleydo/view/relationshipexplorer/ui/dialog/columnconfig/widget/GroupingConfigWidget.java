@@ -15,6 +15,9 @@ import org.caleydo.core.data.datadomain.IDataDomain;
 import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.util.base.ICallback;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -166,5 +169,10 @@ public class GroupingConfigWidget extends ADataConfigWidget {
 	public boolean isConfigValid() {
 		return dataDomainList.getSelectionIndex() >= 0 && getIDCategory() != null
 				&& groupingList.getSelectionIndex() >= 0;
+	}
+
+	@Override
+	public AEntityCollection getCollection(ConTourElement contour) {
+		return new GroupCollection(getPerspective(), null, contour);
 	}
 }

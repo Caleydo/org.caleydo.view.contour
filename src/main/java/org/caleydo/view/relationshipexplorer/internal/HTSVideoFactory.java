@@ -39,7 +39,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFac
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataConfigurationAddon.SimpleTabularDataItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
@@ -108,15 +108,17 @@ public class HTSVideoFactory implements IGLElementFactory {
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
 
-		final ConTourElement relationshipExplorer = new ConTourElement();
+		final ConTourElement contour = new ConTourElement();
 
-		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), relationshipExplorer);
+		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), contour);
+		contour.registerEntityCollection(pathwayCollection);
 
 		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
 				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), new GeneIDProvider(),
-				relationshipExplorer);
+ contour);
+		contour.registerEntityCollection(geneCollection);
 
-		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory(relationshipExplorer, geneCollection));
+		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory(contour, geneCollection));
 
 		TabularDataCollection activityCollection = null;
 
@@ -126,7 +128,8 @@ public class HTSVideoFactory implements IGLElementFactory {
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					// ColumnTree activityColumn = new ColumnTree();
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					contour.registerEntityCollection(activityCollection);
 					activityCollection.setLabel("Activities");
 					activityCollection.setColumnFactory(new ActivityColumnFactory());
 
@@ -142,9 +145,10 @@ public class HTSVideoFactory implements IGLElementFactory {
 		}
 
 		IDCollection compoundCollection = new IDCollection(IDType.getIDType("COMPOUND_ID"),
-				IDType.getIDType("COMPOUND_ID"), null, relationshipExplorer);
+				IDType.getIDType("COMPOUND_ID"), null, contour);
+		contour.registerEntityCollection(compoundCollection);
 		compoundCollection.setLabel("Compounds");
-		compoundCollection.setDetailViewWindowFactory(new CompoundDetailViewWindowFactory(relationshipExplorer));
+		compoundCollection.setDetailViewWindowFactory(new CompoundDetailViewWindowFactory(contour));
 		compoundCollection.setDetailViewFactory(new CompoundDetailViewFactory());
 
 		TabularDataCollection fingerprintCollection = null;
@@ -155,7 +159,8 @@ public class HTSVideoFactory implements IGLElementFactory {
 
 					final TabularDataCollection coll = new TabularDataCollection(
 							dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					contour.registerEntityCollection(coll);
 					fingerprintCollection = coll;
 					fingerprintCollection.setLabel("Fingerprints");
 					fingerprintCollection.setColumnFactory(new TabularDataColumnFactory() {
@@ -178,11 +183,13 @@ public class HTSVideoFactory implements IGLElementFactory {
 			}
 		}
 
-		GroupCollection clusterCollection100 = getClusterColumn(relationshipExplorer, "100");
+		GroupCollection clusterCollection100 = getClusterColumn(contour, "100");
+		contour.registerEntityCollection(clusterCollection100);
 		clusterCollection100.setLabel("Clusters");
 		// GroupCollection clusterCollection50 = getClusterColumn(relationshipExplorer, "50");
 
-		GroupCollection therapeuticGroupCollection = getClusterColumn(relationshipExplorer, "therap");
+		GroupCollection therapeuticGroupCollection = getClusterColumn(contour, "therap");
+		contour.registerEntityCollection(therapeuticGroupCollection);
 		therapeuticGroupCollection.setLabel("Therapeutic Groups");
 
 		// float totalMinSize = 0;
@@ -205,7 +212,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
-		IHistoryCommand c = new AddColumnTreeCommand(pathwayCollection, relationshipExplorer);
+		IHistoryCommand c = new AddColumnTreeCommand(pathwayCollection, contour);
 		initCommand.add(c);
 		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
@@ -230,7 +237,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 
 		// ----
 
-		c = new AddColumnTreeCommand(geneCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(geneCollection, contour);
 		initCommand.add(c);
 		ColumnTree geneColumn = (ColumnTree) c.execute();
 
@@ -244,11 +251,11 @@ public class HTSVideoFactory implements IGLElementFactory {
 
 		// ----
 
-		c = new AddColumnTreeCommand(activityCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(activityCollection, contour);
 		initCommand.add(c);
 		ColumnTree activityColumn = (ColumnTree) c.execute();
 
-		c = new AddColumnTreeCommand(compoundCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(compoundCollection, contour);
 		initCommand.add(c);
 		ColumnTree compoundColumn = (ColumnTree) c.execute();
 
@@ -262,7 +269,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 
 		// ----
 
-		c = new AddColumnTreeCommand(fingerprintCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(fingerprintCollection, contour);
 		initCommand.add(c);
 		ColumnTree fingerprintColumn = (ColumnTree) c.execute();
 
@@ -285,7 +292,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 		// initCommand.add(c);
 		// ColumnTree cluster50Column = (ColumnTree) c.execute();
 
-		c = new AddColumnTreeCommand(clusterCollection100, relationshipExplorer);
+		c = new AddColumnTreeCommand(clusterCollection100, contour);
 		initCommand.add(c);
 		ColumnTree cluster100Column = (ColumnTree) c.execute();
 
@@ -321,7 +328,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 
 		// ---------
 
-		c = new AddColumnTreeCommand(therapeuticGroupCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(therapeuticGroupCollection, contour);
 		initCommand.add(c);
 		ColumnTree groupColumn = (ColumnTree) c.execute();
 
@@ -341,7 +348,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 		// addDefaultSortingCommand(relationshipExplorer, groupColumn.getRootColumn().getColumnModel(),
 		// col.getColumnModel(), initCommand);
 
-		relationshipExplorer.getHistory().setInitCommand(initCommand);
+		contour.getHistory().setInitCommand(initCommand);
 
 		// System.out.println("Before overlap computation");
 		// List<MappingOverlap> overlaps = EntityMappingUtil.getMappingOverlap(pathwayCollection, clusterCollection,
@@ -351,7 +358,7 @@ public class HTSVideoFactory implements IGLElementFactory {
 		//
 		// relationshipExplorer.addColumn(clusterColumn);
 
-		return relationshipExplorer;
+		return contour;
 	}
 
 	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer, IColumnModel parentColumn,

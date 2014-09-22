@@ -6,6 +6,8 @@
 package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget;
 
 import org.caleydo.core.util.base.ICallback;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -34,5 +36,10 @@ public abstract class ADataConfigWidget extends Composite {
 	 * @return
 	 */
 	public abstract boolean isConfigValid();
+
+	/**
+	 * @return The configured collection.
+	 */
+	public abstract AEntityCollection getCollection(ConTourElement contour);
 
 }

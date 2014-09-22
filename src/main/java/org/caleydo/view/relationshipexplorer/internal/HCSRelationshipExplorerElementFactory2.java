@@ -106,15 +106,17 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 	@Override
 	public GLElement create(GLElementFactoryContext context) {
 
-		ConTourElement relationshipExplorer = new ConTourElement();
+		ConTourElement contour = new ConTourElement();
 
-		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), relationshipExplorer);
+		PathwayCollection pathwayCollection = new PathwayCollection(new PathwayIDProvider(), contour);
+		contour.registerEntityCollection(pathwayCollection);
 
 		IDCollection geneCollection = new IDCollection(IDType.getIDType(EGeneIDTypes.ENTREZ_GENE_ID.name()), IDCategory
 				.getIDCategory(EGeneIDTypes.GENE.name()).getHumanReadableIDType(), new GeneIDProvider(),
-				relationshipExplorer);
+ contour);
+		contour.registerEntityCollection(geneCollection);
 
-		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory(relationshipExplorer, geneCollection));
+		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory(contour, geneCollection));
 
 		TabularDataCollection activityCollection = null;
 
@@ -124,7 +126,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					// ColumnTree activityColumn = new ColumnTree();
 					activityCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					contour.registerEntityCollection(activityCollection);
 					activityCollection.setLabel("Activities");
 					activityCollection.setColumnFactory(new ActivityColumnFactory());
 
@@ -140,9 +143,10 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		}
 
 		IDCollection compoundCollection = new IDCollection(IDType.getIDType("COMPOUND_ID"),
-				IDType.getIDType("COMPOUND_ID"), null, relationshipExplorer);
+				IDType.getIDType("COMPOUND_ID"), null, contour);
+		contour.registerEntityCollection(compoundCollection);
 		compoundCollection.setLabel("Compounds");
-		compoundCollection.setDetailViewWindowFactory(new CompoundDetailViewWindowFactory(relationshipExplorer));
+		compoundCollection.setDetailViewWindowFactory(new CompoundDetailViewWindowFactory(contour));
 		compoundCollection.setDetailViewFactory(new CompoundDetailViewFactory());
 
 		TabularDataCollection fingerprintCollection = null;
@@ -151,7 +155,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 				ATableBasedDataDomain dataDomain = (ATableBasedDataDomain) dd;
 				if (dataDomain.hasIDCategory(IDCategory.getIDCategory(EGeneIDTypes.GENE.name()))) {
 					fingerprintCollection = new TabularDataCollection(dataDomain.getDefaultTablePerspective(),
-							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, relationshipExplorer);
+							IDCategory.getIDCategory(EGeneIDTypes.GENE.name()), null, contour);
+					contour.registerEntityCollection(fingerprintCollection);
 
 					// ColumnTree fingerprintColumn = new ColumnTree(fingerprintCollection.createColumnModel());
 					//
@@ -164,7 +169,8 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 			}
 		}
 
-		GroupCollection clusterCollection = getClusterColumn(relationshipExplorer);
+		GroupCollection clusterCollection = getClusterColumn(contour);
+		contour.registerEntityCollection(clusterCollection);
 
 		// float totalMinSize = 0;
 		// for (AEntityColumn column : columns) {
@@ -186,18 +192,18 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
-		IHistoryCommand c = new AddColumnTreeCommand(pathwayCollection, relationshipExplorer);
+		IHistoryCommand c = new AddColumnTreeCommand(pathwayCollection, contour);
 		initCommand.add(c);
 		ColumnTree pathwayColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(clusterCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
-				relationshipExplorer);
+				contour);
 		// c = new AddChildColumnCommand(geneCollection, pathwayColumn.getRootColumn().getColumnModel().getHistoryID(),
 		// relationshipExplorer.getHistory());
 		initCommand.add(c);
 		NestableColumn childColumn = (NestableColumn) c.execute();
 
-		addDefaultSortingCommand(relationshipExplorer, pathwayColumn.getRootColumn().getColumnModel(),
+		addDefaultSortingCommand(contour, pathwayColumn.getRootColumn().getColumnModel(),
 				childColumn.getColumnModel(), initCommand);
 
 		// c = new AddChildColumnCommand(compoundCollection, childColumn.getColumnModel().getHistoryID(),
@@ -210,54 +216,54 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 
 		// ----
 
-		c = new AddColumnTreeCommand(geneCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(geneCollection, contour);
 		initCommand.add(c);
 		ColumnTree geneColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(activityCollection, geneColumn.getRootColumn().getColumnModel().getHistoryID(),
-				relationshipExplorer);
+				contour);
 		initCommand.add(c);
 		childColumn = (NestableColumn) c.execute();
 
-		addDefaultSortingCommand(relationshipExplorer, geneColumn.getRootColumn().getColumnModel(),
+		addDefaultSortingCommand(contour, geneColumn.getRootColumn().getColumnModel(),
 				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
-		c = new AddColumnTreeCommand(compoundCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(compoundCollection, contour);
 		initCommand.add(c);
 		ColumnTree compoundColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(activityCollection, compoundColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer);
+				.getHistoryID(), contour);
 		initCommand.add(c);
 		childColumn = (NestableColumn) c.execute();
 
-		addDefaultSortingCommand(relationshipExplorer, compoundColumn.getRootColumn().getColumnModel(),
+		addDefaultSortingCommand(contour, compoundColumn.getRootColumn().getColumnModel(),
 				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
-		c = new AddColumnTreeCommand(fingerprintCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(fingerprintCollection, contour);
 		initCommand.add(c);
 		ColumnTree fingerprintColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(compoundCollection, fingerprintColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer);
+				.getHistoryID(), contour);
 		initCommand.add(c);
 		childColumn = (NestableColumn) c.execute();
 
-		addDefaultSortingCommand(relationshipExplorer, fingerprintColumn.getRootColumn().getColumnModel(),
+		addDefaultSortingCommand(contour, fingerprintColumn.getRootColumn().getColumnModel(),
 				childColumn.getColumnModel(), initCommand);
 
 		// ----
 
-		c = new AddColumnTreeCommand(clusterCollection, relationshipExplorer);
+		c = new AddColumnTreeCommand(clusterCollection, contour);
 		initCommand.add(c);
 		ColumnTree clusterColumn = (ColumnTree) c.execute();
 
 		c = new AddChildColumnCommand(fingerprintCollection, clusterColumn.getRootColumn().getColumnModel()
-				.getHistoryID(), relationshipExplorer);
+				.getHistoryID(), contour);
 		initCommand.add(c);
 		NestableColumn fCol = (NestableColumn) c.execute();
 
@@ -268,10 +274,10 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		// initCommand.add(c);
 		c.execute();
 
-		addDefaultSortingCommand(relationshipExplorer, clusterColumn.getRootColumn().getColumnModel(),
+		addDefaultSortingCommand(contour, clusterColumn.getRootColumn().getColumnModel(),
 				fCol.getColumnModel(), initCommand);
 
-		relationshipExplorer.getHistory().setInitCommand(initCommand);
+		contour.getHistory().setInitCommand(initCommand);
 
 		// System.out.println("Before overlap computation");
 		// List<MappingOverlap> overlaps = EntityMappingUtil.getMappingOverlap(pathwayCollection, clusterCollection,
@@ -281,7 +287,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
 		//
 		// relationshipExplorer.addColumn(clusterColumn);
 
-		return relationshipExplorer;
+		return contour;
 	}
 
 	protected void addDefaultSortingCommand(ConTourElement relationshipExplorer, IColumnModel parentColumn,

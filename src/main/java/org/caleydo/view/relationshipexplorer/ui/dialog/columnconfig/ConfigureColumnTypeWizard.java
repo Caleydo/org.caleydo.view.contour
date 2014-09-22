@@ -5,6 +5,10 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig;
 
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
+import org.eclipse.jface.dialogs.IPageChangeProvider;
+import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Composite;
 
@@ -14,16 +18,32 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class ConfigureColumnTypeWizard extends Wizard {
 
-	private DataTypePage dataTypePage;
+	private final ConTourElement contour;
 
-	public ConfigureColumnTypeWizard() {
+	private DataTypePage dataTypePage;
+	private ItemRendererPage itemRendererPage;
+
+	private AEntityCollection collection;
+
+	public ConfigureColumnTypeWizard(ConTourElement contour) {
 		setWindowTitle("Create A New Column Type");
+		this.contour = contour;
 	}
 
 	@Override
 	public void addPages() {
 		dataTypePage = new DataTypePage("Data Type", "Specify the data the column is based on", null);
 		addPage(dataTypePage);
+		itemRendererPage = new ItemRendererPage("Item Representation",
+				"Select the representations for individual items in the column", null);
+		addPage(itemRendererPage);
+
+		IWizardContainer wizardContainer = getContainer();
+		if (wizardContainer instanceof IPageChangeProvider) {
+			IPageChangeProvider pageChangeProvider = (IPageChangeProvider) wizardContainer;
+			pageChangeProvider.addPageChangedListener(dataTypePage);
+			pageChangeProvider.addPageChangedListener(itemRendererPage);
+		}
 	}
 
 	@Override
@@ -40,6 +60,28 @@ public class ConfigureColumnTypeWizard extends Wizard {
 	@Override
 	public boolean performCancel() {
 		return super.performCancel();
+	}
+
+	/**
+	 * @return the collection, see {@link #collection}
+	 */
+	public AEntityCollection getCollection() {
+		return collection;
+	}
+
+	/**
+	 * @param collection
+	 *            setter, see {@link collection}
+	 */
+	public void setCollection(AEntityCollection collection) {
+		this.collection = collection;
+	}
+
+	/**
+	 * @return the contour, see {@link #contour}
+	 */
+	public ConTourElement getContour() {
+		return contour;
 	}
 
 }

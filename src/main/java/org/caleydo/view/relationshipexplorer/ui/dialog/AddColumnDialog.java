@@ -26,12 +26,12 @@ public class AddColumnDialog extends ASelectCollectionsDialog {
 
 	/**
 	 * @param shell
-	 * @param relationshipExplorerElement
+	 * @param contour
 	 * @param caption
 	 * @param isDefaultChecked
 	 */
-	public AddColumnDialog(Shell shell, ConTourElement relationshipExplorerElement) {
-		super(shell, relationshipExplorerElement, "Add Column", false);
+	public AddColumnDialog(Shell shell, ConTourElement contour) {
+		super(shell, contour, "Add Column", false);
 	}
 
 	@Override
@@ -48,9 +48,10 @@ public class AddColumnDialog extends ASelectCollectionsDialog {
 		createNewColumnButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				ConfigureColumnTypeWizard wizard = new ConfigureColumnTypeWizard();
+				ConfigureColumnTypeWizard wizard = new ConfigureColumnTypeWizard(contour);
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
+
 			}
 		});
 

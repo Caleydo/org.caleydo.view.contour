@@ -8,6 +8,9 @@ package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ICallback;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -89,6 +92,12 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 	@Override
 	public boolean isConfigValid() {
 		return getSelectedIDType() != null;
+	}
+
+
+	@Override
+	public AEntityCollection getCollection(ConTourElement contour) {
+		return new IDCollection(getSelectedIDType(), getSelectedIDType(), null, contour);
 	}
 
 }

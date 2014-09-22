@@ -9,9 +9,9 @@ import org.caleydo.datadomain.image.ImageDataDomain;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.IDColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIImageAreaFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIImageAreaConfigurationAddon.HTIImageAreaFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator;
 
 /**
  * @author Christian

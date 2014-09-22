@@ -10,6 +10,9 @@ import org.caleydo.core.data.datadomain.DataDomainManager;
 import org.caleydo.core.data.datadomain.IDataDomain;
 import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.util.base.ICallback;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -111,6 +114,11 @@ public class TabularDataConfigWidget extends ADataConfigWidget {
 	@Override
 	public boolean isConfigValid() {
 		return dataDomainList.getSelectionIndex() >= 0 && getIDCategory() != null;
+	}
+
+	@Override
+	public AEntityCollection getCollection(ConTourElement contour) {
+		return new TabularDataCollection(getDataDomain().getDefaultTablePerspective(), getIDCategory(), null, contour);
 	}
 
 }

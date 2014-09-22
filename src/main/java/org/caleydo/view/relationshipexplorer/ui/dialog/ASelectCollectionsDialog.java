@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.TableItem;
  */
 public abstract class ASelectCollectionsDialog extends AHelpButtonDialog {
 
-	protected final ConTourElement relationshipExplorerElement;
+	protected final ConTourElement contour;
 	protected Table collectionList;
 	protected Set<IEntityCollection> collections;
 	protected String caption;
@@ -36,7 +36,7 @@ public abstract class ASelectCollectionsDialog extends AHelpButtonDialog {
 	public ASelectCollectionsDialog(Shell shell, ConTourElement relationshipExplorerElement, String caption,
 			boolean isDefaultChecked) {
 		super(shell);
-		this.relationshipExplorerElement = relationshipExplorerElement;
+		this.contour = relationshipExplorerElement;
 		this.caption = caption;
 		this.isDefaultChecked = isDefaultChecked;
 	}
@@ -51,7 +51,7 @@ public abstract class ASelectCollectionsDialog extends AHelpButtonDialog {
 	protected void createCollectionList(Composite parentComposite) {
 		collectionList = new Table(parentComposite, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		collectionList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		for (IEntityCollection collection : relationshipExplorerElement.getEntityCollections()) {
+		for (IEntityCollection collection : contour.getEntityCollections()) {
 			TableItem item = new TableItem(collectionList, SWT.NONE);
 			item.setText(collection.getLabel());
 			item.setChecked(isDefaultChecked);

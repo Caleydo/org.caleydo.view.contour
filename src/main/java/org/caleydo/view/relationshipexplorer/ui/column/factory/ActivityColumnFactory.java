@@ -7,7 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.column.factory;
 
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTSActivityItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTSActivityConfigurationAddon.HTSActivityItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
 
 /**

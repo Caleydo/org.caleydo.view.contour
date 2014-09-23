@@ -162,11 +162,7 @@ public class HTSActivityConfigurationAddon implements IItemFactoryConfigurationA
 			return PLOT_ICON;
 		}
 
-		@Override
-		public String getLabel() {
-			// TODO Auto-generated method stub
-			return "HTS Activity";
-		}
+
 
 	}
 
@@ -203,5 +199,10 @@ public class HTSActivityConfigurationAddon implements IItemFactoryConfigurationA
 	public void configure(ICallback<IItemFactoryCreator> callback) {
 		callback.on(new HTSActivityItemFactoryCreator());
 
+	}
+
+	@Override
+	public String getLabel() {
+		return "HTS Activity";
 	}
 }

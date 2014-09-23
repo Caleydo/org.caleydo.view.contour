@@ -5,7 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
-import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -17,7 +16,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
  * @author Christian
  *
  */
-public interface IItemFactoryCreator extends IIconProvider, ILabeled {
+public interface IItemFactoryCreator extends IIconProvider {
 
 	/**
 	 * Creates a new {@link IItemFactory}.

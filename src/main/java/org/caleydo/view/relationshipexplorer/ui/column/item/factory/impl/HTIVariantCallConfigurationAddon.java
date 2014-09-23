@@ -201,10 +201,7 @@ public class HTIVariantCallConfigurationAddon implements IItemFactoryConfigurati
 			return PLOT_ICON;
 		}
 
-		@Override
-		public String getLabel() {
-			return "HTI Variant Call";
-		}
+
 
 	}
 
@@ -238,5 +235,10 @@ public class HTIVariantCallConfigurationAddon implements IItemFactoryConfigurati
 	public void configure(ICallback<IItemFactoryCreator> callback) {
 		callback.on(new HTIVariantCallItemFactoryCreator());
 
+	}
+
+	@Override
+	public String getLabel() {
+		return "HTI Variant Call";
 	}
 }

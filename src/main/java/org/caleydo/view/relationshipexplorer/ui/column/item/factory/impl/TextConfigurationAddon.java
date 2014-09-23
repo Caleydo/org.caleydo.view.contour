@@ -89,10 +89,6 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 			return PLOT_ICON;
 		}
 
-		@Override
-		public String getLabel() {
-			return "Default Textual";
-		}
 
 	}
 
@@ -104,5 +100,10 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 	@Override
 	public void configure(ICallback<IItemFactoryCreator> callback) {
 		callback.on(new TextItemFactoryCreator());
+	}
+
+	@Override
+	public String getLabel() {
+		return "Default Textual";
 	}
 }

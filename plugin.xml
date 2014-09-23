@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="org.caleydo.view.contour.item" name="ItemFactory" schema="schema/org.caleydo.view.contour.item.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -42,5 +43,29 @@
                type="org.caleydo.datadomain.generic">
          </dataDomain>
       </association>
+   </extension>
+   <extension
+         point="org.caleydo.view.contour.item">
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HCSActivityConfigurationAddon">
+      </itemfactory>
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIImageAreaConfigurationAddon">
+      </itemfactory>
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemConfigurationAddon">
+      </itemfactory>
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallConfigurationAddon">
+      </itemfactory>
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTSActivityConfigurationAddon">
+      </itemfactory>
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataConfigurationAddon">
+      </itemfactory>
+      <itemfactory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon">
+      </itemfactory>
    </extension>
 </plugin>

@@ -237,4 +237,10 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	protected abstract IColumnFactory getDefaultColumnFactory();
 
+	/**
+	 * @return the columnFactory, see {@link #columnFactory}
+	 */
+	public IColumnFactory getColumnFactory() {
+		return columnFactory;
+	}
 }

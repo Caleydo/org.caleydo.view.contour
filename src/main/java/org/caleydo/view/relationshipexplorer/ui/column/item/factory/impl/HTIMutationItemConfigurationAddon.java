@@ -522,10 +522,7 @@ public class HTIMutationItemConfigurationAddon implements IItemFactoryConfigurat
 			return PLOT_ICON;
 		}
 
-		@Override
-		public String getLabel() {
-			return "HTI Mutation";
-		}
+
 
 
 	}
@@ -542,6 +539,8 @@ public class HTIMutationItemConfigurationAddon implements IItemFactoryConfigurat
 		Perspective dimensionPerspective = coll.getDimensionPerspective();
 
 		for (EColumn column : EnumSet.allOf(EColumn.class)) {
+			if (column == EColumn.DBSNP || column == EColumn.COSMIC_NUM)
+				continue;
 			boolean exists = false;
 			for (int dimensionID : dimensionPerspective.getVirtualArray()) {
 
@@ -560,6 +559,11 @@ public class HTIMutationItemConfigurationAddon implements IItemFactoryConfigurat
 	public void configure(ICallback<IItemFactoryCreator> callback) {
 		callback.on(new HTIMutationItemFactoryCreator());
 
+	}
+
+	@Override
+	public String getLabel() {
+		return "HTI Mutation";
 	}
 
 }

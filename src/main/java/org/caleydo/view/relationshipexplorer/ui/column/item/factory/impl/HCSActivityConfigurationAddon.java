@@ -161,12 +161,6 @@ public class HCSActivityConfigurationAddon implements IItemFactoryConfigurationA
 			return PLOT_ICON;
 		}
 
-		@Override
-		public String getLabel() {
-			return "HCS Activity";
-		}
-
-
 	}
 
 	@Override
@@ -201,6 +195,11 @@ public class HCSActivityConfigurationAddon implements IItemFactoryConfigurationA
 	@Override
 	public void configure(ICallback<IItemFactoryCreator> callback) {
 		callback.on(new HCSActivityItemFactoryCreator());
+	}
+
+	@Override
+	public String getLabel() {
+		return "HCS Activity";
 	}
 
 }

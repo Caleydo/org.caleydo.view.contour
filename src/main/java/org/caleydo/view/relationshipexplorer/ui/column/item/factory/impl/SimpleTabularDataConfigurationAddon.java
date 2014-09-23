@@ -72,10 +72,7 @@ public class SimpleTabularDataConfigurationAddon implements IItemFactoryConfigur
 			return PLOT_ICON;
 		}
 
-		@Override
-		public String getLabel() {
-			return "Default Tabular";
-		}
+
 
 	}
 
@@ -87,5 +84,10 @@ public class SimpleTabularDataConfigurationAddon implements IItemFactoryConfigur
 	@Override
 	public void configure(ICallback<IItemFactoryCreator> callback) {
 		callback.on(new SimpleTabularDataItemFactoryCreator());
+	}
+
+	@Override
+	public String getLabel() {
+		return "Default Tabular";
 	}
 }

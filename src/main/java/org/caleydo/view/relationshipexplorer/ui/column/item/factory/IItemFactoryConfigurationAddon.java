@@ -6,15 +6,16 @@
 package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 import org.caleydo.core.util.base.ICallback;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
- *
+ * Addon for configuring and creating an {@link IItemFactoryCreator}.
  *
  * @author Christian
  *
  */
-public interface IItemFactoryConfigurationAddon {
+public interface IItemFactoryConfigurationAddon extends ILabeled {
 
 	/**
 	 * Determines whether an {@link IItemFactoryCreator} can be created for the specified collection.

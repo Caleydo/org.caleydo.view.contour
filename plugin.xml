@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="org.caleydo.view.contour.item" name="ItemFactory" schema="schema/org.caleydo.view.contour.item.exsd"/>
+   <extension-point id="org.caleydo.view.contour.summaryitem" name="SummaryItemFactory" schema="schema/org.caleydo.view.contour.summaryitem.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -46,26 +47,38 @@
    </extension>
    <extension
          point="org.caleydo.view.contour.item">
-      <itemfactory
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HCSActivityConfigurationAddon">
-      </itemfactory>
-      <itemfactory
+      </factory>
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIImageAreaConfigurationAddon">
-      </itemfactory>
-      <itemfactory
+      </factory>
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemConfigurationAddon">
-      </itemfactory>
-      <itemfactory
+      </factory>
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallConfigurationAddon">
-      </itemfactory>
-      <itemfactory
+      </factory>
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTSActivityConfigurationAddon">
-      </itemfactory>
-      <itemfactory
+      </factory>
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataConfigurationAddon">
-      </itemfactory>
-      <itemfactory
+      </factory>
+      <factory
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon">
-      </itemfactory>
+      </factory>
    </extension>
+   <extension
+         point="org.caleydo.view.contour.summaryitem">
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryConfigurationAddon">
+      </factory>
+org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryConfigurationAddon   </extension>
 </plugin>

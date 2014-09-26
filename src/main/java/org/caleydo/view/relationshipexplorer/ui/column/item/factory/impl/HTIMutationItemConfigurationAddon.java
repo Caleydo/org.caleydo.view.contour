@@ -528,7 +528,7 @@ public class HTIMutationItemConfigurationAddon implements IItemFactoryConfigurat
 	}
 
 	@Override
-	public boolean canCreate(IEntityCollection collection) {
+	public boolean accepts(IEntityCollection collection) {
 
 		if (!(collection instanceof TabularDataCollection))
 			return false;

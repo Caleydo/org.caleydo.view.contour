@@ -22,6 +22,7 @@ public class ConfigureColumnTypeWizard extends Wizard {
 
 	private DataTypePage dataTypePage;
 	private ItemRendererPage itemRendererPage;
+	private SummaryRendererPage summaryRendererPage;
 
 	private AEntityCollection collection;
 
@@ -33,16 +34,22 @@ public class ConfigureColumnTypeWizard extends Wizard {
 	@Override
 	public void addPages() {
 		dataTypePage = new DataTypePage("Data Type", "Specify the data the column is based on", null);
-		addPage(dataTypePage);
+
 		itemRendererPage = new ItemRendererPage("Item Representation",
 				"Select the representations for individual items in the column", null);
+		summaryRendererPage = new SummaryRendererPage("Summary Representation",
+				"Select the summary representations for multiple items in the column", null);
+
+		addPage(dataTypePage);
 		addPage(itemRendererPage);
+		addPage(summaryRendererPage);
 
 		IWizardContainer wizardContainer = getContainer();
 		if (wizardContainer instanceof IPageChangeProvider) {
 			IPageChangeProvider pageChangeProvider = (IPageChangeProvider) wizardContainer;
 			pageChangeProvider.addPageChangedListener(dataTypePage);
 			pageChangeProvider.addPageChangedListener(itemRendererPage);
+			pageChangeProvider.addPageChangedListener(summaryRendererPage);
 		}
 	}
 
@@ -54,6 +61,7 @@ public class ConfigureColumnTypeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+		contour.registerEntityCollection(collection);
 		return true;
 	}
 

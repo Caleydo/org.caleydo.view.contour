@@ -77,7 +77,7 @@ public class SimpleTabularDataConfigurationAddon implements IItemFactoryConfigur
 	}
 
 	@Override
-	public boolean canCreate(IEntityCollection collection) {
+	public boolean accepts(IEntityCollection collection) {
 		return collection instanceof TabularDataCollection;
 	}
 

@@ -7,14 +7,11 @@ package org.caleydo.view.relationshipexplorer.ui.column.item.factory;
 
 
 /**
- * Addon for configuring and creating an {@link IItemFactoryCreator}.
+ * Addon for configuring and creating an {@link ISummaryItemFactoryCreator}.
  *
  * @author Christian
  *
  */
-public interface IItemFactoryConfigurationAddon extends IConfigurationAddon<IItemFactoryCreator> {
-
-
-
+public interface ISummaryItemFactoryConfigurationAddon extends IConfigurationAddon<ISummaryItemFactoryCreator> {
 
 }

@@ -3,7 +3,7 @@
 <schema targetNamespace="org.caleydo.view.relationshipexplorer" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.caleydo.view.relationshipexplorer" id="org.caleydo.view.contour.item" name="ItemFactory"/>
+         <meta.schema plugin="org.caleydo.view.relationshipexplorer" id="org.caleydo.view.contour.summaryitem" name="SummaryItemFactory"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -17,8 +17,8 @@
          </appinfo>
       </annotation>
       <complexType>
-         <sequence>
-            <element ref="factory" minOccurs="1" maxOccurs="unbounded"/>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="factory"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryConfigurationAddon"/>
+                  <meta.attribute kind="java" basedOn=":org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactoryConfigurationAddon"/>
                </appinfo>
             </annotation>
          </attribute>

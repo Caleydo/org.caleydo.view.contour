@@ -211,7 +211,7 @@ public class HTIImageAreaConfigurationAddon implements IItemFactoryConfiguration
 	}
 
 	@Override
-	public boolean canCreate(IEntityCollection collection) {
+	public boolean accepts(IEntityCollection collection) {
 		if (!(collection instanceof IDCollection))
 			return false;
 

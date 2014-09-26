@@ -17,6 +17,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ElementIDP
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ExcludingPathwayIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.PathwayDatabaseIDProvider;
+import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.PathwayColumnFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -97,7 +98,9 @@ public class PathwayConfigWidget extends ADataConfigWidget {
 
 	@Override
 	public AEntityCollection getCollection(ConTourElement contour) {
-		return new PathwayCollection(getIDProvider(), contour);
+		PathwayCollection collection = new PathwayCollection(getIDProvider(), contour);
+		collection.setColumnFactory(new PathwayColumnFactory());
+		return collection;
 	}
 
 }

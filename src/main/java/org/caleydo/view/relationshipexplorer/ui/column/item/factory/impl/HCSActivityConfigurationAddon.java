@@ -164,7 +164,7 @@ public class HCSActivityConfigurationAddon implements IItemFactoryConfigurationA
 	}
 
 	@Override
-	public boolean canCreate(IEntityCollection collection) {
+	public boolean accepts(IEntityCollection collection) {
 		if (!(collection instanceof TabularDataCollection))
 			return false;
 		TabularDataCollection coll = (TabularDataCollection) collection;

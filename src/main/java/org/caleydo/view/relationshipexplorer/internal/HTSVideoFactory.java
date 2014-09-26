@@ -37,8 +37,8 @@ import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TotalMapp
 import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.VisibleMappingComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ActivityColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryConfigurationAddon.MedianSummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataConfigurationAddon.SimpleTabularDataItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;

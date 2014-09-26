@@ -36,7 +36,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.T
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ImageAreaColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemConfigurationAddon.HTIMutationItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallConfigurationAddon.HTIVariantCallItemFactoryCreator;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon.MappingSummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.image.HTIImageDetailViewFactory;

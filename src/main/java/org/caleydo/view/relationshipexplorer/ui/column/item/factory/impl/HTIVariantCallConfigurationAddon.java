@@ -206,7 +206,7 @@ public class HTIVariantCallConfigurationAddon implements IItemFactoryConfigurati
 	}
 
 	@Override
-	public boolean canCreate(IEntityCollection collection) {
+	public boolean accepts(IEntityCollection collection) {
 
 		if (!(collection instanceof TabularDataCollection))
 			return false;

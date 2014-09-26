@@ -93,7 +93,7 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 	}
 
 	@Override
-	public boolean canCreate(IEntityCollection collection) {
+	public boolean accepts(IEntityCollection collection) {
 		return (collection instanceof IDCollection || collection instanceof PathwayCollection || collection instanceof GroupCollection);
 	}
 

@@ -8,8 +8,8 @@ package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig;
 import org.caleydo.view.relationshipexplorer.ui.Addons;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.AColumnFactory;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryConfigurationAddon;
-import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactoryConfigurationAddon;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.widget.MultiAddonSelectionWidget;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
@@ -21,25 +21,26 @@ import org.eclipse.swt.widgets.Composite;
  * @author Christian
  *
  */
-public class ItemRendererPage extends WizardPage implements IPageChangedListener {
+public class SummaryRendererPage extends WizardPage implements IPageChangedListener {
 
 	private AEntityCollection collection;
-	private MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon> addonWidget;
+	private MultiAddonSelectionWidget<ISummaryItemFactoryCreator, ISummaryItemFactoryConfigurationAddon> addonWidget;
 
 	/**
 	 * @param pageName
 	 * @param title
 	 * @param titleImage
 	 */
-	protected ItemRendererPage(String pageName, String title, ImageDescriptor titleImage) {
+	protected SummaryRendererPage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
 	}
 
 	@Override
 	public void createControl(Composite parent) {
-		addonWidget = new MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon>(parent,
-				(ConfigureColumnTypeWizard) getWizard(), "Item Representations");
+		addonWidget = new MultiAddonSelectionWidget<ISummaryItemFactoryCreator, ISummaryItemFactoryConfigurationAddon>(
+				parent, (ConfigureColumnTypeWizard) getWizard(), "Summary Representations");
 		setControl(addonWidget);
+
 	}
 
 	@Override
@@ -49,13 +50,13 @@ public class ItemRendererPage extends WizardPage implements IPageChangedListener
 
 			if (collection != wizard.getCollection()) {
 				this.collection = wizard.getCollection();
-				addonWidget.updateWidgets(Addons.getItemFactoryAddonsFor(collection));
+				addonWidget.updateWidgets(Addons.getSummaryItemFactoryAddonsFor(collection));
 			}
 		} else if (event.getSelectedPage() == getNextPage()) {
 			AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
 			boolean first = true;
-			for (IItemFactoryCreator creator : addonWidget.getCreators()) {
-				factory.addItemFactoryCreator(creator, first);
+			for (ISummaryItemFactoryCreator creator : addonWidget.getCreators()) {
+				factory.addSummaryItemFactoryCreator(creator, first);
 				first = false;
 			}
 		}

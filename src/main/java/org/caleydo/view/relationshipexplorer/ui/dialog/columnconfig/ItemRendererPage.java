@@ -52,14 +52,19 @@ public class ItemRendererPage extends WizardPage implements IPageChangedListener
 				addonWidget.updateWidgets(Addons.getItemFactoryAddonsFor(collection));
 			}
 		} else if (event.getSelectedPage() == getNextPage()) {
-			AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
-			boolean first = true;
-			for (IItemFactoryCreator creator : addonWidget.getCreators()) {
-				factory.addItemFactoryCreator(creator, first);
-				first = false;
-			}
+
 		}
 
+	}
+
+	public void updateCollection() {
+		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
+		AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
+		boolean first = true;
+		for (IItemFactoryCreator creator : addonWidget.getCreators()) {
+			factory.addItemFactoryCreator(creator, first);
+			first = false;
+		}
 	}
 
 	@Override

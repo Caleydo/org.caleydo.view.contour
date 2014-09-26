@@ -51,6 +51,11 @@ public abstract class ASelectCollectionsDialog extends AHelpButtonDialog {
 	protected void createCollectionList(Composite parentComposite) {
 		collectionList = new Table(parentComposite, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		collectionList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		updateCollectionList();
+	}
+
+	protected void updateCollectionList() {
+		collectionList.removeAll();
 		for (IEntityCollection collection : contour.getEntityCollections()) {
 			TableItem item = new TableItem(collectionList, SWT.NONE);
 			item.setText(collection.getLabel());

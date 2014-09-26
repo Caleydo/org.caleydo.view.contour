@@ -51,7 +51,7 @@ public class AddColumnDialog extends ASelectCollectionsDialog {
 				ConfigureColumnTypeWizard wizard = new ConfigureColumnTypeWizard(contour);
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
-
+				updateCollectionList();
 			}
 		});
 

@@ -53,12 +53,7 @@ public class SummaryRendererPage extends WizardPage implements IPageChangedListe
 				addonWidget.updateWidgets(Addons.getSummaryItemFactoryAddonsFor(collection));
 			}
 		} else if (event.getSelectedPage() == getNextPage()) {
-			AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
-			boolean first = true;
-			for (ISummaryItemFactoryCreator creator : addonWidget.getCreators()) {
-				factory.addSummaryItemFactoryCreator(creator, first);
-				first = false;
-			}
+
 		}
 
 	}
@@ -66,6 +61,16 @@ public class SummaryRendererPage extends WizardPage implements IPageChangedListe
 	@Override
 	public boolean isPageComplete() {
 		return !addonWidget.getCreators().isEmpty();
+	}
+
+	public void updateCollection() {
+		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
+		AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
+		boolean first = true;
+		for (ISummaryItemFactoryCreator creator : addonWidget.getCreators()) {
+			factory.addSummaryItemFactoryCreator(creator, first);
+			first = false;
+		}
 	}
 
 }

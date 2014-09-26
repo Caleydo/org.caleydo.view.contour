@@ -61,6 +61,8 @@ public class ConfigureColumnTypeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
+		itemRendererPage.updateCollection();
+		summaryRendererPage.updateCollection();
 		contour.registerEntityCollection(collection);
 		return true;
 	}

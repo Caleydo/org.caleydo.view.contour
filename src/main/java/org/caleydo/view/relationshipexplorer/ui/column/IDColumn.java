@@ -36,9 +36,9 @@ public class IDColumn extends ATextColumn implements IColumnModel {
 
 		@Override
 		public int compare(NestableItem arg0, NestableItem arg1) {
-			MinSizeTextElement r1 = (MinSizeTextElement) ((ScoreElement) arg0.getElement()).getElement();
-			MinSizeTextElement r2 = (MinSizeTextElement) ((ScoreElement) arg1.getElement()).getElement();
-			return Integer.valueOf(r1.getLabel()).compareTo(Integer.valueOf(r2.getLabel()));
+			int id1 = (int) arg0.getElementData().iterator().next();
+			int id2 = (int) arg1.getElementData().iterator().next();
+			return Integer.compare(id1, id2);
 		}
 
 		@Override

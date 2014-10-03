@@ -11,7 +11,6 @@ import org.caleydo.view.relationshipexplorer.ui.column.factory.AColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.ISummaryItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewWindowFactory;
 
 /**
  * @author Christian
@@ -23,7 +22,6 @@ public abstract class AEntityCollectionBuilder {
 	protected final ConTourElement contour;
 	protected final AColumnFactory columnFactory;
 
-	protected IDetailViewWindowFactory detailViewWindowFactory;
 	protected IDetailViewFactory detailViewFactory;
 	protected String label = "Column";
 
@@ -57,7 +55,6 @@ public abstract class AEntityCollectionBuilder {
 		AEntityCollection collection = createInstance();
 		collection.setLabel(label);
 		collection.setColumnFactory(columnFactory);
-		collection.setDetailViewWindowFactory(detailViewWindowFactory);
 		collection.setDetailViewFactory(detailViewFactory);
 		return collection;
 	}

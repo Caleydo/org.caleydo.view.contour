@@ -35,7 +35,7 @@ public class HTIImageDetailViewFactory implements IDetailViewFactory {
 	}
 
 	@Override
-	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
 
 		Set<Object> selectedElements = collection.getSelectedElementIDs();
 		Set<Object> highlightedElements = collection.getHighlightElementIDs();
@@ -57,5 +57,10 @@ public class HTIImageDetailViewFactory implements IDetailViewFactory {
 		}
 		return new GLElement(GLRenderers.fillRect(Color.BLUE));
 
+	}
+
+	@Override
+	public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour) {
+		return new DetailViewWindow(collection, contour);
 	}
 }

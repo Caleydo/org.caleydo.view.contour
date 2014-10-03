@@ -28,7 +28,7 @@ public class HTSPathwayDetailViewFactory extends DefaultPathwayDetailViewFactory
 	}
 
 	@Override
-	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
 
 		PathwayElement pathwayElement = createPathwayElement(collection);
 

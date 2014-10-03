@@ -3,13 +3,15 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.detail;
+package org.caleydo.view.relationshipexplorer.ui.detail.compound;
 
 import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.detail.IShowSelectedItemsListener;
 
 /**
  * @author Christian

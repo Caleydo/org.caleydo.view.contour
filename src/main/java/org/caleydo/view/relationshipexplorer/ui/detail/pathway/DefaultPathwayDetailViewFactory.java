@@ -39,7 +39,7 @@ public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 	}
 
 	@Override
-	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
 		return createZoomableElement(createPathwayElement(collection));
 	}
 
@@ -93,6 +93,11 @@ public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 	public DefaultPathwayDetailViewFactory addBackgroundAugmentationFactory(IPathwayAugmentationFactory f) {
 		backgroundAugmentationFactories.add(f);
 		return this;
+	}
+
+	@Override
+	public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour) {
+		return new DetailViewWindow(collection, contour);
 	}
 
 }

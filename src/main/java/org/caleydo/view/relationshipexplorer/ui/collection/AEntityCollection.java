@@ -17,9 +17,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.IColumnFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewFactories;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
-import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindowFactories;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewWindowFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
 import com.google.common.collect.Sets;
@@ -41,7 +39,6 @@ public abstract class AEntityCollection implements IEntityCollection {
 
 	protected IColumnFactory columnFactory;
 
-	protected IDetailViewWindowFactory detailViewWindowFactory;
 	protected IDetailViewFactory detailViewFactory;
 
 	public AEntityCollection(ConTourElement relationshipExplorer) {
@@ -204,21 +201,20 @@ public abstract class AEntityCollection implements IEntityCollection {
 		this.columnFactory = columnFactory;
 	}
 
-	@Override
-	public DetailViewWindow createDetailViewWindow() {
-		if (detailViewWindowFactory == null)
-			detailViewWindowFactory = DetailViewWindowFactories
-.createDefaultDetailViewWindowFactory(contour);
-		return detailViewWindowFactory.createWindow(this);
+	/**
+	 * @return the detailViewFactory, see {@link #detailViewFactory}
+	 */
+	public IDetailViewFactory getDetailViewFactory() {
+		return detailViewFactory;
 	}
 
-	/**
-	 * @param detailViewWindowFactory
-	 *            setter, see {@link detailViewWindowFactory}
-	 */
-	public void setDetailViewWindowFactory(IDetailViewWindowFactory detailViewWindowFactory) {
-		this.detailViewWindowFactory = detailViewWindowFactory;
+	@Override
+	public DetailViewWindow createDetailViewWindow() {
+		if (detailViewFactory == null)
+			detailViewFactory = DetailViewFactories.createDefaultDetailViewFactory();
+		return detailViewFactory.createWindow(this, contour);
 	}
+
 
 	/**
 	 * @param detailViewFactory
@@ -231,8 +227,8 @@ public abstract class AEntityCollection implements IEntityCollection {
 	@Override
 	public GLElement createDetailView(DetailViewWindow window) {
 		if (detailViewFactory == null)
-			detailViewFactory = DetailViewFactories.createDefaultDetailViewFactory(contour);
-		return detailViewFactory.create(this, window);
+			detailViewFactory = DetailViewFactories.createDefaultDetailViewFactory();
+		return detailViewFactory.createDetailView(this, window);
 	}
 
 	protected abstract IColumnFactory getDefaultColumnFactory();

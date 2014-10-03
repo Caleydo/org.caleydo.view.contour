@@ -3,7 +3,7 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.detail;
+package org.caleydo.view.relationshipexplorer.ui.detail.compound;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +22,10 @@ import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
 
 import com.google.common.base.Predicate;
 
@@ -33,7 +36,7 @@ import com.google.common.base.Predicate;
 public class CompoundDetailViewFactory implements IDetailViewFactory {
 
 	@Override
-	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
 		Set<Object> elementIDs = collection.getSelectedElementIDs();
 		if (elementIDs.isEmpty())
 			return null;
@@ -88,6 +91,16 @@ public class CompoundDetailViewFactory implements IDetailViewFactory {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour) {
+		final CompoundDetailViewWindow window = new CompoundDetailViewWindow(collection, contour);
+		boolean changeOnSelection = true;
+		window.showSelectedItems(changeOnSelection);
+		window.addChangeViewOnSelectionButton(window, changeOnSelection);
+
+		return window;
 	}
 
 }

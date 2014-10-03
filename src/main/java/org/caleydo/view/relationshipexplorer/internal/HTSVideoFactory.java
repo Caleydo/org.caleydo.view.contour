@@ -43,8 +43,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleT
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.ColumnSortingCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
-import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.CompoundDetailViewWindowFactory;
+import org.caleydo.view.relationshipexplorer.ui.detail.compound.CompoundDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.HTSPathwayDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -148,7 +147,6 @@ public class HTSVideoFactory implements IGLElementFactory {
 				IDType.getIDType("COMPOUND_ID"), null, contour);
 		contour.registerEntityCollection(compoundCollection);
 		compoundCollection.setLabel("Compounds");
-		compoundCollection.setDetailViewWindowFactory(new CompoundDetailViewWindowFactory(contour));
 		compoundCollection.setDetailViewFactory(new CompoundDetailViewFactory());
 
 		TabularDataCollection fingerprintCollection = null;

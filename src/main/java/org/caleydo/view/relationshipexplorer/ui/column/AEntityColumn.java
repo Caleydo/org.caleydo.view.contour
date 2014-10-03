@@ -33,6 +33,7 @@ import org.caleydo.core.view.opengl.layout2.basic.GLComboBox;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IIconProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
@@ -350,16 +351,18 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public Collection<? extends AContextMenuItem> getContextMenuItems() {
 		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(contour, this);
-		AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(new Runnable() {
-			@Override
-			public void run() {
-				ShowDetailCommand o = new ShowDetailCommand(entityCollection, contour);
-				o.execute();
-				contour.getHistory().addHistoryCommand(o);
-			}
-		}).to(contour));
-
-		items.add(detailItem);
+		if (((AEntityCollection) entityCollection).getDetailViewFactory() != null) {
+			AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(
+					new Runnable() {
+						@Override
+						public void run() {
+							ShowDetailCommand o = new ShowDetailCommand(entityCollection, contour);
+							o.execute();
+							contour.getHistory().addHistoryCommand(o);
+						}
+					}).to(contour));
+			items.add(detailItem);
+		}
 
 		return items;
 	}

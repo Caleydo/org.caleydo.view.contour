@@ -21,12 +21,11 @@ public final class DetailViewFactories {
 	private DetailViewFactories() {
 	}
 
-	public static IDetailViewFactory createDefaultDetailViewFactory(
-			final ConTourElement relationshipExplorer) {
+	public static IDetailViewFactory createDefaultDetailViewFactory() {
 		return new IDetailViewFactory() {
 
 			@Override
-			public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+			public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
 				GLElement dummy = new GLElement() {
 					@Override
 					public Vec2f getMinSize() {
@@ -35,6 +34,11 @@ public final class DetailViewFactories {
 				};
 				dummy.setRenderer(GLRenderers.fillRect(Color.BLUE));
 				return dummy;
+			}
+
+			@Override
+			public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour) {
+				return new DetailViewWindow(collection, contour);
 			}
 
 		};

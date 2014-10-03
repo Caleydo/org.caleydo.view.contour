@@ -26,7 +26,7 @@ public class ParallelCoordinatesDetailViewFactory implements IDetailViewFactory 
 	}
 
 	@Override
-	public GLElement create(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
 		TablePerspective tablePerspective = ((TabularDataCollection) collection).getTablePerspective();
 		// GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
 		// List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
@@ -60,6 +60,11 @@ public class ParallelCoordinatesDetailViewFactory implements IDetailViewFactory 
 
 		return element;
 
+	}
+
+	@Override
+	public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour) {
+		return new DetailViewWindow(collection, contour);
 	}
 
 }

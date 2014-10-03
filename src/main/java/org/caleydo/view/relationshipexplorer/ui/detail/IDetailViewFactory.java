@@ -6,6 +6,7 @@
 package org.caleydo.view.relationshipexplorer.ui.detail;
 
 import org.caleydo.core.view.opengl.layout2.GLElement;
+import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 
 /**
@@ -14,6 +15,8 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
  */
 public interface IDetailViewFactory {
 
-	public GLElement create(IEntityCollection collection, DetailViewWindow window);
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window);
+
+	public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour);
 
 }

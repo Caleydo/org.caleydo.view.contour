@@ -66,4 +66,10 @@ public interface IEntityCollection extends ILabeled {
 
 	public GLElement createDetailView(DetailViewWindow window);
 
+	/**
+	 * @param elementID
+	 * @return A textual representation of the element ID
+	 */
+	public String getText(Object elementID);
+
 }

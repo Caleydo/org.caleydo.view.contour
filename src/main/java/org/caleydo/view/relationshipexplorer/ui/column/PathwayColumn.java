@@ -5,15 +5,16 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
-import org.caleydo.datadomain.pathway.graph.PathwayGraph;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.ItemComparators.TextComparator;
+import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 
 /**
  * @author Christian
  *
  */
-public class PathwayColumn extends ATextColumn {
+public class PathwayColumn extends AEntityColumn {
 
 	protected final PathwayCollection pathwayCollection;
 
@@ -26,9 +27,9 @@ public class PathwayColumn extends ATextColumn {
 		currentComparator = new CompositeComparator<>(ItemComparators.SELECTED_ITEMS_COMPARATOR, getDefaultComparator());
 	}
 
-
 	@Override
-	public String getText(Object elementID) {
-		return ((PathwayGraph) elementID).getLabel();
+	public IInvertibleComparator<NestableItem> getDefaultComparator() {
+		return new TextComparator(pathwayCollection);
 	}
+
 }

@@ -19,7 +19,6 @@ import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
@@ -42,15 +41,15 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 			protected static final int MIN_TEXT_WIDTH = 150;
 			protected static final int ITEM_HEIGHT = 16;
 
-			protected final ATextColumn column;
+			protected final IEntityCollection collection;
 
-			public TextItemFactory(ATextColumn column) {
-				this.column = column;
+			public TextItemFactory(IEntityCollection collection) {
+				this.collection = collection;
 			}
 
 			@Override
 			public GLElement createItem(Object elementID) {
-				String text = column.getText(elementID);
+				String text = collection.getText(elementID);
 				return createTextElement(text);
 			}
 
@@ -81,7 +80,7 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 
 		@Override
 		public IItemFactory create(IEntityCollection collection, IColumnModel column, ConTourElement contour) {
-			return new TextItemFactory((ATextColumn) column);
+			return new TextItemFactory(collection);
 		}
 
 		@Override

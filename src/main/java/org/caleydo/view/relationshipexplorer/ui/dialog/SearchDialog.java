@@ -7,8 +7,9 @@ package org.caleydo.view.relationshipexplorer.ui.dialog;
 
 import org.apache.commons.lang.StringUtils;
 import org.caleydo.core.event.EventPublisher;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.AInvertibleComparator;
-import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.IInvertibleComparator;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -32,7 +33,7 @@ public class SearchDialog extends Dialog {
 
 	protected String title;
 	protected Point loc;
-	protected final ATextColumn column;
+	protected final AEntityColumn column;
 
 	protected Text queryText;
 	protected String query = "";
@@ -41,18 +42,18 @@ public class SearchDialog extends Dialog {
 
 	protected static class StringDistanceComparator extends AInvertibleComparator<NestableItem> {
 
-		protected final ATextColumn column;
+		protected final IEntityCollection collection;
 		protected final String query;
 
-		public StringDistanceComparator(String query, ATextColumn column) {
+		public StringDistanceComparator(String query, IEntityCollection collection) {
 			this.query = query.toUpperCase();
-			this.column = column;
+			this.collection = collection;
 		}
 
 		@Override
 		public int compare(NestableItem o1, NestableItem o2) {
-			String label1 = column.getText(o1.getElementData().iterator().next()).toUpperCase();
-			String label2 = column.getText(o2.getElementData().iterator().next()).toUpperCase();
+			String label1 = collection.getText(o1.getElementData().iterator().next()).toUpperCase();
+			String label2 = collection.getText(o2.getElementData().iterator().next()).toUpperCase();
 
 			// TODO: find better string similarity measure than levenshtein and containment
 			int l1Contained = label1.contains(query) ? 1 : Integer.MAX_VALUE;
@@ -71,7 +72,7 @@ public class SearchDialog extends Dialog {
 	/**
 	 * @param parentShell
 	 */
-	public SearchDialog(Shell parentShell, String title, Point loc, ATextColumn column) {
+	public SearchDialog(Shell parentShell, String title, Point loc, AEntityColumn column) {
 		super(parentShell);
 		this.title = title;
 		this.column = column;
@@ -125,7 +126,7 @@ public class SearchDialog extends Dialog {
 
 					@Override
 					public void run() {
-						column.sortBy(new StringDistanceComparator(query, column));
+						column.sortBy(new StringDistanceComparator(query, column.getCollection()));
 					}
 				}).to(column.getRelationshipExplorer()));
 			}

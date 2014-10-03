@@ -108,4 +108,9 @@ public class GroupCollection extends AEntityCollection {
 		};
 	}
 
+	@Override
+	public String getText(Object elementID) {
+		return ((Group) elementID).getLabel();
+	}
+
 }

@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
+import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -38,7 +38,7 @@ public class StringFilterDialog extends Dialog {
 	// protected Object receiver;
 	protected Point loc;
 	// protected Map<Object, GLElement> itemPool;
-	protected final ATextColumn column;
+	protected final AEntityColumn column;
 	// protected Set<Object> filterElementIDPool;
 	protected Map<IEntityCollection, Set<Object>> originalFilteredItemIDs;
 
@@ -59,13 +59,13 @@ public class StringFilterDialog extends Dialog {
 
 		@Override
 		public boolean apply(Object elementID) {
-			ATextColumn column = history.getHistoryObjectAs(ATextColumn.class, columHistoryID);
-			return column.getText(elementID).toLowerCase().contains(query.toLowerCase());
+			AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, columHistoryID);
+			return column.getCollection().getText(elementID).toLowerCase().contains(query.toLowerCase());
 		}
 
 		@Override
 		public String getDescription() {
-			ATextColumn column = history.getHistoryObjectAs(ATextColumn.class, columHistoryID);
+			AEntityColumn column = history.getHistoryObjectAs(AEntityColumn.class, columHistoryID);
 			return "Filtered " + column.getLabel() + " containing '" + query + "'";
 		}
 	}
@@ -73,7 +73,7 @@ public class StringFilterDialog extends Dialog {
 	/**
 	 * @param parentShell
 	 */
-	public StringFilterDialog(Shell parentShell, String title, Point loc, ATextColumn column) {
+	public StringFilterDialog(Shell parentShell, String title, Point loc, AEntityColumn column) {
 		super(parentShell);
 		this.title = title;
 		this.column = column;

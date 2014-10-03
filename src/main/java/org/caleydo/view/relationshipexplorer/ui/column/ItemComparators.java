@@ -13,6 +13,7 @@ import org.caleydo.core.data.collection.column.container.CategoricalClassDescrip
 import org.caleydo.core.data.collection.column.container.CategoricalClassDescription.ECategoryType;
 import org.caleydo.core.io.DataDescription;
 import org.caleydo.view.relationshipexplorer.ui.History;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
@@ -256,6 +257,27 @@ public final class ItemComparators {
 			return collection;
 		}
 
+	}
+
+	protected static class TextComparator extends AInvertibleComparator<NestableItem> {
+
+		protected final IEntityCollection collection;
+
+		public TextComparator(IEntityCollection collection) {
+			this.collection = collection;
+		}
+
+		@Override
+		public int compare(NestableItem o1, NestableItem o2) {
+			String label1 = collection.getText(o1.getElementData().iterator().next());
+			String label2 = collection.getText(o2.getElementData().iterator().next());
+			return label1.compareTo(label2);
+		}
+
+		@Override
+		public String toString() {
+			return "Alphabetical";
+		}
 	}
 
 	private ItemComparators() {

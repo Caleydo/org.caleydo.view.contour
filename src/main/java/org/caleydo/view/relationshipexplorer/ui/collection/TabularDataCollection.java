@@ -140,4 +140,9 @@ public class TabularDataCollection extends AEntityCollection {
 		};
 	}
 
+	@Override
+	public String getText(Object elementID) {
+		return elementID.toString();
+	}
+
 }

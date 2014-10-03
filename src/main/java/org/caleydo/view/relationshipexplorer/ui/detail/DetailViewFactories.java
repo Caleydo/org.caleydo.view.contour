@@ -21,7 +21,7 @@ public final class DetailViewFactories {
 	private DetailViewFactories() {
 	}
 
-	public static IDetailViewFactory createDefaultDetailViewWindowFactory(
+	public static IDetailViewFactory createDefaultDetailViewFactory(
 			final ConTourElement relationshipExplorer) {
 		return new IDetailViewFactory() {
 

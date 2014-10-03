@@ -5,6 +5,8 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.column;
 
+import gleem.linalg.Vec2f;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,13 +51,17 @@ import org.caleydo.view.relationshipexplorer.ui.command.SetSummaryItemFactoryCom
 import org.caleydo.view.relationshipexplorer.ui.command.ShowDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
+import org.caleydo.view.relationshipexplorer.ui.dialog.SearchDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SortingDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
+import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableColumn;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
 import org.caleydo.view.relationshipexplorer.ui.util.EntityMappingUtil;
 import org.eclipse.jface.window.Window;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
@@ -125,7 +131,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	// -----------------
 	protected ConTourElement contour;
 
-	public AEntityColumn(IEntityCollection entityCollection, ConTourElement contour) {
+	public AEntityColumn(IEntityCollection entityCollection, final ConTourElement contour) {
 		// super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
 		this.entityCollection = entityCollection;
 		entityCollection.addEntityRepresentation(this);
@@ -152,6 +158,70 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 							IInvertibleComparator<NestableItem> comparator = dialog.getComparator();
 							EventPublisher.trigger(new SortingEvent(comparator, dialog.getScoreProvider())
 									.to(AEntityColumn.this));
+						}
+					}
+				});
+			}
+		});
+
+		// setItemFactory(new TextItemFactory(this));
+		final GLButton filterButton = addHeaderButton(FILTER_ICON, "Filter by Name");
+
+		filterButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				final Vec2f location = filterButton.getAbsoluteLocation();
+
+				contour.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+
+						Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+						// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+						// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
+						StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+								loc, AEntityColumn.this);
+
+						if (dialog.open() == Window.OK) {
+							IEntityFilter filter = dialog.getFilter();
+							EventPublisher.trigger(new AttributeFilterEvent(filter, dialog.getFilterElementIDPool(),
+									true).to(AEntityColumn.this));
+						} else {
+							// EventPublisher.trigger(new ResetAttributeFilterEvent(dialog.getOriginalFilteredItemIDs())
+							// .to(ATextColumn.this.relationshipExplorer));
+						}
+					}
+				});
+			}
+		});
+
+		final GLButton findButton = addHeaderButton(FIND_ICON, "Search for Items");
+
+		findButton.setCallback(new ISelectionCallback() {
+
+			@Override
+			public void onSelectionChanged(GLButton button, boolean selected) {
+				final Vec2f location = findButton.getAbsoluteLocation();
+
+				contour.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+					@Override
+					public void run(Display display, Composite canvas) {
+
+						Point loc = canvas.toDisplay((int) location.x(), (int) location.y());
+						// StringFilterDialog dialog = new StringFilterDialog(canvas.getShell(), "Filter " + getLabel(),
+						// ATextColumn.this, loc, new HashMap<>(mapFilteredElements));
+						SearchDialog dialog = new SearchDialog(canvas.getShell(), "Search " + getLabel(), loc,
+								AEntityColumn.this);
+
+						if (dialog.open() != Window.OK) {
+							final IInvertibleComparator<NestableItem> comparator = dialog.getOriginalComparator();
+							EventPublisher.trigger(new ThreadSyncEvent(new Runnable() {
+								@Override
+								public void run() {
+									AEntityColumn.this.sortBy(comparator);
+								}
+							}).to(getRelationshipExplorer()));
 						}
 					}
 				});

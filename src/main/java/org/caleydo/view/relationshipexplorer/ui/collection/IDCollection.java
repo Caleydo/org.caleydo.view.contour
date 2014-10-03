@@ -11,6 +11,7 @@ import java.util.Set;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.id.IIDTypeMapper;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories;
@@ -27,6 +28,8 @@ public class IDCollection extends AEntityCollection {
 	protected final IDType idType;
 	protected final IDType displayedIDType;
 
+	protected IIDTypeMapper<Object, Object> elementIDToDisplayedIDMapper;
+
 	public IDCollection(IDType idType, IDType displayedIDType, IElementIDProvider elementIDProvider,
 			ConTourElement relationshipExplorer) {
 		super(relationshipExplorer);
@@ -37,6 +40,10 @@ public class IDCollection extends AEntityCollection {
 			elementIDProvider = getDefaultElementIDProvider(idType);
 		allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
+
+		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(idType.getIDCategory());
+
+		elementIDToDisplayedIDMapper = mappingManager.getIDTypeMapper(idType, displayedIDType);
 	}
 
 	@Override
@@ -87,6 +94,21 @@ public class IDCollection extends AEntityCollection {
 				return new HashSet<Object>(mappingManager.getAllMappedIDs(idType));
 			}
 		};
+	}
+
+	protected String getDisplayedID(Object id) {
+		Set<Object> idsToDisplay = elementIDToDisplayedIDMapper.apply(id);
+		if (idsToDisplay != null) {
+			for (Object name : idsToDisplay) {
+				return name.toString();
+			}
+		}
+		return id.toString();
+	}
+
+	@Override
+	public String getText(Object elementID) {
+		return getDisplayedID(elementID);
 	}
 
 }

@@ -80,4 +80,9 @@ public class PathwayCollection extends AEntityCollection {
 		};
 	}
 
+	@Override
+	public String getText(Object elementID) {
+		return ((PathwayGraph) elementID).getLabel();
+	}
+
 }

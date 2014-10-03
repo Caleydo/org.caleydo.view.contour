@@ -29,7 +29,6 @@ import org.caleydo.datadomain.image.LayeredImage.Layer;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.ATextColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
@@ -65,8 +64,8 @@ public class HTIImageAreaConfigurationAddon implements IItemFactoryConfiguration
 
 			protected final ImageDataDomain dataDomain;
 
-			public HTIImageAreaFactory(ImageDataDomain dataDomain, ATextColumn column) {
-				super(column);
+			public HTIImageAreaFactory(ImageDataDomain dataDomain, IEntityCollection collection) {
+				super(collection);
 				this.dataDomain = dataDomain;
 			}
 
@@ -120,7 +119,7 @@ public class HTIImageAreaConfigurationAddon implements IItemFactoryConfiguration
 
 		@Override
 		public IItemFactory create(IEntityCollection collection, IColumnModel column, ConTourElement contour) {
-			return new HTIImageAreaFactory(dataDomain, (ATextColumn) column);
+			return new HTIImageAreaFactory(dataDomain, collection);
 		}
 
 		@Override

@@ -231,7 +231,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	@Override
 	public GLElement createDetailView(DetailViewWindow window) {
 		if (detailViewFactory == null)
-			detailViewFactory = DetailViewFactories.createDefaultDetailViewWindowFactory(contour);
+			detailViewFactory = DetailViewFactories.createDefaultDetailViewFactory(contour);
 		return detailViewFactory.create(this, window);
 	}
 

@@ -118,8 +118,6 @@ public class HTIImageAreaConfigurationAddon implements IItemFactoryConfiguration
 
 	}
 
-
-
 	@Override
 	public boolean accepts(IEntityCollection collection) {
 		if (!(collection instanceof IDCollection))
@@ -136,8 +134,8 @@ public class HTIImageAreaConfigurationAddon implements IItemFactoryConfiguration
 
 			@Override
 			public void run() {
-				SelectImageDataDomainDialog dialog = new SelectImageDataDomainDialog(Display.getDefault()
-						.getActiveShell());
+				SelectImageDataDomainDialog<ImageDataDomain> dialog = new SelectImageDataDomainDialog<ImageDataDomain>(
+						Display.getDefault().getActiveShell(), "Select Image Dataset", ImageDataDomain.class);
 				if (dialog.open() == Window.OK) {
 					callback.on(new HTIImageAreaFactoryCreator(dialog.getDataDomain()));
 				}

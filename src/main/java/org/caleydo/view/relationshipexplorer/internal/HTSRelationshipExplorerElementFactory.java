@@ -145,7 +145,16 @@ public class HTSRelationshipExplorerElementFactory implements IGLElementFactory 
 				IDType.getIDType("COMPOUND_ID"), null, contour);
 		contour.registerEntityCollection(compoundCollection);
 		compoundCollection.setLabel("Compounds");
-		compoundCollection.setDetailViewFactory(new CompoundDetailViewFactory());
+
+		ATableBasedDataDomain smilesDataDomain = null;
+		// Not the most elegant way but it does the job to get the smiles dataset
+		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
+			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Smiles")) {
+				smilesDataDomain = (ATableBasedDataDomain) dd;
+				break;
+			}
+		}
+		compoundCollection.setDetailViewFactory(new CompoundDetailViewFactory(smilesDataDomain));
 
 		TabularDataCollection fingerprintCollection = null;
 		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {

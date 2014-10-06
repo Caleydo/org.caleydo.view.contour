@@ -37,7 +37,7 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 			.getResource("/org/caleydo/view/relationshipexplorer/icons/filter.png");
 
 	protected final int historyID;
-	protected final ConTourElement relationshipExplorer;
+	protected final ConTourElement contour;
 	protected final IEntityCollection collection;
 
 	protected GLButton showSelectedItemsButton;
@@ -49,7 +49,7 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 	public DetailViewWindow(IEntityCollection collection, ConTourElement relationshipExplorer) {
 		super(collection);
 		this.collection = collection;
-		this.relationshipExplorer = relationshipExplorer;
+		this.contour = relationshipExplorer;
 		this.historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
 	}
 
@@ -67,9 +67,9 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 			@Override
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				UpdateDetailContentWithSelectionCommand c = new UpdateDetailContentWithSelectionCommand(listener,
-						DetailViewWindow.this, selected, relationshipExplorer.getHistory());
+						DetailViewWindow.this, selected, contour.getHistory());
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c);
+				contour.getHistory().addHistoryCommand(c);
 			}
 		});
 	}
@@ -81,9 +81,9 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 			@Override
 			public void onSelectionChanged(GLButton button, boolean selected) {
 				ShowFilteredItemsInDetailViewCommand c = new ShowFilteredItemsInDetailViewCommand(listener,
-						DetailViewWindow.this, selected, relationshipExplorer.getHistory());
+						DetailViewWindow.this, selected, contour.getHistory());
 				c.execute();
-				relationshipExplorer.getHistory().addHistoryCommand(c);
+				contour.getHistory().addHistoryCommand(c);
 			}
 		});
 	}

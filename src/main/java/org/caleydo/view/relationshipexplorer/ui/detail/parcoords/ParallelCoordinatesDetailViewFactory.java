@@ -19,14 +19,8 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
  */
 public class ParallelCoordinatesDetailViewFactory implements IDetailViewFactory {
 
-	protected final ConTourElement relationshipExplorer;
-
-	public ParallelCoordinatesDetailViewFactory(ConTourElement relationshipExplorer) {
-		this.relationshipExplorer = relationshipExplorer;
-	}
-
 	@Override
-	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
 		TablePerspective tablePerspective = ((TabularDataCollection) collection).getTablePerspective();
 		// GLElementFactoryContext context = GLElementFactoryContext.builder().withData(tablePerspective).build();
 		// List<GLElementSupplier> suppliers = GLElementFactories.getExtensions(context, "relexplorer",
@@ -52,8 +46,7 @@ public class ParallelCoordinatesDetailViewFactory implements IDetailViewFactory 
 		// detailView = suppliers.get(0).get();
 		// }
 
-		ParCoordsElement element = new ParCoordsElement(tablePerspective, (TabularDataCollection) collection,
-				relationshipExplorer);
+		ParCoordsElement element = new ParCoordsElement(tablePerspective, (TabularDataCollection) collection, contour);
 
 		window.clearTitleElements();
 		window.addShowFilteredItems(element, false);

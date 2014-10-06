@@ -23,12 +23,11 @@ public class HTSPathwayDetailViewFactory extends DefaultPathwayDetailViewFactory
 	 * @param geneIDCollection
 	 */
 	public HTSPathwayDetailViewFactory(ConTourElement contour, IDCollection geneIDCollection) {
-		super(contour);
 		addForegroundAugmentationFactory(new MultiVertexHighlightAugmentationFactory(geneIDCollection, contour));
 	}
 
 	@Override
-	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
 
 		PathwayElement pathwayElement = createPathwayElement(collection);
 

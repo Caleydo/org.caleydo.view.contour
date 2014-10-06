@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
-import org.caleydo.core.data.datadomain.DataDomainManager;
-import org.caleydo.core.data.datadomain.IDataDomain;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
@@ -35,23 +33,32 @@ import com.google.common.base.Predicate;
  */
 public class CompoundDetailViewFactory implements IDetailViewFactory {
 
+	/**
+	 * The dataset with smile strings.
+	 */
+	private final ATableBasedDataDomain dataDomain;
+
+	public CompoundDetailViewFactory(ATableBasedDataDomain dataDomain) {
+		this.dataDomain = dataDomain;
+	}
+
 	@Override
-	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
 		Set<Object> elementIDs = collection.getSelectedElementIDs();
 		if (elementIDs.isEmpty())
 			return null;
 
 		Set<Object> bcIDs = collection.getBroadcastingIDsFromElementIDs(elementIDs);
 
-		ATableBasedDataDomain dataDomain = null;
-
-		// Not the most elegant way but it does the job to get the smiles dataset
-		for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
-			if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Smiles")) {
-				dataDomain = (ATableBasedDataDomain) dd;
-				break;
-			}
-		}
+		// ATableBasedDataDomain dataDomain = null;
+		//
+		// // Not the most elegant way but it does the job to get the smiles dataset
+		// for (IDataDomain dd : DataDomainManager.get().getAllDataDomains()) {
+		// if (dd instanceof ATableBasedDataDomain && dd.getLabel().contains("Smiles")) {
+		// dataDomain = (ATableBasedDataDomain) dd;
+		// break;
+		// }
+		// }
 
 		// IDType targetIDType = dataDomain.getPrimaryIDType(entityCollection.getBroadcastingIDType());
 		IDMappingManager mappingManager = IDMappingManagerRegistry.get().getIDMappingManager(

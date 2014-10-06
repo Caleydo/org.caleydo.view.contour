@@ -29,17 +29,11 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
  */
 public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 
-	protected final ConTourElement contour;
-
 	protected List<IPathwayAugmentationFactory> foregroundAugmentationFactories = new ArrayList<>();
 	protected List<IPathwayAugmentationFactory> backgroundAugmentationFactories = new ArrayList<>();
 
-	public DefaultPathwayDetailViewFactory(ConTourElement contour) {
-		this.contour = contour;
-	}
-
 	@Override
-	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
 		return createZoomableElement(createPathwayElement(collection));
 	}
 

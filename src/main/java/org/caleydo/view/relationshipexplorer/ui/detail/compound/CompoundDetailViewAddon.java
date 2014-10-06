@@ -3,16 +3,11 @@
  * Copyright (c) The Caleydo Team. All rights reserved.
  * Licensed under the new BSD license, available at http://caleydo.org/license
  *******************************************************************************/
-package org.caleydo.view.relationshipexplorer.ui.detail.image;
+package org.caleydo.view.relationshipexplorer.ui.detail.compound;
 
-import java.util.List;
-
-import org.caleydo.core.data.datadomain.DataDomainManager;
-import org.caleydo.core.data.datadomain.IDataDomain;
+import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.util.base.ICallback;
 import org.caleydo.core.util.base.Runnables;
-import org.caleydo.datadomain.image.ImageDataDomain;
-import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
@@ -24,16 +19,11 @@ import org.eclipse.swt.widgets.Display;
  * @author Christian
  *
  */
-public class HTIImageDetailViewAddon implements IDetailViewConfigurationAddon {
+public class CompoundDetailViewAddon implements IDetailViewConfigurationAddon {
 
 	@Override
 	public boolean accepts(IEntityCollection collection) {
-		if (!(collection instanceof IDCollection))
-			return false;
-
-		List<IDataDomain> dds = DataDomainManager.get().getDataDomainsByType(ImageDataDomain.DATA_DOMAIN_TYPE);
-
-		return !dds.isEmpty();
+		return false;
 	}
 
 	@Override
@@ -42,24 +32,24 @@ public class HTIImageDetailViewAddon implements IDetailViewConfigurationAddon {
 
 			@Override
 			public void run() {
-				SelectImageDataDomainDialog<ImageDataDomain> dialog = new SelectImageDataDomainDialog<ImageDataDomain>(
-						Display.getDefault().getActiveShell(), "Select Image Dataset", ImageDataDomain.class);
+				SelectImageDataDomainDialog<ATableBasedDataDomain> dialog = new SelectImageDataDomainDialog<ATableBasedDataDomain>(
+						Display.getDefault().getActiveShell(), "Select Smiles String Dataset",
+						ATableBasedDataDomain.class);
 				if (dialog.open() == Window.OK) {
-					callback.on(new HTIImageDetailViewFactory(dialog.getDataDomain()));
+					callback.on(new CompoundDetailViewFactory(dialog.getDataDomain()));
 				}
 			}
 		}).run();
-
-	}
-
-	@Override
-	public String getLabel() {
-		return "HTI Image Areas";
 	}
 
 	@Override
 	public Class<? extends IDetailViewFactory> getConfigObjectClass() {
-		return HTIImageDetailViewFactory.class;
+		return CompoundDetailViewFactory.class;
+	}
+
+	@Override
+	public String getLabel() {
+		return "Chemical Structure";
 	}
 
 }

@@ -15,7 +15,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
  */
 public interface IDetailViewFactory {
 
-	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window);
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour);
 
 	public DetailViewWindow createWindow(IEntityCollection collection, ConTourElement contour);
 

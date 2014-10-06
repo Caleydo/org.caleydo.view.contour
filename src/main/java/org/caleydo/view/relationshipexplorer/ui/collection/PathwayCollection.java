@@ -31,7 +31,7 @@ public class PathwayCollection extends AEntityCollection {
 		this.allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel("Pathways");
-		detailViewFactory = new DefaultPathwayDetailViewFactory(relationshipExplorer);
+		detailViewFactory = new DefaultPathwayDetailViewFactory();
 	}
 
 	@Override

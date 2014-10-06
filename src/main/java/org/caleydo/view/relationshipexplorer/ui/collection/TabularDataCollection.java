@@ -61,7 +61,7 @@ public class TabularDataCollection extends AEntityCollection {
 		allElementIDs.addAll(elementIDProvider.getElementIDs());
 		filteredElementIDs.addAll(allElementIDs);
 		setLabel(dataDomain.getLabel());
-		detailViewFactory = new ParallelCoordinatesDetailViewFactory(relationshipExplorer);
+		detailViewFactory = new ParallelCoordinatesDetailViewFactory();
 	}
 
 	@Override

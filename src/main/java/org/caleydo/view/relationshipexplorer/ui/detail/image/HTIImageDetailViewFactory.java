@@ -27,15 +27,13 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
 public class HTIImageDetailViewFactory implements IDetailViewFactory {
 
 	protected final ImageDataDomain dataDomain;
-	protected final ConTourElement contour;
 
-	public HTIImageDetailViewFactory(ImageDataDomain dataDomain, ConTourElement contour) {
+	public HTIImageDetailViewFactory(ImageDataDomain dataDomain) {
 		this.dataDomain = dataDomain;
-		this.contour = contour;
 	}
 
 	@Override
-	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window) {
+	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
 
 		Set<Object> selectedElements = collection.getSelectedElementIDs();
 		Set<Object> highlightedElements = collection.getHighlightElementIDs();

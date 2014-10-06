@@ -129,7 +129,7 @@ public class HTIFactory implements IGLElementFactory {
 		contour.registerEntityCollection(layerCollection);
 		layerCollection.setLabel("Areas");
 		layerCollection.setColumnFactory(new ImageAreaColumnFactory(layerCollection, imageDD, contour));
-		layerCollection.setDetailViewFactory(new HTIImageDetailViewFactory(imageDD, contour));
+		layerCollection.setDetailViewFactory(new HTIImageDetailViewFactory(imageDD));
 
 		TabularDataCollection mutationsCollection = null;
 
@@ -197,12 +197,12 @@ public class HTIFactory implements IGLElementFactory {
 		// }
 		// });
 		PathwayCollection pathwayCollection = new PathwayCollection(ElementIDProviders.intersectionOf(
-				 ExcludingPathwayIDProvider.NO_METABOLIC_PATHWAY_PROVIDER,
-				 new PathwayMappingBasedIDProvider(IDType.getIDType("VARIANT_ID"))), contour);
+				ExcludingPathwayIDProvider.NO_METABOLIC_PATHWAY_PROVIDER,
+				new PathwayMappingBasedIDProvider(IDType.getIDType("VARIANT_ID"))), contour);
 		contour.registerEntityCollection(pathwayCollection);
 
 		pathwayCollection
-				.setDetailViewFactory(new DefaultPathwayDetailViewFactory(contour)
+				.setDetailViewFactory(new DefaultPathwayDetailViewFactory()
 						.addForegroundAugmentationFactory(new MultiVertexHighlightAugmentationFactory(geneCollection,
 								contour)));
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();

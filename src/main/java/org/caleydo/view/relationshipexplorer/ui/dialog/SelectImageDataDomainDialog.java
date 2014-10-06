@@ -8,9 +8,8 @@ package org.caleydo.view.relationshipexplorer.ui.dialog;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.caleydo.core.data.datadomain.ADataDomain;
 import org.caleydo.core.data.datadomain.DataDomainManager;
-import org.caleydo.core.data.datadomain.IDataDomain;
-import org.caleydo.datadomain.image.ImageDataDomain;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -26,11 +25,13 @@ import org.eclipse.swt.widgets.Shell;
  * @author Christian
  *
  */
-public class SelectImageDataDomainDialog extends Dialog {
+public class SelectImageDataDomainDialog<DataDomainType extends ADataDomain> extends Dialog {
 
-	private ImageDataDomain dataDomain;
+	private DataDomainType dataDomain;
 	private org.eclipse.swt.widgets.List dataDomainList;
-	private Map<Integer, ImageDataDomain> dataDomainMap = new HashMap<>();
+	private Map<Integer, DataDomainType> dataDomainMap = new HashMap<>();
+	private final String caption;
+	private final Class<DataDomainType> classType;
 
 	/**
 	 * @param shell
@@ -38,14 +39,16 @@ public class SelectImageDataDomainDialog extends Dialog {
 	 * @param caption
 	 * @param isDefaultChecked
 	 */
-	public SelectImageDataDomainDialog(Shell shell) {
+	public SelectImageDataDomainDialog(Shell shell, String caption, Class<DataDomainType> classType) {
 		super(shell);
+		this.caption = caption;
+		this.classType = classType;
 	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Select Image Dataset");
+		newShell.setText(caption);
 	}
 
 	@Override
@@ -71,9 +74,9 @@ public class SelectImageDataDomainDialog extends Dialog {
 			}
 		});
 		int index = 0;
-		for (IDataDomain dd : DataDomainManager.get().getDataDomainsByType(ImageDataDomain.DATA_DOMAIN_TYPE)) {
+		for (DataDomainType dd : DataDomainManager.get().getDataDomainsByType(classType)) {
 			dataDomainList.add(dd.getLabel());
-			dataDomainMap.put(index, (ImageDataDomain) dd);
+			dataDomainMap.put(index, dd);
 			index++;
 		}
 	}
@@ -100,7 +103,7 @@ public class SelectImageDataDomainDialog extends Dialog {
 	/**
 	 * @return the dataDomain, see {@link #dataDomain}
 	 */
-	public ImageDataDomain getDataDomain() {
+	public DataDomainType getDataDomain() {
 		return dataDomain;
 	}
 

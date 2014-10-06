@@ -180,6 +180,13 @@ public abstract class AEntityCollection implements IEntityCollection {
 		representations.clear();
 	}
 
+	/**
+	 * @return the representations, see {@link #representations}
+	 */
+	public Set<IEntityRepresentation> getRepresentations() {
+		return new HashSet<IEntityRepresentation>(representations);
+	}
+
 	@Override
 	public void restoreAllEntities() {
 		filteredElementIDs = new HashSet<>(allElementIDs.size());

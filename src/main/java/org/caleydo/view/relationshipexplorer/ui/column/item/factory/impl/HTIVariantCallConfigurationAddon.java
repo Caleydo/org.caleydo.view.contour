@@ -241,4 +241,9 @@ public class HTIVariantCallConfigurationAddon implements IItemFactoryConfigurati
 	public String getLabel() {
 		return "HTI Variant Call";
 	}
+
+	@Override
+	public Class<? extends IItemFactoryCreator> getConfigObjectClass() {
+		return HTIVariantCallItemFactoryCreator.class;
+	}
 }

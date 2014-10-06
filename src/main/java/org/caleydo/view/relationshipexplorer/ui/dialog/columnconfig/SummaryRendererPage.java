@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig;
 
+import org.caleydo.core.util.base.ICallback;
 import org.caleydo.view.relationshipexplorer.ui.Addons;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.AColumnFactory;
@@ -21,7 +22,8 @@ import org.eclipse.swt.widgets.Composite;
  * @author Christian
  *
  */
-public class SummaryRendererPage extends WizardPage implements IPageChangedListener {
+public class SummaryRendererPage extends WizardPage implements IPageChangedListener,
+		ICallback<MultiAddonSelectionWidget<ISummaryItemFactoryCreator, ISummaryItemFactoryConfigurationAddon>> {
 
 	private AEntityCollection collection;
 	private MultiAddonSelectionWidget<ISummaryItemFactoryCreator, ISummaryItemFactoryConfigurationAddon> addonWidget;
@@ -38,7 +40,7 @@ public class SummaryRendererPage extends WizardPage implements IPageChangedListe
 	@Override
 	public void createControl(Composite parent) {
 		addonWidget = new MultiAddonSelectionWidget<ISummaryItemFactoryCreator, ISummaryItemFactoryConfigurationAddon>(
-				parent, (ConfigureColumnTypeWizard) getWizard(), "Summary Representations");
+				parent, this, "Summary Representations");
 		setControl(addonWidget);
 
 	}
@@ -50,7 +52,8 @@ public class SummaryRendererPage extends WizardPage implements IPageChangedListe
 
 			if (collection != wizard.getCollection()) {
 				this.collection = wizard.getCollection();
-				addonWidget.updateWidgets(Addons.getSummaryItemFactoryAddonsFor(collection));
+				addonWidget.updateWidgets(Addons.getSummaryItemFactoryAddonsFor(collection),
+						((AColumnFactory) collection.getColumnFactory()).getSummaryItemFactoryCreators());
 			}
 		} else if (event.getSelectedPage() == getNextPage()) {
 
@@ -66,11 +69,17 @@ public class SummaryRendererPage extends WizardPage implements IPageChangedListe
 	public void updateCollection() {
 		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
 		AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
+		factory.clearSummaryItemFactoryCreators();
 		boolean first = true;
 		for (ISummaryItemFactoryCreator creator : addonWidget.getCreators()) {
 			factory.addSummaryItemFactoryCreator(creator, first);
 			first = false;
 		}
+	}
+
+	@Override
+	public void on(MultiAddonSelectionWidget<ISummaryItemFactoryCreator, ISummaryItemFactoryConfigurationAddon> data) {
+		getWizard().getContainer().updateButtons();
 	}
 
 }

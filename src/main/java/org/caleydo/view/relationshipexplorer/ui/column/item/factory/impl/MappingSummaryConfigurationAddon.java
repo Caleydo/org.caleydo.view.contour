@@ -148,4 +148,9 @@ public class MappingSummaryConfigurationAddon implements ISummaryItemFactoryConf
 		callback.on(new MappingSummaryItemFactoryCreator());
 	}
 
+	@Override
+	public Class<? extends ISummaryItemFactoryCreator> getConfigObjectClass() {
+		return MappingSummaryItemFactoryCreator.class;
+	}
+
 }

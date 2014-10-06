@@ -882,7 +882,7 @@ public class ConTourElement extends AnimatedGLElementContainer {
 	}
 
 	@ListenTo(sendToMe = true)
-	public void onHandleContextMenuOperation(ThreadSyncEvent event) {
+	public void onExecWithinGL(ThreadSyncEvent event) {
 		event.getRunnable().run();
 	}
 

@@ -63,6 +63,11 @@ public abstract class AColumnFactory implements IColumnFactory {
 	@Override
 	public final IColumnModel create(IEntityCollection collection, ConTourElement contour) {
 		AEntityColumn column = createColumnInstance(collection, contour);
+		initColumn(column);
+		return column;
+	}
+
+	protected void initColumn(AEntityColumn column) {
 		for (int i = 0; i < itemFactoryCreators.size(); i++) {
 			IItemFactoryCreator creator = itemFactoryCreators.get(i);
 			column.addItemFactoryCreator(creator);
@@ -77,7 +82,39 @@ public abstract class AColumnFactory implements IColumnFactory {
 				column.setSummaryItemFactoryCreator(creator);
 		}
 		column.init();
-		return column;
+	}
+
+	/**
+	 * Updates an existing column according to this factory.
+	 *
+	 * @param column
+	 */
+	public void updateColumn(AEntityColumn column) {
+		column.reset();
+		initColumn(column);
+		column.getColumn().getHeader().updateButtonBar();
+	}
+
+	/**
+	 * @return the itemFactoryCreators, see {@link #itemFactoryCreators}
+	 */
+	public List<IItemFactoryCreator> getItemFactoryCreators() {
+		return itemFactoryCreators;
+	}
+
+	/**
+	 * @return the summaryItemFactoryCreators, see {@link #summaryItemFactoryCreators}
+	 */
+	public List<ISummaryItemFactoryCreator> getSummaryItemFactoryCreators() {
+		return summaryItemFactoryCreators;
+	}
+
+	public void clearItemFactoryCreators() {
+		itemFactoryCreators.clear();
+	}
+
+	public void clearSummaryItemFactoryCreators() {
+		summaryItemFactoryCreators.clear();
 	}
 
 	/**

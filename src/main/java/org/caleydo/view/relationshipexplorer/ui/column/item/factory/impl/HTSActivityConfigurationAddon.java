@@ -205,4 +205,9 @@ public class HTSActivityConfigurationAddon implements IItemFactoryConfigurationA
 	public String getLabel() {
 		return "HTS Activity";
 	}
+
+	@Override
+	public Class<? extends IItemFactoryCreator> getConfigObjectClass() {
+		return HTSActivityItemFactoryCreator.class;
+	}
 }

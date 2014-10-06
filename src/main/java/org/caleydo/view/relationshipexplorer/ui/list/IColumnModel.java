@@ -57,7 +57,9 @@ public interface IColumnModel extends ILabeled, ISelectionUpdateListener, IEntit
 
 	public GLElement getHeaderExtension();
 
-	public Collection<? extends AContextMenuItem> getContextMenuItems();
+	public Collection<? extends AContextMenuItem> getItemContextMenuItems();
+
+	public Collection<? extends AContextMenuItem> getHeaderContextMenuItems();
 
 	public void takeDown();
 

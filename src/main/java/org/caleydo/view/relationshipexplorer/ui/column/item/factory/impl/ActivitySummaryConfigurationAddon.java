@@ -397,6 +397,9 @@ public class ActivitySummaryConfigurationAddon implements ISummaryItemFactoryCon
 
 		TabularDataCollection coll = (TabularDataCollection) collection;
 
+		if (coll.getDimensionPerspective().getVirtualArray().size() != 2)
+			return false;
+
 		for (int dimensionID : coll.getDimensionPerspective().getVirtualArray()) {
 			Object dataClassDesc = coll.getDataDomain().getTable().getDataClassSpecificDescription(dimensionID);
 			if (dataClassDesc instanceof NumericalProperties) {
@@ -410,6 +413,11 @@ public class ActivitySummaryConfigurationAddon implements ISummaryItemFactoryCon
 	public void configure(ICallback<ISummaryItemFactoryCreator> callback) {
 		callback.on(new ActivitySummaryItemFactoryCreator());
 
+	}
+
+	@Override
+	public Class<? extends ISummaryItemFactoryCreator> getConfigObjectClass() {
+		return ActivitySummaryItemFactoryCreator.class;
 	}
 
 }

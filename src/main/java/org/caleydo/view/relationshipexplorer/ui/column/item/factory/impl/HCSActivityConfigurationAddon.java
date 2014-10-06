@@ -202,4 +202,9 @@ public class HCSActivityConfigurationAddon implements IItemFactoryConfigurationA
 		return "HCS Activity";
 	}
 
+	@Override
+	public Class<? extends IItemFactoryCreator> getConfigObjectClass() {
+		return HCSActivityItemFactoryCreator.class;
+	}
+
 }

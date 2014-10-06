@@ -5,6 +5,7 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig;
 
+import org.caleydo.core.util.base.ICallback;
 import org.caleydo.view.relationshipexplorer.ui.Addons;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.AColumnFactory;
@@ -21,7 +22,8 @@ import org.eclipse.swt.widgets.Composite;
  * @author Christian
  *
  */
-public class ItemRendererPage extends WizardPage implements IPageChangedListener {
+public class ItemRendererPage extends WizardPage implements IPageChangedListener,
+		ICallback<MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon>> {
 
 	private AEntityCollection collection;
 	private MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon> addonWidget;
@@ -37,8 +39,8 @@ public class ItemRendererPage extends WizardPage implements IPageChangedListener
 
 	@Override
 	public void createControl(Composite parent) {
-		addonWidget = new MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon>(parent,
-				(ConfigureColumnTypeWizard) getWizard(), "Item Representations");
+		addonWidget = new MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon>(parent, this,
+				"Item Representations");
 		setControl(addonWidget);
 	}
 
@@ -49,7 +51,8 @@ public class ItemRendererPage extends WizardPage implements IPageChangedListener
 
 			if (collection != wizard.getCollection()) {
 				this.collection = wizard.getCollection();
-				addonWidget.updateWidgets(Addons.getItemFactoryAddonsFor(collection));
+				addonWidget.updateWidgets(Addons.getItemFactoryAddonsFor(collection),
+						((AColumnFactory) collection.getColumnFactory()).getItemFactoryCreators());
 			}
 		} else if (event.getSelectedPage() == getNextPage()) {
 
@@ -60,6 +63,7 @@ public class ItemRendererPage extends WizardPage implements IPageChangedListener
 	public void updateCollection() {
 		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
 		AColumnFactory factory = (AColumnFactory) wizard.getCollection().getColumnFactory();
+		factory.clearItemFactoryCreators();
 		boolean first = true;
 		for (IItemFactoryCreator creator : addonWidget.getCreators()) {
 			factory.addItemFactoryCreator(creator, first);
@@ -70,6 +74,11 @@ public class ItemRendererPage extends WizardPage implements IPageChangedListener
 	@Override
 	public boolean isPageComplete() {
 		return !addonWidget.getCreators().isEmpty();
+	}
+
+	@Override
+	public void on(MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon> data) {
+		getWizard().getContainer().updateButtons();
 	}
 
 }

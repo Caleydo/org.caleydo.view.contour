@@ -116,4 +116,9 @@ public class MedianSummaryConfigurationAddon implements ISummaryItemFactoryConfi
 	public void configure(ICallback<ISummaryItemFactoryCreator> callback) {
 		callback.on(new MedianSummaryItemFactoryCreator());
 	}
+
+	@Override
+	public Class<? extends ISummaryItemFactoryCreator> getConfigObjectClass() {
+		return MedianSummaryItemFactoryCreator.class;
+	}
 }

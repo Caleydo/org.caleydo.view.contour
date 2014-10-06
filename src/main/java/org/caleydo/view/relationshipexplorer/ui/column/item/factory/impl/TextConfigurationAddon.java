@@ -15,10 +15,7 @@ import org.caleydo.core.view.opengl.layout2.layout.GLMinSizeProviders;
 import org.caleydo.core.view.opengl.layout2.layout.GLPadding;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
-import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.collection.PathwayCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
@@ -93,7 +90,7 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 
 	@Override
 	public boolean accepts(IEntityCollection collection) {
-		return (collection instanceof IDCollection || collection instanceof PathwayCollection || collection instanceof GroupCollection);
+		return true;
 	}
 
 	@Override
@@ -104,5 +101,10 @@ public class TextConfigurationAddon implements IItemFactoryConfigurationAddon {
 	@Override
 	public String getLabel() {
 		return "Default Textual";
+	}
+
+	@Override
+	public Class<? extends IItemFactoryCreator> getConfigObjectClass() {
+		return TextItemFactoryCreator.class;
 	}
 }

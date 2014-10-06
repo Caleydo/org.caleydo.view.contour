@@ -31,4 +31,9 @@ public interface IConfigurationAddon<T> extends ILabeled {
 	 */
 	public void configure(ICallback<T> callback);
 
+	/**
+	 * @return The concrete class of the object that is configured in {@link #configure(ICallback)}.
+	 */
+	public Class<? extends T> getConfigObjectClass();
+
 }

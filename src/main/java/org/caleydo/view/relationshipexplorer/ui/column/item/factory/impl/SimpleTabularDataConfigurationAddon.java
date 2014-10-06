@@ -90,4 +90,9 @@ public class SimpleTabularDataConfigurationAddon implements IItemFactoryConfigur
 	public String getLabel() {
 		return "Default Tabular";
 	}
+
+	@Override
+	public Class<? extends IItemFactoryCreator> getConfigObjectClass() {
+		return SimpleTabularDataItemFactoryCreator.class;
+	}
 }

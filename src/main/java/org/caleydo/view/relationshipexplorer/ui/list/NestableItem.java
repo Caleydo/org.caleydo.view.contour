@@ -72,7 +72,7 @@ public class NestableItem extends AnimatedGLElementContainer {
 				// ContextMenuCreator contextMenuCreator = NestableItem.this.column.getContextMenuCreator();
 				if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
 					NestableItem.this.column.getColumnTree().getRelationshipExplorer()
-							.addContextMenuItems(NestableItem.this.column.getColumnModel().getContextMenuItems());
+							.addContextMenuItems(NestableItem.this.column.getColumnModel().getItemContextMenuItems());
 					// context.getSWTLayer().showContextMenu(contextMenuCreator);
 				}
 

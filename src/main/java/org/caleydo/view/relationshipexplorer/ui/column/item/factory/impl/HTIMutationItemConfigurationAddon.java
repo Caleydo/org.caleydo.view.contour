@@ -566,4 +566,9 @@ public class HTIMutationItemConfigurationAddon implements IItemFactoryConfigurat
 		return "HTI Mutation";
 	}
 
+	@Override
+	public Class<? extends IItemFactoryCreator> getConfigObjectClass() {
+		return HTIMutationItemFactoryCreator.class;
+	}
+
 }

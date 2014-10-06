@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
+import org.caleydo.core.util.base.Runnables;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.contextmenu.AContextMenuItem;
 import org.caleydo.core.view.contextmenu.GenericContextMenuItem;
@@ -55,6 +56,8 @@ import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SearchDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SortingDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.ConfigureItemRendererDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.ConfigureSummaryRendererDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
@@ -231,6 +234,31 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	}
 
+	/**
+	 * Removes all item and summary factories and sets the status of this column to uninitialized.
+	 */
+	public void reset() {
+		if (initialized) {
+			// Remove remove column, duplicate column and spacing elements.
+			headerButtons.remove(headerButtons.size() - 1);
+			headerButtons.remove(headerButtons.size() - 1);
+			headerButtons.remove(headerButtons.size() - 1);
+
+			headerButtons.remove(itemPlots);
+			headerButtons.remove(summaryPlots);
+		}
+
+		initialized = false;
+		baseComparators.clear();
+		itemFactory = null;
+		itemFactoryCreators.clear();
+		itemFactoryCreator = null;
+		summaryItemFactory = null;
+		summaryItemFactoryCreators.clear();
+		summaryItemFactoryCreator = null;
+
+	}
+
 	@Override
 	public void init() {
 
@@ -349,7 +377,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
-	public Collection<? extends AContextMenuItem> getContextMenuItems() {
+	public Collection<? extends AContextMenuItem> getItemContextMenuItems() {
 		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(contour, this);
 		if (((AEntityCollection) entityCollection).getDetailViewFactory() != null) {
 			AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(
@@ -363,6 +391,35 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					}).to(contour));
 			items.add(detailItem);
 		}
+
+		return items;
+	}
+
+	@Override
+	public Collection<? extends AContextMenuItem> getHeaderContextMenuItems() {
+		List<AContextMenuItem> items = new ArrayList<>();
+
+		AContextMenuItem configItemRep = new GenericContextMenuItem("Configure Item Representations", new ThreadSyncEvent(
+				Runnables.withinSWTThread(new Runnable() {
+					@Override
+					public void run() {
+						ConfigureItemRendererDialog dialog = new ConfigureItemRendererDialog(Display.getDefault()
+								.getActiveShell(), (AEntityCollection) entityCollection, contour);
+						dialog.open();
+					}
+				})).to(contour));
+		items.add(configItemRep);
+
+		AContextMenuItem configSummaryItemRep = new GenericContextMenuItem("Configure Summary Item Representations",
+				new ThreadSyncEvent(Runnables.withinSWTThread(new Runnable() {
+					@Override
+					public void run() {
+						ConfigureSummaryRendererDialog dialog = new ConfigureSummaryRendererDialog(Display.getDefault()
+								.getActiveShell(), (AEntityCollection) entityCollection, contour);
+						dialog.open();
+					}
+				})).to(contour));
+		items.add(configSummaryItemRep);
 
 		return items;
 	}
@@ -786,6 +843,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		this.itemFactory = creator.create(entityCollection, this, contour);
 		updateItemPlots();
 		if (column != null) {
+			column.getHeader().updateHeaderExtension();
 			column.updateItems(EUpdateCause.PLOT_TYPE_CHANGE);
 			column.getColumnTree().relayout();
 		}
@@ -841,10 +899,6 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	 */
 	public Set<IInvertibleComparator<NestableItem>> getComparators() {
 		return baseComparators;
-	}
-
-	public void addComparator(IInvertibleComparator<NestableItem> comparator) {
-		baseComparators.add(comparator);
 	}
 
 	@Override

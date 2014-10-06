@@ -5,8 +5,6 @@
  *******************************************************************************/
 package org.caleydo.view.relationshipexplorer.ui.list;
 
-import java.util.Set;
-
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.GLElementContainer;
@@ -41,7 +39,12 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 	protected DragAndDropHeader dragAndDropHeader;
 	protected GLElement scrollbarSpacing;
 
-	public ColumnHeader(NestableColumn column, String caption) {
+	protected AnimatedGLElementContainer captionContainer;
+	protected GLElementContainer buttonBar;
+	protected GLElement headerExtension;
+
+	public ColumnHeader(final NestableColumn column, String caption) {
+		this.column = column;
 		setLayout(new GLSizeRestrictiveFlowLayout2(true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(
 				ColumnTreeRenderStyle.HORIZONTAL_PADDING, ColumnTreeRenderStyle.HEADER_TOP_PADDING,
 				ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
@@ -49,15 +52,10 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, new GLPadding(ColumnTreeRenderStyle.HORIZONTAL_PADDING,
 						ColumnTreeRenderStyle.HEADER_TOP_PADDING, ColumnTreeRenderStyle.HORIZONTAL_PADDING, 0)));
 
-		GLElement headerExtension = column.getColumnModel().getHeaderExtension();
-
-		AnimatedGLElementContainer captionContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(
-				true, ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
+		captionContainer = new AnimatedGLElementContainer(new GLSizeRestrictiveFlowLayout2(true,
+				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
 		captionContainer.setMinSizeProvider(GLMinSizeProviders.createHorizontalFlowMinSizeProvider(captionContainer,
 				ColumnTreeRenderStyle.HORIZONTAL_SPACING, GLPadding.ZERO));
-		captionContainer.setSize(Float.NaN, ColumnTreeRenderStyle.CAPTION_HEIGHT
-				+ ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT + 4
-				+ (headerExtension != null ? (headerExtension.getMinSize().y() + 4) : 0));
 
 		GLElementContainer headerContainer = new GLElementContainer(GLLayouts.LAYERS);
 		headerContainer.setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(headerContainer));
@@ -79,8 +77,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		spacingContainer.add(captionContainer);
 		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.BLUE));
 
-		final GLElementContainer buttonBar = new GLElementContainer(new GLSizeRestrictiveFlowLayout(true, 1,
-				new GLPadding(0, -9, 0, 9)));
+		buttonBar = new GLElementContainer(new GLSizeRestrictiveFlowLayout(true, 1, new GLPadding(0, -9, 0, 9)));
 		// buttonBar.setRenderer(GLRenderers.drawRect(Color.RED));
 
 		headerContainer.add(spacingContainer);
@@ -98,27 +95,15 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 			collapseButton.setCallback(this);
 
 			captionContainer.add(collapseButton);
-			GLElement collapseSpacing = new GLElement();
-			collapseSpacing.setSize(ColumnTreeRenderStyle.CAPTION_HEIGHT, ColumnTreeRenderStyle.CAPTION_HEIGHT);
-			buttonBar.add(collapseSpacing);
 		}
-		for (GLElement element : column.getColumnModel().getHeaderOverlayElements()) {
-			buttonBar.add(element);
-		}
+		updateButtonBar();
 
-		this.column = column;
 		this.dragAndDropHeader = new DragAndDropHeader(column);
 		headerItem = new GLElementContainer(new GLSizeRestrictiveFlowLayout2(false, 4, GLPadding.ZERO));
 		headerItem.setMinSizeProvider(GLMinSizeProviders.createVerticalFlowMinSizeProvider(headerItem, 4,
 				GLPadding.ZERO));
 		headerItem.add(ColumnTree.createTextElement(caption, ColumnTreeRenderStyle.CAPTION_HEIGHT));
-		Set<IEntityCollection> allCollections = column.getColumnTree().getRelationshipExplorer().getEntityCollections();
-		int maxNumItems = Integer.MIN_VALUE;
-		for (IEntityCollection collection : allCollections) {
-			int numItems = collection.getAllElementIDs().size();
-			if (numItems > maxNumItems)
-				maxNumItems = numItems;
-		}
+
 		IEntityCollection myCollection = column.getColumnModel().getCollection();
 		mappingRenderer = new MappingRenderer(myCollection.getAllElementIDs().size());
 		mappingRenderer.setBarWidth(ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT);
@@ -128,9 +113,7 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 
 		captionContainer.add(headerItem);
 
-		if (headerExtension != null) {
-			headerItem.add(headerExtension);
-		}
+		updateHeaderExtension();
 
 		// spacingContainer.setRenderer(GLRenderers.drawRect(Color.GREEN));
 
@@ -165,6 +148,13 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 				context.getMouseLayer().removeDragSource(dragAndDropHeader);
 				context.getMouseLayer().removeDropTarget(dragAndDropHeader);
 			}
+
+			@Override
+			protected void rightClicked(Pick pick) {
+				column.getColumnTree().getRelationshipExplorer()
+						.addContextMenuItems(column.getColumnModel().getHeaderContextMenuItems());
+
+			}
 		});
 
 		setRenderer(GLRenderers.drawRect(Color.GRAY));
@@ -172,6 +162,35 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		scrollbarSpacing.setSize(ColumnTreeRenderStyle.SCROLLBAR_WIDTH - ColumnTreeRenderStyle.HORIZONTAL_SPACING,
 				Float.NaN);
 		// add(scrollbarSpacing);
+	}
+
+	public void updateButtonBar() {
+		buttonBar.clear();
+		if (!column.isRoot()) {
+			GLElement collapseSpacing = new GLElement();
+			collapseSpacing.setSize(ColumnTreeRenderStyle.CAPTION_HEIGHT, ColumnTreeRenderStyle.CAPTION_HEIGHT);
+			buttonBar.add(collapseSpacing);
+		}
+		for (GLElement element : column.getColumnModel().getHeaderOverlayElements()) {
+			buttonBar.add(element);
+		}
+	}
+
+	public void updateHeaderExtension() {
+
+		if (headerExtension != null) {
+			headerItem.remove(headerExtension);
+		}
+
+		headerExtension = column.getColumnModel().getHeaderExtension();
+
+		captionContainer.setSize(Float.NaN, ColumnTreeRenderStyle.CAPTION_HEIGHT
+				+ ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT + 4
+				+ (headerExtension != null ? (headerExtension.getMinSize().y() + 4) : 0));
+
+		if (headerExtension != null) {
+			headerItem.add(headerExtension);
+		}
 	}
 
 	public void addChild(ColumnHeader header) {
@@ -204,15 +223,6 @@ public class ColumnHeader extends AnimatedGLElementContainer implements ISelecti
 		}
 		width += column.calcNestingWidth();
 		AnimationUtil.resizeElement(this, width, Float.NaN);
-		// if (Float.compare(width, getSize().x()) != 0) {
-		// IGLElementParent parent = getParent();
-		//
-		// if (parent != null && parent instanceof AnimatedGLElementContainer) {
-		// ((AnimatedGLElementContainer) parent).resizeChild(this, width, Float.NaN);
-		// } else {
-		// setSize(width, Float.NaN);
-		// }
-		// }
 	}
 
 	@Override

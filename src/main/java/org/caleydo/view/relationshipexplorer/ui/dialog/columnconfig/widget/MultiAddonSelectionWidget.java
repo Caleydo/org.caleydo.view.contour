@@ -13,7 +13,6 @@ import java.util.Map;
 import org.caleydo.core.util.base.ICallback;
 import org.caleydo.core.util.base.Runnables;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IConfigurationAddon;
-import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.ConfigureColumnTypeWizard;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -31,7 +30,7 @@ import org.eclipse.swt.widgets.List;
 public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigurationAddon<CreatorType>> extends
 		Composite implements ICallback<CreatorType> {
 
-	private final ConfigureColumnTypeWizard wizard;
+	// private final ConfigureColumnTypeWizard wizard;
 
 	private List availableRenderersList;
 	private List selectedRenderersList;
@@ -41,14 +40,17 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 	private Map<Integer, AddonType> selectedAddonsMap = new HashMap<>();
 	private Map<AddonType, CreatorType> addonToCreatorMap = new LinkedHashMap<>();
 	private AddonType currentAddon;
+	private final ICallback<MultiAddonSelectionWidget<CreatorType, AddonType>> widgetUpdateCallback;
 
 	/**
 	 * @param parent
 	 * @param style
 	 */
-	public MultiAddonSelectionWidget(Composite parent, final ConfigureColumnTypeWizard wizard, String addonType) {
+	public MultiAddonSelectionWidget(Composite parent,
+			final ICallback<MultiAddonSelectionWidget<CreatorType, AddonType>> widgetUpdateCallback, String addonType) {
 		super(parent, SWT.NONE);
-		this.wizard = wizard;
+		// this.wizard = wizard;
+		this.widgetUpdateCallback = widgetUpdateCallback;
 
 		setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		setLayout(new GridLayout(2, false));
@@ -66,8 +68,7 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 		availableRenderersList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddonType addon = availableAddonsMap.get(availableRenderersList
-						.getSelectionIndex());
+				AddonType addon = availableAddonsMap.get(availableRenderersList.getSelectionIndex());
 				addRendererButton.setEnabled(!addonToCreatorMap.containsKey(addon));
 			}
 		});
@@ -79,8 +80,7 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 		addRendererButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				AddonType addon = availableAddonsMap.get(availableRenderersList
-						.getSelectionIndex());
+				AddonType addon = availableAddonsMap.get(availableRenderersList.getSelectionIndex());
 				if (!addonToCreatorMap.containsKey(addon)) {
 					currentAddon = addon;
 					addon.configure(MultiAddonSelectionWidget.this);
@@ -111,13 +111,13 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 				AddonType addon = selectedAddonsMap.get(selectedRenderersList.getSelectionIndex());
 				addonToCreatorMap.remove(addon);
 				updateSelectedRenderersList();
-				wizard.getContainer().updateButtons();
+				widgetUpdateCallback.on(MultiAddonSelectionWidget.this);
 			}
 		});
 
 	}
 
-	public void updateWidgets(java.util.List<AddonType> addons) {
+	public void updateWidgets(java.util.List<AddonType> addons, java.util.List<CreatorType> existingCreators) {
 		availableRenderersList.removeAll();
 		availableAddonsMap.clear();
 		addonToCreatorMap.clear();
@@ -126,8 +126,15 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 			availableAddonsMap.put(index, addon);
 			availableRenderersList.add(addon.getLabel());
 			index++;
+
+			for (CreatorType creator : existingCreators) {
+				if (addon.getConfigObjectClass() == creator.getClass()) {
+					addonToCreatorMap.put(addon, creator);
+				}
+			}
 		}
-		selectedRenderersList.removeAll();
+
+		updateSelectedRenderersList();
 		addRendererButton.setEnabled(false);
 		removeRendererButton.setEnabled(false);
 	}
@@ -153,7 +160,7 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 				updateSelectedRenderersList();
 				currentAddon = null;
 
-				wizard.getContainer().updateButtons();
+				widgetUpdateCallback.on(MultiAddonSelectionWidget.this);
 			}
 
 		}).run();

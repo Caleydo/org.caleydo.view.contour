@@ -19,6 +19,8 @@ import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.GroupCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.GroupColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -175,7 +177,11 @@ public class GroupingConfigWidget extends ADataConfigWidget {
 	@Override
 	public AEntityCollection getCollection(ConTourElement contour) {
 		GroupCollection collection = new GroupCollection(getPerspective(), null, contour);
-		collection.setColumnFactory(new GroupColumnFactory());
+		GroupColumnFactory factory = new GroupColumnFactory();
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
+		collection.setColumnFactory(factory);
+
 		return collection;
 	}
 }

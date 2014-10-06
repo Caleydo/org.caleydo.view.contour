@@ -61,10 +61,25 @@ public class ConfigureColumnTypeWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		itemRendererPage.updateCollection();
-		summaryRendererPage.updateCollection();
+		if (getContainer().getCurrentPage() == dataTypePage && dataTypePage.isPageComplete()) {
+			collection = dataTypePage.getCollection();
+		}
+
+		if (getContainer().getCurrentPage() == itemRendererPage && itemRendererPage.isPageComplete()) {
+			itemRendererPage.updateCollection();
+		}
+		if (getContainer().getCurrentPage() == summaryRendererPage) {
+			itemRendererPage.updateCollection();
+			if (summaryRendererPage.isPageComplete())
+				summaryRendererPage.updateCollection();
+		}
 		contour.registerEntityCollection(collection);
 		return true;
+	}
+
+	@Override
+	public boolean canFinish() {
+		return dataTypePage.isPageComplete();
 	}
 
 	@Override

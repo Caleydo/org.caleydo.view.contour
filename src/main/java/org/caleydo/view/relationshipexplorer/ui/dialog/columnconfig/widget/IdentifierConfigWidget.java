@@ -12,6 +12,8 @@ import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.IDColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -99,7 +101,10 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 	@Override
 	public AEntityCollection getCollection(ConTourElement contour) {
 		IDCollection collection = new IDCollection(getSelectedIDType(), getSelectedIDType(), null, contour);
-		collection.setColumnFactory(new IDColumnFactory());
+		IDColumnFactory factory = new IDColumnFactory();
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
+		collection.setColumnFactory(factory);
 
 		return collection;
 	}

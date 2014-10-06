@@ -14,6 +14,8 @@ import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.TabularDataCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.TabularDataColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -121,7 +123,11 @@ public class TabularDataConfigWidget extends ADataConfigWidget {
 	public AEntityCollection getCollection(ConTourElement contour) {
 		TabularDataCollection collection = new TabularDataCollection(getDataDomain().getDefaultTablePerspective(),
 				getIDCategory(), null, contour);
-		collection.setColumnFactory(new TabularDataColumnFactory());
+		TabularDataColumnFactory factory = new TabularDataColumnFactory();
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
+		collection.setColumnFactory(factory);
+
 		return collection;
 	}
 

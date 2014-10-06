@@ -127,11 +127,16 @@ public class DataTypePage extends WizardPage implements ICallback<ADataConfigWid
 	public void pageChanged(PageChangedEvent event) {
 		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
 		if (event.getSelectedPage() == getNextPage()) {
-			AEntityCollection collection = dataTypeSpecificComposite.getCollection(wizard.getContour());
-			collection.setLabel(columnNameText.getText());
-			wizard.setCollection(collection);
+			wizard.setCollection(getCollection());
 		}
 
+	}
+
+	public AEntityCollection getCollection() {
+		ConfigureColumnTypeWizard wizard = (ConfigureColumnTypeWizard) getWizard();
+		AEntityCollection collection = dataTypeSpecificComposite.getCollection(wizard.getContour());
+		collection.setLabel(columnNameText.getText());
+		return collection;
 	}
 
 }

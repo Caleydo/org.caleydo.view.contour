@@ -18,6 +18,8 @@ import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.ExcludingP
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.IElementIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.collection.idprovider.PathwayDatabaseIDProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.factory.ColumnFactories.PathwayColumnFactory;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon.MappingSummaryItemFactoryCreator;
+import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -99,7 +101,10 @@ public class PathwayConfigWidget extends ADataConfigWidget {
 	@Override
 	public AEntityCollection getCollection(ConTourElement contour) {
 		PathwayCollection collection = new PathwayCollection(getIDProvider(), contour);
-		collection.setColumnFactory(new PathwayColumnFactory());
+		PathwayColumnFactory factory = new PathwayColumnFactory();
+		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
+		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);
+		collection.setColumnFactory(factory);
 		return collection;
 	}
 

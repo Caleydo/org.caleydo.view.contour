@@ -137,6 +137,7 @@ public class MultiAddonSelectionWidget<CreatorType, AddonType extends IConfigura
 		updateSelectedRenderersList();
 		addRendererButton.setEnabled(false);
 		removeRendererButton.setEnabled(false);
+		widgetUpdateCallback.on(this);
 	}
 
 	private void updateSelectedRenderersList() {

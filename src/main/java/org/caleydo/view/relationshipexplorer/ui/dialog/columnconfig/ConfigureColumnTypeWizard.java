@@ -79,7 +79,12 @@ public class ConfigureColumnTypeWizard extends Wizard {
 
 	@Override
 	public boolean canFinish() {
-		return dataTypePage.isPageComplete();
+		if (getContainer().getCurrentPage() == dataTypePage)
+			return dataTypePage.isPageComplete();
+		if (getContainer().getCurrentPage() == itemRendererPage)
+			return itemRendererPage.isPageComplete();
+
+		return summaryRendererPage.isPageComplete();
 	}
 
 	@Override

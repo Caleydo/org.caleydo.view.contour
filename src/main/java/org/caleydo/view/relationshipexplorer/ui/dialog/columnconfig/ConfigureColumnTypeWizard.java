@@ -23,6 +23,7 @@ public class ConfigureColumnTypeWizard extends Wizard {
 	private DataTypePage dataTypePage;
 	private ItemRendererPage itemRendererPage;
 	private SummaryRendererPage summaryRendererPage;
+	private DetailViewPage detailViewPage;
 
 	private AEntityCollection collection;
 
@@ -39,10 +40,12 @@ public class ConfigureColumnTypeWizard extends Wizard {
 				"Select the representations for individual items in the column", null);
 		summaryRendererPage = new SummaryRendererPage("Summary Representation",
 				"Select the summary representations for multiple items in the column", null);
+		detailViewPage = new DetailViewPage("Detail View", "Select the detail view for this column", null);
 
 		addPage(dataTypePage);
 		addPage(itemRendererPage);
 		addPage(summaryRendererPage);
+		addPage(detailViewPage);
 
 		IWizardContainer wizardContainer = getContainer();
 		if (wizardContainer instanceof IPageChangeProvider) {
@@ -50,6 +53,7 @@ public class ConfigureColumnTypeWizard extends Wizard {
 			pageChangeProvider.addPageChangedListener(dataTypePage);
 			pageChangeProvider.addPageChangedListener(itemRendererPage);
 			pageChangeProvider.addPageChangedListener(summaryRendererPage);
+			pageChangeProvider.addPageChangedListener(detailViewPage);
 		}
 	}
 
@@ -73,6 +77,12 @@ public class ConfigureColumnTypeWizard extends Wizard {
 			if (summaryRendererPage.isPageComplete())
 				summaryRendererPage.updateCollection();
 		}
+		if (getContainer().getCurrentPage() == detailViewPage) {
+			itemRendererPage.updateCollection();
+			summaryRendererPage.updateCollection();
+			if (detailViewPage.isPageComplete())
+				detailViewPage.updateCollection();
+		}
 		contour.registerEntityCollection(collection);
 		return true;
 	}
@@ -83,8 +93,10 @@ public class ConfigureColumnTypeWizard extends Wizard {
 			return dataTypePage.isPageComplete();
 		if (getContainer().getCurrentPage() == itemRendererPage)
 			return itemRendererPage.isPageComplete();
+		if (getContainer().getCurrentPage() == summaryRendererPage)
+			return summaryRendererPage.isPageComplete();
 
-		return summaryRendererPage.isPageComplete();
+		return detailViewPage.isPageComplete();
 	}
 
 	@Override

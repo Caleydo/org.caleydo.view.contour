@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author Christian
  *
  */
-public class SelectImageDataDomainDialog<DataDomainType extends ADataDomain> extends Dialog {
+public class SelectDataDomainDialog<DataDomainType extends ADataDomain> extends Dialog {
 
 	private DataDomainType dataDomain;
 	private org.eclipse.swt.widgets.List dataDomainList;
@@ -39,7 +39,7 @@ public class SelectImageDataDomainDialog<DataDomainType extends ADataDomain> ext
 	 * @param caption
 	 * @param isDefaultChecked
 	 */
-	public SelectImageDataDomainDialog(Shell shell, String caption, Class<DataDomainType> classType) {
+	public SelectDataDomainDialog(Shell shell, String caption, Class<DataDomainType> classType) {
 		super(shell);
 		this.caption = caption;
 		this.classType = classType;
@@ -63,7 +63,7 @@ public class SelectImageDataDomainDialog<DataDomainType extends ADataDomain> ext
 	}
 
 	protected void createDataDomainList(Composite parentComposite) {
-		dataDomainList = new org.eclipse.swt.widgets.List(parentComposite, SWT.BORDER);
+		dataDomainList = new org.eclipse.swt.widgets.List(parentComposite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 50;
 		dataDomainList.setLayoutData(gd);

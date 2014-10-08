@@ -31,7 +31,7 @@ import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactoryCreator;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon.TextItemFactoryCreator.TextItemFactory;
-import org.caleydo.view.relationshipexplorer.ui.dialog.SelectImageDataDomainDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.SelectDataDomainDialog;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
@@ -134,7 +134,7 @@ public class HTIImageAreaConfigurationAddon implements IItemFactoryConfiguration
 
 			@Override
 			public void run() {
-				SelectImageDataDomainDialog<ImageDataDomain> dialog = new SelectImageDataDomainDialog<ImageDataDomain>(
+				SelectDataDomainDialog<ImageDataDomain> dialog = new SelectDataDomainDialog<ImageDataDomain>(
 						Display.getDefault().getActiveShell(), "Select Image Dataset", ImageDataDomain.class);
 				if (dialog.open() == Window.OK) {
 					callback.on(new HTIImageAreaFactoryCreator(dialog.getDataDomain()));

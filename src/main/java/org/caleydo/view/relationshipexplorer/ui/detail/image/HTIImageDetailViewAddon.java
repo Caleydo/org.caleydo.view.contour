@@ -16,7 +16,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
-import org.caleydo.view.relationshipexplorer.ui.dialog.SelectImageDataDomainDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.SelectDataDomainDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
@@ -42,7 +42,7 @@ public class HTIImageDetailViewAddon implements IDetailViewConfigurationAddon {
 
 			@Override
 			public void run() {
-				SelectImageDataDomainDialog<ImageDataDomain> dialog = new SelectImageDataDomainDialog<ImageDataDomain>(
+				SelectDataDomainDialog<ImageDataDomain> dialog = new SelectDataDomainDialog<ImageDataDomain>(
 						Display.getDefault().getActiveShell(), "Select Image Dataset", ImageDataDomain.class);
 				if (dialog.open() == Window.OK) {
 					callback.on(new HTIImageDetailViewFactory(dialog.getDataDomain()));

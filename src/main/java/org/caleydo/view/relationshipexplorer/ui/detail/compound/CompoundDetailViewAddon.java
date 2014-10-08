@@ -12,7 +12,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
-import org.caleydo.view.relationshipexplorer.ui.dialog.SelectImageDataDomainDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.SelectDataDomainDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
@@ -33,7 +33,7 @@ public class CompoundDetailViewAddon implements IDetailViewConfigurationAddon {
 
 			@Override
 			public void run() {
-				SelectImageDataDomainDialog<ATableBasedDataDomain> dialog = new SelectImageDataDomainDialog<ATableBasedDataDomain>(
+				SelectDataDomainDialog<ATableBasedDataDomain> dialog = new SelectDataDomainDialog<ATableBasedDataDomain>(
 						Display.getDefault().getActiveShell(), "Select Smiles String Dataset",
 						ATableBasedDataDomain.class);
 				if (dialog.open() == Window.OK) {

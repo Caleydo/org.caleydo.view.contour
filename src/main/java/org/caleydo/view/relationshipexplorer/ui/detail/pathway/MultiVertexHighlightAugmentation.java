@@ -26,8 +26,7 @@ import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
@@ -41,12 +40,12 @@ import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSe
  *
  */
 public class MultiVertexHighlightAugmentation extends APerVertexAugmentation implements IVertexRepSelectionListener,
-		IMultiSelectionHandler<PathwayVertexRep>, IEntityRepresentation {
+		IMultiSelectionHandler<PathwayVertexRep>, IHistoryIDOwner {
 
 	protected Set<PathwayVertexRep> selectedVertexReps = new HashSet<>();
 	protected Set<PathwayVertexRep> highlightedVertexReps = new HashSet<>();
+	protected final IDType broadcastIDType;
 	// protected AEntityColumn referenceColumn;
-	protected IEntityCollection geneCollection;
 	protected ConTourElement relationshipExplorer;
 	protected int historyID;
 
@@ -54,13 +53,12 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	 * @param pathwayRepresentation
 	 */
 	public MultiVertexHighlightAugmentation(IPathwayRepresentation pathwayRepresentation,
-			IEntityCollection geneCollection, ConTourElement relationshipExplorer) {
+			ConTourElement relationshipExplorer) {
 		super(pathwayRepresentation);
-		this.geneCollection = geneCollection;
 		this.relationshipExplorer = relationshipExplorer;
-		geneCollection.addEntityRepresentation(this);
 		pathwayRepresentation.addVertexRepSelectionListener(this);
 		this.historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
+		this.broadcastIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
 	}
 
 	@Override
@@ -92,7 +90,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 			// };
 
 			relationshipExplorer.addContextMenuItems(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer,
-					this));
+					this, getGeneElementIDs(selectedVertexReps), broadcastIDType));
 			// contextMenuCreator.addAll();
 			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
 			// relationshipExplorer);
@@ -159,10 +157,10 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	public void propagateSelection() {
-		Set<Object> selectedElementIDs = getGeneCollectionElementIDs(selectedVertexReps);
+		Set<Object> selectedElementIDs = getGeneElementIDs(selectedVertexReps);
 
-		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), selectedElementIDs,
-				geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs), relationshipExplorer);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(null, getHistoryID(),
+				selectedElementIDs, selectedElementIDs, broadcastIDType, relationshipExplorer);
 
 		c.execute();
 
@@ -176,13 +174,11 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	public void propagateHighlight() {
-		Set<Object> highlightElementIDs = getGeneCollectionElementIDs(highlightedVertexReps);
+		Set<Object> highlightElementIDs = getGeneElementIDs(highlightedVertexReps);
 
-		geneCollection.setHighlightItems(highlightElementIDs);
-
-		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(geneCollection
-				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
+		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(null, highlightElementIDs,
+				broadcastIDType, this, relationshipExplorer.getMultiItemSelectionSetOperation(), relationshipExplorer
+						.getEntityCollections()));
 	}
 
 	@Override
@@ -208,13 +204,13 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		addToSelection(object);
 	}
 
-	public Set<Object> getGeneCollectionElementIDs(Set<PathwayVertexRep> vertexReps) {
+	public Set<Object> getGeneElementIDs(Set<PathwayVertexRep> vertexReps) {
 		Set<Object> davidIDs = new HashSet<>();
 		for (PathwayVertexRep v : vertexReps) {
 			davidIDs.addAll(v.getDavidIDs());
 		}
 
-		return geneCollection.getElementIDsFromForeignIDs(davidIDs, IDType.getIDType(EGeneIDTypes.DAVID.name()));
+		return davidIDs;
 	}
 
 	// @Override
@@ -242,7 +238,6 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 	@Override
 	protected void takeDown() {
-		geneCollection.removeEntityRepresentation(this);
 		// relationshipExplorer.getHistory().unregisterHistoryObject(getHistoryID());
 		super.takeDown();
 	}
@@ -265,34 +260,8 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	@Override
-	public IEntityCollection getCollection() {
-		return geneCollection;
-	}
-
-	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep == this)
-			return;
-
-		selectVerticesFromForeignIDs(geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs),
-				geneCollection.getBroadcastingIDType(), selectedVertexReps);
-
-	}
-
-	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep == this)
-			return;
-
-		selectVerticesFromForeignIDs(geneCollection.getBroadcastingIDsFromElementIDs(highlightElementIDs),
-				geneCollection.getBroadcastingIDType(), highlightedVertexReps);
-
-	}
-
-	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// nothing to do
-
+	public String getLabel() {
+		return "Genes in Pathway";
 	}
 
 	@Override

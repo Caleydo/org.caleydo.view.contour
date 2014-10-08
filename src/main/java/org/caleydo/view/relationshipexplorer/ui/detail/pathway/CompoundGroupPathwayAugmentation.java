@@ -19,6 +19,7 @@ import org.caleydo.core.id.IDCategory;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -161,8 +162,10 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		}
 
 		public void propagateCompoundSelection(Set<Object> compoundIDs) {
-			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), compoundIDs,
-					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs), contour);
+			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(compoundCollection,
+					getHistoryID(), compoundIDs,
+					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs),
+					compoundCollection.getBroadcastingIDType(), contour);
 			c.execute();
 			contour.getHistory().addHistoryCommand(c);
 		}
@@ -170,24 +173,24 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		public void propagateCompoundHighlight(Set<Object> compoundIDs) {
 			compoundCollection.setHighlightItems(compoundIDs);
 
-			contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection
-					.getBroadcastingIDsFromElementIDs(compoundIDs), this, contour.getMultiItemSelectionSetOperation(),
-					contour.getEntityCollections()));
+			contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(compoundCollection, compoundCollection
+					.getBroadcastingIDsFromElementIDs(compoundIDs), compoundCollection.getBroadcastingIDType(), this,
+					contour.getMultiItemSelectionSetOperation(), contour.getEntityCollections()));
 		}
 
 		@Override
-		public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+		public void selectionChanged(Set<Object> selectedElementIDs, ILabeled updateSource) {
 			updateSelection(ESelectionMode.SELECTED, selectedElementIDs);
 		}
 
 		@Override
-		public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+		public void highlightChanged(Set<Object> highlightElementIDs, ILabeled updateSource) {
 			updateSelection(ESelectionMode.HIGHLGHTED, highlightElementIDs);
 
 		}
 
 		@Override
-		public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+		public void filterChanged(Set<Object> filteredElementIDs, ILabeled updateSource) {
 			updateSelection(ESelectionMode.FILTERED, filteredElementIDs);
 
 		}
@@ -204,6 +207,11 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 		public IEntityCollection getCollection() {
 
 			return compoundCollection;
+		}
+
+		@Override
+		public String getLabel() {
+			return compoundCollection.getLabel();
 		}
 
 	}
@@ -291,8 +299,10 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	}
 
 	protected void propagateGroupSelection(Set<Object> groups) {
-		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), groups,
-				groupCollection.getBroadcastingIDsFromElementIDs(groups), contour);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(groupCollection, getHistoryID(),
+				groups,
+				groupCollection.getBroadcastingIDsFromElementIDs(groups), groupCollection.getBroadcastingIDType(),
+				contour);
 		c.execute();
 		contour.getHistory().addHistoryCommand(c);
 	}
@@ -300,9 +310,9 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	protected void propagateGroupHighlight(Set<Object> groups) {
 		groupCollection.setHighlightItems(groups);
 
-		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection
-				.getBroadcastingIDsFromElementIDs(groups), this, contour.getMultiItemSelectionSetOperation(), contour
-				.getEntityCollections()));
+		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(groupCollection, groupCollection
+				.getBroadcastingIDsFromElementIDs(groups), groupCollection.getBroadcastingIDType(), this, contour
+				.getMultiItemSelectionSetOperation(), contour.getEntityCollections()));
 	}
 
 	private void updateGroups() {
@@ -397,18 +407,18 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	}
 
 	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		updateSelection(ESelectionMode.SELECTED, selectedElementIDs, srcRep);
+	public void selectionChanged(Set<Object> selectedElementIDs, ILabeled updateSource) {
+		updateSelection(ESelectionMode.SELECTED, selectedElementIDs, updateSource);
 
 	}
 
 	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		updateSelection(ESelectionMode.HIGHLGHTED, highlightElementIDs, srcRep);
+	public void highlightChanged(Set<Object> highlightElementIDs, ILabeled updateSource) {
+		updateSelection(ESelectionMode.HIGHLGHTED, highlightElementIDs, updateSource);
 
 	}
 
-	private void updateSelection(ESelectionMode selected, Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+	private void updateSelection(ESelectionMode selected, Set<Object> highlightElementIDs, ILabeled updateSource) {
 		for (GroupData group : containedGroups) {
 			if (group.glRepresentation != null) {
 				group.glRepresentation.setClusterHighlighted(selected, highlightElementIDs);
@@ -435,7 +445,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	}
 
 	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+	public void filterChanged(Set<Object> filteredElementIDs, ILabeled updateSource) {
 		filteredGroupData.clear();
 		for (GroupData group : containedGroups) {
 			if (filteredElementIDs.contains(group.group)) {
@@ -459,6 +469,11 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	 */
 	public ConTourElement getRelationshipExplorer() {
 		return contour;
+	}
+
+	@Override
+	public String getLabel() {
+		return groupCollection.getLabel();
 	}
 
 }

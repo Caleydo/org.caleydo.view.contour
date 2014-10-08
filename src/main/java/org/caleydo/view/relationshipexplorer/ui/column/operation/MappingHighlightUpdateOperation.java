@@ -7,8 +7,9 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 /**
@@ -22,9 +23,11 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcCollection
 	 * @param op
 	 */
-	public MappingHighlightUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep,
+	public MappingHighlightUpdateOperation(IEntityCollection sourceCollection, Set<Object> srcBroadcastIDs,
+			IDType broadcastIDType, ILabeled updateSource,
 			ESetOperation multiItemSelectionSetOperation, Set<IEntityCollection> targetCollections) {
-		super(srcBroadcastIDs, srcRep, ESetOperation.INTERSECTION, multiItemSelectionSetOperation, targetCollections);
+		super(srcBroadcastIDs, broadcastIDType, updateSource, ESetOperation.INTERSECTION,
+				multiItemSelectionSetOperation, sourceCollection, targetCollections);
 	}
 
 	@Override
@@ -34,7 +37,7 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 
 	@Override
 	public void triggerUpdate(IEntityCollection collection) {
-		collection.notifyHighlightUpdate(srcRep);
+		collection.notifyHighlightUpdate(updateSource);
 
 	}
 

@@ -26,7 +26,7 @@ public class MultiVertexHighlightAugmentationFactory implements IPathwayAugmenta
 
 	@Override
 	public GLElement create(IPathwayRepresentation representation) {
-		return new MultiVertexHighlightAugmentation(representation, geneIDCollection, contour);
+		return new MultiVertexHighlightAugmentation(representation, contour);
 	}
 
 }

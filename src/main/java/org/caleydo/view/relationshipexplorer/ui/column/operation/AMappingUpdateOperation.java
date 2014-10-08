@@ -8,8 +8,9 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 import com.google.common.collect.Sets;
@@ -21,19 +22,24 @@ import com.google.common.collect.Sets;
 public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation implements ICollectionOperation {
 
 	protected final Set<Object> srcBroadcastIDs;
-	protected final IEntityRepresentation srcRep;
+	protected final IDType broadcastIDType;
+	protected final ILabeled updateSource;
+	protected final IEntityCollection sourceCollection;
 	protected final ESetOperation multiItemSelectionOperation;
 
 	protected final Set<IEntityCollection> targetCollections;
 
 	// protected final IEntityCollection srcCollection;
 
-	public AMappingUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep, ESetOperation op,
-			ESetOperation multiItemSelectionOperation, Set<IEntityCollection> targetCollections) {
+	public AMappingUpdateOperation(Set<Object> srcBroadcastIDs, IDType broadcastIDType, ILabeled updateSource,
+			ESetOperation op, ESetOperation multiItemSelectionOperation, IEntityCollection sourceCollection,
+			Set<IEntityCollection> targetCollections) {
 		super(op);
+		this.broadcastIDType = broadcastIDType;
 		this.srcBroadcastIDs = srcBroadcastIDs;
-		this.srcRep = srcRep;
+		this.updateSource = updateSource;
 		this.multiItemSelectionOperation = multiItemSelectionOperation;
+		this.sourceCollection = sourceCollection;
 		this.targetCollections = targetCollections;
 	}
 
@@ -42,13 +48,12 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 		if (!targetCollections.contains(collection))
 			return;
 		Set<Object> elementIDs = null;
-		if (!(collection == srcRep.getCollection())) {
+		if (sourceCollection == null || collection != sourceCollection) {
 			if (multiItemSelectionOperation == ESetOperation.INTERSECTION) {
 				// elementIDs = new HashSet<>();
 
 				for (Object bcID : srcBroadcastIDs) {
-					Set<Object> ids = collection.getElementIDsFromForeignIDs(Sets.newHashSet(bcID), srcRep
-							.getCollection().getBroadcastingIDType());
+					Set<Object> ids = collection.getElementIDsFromForeignIDs(Sets.newHashSet(bcID), broadcastIDType);
 					if (elementIDs != null) {
 						elementIDs = new HashSet<>(Sets.intersection(elementIDs, ids));
 					} else {
@@ -57,8 +62,7 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 
 				}
 			} else {
-				elementIDs = collection.getElementIDsFromForeignIDs(srcBroadcastIDs, srcRep.getCollection()
-						.getBroadcastingIDType());
+				elementIDs = collection.getElementIDsFromForeignIDs(srcBroadcastIDs, broadcastIDType);
 			}
 			if (elementIDs == null)
 				elementIDs = new HashSet<>();
@@ -78,13 +82,6 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 	protected abstract void execute(IEntityCollection collection, Set<Object> elementIDs);
 
 	public abstract EUpdateCause getUpdateCause();
-
-	/**
-	 * @return the srcColumn, see {@link #srcColumn}
-	 */
-	public IEntityRepresentation getSrcRepresentation() {
-		return srcRep;
-	}
 
 	/**
 	 * @return the srcBroadcastIDs, see {@link #srcBroadcastIDs}

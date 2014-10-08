@@ -11,6 +11,7 @@ import java.util.Set;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
@@ -72,7 +73,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public void notifyFilterUpdate(IEntityRepresentation updateSource) {
+	public void notifyFilterUpdate(ILabeled updateSource) {
 
 		for (IEntityRepresentation rep : representations) {
 			rep.filterChanged(filteredElementIDs, updateSource);
@@ -86,7 +87,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public void notifyHighlightUpdate(IEntityRepresentation updateSource) {
+	public void notifyHighlightUpdate(ILabeled updateSource) {
 		for (IEntityRepresentation rep : representations) {
 			rep.highlightChanged(highlightElementIDs, updateSource);
 		}
@@ -99,7 +100,7 @@ public abstract class AEntityCollection implements IEntityCollection {
 	}
 
 	@Override
-	public void notifySelectionUpdate(IEntityRepresentation updateSource) {
+	public void notifySelectionUpdate(ILabeled updateSource) {
 
 		for (IEntityRepresentation rep : representations) {
 			rep.selectionChanged(selectedElementIDs, updateSource);

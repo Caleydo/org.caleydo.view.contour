@@ -91,7 +91,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	// -----------------
 
-	protected final IEntityCollection entityCollection;
+	protected final IEntityCollection collection;
 	protected Map<Object, Set<NestableItem>> mapIDToFilteredItems = new HashMap<>();
 	protected NestableColumn column;
 	protected NestableColumn parentColumn;
@@ -138,7 +138,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	public AEntityColumn(IEntityCollection entityCollection, final ConTourElement contour) {
 		// super(GLLayouts.flowVertical(HEADER_BODY_SPACING));
-		this.entityCollection = entityCollection;
+		this.collection = entityCollection;
 		entityCollection.addEntityRepresentation(this);
 		this.contour = contour;
 		// this.summaryItemFactory = new MappingSummaryItemFactory(this);
@@ -379,13 +379,13 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public Collection<? extends AContextMenuItem> getItemContextMenuItems() {
-		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(contour, this);
-		if (((AEntityCollection) entityCollection).getDetailViewFactory() != null) {
+		List<AContextMenuItem> items = FilterContextMenuItems.getDefaultFilterItems(contour, this, collection);
+		if (((AEntityCollection) collection).getDetailViewFactory() != null) {
 			AContextMenuItem detailItem = new GenericContextMenuItem("Show in Detail", new ThreadSyncEvent(
 					new Runnable() {
 						@Override
 						public void run() {
-							ShowDetailCommand o = new ShowDetailCommand(entityCollection, contour);
+							ShowDetailCommand o = new ShowDetailCommand(collection, contour);
 							o.execute();
 							contour.getHistory().addHistoryCommand(o);
 						}
@@ -400,12 +400,12 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	public Collection<? extends AContextMenuItem> getHeaderContextMenuItems() {
 		List<AContextMenuItem> items = new ArrayList<>();
 
-		AContextMenuItem configItemRep = new GenericContextMenuItem("Configure Item Representations", new ThreadSyncEvent(
-				Runnables.withinSWTThread(new Runnable() {
+		AContextMenuItem configItemRep = new GenericContextMenuItem("Configure Item Representations",
+				new ThreadSyncEvent(Runnables.withinSWTThread(new Runnable() {
 					@Override
 					public void run() {
 						ConfigureItemRendererDialog dialog = new ConfigureItemRendererDialog(Display.getDefault()
-								.getActiveShell(), (AEntityCollection) entityCollection, contour);
+								.getActiveShell(), (AEntityCollection) collection, contour);
 						dialog.open();
 					}
 				})).to(contour));
@@ -416,7 +416,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					@Override
 					public void run() {
 						ConfigureSummaryRendererDialog dialog = new ConfigureSummaryRendererDialog(Display.getDefault()
-								.getActiveShell(), (AEntityCollection) entityCollection, contour);
+								.getActiveShell(), (AEntityCollection) collection, contour);
 						dialog.open();
 					}
 				})).to(contour));
@@ -427,7 +427,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					@Override
 					public void run() {
 						ConfigureDetailViewDialog dialog = new ConfigureDetailViewDialog(Display.getDefault()
-								.getActiveShell(), (AEntityCollection) entityCollection, contour);
+								.getActiveShell(), (AEntityCollection) collection, contour);
 						dialog.open();
 					}
 				})).to(contour));
@@ -450,7 +450,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	@Override
 	public String getLabel() {
-		return entityCollection.getLabel();
+		return collection.getLabel();
 	}
 
 	protected AEntityColumn getFirstForeignColumn(List<AEntityColumn> foreignColumns) {
@@ -485,8 +485,9 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				elementIDs.addAll(ids);
 		}
 
-		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), elementIDs,
-				entityCollection.getBroadcastingIDsFromElementIDs(elementIDs), contour);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(collection, getHistoryID(),
+				elementIDs, collection.getBroadcastingIDsFromElementIDs(elementIDs),
+				collection.getBroadcastingIDType(), contour);
 
 		c.execute();
 
@@ -502,11 +503,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				elementIDs.addAll(ids);
 		}
 
-		entityCollection.setHighlightItems(elementIDs);
+		collection.setHighlightItems(elementIDs);
 
-		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(entityCollection
-				.getBroadcastingIDsFromElementIDs(elementIDs), this, contour.getMultiItemSelectionSetOperation(),
-				contour.getEntityCollections()));
+		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection, collection
+				.getBroadcastingIDsFromElementIDs(elementIDs), collection.getBroadcastingIDType(), this, contour
+				.getMultiItemSelectionSetOperation(), contour.getEntityCollections()));
 
 	}
 
@@ -535,16 +536,16 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		// column.addContextMenuItems(getContextMenuItems());
 
 		if (parentColumn == null) {
-			for (Object id : entityCollection.getFilteredElementIDs()) {
+			for (Object id : collection.getFilteredElementIDs()) {
 				ScoreElement element = createElement(id);
 				if (element != null) {
 					addItem(element, id, column, null);
 				}
 			}
 		} else {
-			for (Object id : entityCollection.getFilteredElementIDs()) {
-				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, entityCollection,
-						parentColumn.getColumnModel().getCollection());
+			for (Object id : collection.getFilteredElementIDs()) {
+				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, collection, parentColumn
+						.getColumnModel().getCollection());
 				// = parentColumn
 				// .getColumnModel()
 				// .getCollection()
@@ -579,7 +580,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	protected boolean hasParentItemElementMapping(NestableItem parentItem, Object id) {
 
 		Set<Object> mappingIDs = EntityMappingUtil.getFilteredMappedElementIDs(parentItem.getElementData(), parentItem
-				.getColumn().getColumnModel().getCollection(), entityCollection);
+				.getColumn().getColumnModel().getCollection(), collection);
 		if (!mappingIDs.contains(id))
 			return false;
 		if (parentItem.getParentItem() == null)
@@ -600,17 +601,17 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+	public void selectionChanged(Set<Object> selectedElementIDs, ILabeled updateSource) {
 
 		if (!column.isRoot())
 			return;
 
-		updateSelections(srcRep);
+		updateSelections(updateSource);
 	}
 
-	protected void updateSelections(IEntityRepresentation srcRep) {
+	protected void updateSelections(ILabeled updateSource) {
 		column.clearSelection();
-		for (Object elementID : entityCollection.getSelectedElementIDs()) {
+		for (Object elementID : collection.getSelectedElementIDs()) {
 			Set<NestableItem> items = mapIDToFilteredItems.get(elementID);
 			if (items != null) {
 				for (NestableItem item : items) {
@@ -619,7 +620,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		}
 
-		updateChildColumnSelections(srcRep);
+		updateChildColumnSelections(updateSource);
 
 		column.getHeader().updateItemCounts();
 		if (itemFactory.needsUpdate(EUpdateCause.SELECTION)) {
@@ -630,10 +631,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			column.updateSummaryItems(EUpdateCause.SELECTION);
 		}
 
-		if (srcRep == this)
+		if (updateSource == this)
 			return;
-		if (srcRep instanceof IColumnModel) {
-			if (!column.isChild((IColumnModel) srcRep)) {
+		if (updateSource instanceof IColumnModel) {
+			if (!column.isChild((IColumnModel) updateSource)) {
 				// column.updateSummaryItems(EUpdateCause.SELECTION);
 				updateSorting();
 			}
@@ -645,7 +646,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+	public void highlightChanged(Set<Object> highlightElementIDs, ILabeled updateSource) {
 		if (itemFactory.needsUpdate(EUpdateCause.HIGHLIGHT)) {
 			itemFactory.update();
 			column.updateItems(EUpdateCause.HIGHLIGHT);
@@ -653,7 +654,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		if (summaryItemFactory.needsUpdate(EUpdateCause.HIGHLIGHT)) {
 			column.updateSummaryItems(EUpdateCause.HIGHLIGHT);
 		}
-		if (srcRep == this)
+		if (updateSource == this)
 			return;
 		column.clearHighlight();
 		for (Object elementID : highlightElementIDs) {
@@ -667,36 +668,36 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	}
 
 	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+	public void filterChanged(Set<Object> filteredElementIDs, ILabeled updateSource) {
 		if (!column.isRoot())
 			return;
 
-		updateFilteredItems(srcRep);
+		updateFilteredItems(updateSource);
 	}
 
 	@Override
 	public IEntityCollection getCollection() {
-		return entityCollection;
+		return collection;
 	}
 
-	protected void updateChildColumnSelections(IEntityRepresentation srcRep) {
+	protected void updateChildColumnSelections(ILabeled updateSource) {
 		for (NestableColumn col : column.getChildren()) {
-			((AEntityColumn) col.getColumnModel()).updateSelections(srcRep);
+			((AEntityColumn) col.getColumnModel()).updateSelections(updateSource);
 			// ((AEntityColumn) col.getColumnModel()).updateChildColumnFilters();
 		}
 	}
 
-	protected void updateChildColumnFilters(IEntityRepresentation srcRep) {
+	protected void updateChildColumnFilters(ILabeled updateSource) {
 		for (NestableColumn col : column.getChildren()) {
-			((AEntityColumn) col.getColumnModel()).updateFilteredItems(srcRep);
+			((AEntityColumn) col.getColumnModel()).updateFilteredItems(updateSource);
 			// ((AEntityColumn) col.getColumnModel()).updateChildColumnFilters();
 		}
 	}
 
-	public void updateFilteredItems(IEntityRepresentation srcRep) {
+	public void updateFilteredItems(ILabeled updateSource) {
 
 		if (column.isRoot()) {
-			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
+			Set<Object> elementIDs = collection.getFilteredElementIDs();
 
 			Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
 					Sets.intersection(elementIDs, mapIDToFilteredItems.keySet())));
@@ -717,7 +718,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 			}
 		} else {
 
-			Set<Object> elementIDs = entityCollection.getFilteredElementIDs();
+			Set<Object> elementIDs = collection.getFilteredElementIDs();
 			// TODO: when adding, some parents might have items already, but new parents might not although they would
 			// need it as child
 			// Set<Object> elementsToAdd = new HashSet<>(Sets.difference(elementIDs,
@@ -750,8 +751,8 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 			// Third add items that are present in the filter and where there's a parent
 			for (Object id : elementIDs) {
-				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, entityCollection,
-						parentColumn.getColumnModel().getCollection());
+				Set<Object> foreignElementIDs = EntityMappingUtil.getAllMappedElementIDs(id, collection, parentColumn
+						.getColumnModel().getCollection());
 				Set<NestableItem> parentItems = parentColumn.getColumnModel().getItems(foreignElementIDs);
 
 				for (NestableItem parentItem : parentItems) {
@@ -782,7 +783,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 		}
 
-		updateChildColumnFilters(srcRep);
+		updateChildColumnFilters(updateSource);
 		column.getHeader().updateItemCounts();
 		if (itemFactory.needsUpdate(EUpdateCause.FILTER)) {
 			itemFactory.update();
@@ -793,10 +794,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		}
 		updateScores();
 
-		if (srcRep == this)
+		if (updateSource == this)
 			return;
-		if (srcRep instanceof IColumnModel) {
-			if (!column.isChild((IColumnModel) srcRep)) {
+		if (updateSource instanceof IColumnModel) {
+			if (!column.isChild((IColumnModel) updateSource)) {
 				// column.updateSummaryItems(EUpdateCause.FILTER);
 				updateSorting();
 			}
@@ -815,7 +816,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		for (NestableItem parentItem : parentColumn.getVisibleItems()) {
 			Set<Object> parentBCIDs = parentColumn.getColumnModel().getCollection()
 					.getBroadcastingIDsFromElementIDs(parentItem.getElementData());
-			Set<Object> mappedElementIDs = entityCollection.getElementIDsFromForeignIDs(parentBCIDs, parentColumn
+			Set<Object> mappedElementIDs = collection.getElementIDsFromForeignIDs(parentBCIDs, parentColumn
 					.getColumnModel().getCollection().getBroadcastingIDType());
 			if (mappedElementIDs.size() > maxParentMappings)
 				maxParentMappings = mappedElementIDs.size();
@@ -831,7 +832,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 
 	public void setSummaryItemFactoryCreator(ISummaryItemFactoryCreator creator) {
 		summaryItemFactoryCreator = creator;
-		summaryItemFactory = creator.create(entityCollection, this, contour);
+		summaryItemFactory = creator.create(collection, this, contour);
 		updateSummaryPlots();
 		if (column != null) {
 			column.updateSummaryItems(EUpdateCause.PLOT_TYPE_CHANGE);
@@ -852,7 +853,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	 */
 	public void setItemFactoryCreator(IItemFactoryCreator creator) {
 		itemFactoryCreator = creator;
-		this.itemFactory = creator.create(entityCollection, this, contour);
+		this.itemFactory = creator.create(collection, this, contour);
 		updateItemPlots();
 		if (column != null) {
 			column.getHeader().updateHeaderExtension();
@@ -933,10 +934,10 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 				} else {
 					float score = 0;
 					if (item.getParentItem() == null) {
-						score = scoreProvider.getScore(entry.getKey(), entityCollection, null, null);
+						score = scoreProvider.getScore(entry.getKey(), collection, null, null);
 
 					} else {
-						score = scoreProvider.getScore(entry.getKey(), entityCollection, item.getParentItem()
+						score = scoreProvider.getScore(entry.getKey(), collection, item.getParentItem()
 								.getElementData().iterator().next(), parentColumn.getColumnModel().getCollection());
 					}
 
@@ -955,12 +956,11 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					ScoreElement scoreElement = (ScoreElement) item.getElement();
 
 					if (item.getParentItem() == null) {
-						scoreElement.setScore(scoreProvider.getScore(entry.getKey(), entityCollection, null, null),
-								maxScore);
+						scoreElement.setScore(scoreProvider.getScore(entry.getKey(), collection, null, null), maxScore);
 					} else {
-						scoreElement.setScore(scoreProvider.getScore(entry.getKey(), entityCollection, item
-								.getParentItem().getElementData().iterator().next(), parentColumn.getColumnModel()
-								.getCollection()), maxScore);
+						scoreElement.setScore(scoreProvider.getScore(entry.getKey(), collection, item.getParentItem()
+								.getElementData().iterator().next(), parentColumn.getColumnModel().getCollection()),
+								maxScore);
 					}
 				}
 			}
@@ -998,7 +998,7 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 	@Override
 	public void takeDown() {
 		column.removeSelectionUpdateListener(this);
-		entityCollection.removeEntityRepresentation(this);
+		collection.removeEntityRepresentation(this);
 		mapIDToFilteredItems.clear();
 		baseComparators.clear();
 		summaryItemFactoryCreators.clear();

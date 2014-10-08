@@ -348,6 +348,11 @@ public class ConTourElement extends AnimatedGLElementContainer {
 			return historyID;
 		}
 
+		@Override
+		public String getLabel() {
+			return "Column Separator";
+		}
+
 	}
 
 	public ConTourElement() {

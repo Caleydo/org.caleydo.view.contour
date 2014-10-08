@@ -67,8 +67,8 @@ public class CompoundGroupVis extends GLElementContainer {
 				parent.propagateGroupSelection(Sets.newHashSet(data.group));
 
 				parent.getRelationshipExplorer().addContextMenuItems(
-						FilterContextMenuItems.getDefaultFilterItems(
-						parent.getRelationshipExplorer(), parent));
+						FilterContextMenuItems.getDefaultFilterItems(parent.getRelationshipExplorer(), parent,
+								parent.getCollection()));
 				// ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 				// contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
 				// parent.getRelationshipExplorer(), parent));
@@ -101,8 +101,9 @@ public class CompoundGroupVis extends GLElementContainer {
 
 					ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 
-					contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
-							parent.getRelationshipExplorer(), parent.getCompoundRepresentation()));
+					contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(parent
+							.getRelationshipExplorer(), parent.getCompoundRepresentation(), parent
+							.getCompoundRepresentation().getCollection()));
 
 					context.getSWTLayer().showContextMenu(contextMenuCreator);
 				}

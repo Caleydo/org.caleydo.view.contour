@@ -38,11 +38,11 @@ public interface IEntityCollection extends ILabeled {
 
 	public void setSelectedItems(Set<Object> elementIDs);
 
-	public void notifySelectionUpdate(IEntityRepresentation updateSource);
+	public void notifySelectionUpdate(ILabeled updateSource);
 
-	public void notifyHighlightUpdate(IEntityRepresentation updateSource);
+	public void notifyHighlightUpdate(ILabeled updateSource);
 
-	public void notifyFilterUpdate(IEntityRepresentation updateSource);
+	public void notifyFilterUpdate(ILabeled updateSource);
 
 	public IDType getBroadcastingIDType();
 

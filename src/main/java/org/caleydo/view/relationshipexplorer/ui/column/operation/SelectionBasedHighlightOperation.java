@@ -8,7 +8,10 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 
 /**
@@ -24,21 +27,24 @@ public class SelectionBasedHighlightOperation extends ASelectionBasedOperation {
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedHighlightOperation(int representationHistoryID, Set<Object> selectedElementIDs,
-			Set<Object> selectedBroadcastIDs, ConTourElement relationshipExplorer) {
-		super(selectedElementIDs, selectedBroadcastIDs, ESetOperation.INTERSECTION, relationshipExplorer);
+	public SelectionBasedHighlightOperation(IEntityCollection sourceCollection, int representationHistoryID,
+			Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs, IDType broadcastIDType,
+			ConTourElement relationshipExplorer) {
+		super(sourceCollection, selectedElementIDs, selectedBroadcastIDs, broadcastIDType, ESetOperation.INTERSECTION,
+				relationshipExplorer);
 		this.representationHistoryID = representationHistoryID;
 	}
 
 	@Override
 	public Object execute() {
-		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
-				IEntityRepresentation.class, representationHistoryID);
-		representation.getCollection().setSelectedItems(selectedElementIDs);
+		ILabeled representation = relationshipExplorer.getHistory().getHistoryObjectAs(ILabeled.class,
+				representationHistoryID);
+		if (sourceCollection != null)
+			sourceCollection.setSelectedItems(selectedElementIDs);
 
-		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(selectedBroadcastIDs,
-				representation, relationshipExplorer.getMultiItemSelectionSetOperation(), relationshipExplorer
-						.getEntityCollections()));
+		relationshipExplorer.applyIDMappingUpdate(new MappingSelectionUpdateOperation(sourceCollection,
+				selectedBroadcastIDs, broadcastIDType, representation, relationshipExplorer
+						.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
 		return null;
 	}
 

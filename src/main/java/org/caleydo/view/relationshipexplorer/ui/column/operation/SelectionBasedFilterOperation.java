@@ -9,9 +9,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.filter.IFilterCommand;
 
 /**
@@ -29,9 +31,10 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation impl
 	 * @param selectedBroadcastIDs
 	 * @param op
 	 */
-	public SelectionBasedFilterOperation(int representationHistoryID, Set<Object> selectedElementIDs,
-			Set<Object> selectedBroadcastIDs, ESetOperation op, ConTourElement relationshipExplorer) {
-		super(selectedElementIDs, selectedBroadcastIDs, op, relationshipExplorer);
+	public SelectionBasedFilterOperation(IEntityCollection sourceCollection, int representationHistoryID,
+			Set<Object> selectedElementIDs, Set<Object> selectedBroadcastIDs, IDType broadcastIDType, ESetOperation op,
+			ConTourElement relationshipExplorer) {
+		super(sourceCollection, selectedElementIDs, selectedBroadcastIDs, broadcastIDType, op, relationshipExplorer);
 		this.representationHistoryID = representationHistoryID;
 		targetCollections = new HashSet<>(relationshipExplorer.getEntityCollections());
 		multiItemSelectionSetOperation = relationshipExplorer.getMultiItemSelectionSetOperation();
@@ -47,18 +50,21 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation impl
 		// broadcastIDs.addAll(column.getBroadcastingIDsFromElementID(elementID));
 		// }
 
-		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
-				IEntityRepresentation.class, representationHistoryID);
-		IEntityCollection sourceCollection = representation.getCollection();
-
-		if (targetCollections.contains(sourceCollection)) {
-			representation.getCollection().setFilteredItems(
-					setOperation.apply(selectedElementIDs, representation.getCollection().getFilteredElementIDs()));
+		ILabeled representation = relationshipExplorer.getHistory().getHistoryObjectAs(ILabeled.class,
+				representationHistoryID);
+		// IEntityCollection sourceCollection = representation.getCollection();
+		//
+		if (sourceCollection != null && targetCollections.contains(sourceCollection)) {
+			sourceCollection.setFilteredItems(setOperation.apply(selectedElementIDs,
+					sourceCollection.getFilteredElementIDs()));
 		}
-		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(selectedBroadcastIDs,
-				representation, setOperation, multiItemSelectionSetOperation, targetCollections));
-		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(representationHistoryID,
-				selectedElementIDs, selectedBroadcastIDs, relationshipExplorer);
+
+		relationshipExplorer.applyIDMappingUpdate(new MappingFilterUpdateOperation(sourceCollection,
+				selectedBroadcastIDs, broadcastIDType, representation, setOperation, multiItemSelectionSetOperation,
+				targetCollections));
+		SelectionBasedHighlightOperation o = new SelectionBasedHighlightOperation(sourceCollection,
+				representationHistoryID,
+				selectedElementIDs, selectedBroadcastIDs, broadcastIDType, relationshipExplorer);
 		o.execute();
 
 		relationshipExplorer.getFilterPipeline().addFilterCommand(this);
@@ -68,25 +74,25 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation impl
 	@Override
 	public String getDescription() {
 
-		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
-				IEntityRepresentation.class, representationHistoryID);
+		IHistoryIDOwner representation = relationshipExplorer.getHistory().getHistoryObjectAs(IHistoryIDOwner.class,
+				representationHistoryID);
 
 		StringBuilder b = new StringBuilder();
 		switch (setOperation) {
 		case INTERSECTION:
-			b.append("Filtered relationships based on selected ").append(representation.getCollection().getLabel())
+			b.append("Filtered relationships based on selected ").append(representation.getLabel())
 					.append(":\n");
 			break;
-			// case REPLACE:
-			// b.append("Replaced relationships based on selected ").append(representation.getCollection().getLabel())
-			// .append(":\n");
+		// case REPLACE:
+		// b.append("Replaced relationships based on selected ").append(representation.getCollection().getLabel())
+		// .append(":\n");
 		// break;
 		case UNION:
-			b.append("Added relationships based on selected ").append(representation.getCollection().getLabel())
+			b.append("Added relationships based on selected ").append(representation.getLabel())
 					.append(":\n");
 			break;
 		case REMOVE:
-			b.append("Removed relationships based on selected ").append(representation.getCollection().getLabel())
+			b.append("Removed relationships based on selected ").append(representation.getLabel())
 					.append(":\n");
 			break;
 		default:
@@ -108,10 +114,10 @@ public class SelectionBasedFilterOperation extends ASelectionBasedOperation impl
 	}
 
 	@Override
-	public IEntityCollection getSourceCollection() {
-		IEntityRepresentation representation = relationshipExplorer.getHistory().getHistoryObjectAs(
-				IEntityRepresentation.class, representationHistoryID);
-		return representation.getCollection();
+	public ILabeled getSource() {
+		ILabeled representation = relationshipExplorer.getHistory().getHistoryObjectAs(ILabeled.class,
+				representationHistoryID);
+		return representation;
 	}
 
 	/**

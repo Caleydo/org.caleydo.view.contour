@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.detail.compound;
 
 import java.util.Set;
 
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
@@ -33,21 +34,21 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 	}
 
 	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		if (showSelectedItems /* && srcRep.getCollection() == collection */&& srcRep != this) {
+	public void selectionChanged(Set<Object> selectedElementIDs, ILabeled updateSource) {
+		if (showSelectedItems /* && srcRep.getCollection() == collection */&& updateSource != this) {
 			setContent(collection.createDetailView(this));
 			contour.updateDetailHeight();
 		}
 	}
 
 	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+	public void highlightChanged(Set<Object> highlightElementIDs, ILabeled updateSource) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+	public void filterChanged(Set<Object> filteredElementIDs, ILabeled updateSource) {
 		// TODO Auto-generated method stub
 
 	}
@@ -67,6 +68,11 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 	public void showSelectedItems(boolean showSelectedItems) {
 		this.showSelectedItems = showSelectedItems;
 
+	}
+
+	@Override
+	public String getLabel() {
+		return collection.getLabel();
 	}
 
 }

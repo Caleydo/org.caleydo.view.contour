@@ -18,8 +18,8 @@ import org.caleydo.core.view.opengl.layout2.basic.GLButton.ISelectionCallback;
 import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.core.view.opengl.layout2.util.GLElementWindow;
-import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.command.ShowFilteredItemsInDetailViewCommand;
@@ -126,6 +126,11 @@ public class DetailViewWindow extends GLElementWindow implements IHistoryIDOwner
 	 */
 	public IEntityCollection getCollection() {
 		return collection;
+	}
+
+	@Override
+	public String getLabel() {
+		return "Detail Window";
 	}
 
 }

@@ -212,6 +212,9 @@ public abstract class AEntityCollection implements IEntityCollection {
 	 * @return the detailViewFactory, see {@link #detailViewFactory}
 	 */
 	public IDetailViewFactory getDetailViewFactory() {
+		if (detailViewFactory == null) {
+			detailViewFactory = DetailViewFactories.createDefaultDetailViewFactory();
+		}
 		return detailViewFactory;
 	}
 

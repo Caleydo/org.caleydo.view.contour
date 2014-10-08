@@ -63,7 +63,8 @@ public class ConfigureItemRendererDialog extends Dialog implements
 
 	@Override
 	public void on(MultiAddonSelectionWidget<IItemFactoryCreator, IItemFactoryConfigurationAddon> data) {
-		getButton(Window.OK).setEnabled(!addonWidget.getCreators().isEmpty());
+		if (getButton(Window.OK) != null)
+			getButton(Window.OK).setEnabled(!addonWidget.getCreators().isEmpty());
 
 	}
 

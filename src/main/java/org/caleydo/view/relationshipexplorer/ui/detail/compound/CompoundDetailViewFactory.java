@@ -16,10 +16,12 @@ import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.collection.Pair;
 import org.caleydo.core.util.collection.Pair.ComparablePair;
+import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactories.GLElementSupplier;
 import org.caleydo.core.view.opengl.layout2.manage.GLElementFactoryContext;
+import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
@@ -70,10 +72,16 @@ public class CompoundDetailViewFactory implements IDetailViewFactory {
 		for (Object bcID : bcIDs) {
 			Set<Integer> smileIDs = mappingManager.getIDAsSet(collection.getBroadcastingIDType(),
 					dataDomain.getRecordIDType(), bcID);
-			if (smileIDs != null && !smileIDs.isEmpty()) {
-				String smileString = (String) dataDomain.getRaw(dataDomain.getRecordIDType(), smileIDs.iterator()
-						.next(), dimensionIDType, smilesColumnID);
-				smiles.add(Pair.make((String) bcID, smileString));
+			for (Integer smileID : smileIDs) {
+				if (smileIDs != null && !smileIDs.isEmpty()) {
+					try {
+						String smileString = (String) dataDomain.getRaw(dataDomain.getRecordIDType(), smileID,
+								dimensionIDType, smilesColumnID);
+						smiles.add(Pair.make(bcID.toString(), smileString));
+					} catch (ClassCastException e) {
+						return new GLElement(GLRenderers.drawText("Invalid SMILES detected", VAlign.CENTER));
+					}
+				}
 			}
 		}
 		Collections.sort(smiles);

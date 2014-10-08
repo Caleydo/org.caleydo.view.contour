@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.detail.compound;
 import org.caleydo.core.data.datadomain.ATableBasedDataDomain;
 import org.caleydo.core.util.base.ICallback;
 import org.caleydo.core.util.base.Runnables;
+import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewConfigurationAddon;
 import org.caleydo.view.relationshipexplorer.ui.detail.IDetailViewFactory;
@@ -23,7 +24,7 @@ public class CompoundDetailViewAddon implements IDetailViewConfigurationAddon {
 
 	@Override
 	public boolean accepts(IEntityCollection collection) {
-		return false;
+		return collection instanceof IDCollection;
 	}
 
 	@Override

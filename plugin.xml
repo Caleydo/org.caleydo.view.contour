@@ -3,6 +3,7 @@
 <plugin>
    <extension-point id="org.caleydo.view.contour.item" name="ItemFactory" schema="schema/org.caleydo.view.contour.item.exsd"/>
    <extension-point id="org.caleydo.view.contour.summaryitem" name="SummaryItemFactory" schema="schema/org.caleydo.view.contour.summaryitem.exsd"/>
+   <extension-point id="org.caleydo.view.contour.detailview" name="DetailViewFactory" schema="schema/org.caleydo.view.contour.detailview.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -81,4 +82,16 @@
             class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryConfigurationAddon">
       </factory>
 org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryConfigurationAddon   </extension>
+   <extension
+         point="org.caleydo.view.contour.detailview">
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.compound.CompoundDetailViewAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.image.HTIImageDetailViewAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsDetailViewAddon">
+      </factory>
+   </extension>
 </plugin>

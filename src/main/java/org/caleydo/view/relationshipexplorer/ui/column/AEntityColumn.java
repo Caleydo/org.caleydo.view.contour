@@ -56,6 +56,7 @@ import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SearchDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.SortingDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.StringFilterDialog;
+import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.ConfigureDetailViewDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.ConfigureItemRendererDialog;
 import org.caleydo.view.relationshipexplorer.ui.dialog.columnconfig.ConfigureSummaryRendererDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.IEntityFilter;
@@ -420,6 +421,17 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 					}
 				})).to(contour));
 		items.add(configSummaryItemRep);
+
+		AContextMenuItem configDetailView = new GenericContextMenuItem("Configure Detail View", new ThreadSyncEvent(
+				Runnables.withinSWTThread(new Runnable() {
+					@Override
+					public void run() {
+						ConfigureDetailViewDialog dialog = new ConfigureDetailViewDialog(Display.getDefault()
+								.getActiveShell(), (AEntityCollection) entityCollection, contour);
+						dialog.open();
+					}
+				})).to(contour));
+		items.add(configDetailView);
 
 		return items;
 	}

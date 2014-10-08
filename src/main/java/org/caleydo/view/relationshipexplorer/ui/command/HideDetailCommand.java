@@ -25,7 +25,7 @@ public class HideDetailCommand implements IHistoryCommand {
 
 	@Override
 	public Object execute() {
-		relationshipExplorer.removeDetailViewOfColumn(collection);
+		relationshipExplorer.hideDetailView(collection);
 		return null;
 	}
 

@@ -653,6 +653,10 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		return idMappingUpdateHandler;
 	}
 
+	public boolean isDetailViewShown(IEntityCollection collection) {
+		return detailMap.get(collection) != null;
+	}
+
 	public void showDetailView(IEntityCollection srcCollection) {
 
 		DetailViewWindow window = detailMap.get(srcCollection);
@@ -737,7 +741,7 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		updateDetailHeight();
 	}
 
-	public void removeDetailViewOfColumn(IEntityCollection column) {
+	public void hideDetailView(IEntityCollection column) {
 		GLElementWindow window = detailMap.remove(column);
 		if (window != null) {
 			detailContainer.remove(window);

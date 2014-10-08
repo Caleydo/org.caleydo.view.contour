@@ -33,7 +33,8 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 
 	private Combo idCategoryCombo;
 	private Combo idTypeCombo;
-	private Combo displayedIDTypeCombo;
+
+	// private Combo displayedIDTypeCombo;
 
 	/**
 	 * @param parent
@@ -57,13 +58,13 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 				idTypeCombo.setEnabled(true);
 				idTypeCombo.clearSelection();
 				idTypeCombo.removeAll();
-				displayedIDTypeCombo.setEnabled(true);
-				displayedIDTypeCombo.clearSelection();
-				displayedIDTypeCombo.removeAll();
+				// displayedIDTypeCombo.setEnabled(true);
+				// displayedIDTypeCombo.clearSelection();
+				// displayedIDTypeCombo.removeAll();
 				for (IDType idType : IDCategory.getIDCategory(idCategoryCombo.getText()).getIdTypes()) {
 					if (!idType.isInternalType()) {
 						idTypeCombo.add(idType.getTypeName());
-						displayedIDTypeCombo.add(idType.getTypeName());
+						// displayedIDTypeCombo.add(idType.getTypeName());
 					}
 				}
 				callback.on(IdentifierConfigWidget.this);
@@ -78,7 +79,7 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 
 		Label idTypeLabel = new Label(this, SWT.NONE);
 		idTypeLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
-		idTypeLabel.setText("Base Identifier");
+		idTypeLabel.setText("Identifier");
 
 		idTypeCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
 		idTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
@@ -86,26 +87,26 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 		idTypeCombo.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (displayedIDTypeCombo.getSelectionIndex() == -1) {
-					displayedIDTypeCombo.select(idTypeCombo.getSelectionIndex());
-				}
+				// if (displayedIDTypeCombo.getSelectionIndex() == -1) {
+				// displayedIDTypeCombo.select(idTypeCombo.getSelectionIndex());
+				// }
 				callback.on(IdentifierConfigWidget.this);
 			}
 		});
 
-		idTypeLabel = new Label(this, SWT.NONE);
-		idTypeLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
-		idTypeLabel.setText("Displayed Identifier");
+		// idTypeLabel = new Label(this, SWT.NONE);
+		// idTypeLabel.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
+		// idTypeLabel.setText("Displayed Identifier");
 
-		displayedIDTypeCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-		displayedIDTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		displayedIDTypeCombo.setEnabled(false);
-		displayedIDTypeCombo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				callback.on(IdentifierConfigWidget.this);
-			}
-		});
+		// displayedIDTypeCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
+		// displayedIDTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		// displayedIDTypeCombo.setEnabled(false);
+		// displayedIDTypeCombo.addSelectionListener(new SelectionAdapter() {
+		// @Override
+		// public void widgetSelected(SelectionEvent e) {
+		// callback.on(IdentifierConfigWidget.this);
+		// }
+		// });
 	}
 
 	public IDType getSelectedIDType() {
@@ -114,20 +115,20 @@ public class IdentifierConfigWidget extends ADataConfigWidget {
 		return IDType.getIDType(idTypeCombo.getText());
 	}
 
-	public IDType getSelectedDisplayIDType() {
-		if (displayedIDTypeCombo.getSelectionIndex() == -1)
-			return null;
-		return IDType.getIDType(displayedIDTypeCombo.getText());
-	}
+	// public IDType getSelectedDisplayIDType() {
+	// if (displayedIDTypeCombo.getSelectionIndex() == -1)
+	// return null;
+	// return IDType.getIDType(displayedIDTypeCombo.getText());
+	// }
 
 	@Override
 	public boolean isConfigValid() {
-		return getSelectedIDType() != null && getSelectedDisplayIDType() != null;
+		return getSelectedIDType() != null; // && getSelectedDisplayIDType() != null;
 	}
 
 	@Override
 	public AEntityCollection getCollection(ConTourElement contour) {
-		IDCollection collection = new IDCollection(getSelectedIDType(), getSelectedDisplayIDType(), null, contour);
+		IDCollection collection = new IDCollection(getSelectedIDType(), getSelectedIDType(), null, contour);
 		IDColumnFactory factory = new IDColumnFactory();
 		factory.addItemFactoryCreator(new TextItemFactoryCreator(), true);
 		factory.addSummaryItemFactoryCreator(new MappingSummaryItemFactoryCreator(), true);

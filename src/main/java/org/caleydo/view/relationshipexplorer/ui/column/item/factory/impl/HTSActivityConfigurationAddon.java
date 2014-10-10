@@ -85,12 +85,14 @@ public class HTSActivityConfigurationAddon implements IItemFactoryConfigurationA
 						// TODO: use correct data center
 						ic50Renderer = new SimpleBarRenderer();
 						ic50Renderer.setHorizontal(true);
+
 						// ic50Renderer.setShowTooltip(true);
 						ic50Renderer.setBarWidth(ColumnTreeRenderStyle.COLUMN_SUMMARY_BAR_HEIGHT - 4);
 
 						float rawValue = (float) dataDomain.getRaw(recordIDType, (int) elementID,
 								dimensionPerspective.getIdType(), dimensionID);
 						ic50Renderer.setValue(rawValue);
+						ic50Renderer.setTooltip("" + rawValue);
 						if (p.getMax() != null) {
 							ic50Renderer.setColor(rawValue > p.getMax() ? dataDomain.getColor().darker().darker()
 									: dataDomain.getColor());

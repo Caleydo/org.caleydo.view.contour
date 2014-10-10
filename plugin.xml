@@ -93,5 +93,8 @@ org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummar
       <factory
             class="org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsDetailViewAddon">
       </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.pathway.DefaultPathwayDetailViewAddon">
+      </factory>
    </extension>
 </plugin>

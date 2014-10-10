@@ -56,6 +56,7 @@ import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.ResetAttributeFilterEvent;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.AMappingUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.IMappingUpdateListener;
 import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
@@ -150,6 +151,7 @@ public class ConTourElement extends AnimatedGLElementContainer {
 	protected ESetOperation multiItemSelectionSetOperation = ESetOperation.UNION;
 
 	protected Set<IEntityCollection> entityCollections = new LinkedHashSet<>();
+	protected Set<IMappingUpdateListener> mappingUpdateListeners = new HashSet<IMappingUpdateListener>();
 
 	protected EViewSplit split = EViewSplit.MIDDLE;
 	protected GLButton moveUpButton;
@@ -346,6 +348,11 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		@Override
 		public int getHistoryID() {
 			return historyID;
+		}
+
+		@Override
+		public String getLabel() {
+			return "Column Separator";
 		}
 
 	}
@@ -559,10 +566,12 @@ public class ConTourElement extends AnimatedGLElementContainer {
 
 	public void registerEntityCollection(IEntityCollection collection) {
 		entityCollections.add(collection);
+		addMappingUpdateListener(collection);
 	}
 
 	public void unregisterEntityCollection(IEntityCollection collection) {
 		entityCollections.remove(collection);
+		removeMappingUpdateListener(collection);
 	}
 
 	public Iterable<TablePerspective> getTablePerspecives() {
@@ -591,6 +600,7 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		entityCollections.clear();
 		detailMap.clear();
 		detailWindowQueue.clear();
+		mappingUpdateListeners.clear();
 		super.takeDown();
 	}
 
@@ -629,9 +639,9 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		if (operation.getUpdateCause() == EUpdateCause.FILTER) {
 			enrichmentScores.updateScores();
 		}
-		for (IEntityCollection collection : entityCollections) {
-			// if (operation.getSrcRepresentation().getCollection() != collection)
-			operation.triggerUpdate(collection);
+
+		for (IMappingUpdateListener listener : mappingUpdateListeners) {
+			operation.notify(listener);
 		}
 	}
 
@@ -864,7 +874,7 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		Map<IEntityCollection, Set<Object>> originalFilteredItemIDs = event.getOriginalFilteredItemIDs();
 		for (Entry<IEntityCollection, Set<Object>> entry : originalFilteredItemIDs.entrySet()) {
 			entry.getKey().setFilteredItems(entry.getValue());
-			entry.getKey().notifyFilterUpdate(null);
+			entry.getKey().filterChanged(null, null, null);
 		}
 	}
 
@@ -900,5 +910,13 @@ public class ConTourElement extends AnimatedGLElementContainer {
 
 	public IGLElementContext getContext() {
 		return context;
+	}
+
+	public void addMappingUpdateListener(IMappingUpdateListener listener) {
+		mappingUpdateListeners.add(listener);
+	}
+
+	public void removeMappingUpdateListener(IMappingUpdateListener listener) {
+		mappingUpdateListeners.remove(listener);
 	}
 }

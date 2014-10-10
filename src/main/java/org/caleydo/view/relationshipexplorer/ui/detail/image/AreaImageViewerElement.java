@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.caleydo.core.data.selection.SelectionType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.util.system.BrowserUtils;
 import org.caleydo.core.view.contextmenu.ActionBasedContextMenuItem;
@@ -48,7 +49,7 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 	// private class ShowContextMenuEvent extends ADirectedEvent {
 	// }
 
-	public AreaImageViewerElement(ConTourElement contour, IEntityCollection collection, LayeredImage img) {
+	public AreaImageViewerElement(ConTourElement contour, final IEntityCollection collection, LayeredImage img) {
 		this.contour = contour;
 		this.historyID = contour.getHistory().registerHistoryObject(this);
 		this.collection = collection;
@@ -83,8 +84,8 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 						if (pick.getPickingMode() == PickingMode.RIGHT_CLICKED) {
 
 							AreaImageViewerElement.this.contour.addContextMenuItems(FilterContextMenuItems
-									.getDefaultFilterItems(
-									AreaImageViewerElement.this.contour, AreaImageViewerElement.this));
+									.getDefaultFilterItems(AreaImageViewerElement.this.contour,
+											AreaImageViewerElement.this, collection));
 							//
 							// contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(
 							// AreaImageViewerElement.this.contour, AreaImageViewerElement.this));
@@ -105,11 +106,11 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 					AreaImageViewerElement.this.contour.addContextMenuItem(new ActionBasedContextMenuItem(
 							"Open Image in Browser", new Runnable() {
 
-						@Override
-						public void run() {
-							BrowserUtils.openURL(url);
-						}
-					}));
+								@Override
+								public void run() {
+									BrowserUtils.openURL(url);
+								}
+							}));
 					// contextMenuCreator.add(new ActionBasedContextMenuItem("Open Image in Browser", new Runnable() {
 					//
 					// @Override
@@ -152,9 +153,9 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 
 	public void propagateSelection() {
 
-		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(),
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(collection, getHistoryID(),
 				collection.getSelectedElementIDs(), collection.getBroadcastingIDsFromElementIDs(collection
-						.getSelectedElementIDs()), contour);
+						.getSelectedElementIDs()), collection.getBroadcastingIDType(), contour);
 
 		c.execute();
 
@@ -166,9 +167,10 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 
 		// collection.setHighlightItems(highlightElementIDs);
 
-		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection
-				.getBroadcastingIDsFromElementIDs(collection.getHighlightElementIDs()), this, contour
-				.getMultiItemSelectionSetOperation(), contour.getEntityCollections()));
+		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection, collection
+				.getBroadcastingIDsFromElementIDs(collection.getHighlightElementIDs()), collection
+				.getBroadcastingIDType(), this, contour.getMultiItemSelectionSetOperation(), contour
+				.getEntityCollections()));
 	}
 
 	@Override
@@ -177,20 +179,20 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 	}
 
 	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep != this)
+	public void selectionChanged(Set<Object> selectedElementIDs, ILabeled updateSource) {
+		if (updateSource != this)
 			updateAreaColors();
 
 	}
 
 	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep != this)
+	public void highlightChanged(Set<Object> highlightElementIDs, ILabeled updateSource) {
+		if (updateSource != this)
 			updateAreaColors();
 	}
 
 	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+	public void filterChanged(Set<Object> filteredElementIDs, ILabeled updateSource) {
 		// nothing to do
 	}
 
@@ -244,6 +246,11 @@ public class AreaImageViewerElement extends GLImageViewer implements IEntityRepr
 	protected void takeDown() {
 		collection.removeEntityRepresentation(this);
 		super.takeDown();
+	}
+
+	@Override
+	public String getLabel() {
+		return collection.getLabel();
 	}
 
 }

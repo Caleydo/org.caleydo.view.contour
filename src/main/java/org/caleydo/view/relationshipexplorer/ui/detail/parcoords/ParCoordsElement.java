@@ -15,6 +15,7 @@ import org.caleydo.core.data.perspective.variable.Perspective;
 import org.caleydo.core.data.perspective.variable.PerspectiveInitializationData;
 import org.caleydo.core.data.selection.SelectionManager;
 import org.caleydo.core.data.selection.SelectionType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.canvas.EDetailLevel;
 import org.caleydo.core.view.opengl.canvas.IGLMouseListener.IMouseEvent;
 import org.caleydo.core.view.opengl.picking.Pick;
@@ -93,7 +94,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 			break;
 		case RIGHT_CLICKED:
 			relationshipExplorer.addContextMenuItems(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer,
-					this));
+					this, collection));
 			// ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
 			// contextMenuCreator.addAll(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer, this));
 			//
@@ -112,8 +113,10 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 		SelectionManager selectionManager = selections.getRecordSelectionManager();
 		Set<Object> selectedElementIDs = new HashSet<Object>(selectionManager.getElements(SelectionType.SELECTION));
 
-		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), selectedElementIDs,
-				collection.getBroadcastingIDsFromElementIDs(selectedElementIDs), relationshipExplorer);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(collection, getHistoryID(),
+				selectedElementIDs,
+				collection.getBroadcastingIDsFromElementIDs(selectedElementIDs), collection.getBroadcastingIDType(),
+				relationshipExplorer);
 		c.execute();
 
 		relationshipExplorer.getHistory().addHistoryCommand(c);
@@ -131,9 +134,9 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 
 		collection.setHighlightItems(highlightElementIDs);
 
-		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection
-				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
+		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(collection, collection
+				.getBroadcastingIDsFromElementIDs(highlightElementIDs), collection.getBroadcastingIDType(), this,
+				relationshipExplorer.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
 	}
 
 	@Override
@@ -142,13 +145,13 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 	}
 
 	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
+	public void selectionChanged(Set<Object> selectedElementIDs, ILabeled updateSource) {
 		updateSelection(SelectionType.SELECTION, selectedElementIDs);
 
 	}
 
 	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
+	public void highlightChanged(Set<Object> highlightElementIDs, ILabeled updateSource) {
 		updateSelection(SelectionType.MOUSE_OVER, highlightElementIDs);
 	}
 
@@ -162,7 +165,7 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 	}
 
 	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
+	public void filterChanged(Set<Object> filteredElementIDs, ILabeled updateSource) {
 		if (showFilteredItemsOnly) {
 			onVAUpdate(createTablePerspectiveFromCollectionIDs(filteredElementIDs));
 		}
@@ -185,6 +188,11 @@ public class ParCoordsElement extends ParallelCoordinateElement implements IEnti
 			}
 		}
 
+	}
+
+	@Override
+	public String getLabel() {
+		return collection.getLabel();
 	}
 
 }

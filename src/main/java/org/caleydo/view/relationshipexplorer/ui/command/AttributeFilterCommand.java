@@ -8,6 +8,7 @@ package org.caleydo.view.relationshipexplorer.ui.command;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.History;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
@@ -51,12 +52,14 @@ public class AttributeFilterCommand implements IFilterCommand {
 
 		Set<Object> filteredElementIDs = FilterUtil.filter(filterElementIDPool, filter);
 		if (targetCollections.contains(collection)) {
-		collection.setFilteredItems(filteredElementIDs);
+			collection.setFilteredItems(filteredElementIDs);
 		}
 		// column.updateSorting();
 		column.getRelationshipExplorer().applyIDMappingUpdate(
-				new MappingFilterUpdateOperation(collection.getBroadcastingIDsFromElementIDs(filteredElementIDs),
-						column, setOperation, ESetOperation.UNION, targetCollections));
+				new MappingFilterUpdateOperation(collection, collection
+						.getBroadcastingIDsFromElementIDs(filteredElementIDs),
+						collection.getBroadcastingIDType(), column, setOperation, ESetOperation.UNION,
+						targetCollections));
 
 		if (saveFilter)
 			column.getRelationshipExplorer().getFilterPipeline().addFilterCommand(this);
@@ -70,7 +73,7 @@ public class AttributeFilterCommand implements IFilterCommand {
 	}
 
 	@Override
-	public IEntityCollection getSourceCollection() {
+	public ILabeled getSource() {
 		return collection;
 	}
 

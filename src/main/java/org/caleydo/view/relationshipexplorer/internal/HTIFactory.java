@@ -41,7 +41,6 @@ import org.caleydo.view.relationshipexplorer.ui.command.AddColumnTreeCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.CompositeHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.detail.image.HTIImageDetailViewFactory;
 import org.caleydo.view.relationshipexplorer.ui.detail.pathway.DefaultPathwayDetailViewFactory;
-import org.caleydo.view.relationshipexplorer.ui.detail.pathway.MultiVertexHighlightAugmentationFactory;
 
 /**
  * @author Christian
@@ -201,10 +200,7 @@ public class HTIFactory implements IGLElementFactory {
 				new PathwayMappingBasedIDProvider(IDType.getIDType("VARIANT_ID"))), contour);
 		contour.registerEntityCollection(pathwayCollection);
 
-		pathwayCollection
-				.setDetailViewFactory(new DefaultPathwayDetailViewFactory()
-						.addForegroundAugmentationFactory(new MultiVertexHighlightAugmentationFactory(geneCollection,
-								contour)));
+		pathwayCollection.setDetailViewFactory(new DefaultPathwayDetailViewFactory());
 		CompositeHistoryCommand initCommand = new CompositeHistoryCommand();
 
 		// -----

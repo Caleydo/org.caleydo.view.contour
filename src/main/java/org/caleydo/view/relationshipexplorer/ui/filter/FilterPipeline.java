@@ -73,7 +73,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			if (commands.isEmpty()) {
 				relationshipExplorer.getEnrichmentScores().updateScores();
 				for (IEntityCollection collection : relationshipExplorer.getEntityCollections()) {
-					collection.notifyFilterUpdate(null);
+					collection.filterChanged(null, null, null);
 				}
 			} else {
 				for (IFilterCommand c : commands) {
@@ -118,7 +118,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			icon.setMinSizeProvider(GLMinSizeProviders.createDefaultMinSizeProvider(16, 16));
 			contentBar.add(icon);
 
-			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getSourceCollection().getLabel(),
+			GLElement text = new GLElement(GLRenderers.drawText(filterCommand.getSource().getLabel(),
 					VAlign.LEFT));
 			text.setSize(Float.NaN, 14);
 			// IGLElementParent parent = getParent();

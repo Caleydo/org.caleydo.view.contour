@@ -7,8 +7,9 @@ package org.caleydo.view.relationshipexplorer.ui.column.operation;
 
 import java.util.Set;
 
+import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
 import org.caleydo.view.relationshipexplorer.ui.list.EUpdateCause;
 
 /**
@@ -22,9 +23,10 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 	 * @param srcIDType
 	 * @param op
 	 */
-	public MappingFilterUpdateOperation(Set<Object> srcBroadcastIDs, IEntityRepresentation srcRep, ESetOperation op,
-			ESetOperation multiItemSelectionSetOperation, Set<IEntityCollection> targetCollections) {
-		super(srcBroadcastIDs, srcRep, op, multiItemSelectionSetOperation, targetCollections);
+	public MappingFilterUpdateOperation(IEntityCollection sourceCollection, Set<Object> srcBroadcastIDs, IDType broadcastIDType, ILabeled updateSource,
+			ESetOperation op, ESetOperation multiItemSelectionSetOperation, Set<IEntityCollection> targetCollections) {
+		super(srcBroadcastIDs, broadcastIDType, updateSource, op, multiItemSelectionSetOperation, sourceCollection,
+				targetCollections);
 	}
 
 	@Override
@@ -32,15 +34,16 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 		collection.setFilteredItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
 	}
 
-	@Override
-	public void triggerUpdate(IEntityCollection collection) {
-		collection.notifyFilterUpdate(srcRep);
-
-	}
 
 	@Override
 	public EUpdateCause getUpdateCause() {
 		return EUpdateCause.FILTER;
+	}
+
+	@Override
+	public void notify(IMappingUpdateListener listener) {
+		listener.filterChanged(srcBroadcastIDs, broadcastIDType, updateSource);
+
 	}
 
 }

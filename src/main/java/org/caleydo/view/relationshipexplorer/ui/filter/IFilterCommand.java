@@ -7,6 +7,7 @@ package org.caleydo.view.relationshipexplorer.ui.filter;
 
 import java.util.Set;
 
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.History.IHistoryCommand;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
@@ -18,9 +19,9 @@ import org.caleydo.view.relationshipexplorer.ui.column.operation.ESetOperation;
 public interface IFilterCommand extends IHistoryCommand {
 
 	/**
-	 * @return The source collection the filter is based on.
+	 * @return The source the filter is based on.
 	 */
-	public IEntityCollection getSourceCollection();
+	public ILabeled getSource();
 
 	/**
 	 * @return The collections this filter shall be applied on.

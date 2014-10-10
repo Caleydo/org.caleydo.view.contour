@@ -11,6 +11,7 @@ import org.caleydo.core.id.IDType;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.IMappingUpdateListener;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
 import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
 
@@ -18,7 +19,7 @@ import org.caleydo.view.relationshipexplorer.ui.list.IColumnModel;
  * @author Christian
  *
  */
-public interface IEntityCollection extends ILabeled {
+public interface IEntityCollection extends ILabeled, IMappingUpdateListener {
 
 	public Set<Object> getAllElementIDs();
 
@@ -38,11 +39,11 @@ public interface IEntityCollection extends ILabeled {
 
 	public void setSelectedItems(Set<Object> elementIDs);
 
-	public void notifySelectionUpdate(IEntityRepresentation updateSource);
-
-	public void notifyHighlightUpdate(IEntityRepresentation updateSource);
-
-	public void notifyFilterUpdate(IEntityRepresentation updateSource);
+	// public void notifySelectionUpdate(ILabeled updateSource);
+	//
+	// public void notifyHighlightUpdate(ILabeled updateSource);
+	//
+	// public void notifyFilterUpdate(ILabeled updateSource);
 
 	public IDType getBroadcastingIDType();
 

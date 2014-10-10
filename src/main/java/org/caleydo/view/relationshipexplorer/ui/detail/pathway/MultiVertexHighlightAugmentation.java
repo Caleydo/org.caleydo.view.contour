@@ -15,6 +15,7 @@ import org.caleydo.core.data.selection.SelectionType;
 import org.caleydo.core.id.IDMappingManager;
 import org.caleydo.core.id.IDMappingManagerRegistry;
 import org.caleydo.core.id.IDType;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout2.GLGraphics;
 import org.caleydo.core.view.opengl.layout2.geom.Rect;
@@ -26,8 +27,8 @@ import org.caleydo.datadomain.pathway.IVertexRepSelectionListener;
 import org.caleydo.datadomain.pathway.graph.item.vertex.PathwayVertexRep;
 import org.caleydo.view.pathway.v2.ui.augmentation.APerVertexAugmentation;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
-import org.caleydo.view.relationshipexplorer.ui.column.IEntityRepresentation;
+import org.caleydo.view.relationshipexplorer.ui.History.IHistoryIDOwner;
+import org.caleydo.view.relationshipexplorer.ui.column.operation.IMappingUpdateListener;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.MappingHighlightUpdateOperation;
 import org.caleydo.view.relationshipexplorer.ui.column.operation.SelectionBasedHighlightOperation;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.FilterContextMenuItems;
@@ -41,26 +42,25 @@ import org.caleydo.view.relationshipexplorer.ui.util.MultiSelectionUtil.IMultiSe
  *
  */
 public class MultiVertexHighlightAugmentation extends APerVertexAugmentation implements IVertexRepSelectionListener,
-		IMultiSelectionHandler<PathwayVertexRep>, IEntityRepresentation {
+		IMultiSelectionHandler<PathwayVertexRep>, IHistoryIDOwner, IMappingUpdateListener {
 
 	protected Set<PathwayVertexRep> selectedVertexReps = new HashSet<>();
 	protected Set<PathwayVertexRep> highlightedVertexReps = new HashSet<>();
-	// protected AEntityColumn referenceColumn;
-	protected IEntityCollection geneCollection;
-	protected ConTourElement relationshipExplorer;
+	protected final IDType broadcastIDType;
+	protected ConTourElement contour;
 	protected int historyID;
 
 	/**
 	 * @param pathwayRepresentation
 	 */
 	public MultiVertexHighlightAugmentation(IPathwayRepresentation pathwayRepresentation,
-			IEntityCollection geneCollection, ConTourElement relationshipExplorer) {
+			ConTourElement contour) {
 		super(pathwayRepresentation);
-		this.geneCollection = geneCollection;
-		this.relationshipExplorer = relationshipExplorer;
-		geneCollection.addEntityRepresentation(this);
+		this.contour = contour;
+		this.contour.addMappingUpdateListener(this);
 		pathwayRepresentation.addVertexRepSelectionListener(this);
-		this.historyID = relationshipExplorer.getHistory().registerHistoryObject(this);
+		this.historyID = contour.getHistory().registerHistoryObject(this);
+		this.broadcastIDType = IDType.getIDType(EGeneIDTypes.DAVID.name());
 	}
 
 	@Override
@@ -81,33 +81,9 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 			if (!isSelected(vertexRep))
 				propagateSelection();
-			// ContextMenuCreator contextMenuCreator = new ContextMenuCreator();
-			// IContextMenuCommand selectionCommand = new IContextMenuCommand() {
-			//
-			// @Override
-			// public void execute() {
-			// propagateSelection();
-			// }
-			//
-			// };
 
-			relationshipExplorer.addContextMenuItems(FilterContextMenuItems.getDefaultFilterItems(relationshipExplorer,
-					this));
-			// contextMenuCreator.addAll();
-			// IContextMenuCommand replaceCommand = new FilterCommand(ESetOperation.REPLACE, this,
-			// relationshipExplorer);
-			// IContextMenuCommand intersectionCommand = new FilterCommand(ESetOperation.INTERSECTION, this,
-			// relationshipExplorer);
-			// IContextMenuCommand unionCommand = new FilterCommand(ESetOperation.UNION, this, relationshipExplorer);
-			//
-			// contextMenuCreator.add(new GenericContextMenuItem("Replace", new ContextMenuCommandEvent(
-			// new CompositeContextMenuCommand(replaceCommand, selectionCommand)).to(this)));
-			// contextMenuCreator.add(new GenericContextMenuItem("Reduce", new ContextMenuCommandEvent(
-			// new CompositeContextMenuCommand(intersectionCommand, selectionCommand)).to(this)));
-			// contextMenuCreator.add(new GenericContextMenuItem("Add", new ContextMenuCommandEvent(
-			// new CompositeContextMenuCommand(unionCommand, selectionCommand)).to(this)));
-
-			// context.getSWTLayer().showContextMenu(contextMenuCreator);
+			contour.addContextMenuItems(FilterContextMenuItems.getDefaultFilterItems(contour,
+					this, getGeneElementIDs(selectedVertexReps), broadcastIDType));
 		}
 	}
 
@@ -159,30 +135,22 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	public void propagateSelection() {
-		Set<Object> selectedElementIDs = getGeneCollectionElementIDs(selectedVertexReps);
+		Set<Object> selectedElementIDs = getGeneElementIDs(selectedVertexReps);
 
-		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(getHistoryID(), selectedElementIDs,
-				geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs), relationshipExplorer);
+		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(null, getHistoryID(),
+				selectedElementIDs, selectedElementIDs, broadcastIDType, contour);
 
 		c.execute();
 
-		relationshipExplorer.getHistory().addHistoryCommand(c);
-
-		// geneCollection.setSelectedItems(selectedElementIDs, this);
-		//
-		// relationshipExplorer.applyIDMappingUpdate(
-		// new MappingSelectionUpdateOperation(
-		// geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs), this), true);
+		contour.getHistory().addHistoryCommand(c);
 	}
 
 	public void propagateHighlight() {
-		Set<Object> highlightElementIDs = getGeneCollectionElementIDs(highlightedVertexReps);
+		Set<Object> highlightElementIDs = getGeneElementIDs(highlightedVertexReps);
 
-		geneCollection.setHighlightItems(highlightElementIDs);
-
-		relationshipExplorer.applyIDMappingUpdate(new MappingHighlightUpdateOperation(geneCollection
-				.getBroadcastingIDsFromElementIDs(highlightElementIDs), this, relationshipExplorer
-				.getMultiItemSelectionSetOperation(), relationshipExplorer.getEntityCollections()));
+		contour.applyIDMappingUpdate(new MappingHighlightUpdateOperation(null, highlightElementIDs,
+				broadcastIDType, this, contour.getMultiItemSelectionSetOperation(), contour
+						.getEntityCollections()));
 	}
 
 	@Override
@@ -208,13 +176,13 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 		addToSelection(object);
 	}
 
-	public Set<Object> getGeneCollectionElementIDs(Set<PathwayVertexRep> vertexReps) {
+	public Set<Object> getGeneElementIDs(Set<PathwayVertexRep> vertexReps) {
 		Set<Object> davidIDs = new HashSet<>();
 		for (PathwayVertexRep v : vertexReps) {
 			davidIDs.addAll(v.getDavidIDs());
 		}
 
-		return geneCollection.getElementIDsFromForeignIDs(davidIDs, IDType.getIDType(EGeneIDTypes.DAVID.name()));
+		return davidIDs;
 	}
 
 	// @Override
@@ -242,7 +210,7 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 
 	@Override
 	protected void takeDown() {
-		geneCollection.removeEntityRepresentation(this);
+		contour.removeMappingUpdateListener(this);
 		// relationshipExplorer.getHistory().unregisterHistoryObject(getHistoryID());
 		super.takeDown();
 	}
@@ -265,39 +233,31 @@ public class MultiVertexHighlightAugmentation extends APerVertexAugmentation imp
 	}
 
 	@Override
-	public IEntityCollection getCollection() {
-		return geneCollection;
-	}
-
-	@Override
-	public void selectionChanged(Set<Object> selectedElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep == this)
-			return;
-
-		selectVerticesFromForeignIDs(geneCollection.getBroadcastingIDsFromElementIDs(selectedElementIDs),
-				geneCollection.getBroadcastingIDType(), selectedVertexReps);
-
-	}
-
-	@Override
-	public void highlightChanged(Set<Object> highlightElementIDs, IEntityRepresentation srcRep) {
-		if (srcRep == this)
-			return;
-
-		selectVerticesFromForeignIDs(geneCollection.getBroadcastingIDsFromElementIDs(highlightElementIDs),
-				geneCollection.getBroadcastingIDType(), highlightedVertexReps);
-
-	}
-
-	@Override
-	public void filterChanged(Set<Object> filteredElementIDs, IEntityRepresentation srcRep) {
-		// nothing to do
-
+	public String getLabel() {
+		return "Genes in Pathway";
 	}
 
 	@Override
 	public int getHistoryID() {
 		return historyID;
+	}
+
+	@Override
+	public void highlightChanged(Set<Object> ids, IDType idType, ILabeled source) {
+		selectVerticesFromForeignIDs(ids, idType, highlightedVertexReps);
+
+	}
+
+	@Override
+	public void selectionChanged(Set<Object> ids, IDType idType, ILabeled source) {
+		selectVerticesFromForeignIDs(ids, idType, selectedVertexReps);
+
+	}
+
+	@Override
+	public void filterChanged(Set<Object> ids, IDType idType, ILabeled source) {
+		// nothing to do
+
 	}
 
 }

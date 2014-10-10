@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.media.opengl.GL2;
 
 import org.caleydo.core.data.collection.EDimension;
+import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.core.util.color.Color;
 import org.caleydo.core.view.opengl.layout.Column.VAlign;
 import org.caleydo.core.view.opengl.layout2.GLElement;
@@ -54,7 +55,7 @@ public class History extends AnimatedGLElementContainer {
 
 	protected IHistoryCommand initCommand;
 
-	public interface IHistoryIDOwner {
+	public interface IHistoryIDOwner extends ILabeled {
 		public int getHistoryID();
 	}
 

@@ -115,7 +115,7 @@ public class HCSRelationshipExplorerElementFactory2 implements IGLElementFactory
  contour);
 		contour.registerEntityCollection(geneCollection);
 
-		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory(contour, geneCollection));
+		pathwayCollection.setDetailViewFactory(new HTSPathwayDetailViewFactory());
 
 		TabularDataCollection activityCollection = null;
 

@@ -163,8 +163,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 		public void propagateCompoundSelection(Set<Object> compoundIDs) {
 			SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(compoundCollection,
-					getHistoryID(), compoundIDs,
-					compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs),
+					getHistoryID(), compoundIDs, compoundCollection.getBroadcastingIDsFromElementIDs(compoundIDs),
 					compoundCollection.getBroadcastingIDType(), contour);
 			c.execute();
 			contour.getHistory().addHistoryCommand(c);
@@ -300,9 +299,8 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 
 	protected void propagateGroupSelection(Set<Object> groups) {
 		SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(groupCollection, getHistoryID(),
-				groups,
-				groupCollection.getBroadcastingIDsFromElementIDs(groups), groupCollection.getBroadcastingIDType(),
-				contour);
+				groups, groupCollection.getBroadcastingIDsFromElementIDs(groups),
+				groupCollection.getBroadcastingIDType(), contour);
 		c.execute();
 		contour.getHistory().addHistoryCommand(c);
 	}

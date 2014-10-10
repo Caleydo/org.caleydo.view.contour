@@ -35,14 +35,16 @@ public class MappingSelectionUpdateOperation extends AMappingUpdateOperation {
 		collection.setSelectedItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
 	}
 
-	@Override
-	public void triggerUpdate(IEntityCollection collection) {
-		collection.notifySelectionUpdate(updateSource);
-	}
 
 	@Override
 	public EUpdateCause getUpdateCause() {
 		return EUpdateCause.SELECTION;
+	}
+
+	@Override
+	public void notify(IMappingUpdateListener listener) {
+		listener.selectionChanged(srcBroadcastIDs, broadcastIDType, updateSource);
+
 	}
 
 }

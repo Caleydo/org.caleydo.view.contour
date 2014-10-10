@@ -35,15 +35,16 @@ public class MappingHighlightUpdateOperation extends AMappingUpdateOperation {
 		collection.setHighlightItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
 	}
 
-	@Override
-	public void triggerUpdate(IEntityCollection collection) {
-		collection.notifyHighlightUpdate(updateSource);
-
-	}
 
 	@Override
 	public EUpdateCause getUpdateCause() {
 		return EUpdateCause.HIGHLIGHT;
+	}
+
+	@Override
+	public void notify(IMappingUpdateListener listener) {
+		listener.highlightChanged(srcBroadcastIDs, broadcastIDType, updateSource);
+
 	}
 
 }

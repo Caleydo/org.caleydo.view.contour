@@ -73,7 +73,7 @@ public class FilterPipeline extends AnimatedGLElementContainer {
 			if (commands.isEmpty()) {
 				relationshipExplorer.getEnrichmentScores().updateScores();
 				for (IEntityCollection collection : relationshipExplorer.getEntityCollections()) {
-					collection.notifyFilterUpdate(null);
+					collection.filterChanged(null, null, null);
 				}
 			} else {
 				for (IFilterCommand c : commands) {

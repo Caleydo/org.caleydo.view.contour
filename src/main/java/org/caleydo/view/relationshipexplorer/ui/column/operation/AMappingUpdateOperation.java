@@ -71,7 +71,8 @@ public abstract class AMappingUpdateOperation extends ASetBasedColumnOperation i
 
 	}
 
-	public abstract void triggerUpdate(IEntityCollection collection);
+	public abstract void notify(IMappingUpdateListener listener);
+
 
 	/**
 	 * Applies the update oparation to the specified collection with the specified ids.

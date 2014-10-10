@@ -72,9 +72,9 @@ public abstract class AEntityCollection implements IEntityCollection {
 		// notifyFilterUpdate(updateSource);
 	}
 
-	@Override
-	public void notifyFilterUpdate(ILabeled updateSource) {
 
+	@Override
+	public void filterChanged(Set<Object> ids, IDType idType, ILabeled updateSource) {
 		for (IEntityRepresentation rep : representations) {
 			rep.filterChanged(filteredElementIDs, updateSource);
 		}
@@ -86,8 +86,9 @@ public abstract class AEntityCollection implements IEntityCollection {
 		this.highlightElementIDs = new HashSet<>(Sets.intersection(elementIDs, allElementIDs));
 	}
 
+
 	@Override
-	public void notifyHighlightUpdate(ILabeled updateSource) {
+	public void highlightChanged(Set<Object> ids, IDType idType, ILabeled updateSource) {
 		for (IEntityRepresentation rep : representations) {
 			rep.highlightChanged(highlightElementIDs, updateSource);
 		}
@@ -99,13 +100,12 @@ public abstract class AEntityCollection implements IEntityCollection {
 		// notifySelectionUpdate(updateSource);
 	}
 
-	@Override
-	public void notifySelectionUpdate(ILabeled updateSource) {
 
+	@Override
+	public void selectionChanged(Set<Object> ids, IDType idType, ILabeled updateSource) {
 		for (IEntityRepresentation rep : representations) {
 			rep.selectionChanged(selectedElementIDs, updateSource);
 		}
-
 	}
 
 	@Override

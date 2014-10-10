@@ -34,15 +34,16 @@ public class MappingFilterUpdateOperation extends AMappingUpdateOperation {
 		collection.setFilteredItems(setOperation.apply(elementIDs, collection.getFilteredElementIDs()));
 	}
 
-	@Override
-	public void triggerUpdate(IEntityCollection collection) {
-		collection.notifyFilterUpdate(updateSource);
-
-	}
 
 	@Override
 	public EUpdateCause getUpdateCause() {
 		return EUpdateCause.FILTER;
+	}
+
+	@Override
+	public void notify(IMappingUpdateListener listener) {
+		listener.filterChanged(srcBroadcastIDs, broadcastIDType, updateSource);
+
 	}
 
 }

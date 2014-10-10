@@ -8,7 +8,6 @@ package org.caleydo.view.relationshipexplorer.ui.detail.pathway;
 import org.caleydo.core.view.opengl.layout2.GLElement;
 import org.caleydo.view.pathway.v2.ui.PathwayElement;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
-import org.caleydo.view.relationshipexplorer.ui.collection.IDCollection;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
 
@@ -18,18 +17,11 @@ import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
  */
 public class HTSPathwayDetailViewFactory extends DefaultPathwayDetailViewFactory {
 
-	/**
-	 * @param contour
-	 * @param geneIDCollection
-	 */
-	public HTSPathwayDetailViewFactory(ConTourElement contour, IDCollection geneIDCollection) {
-		addForegroundAugmentationFactory(new MultiVertexHighlightAugmentationFactory(geneIDCollection, contour));
-	}
 
 	@Override
 	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
 
-		PathwayElement pathwayElement = createPathwayElement(collection);
+		PathwayElement pathwayElement = createPathwayElement(collection, contour);
 
 		CompoundGroupPathwayAugmentation aug = new CompoundGroupPathwayAugmentation(
 				pathwayElement.getPathwayRepresentation(), contour);

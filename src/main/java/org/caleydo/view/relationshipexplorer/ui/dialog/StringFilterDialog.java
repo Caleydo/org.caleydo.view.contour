@@ -223,7 +223,7 @@ public class StringFilterDialog extends Dialog {
 	public void restoreOriginalState() {
 		for (Entry<IEntityCollection, Set<Object>> entry : originalFilteredItemIDs.entrySet()) {
 			entry.getKey().setFilteredItems(entry.getValue());
-			entry.getKey().notifyFilterUpdate(null);
+			entry.getKey().filterChanged(null, null, null);
 		}
 	}
 

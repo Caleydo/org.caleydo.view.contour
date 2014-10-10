@@ -32,9 +32,10 @@ public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 	protected List<IPathwayAugmentationFactory> foregroundAugmentationFactories = new ArrayList<>();
 	protected List<IPathwayAugmentationFactory> backgroundAugmentationFactories = new ArrayList<>();
 
+
 	@Override
 	public GLElement createDetailView(IEntityCollection collection, DetailViewWindow window, ConTourElement contour) {
-		return createZoomableElement(createPathwayElement(collection));
+		return createZoomableElement(createPathwayElement(collection, contour));
 	}
 
 	protected GLElement createZoomableElement(GLElement element) {
@@ -52,7 +53,7 @@ public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 		return minSizeContainer;
 	}
 
-	protected PathwayElement createPathwayElement(IEntityCollection collection) {
+	protected PathwayElement createPathwayElement(IEntityCollection collection, ConTourElement contour) {
 		Set<Object> selectedElements = collection.getSelectedElementIDs();
 		Set<Object> highlightedElements = collection.getHighlightElementIDs();
 		if (selectedElements.isEmpty() && highlightedElements.isEmpty())
@@ -68,6 +69,8 @@ public class DefaultPathwayDetailViewFactory implements IDetailViewFactory {
 		representation.setMinHeight(pathway.getHeight());
 		representation.setMinWidth(pathway.getWidth());
 		pathwayElement.setPathwayRepresentation(representation);
+
+		pathwayElement.addForegroundAugmentation(new MultiVertexHighlightAugmentation(representation, contour));
 
 		for (IPathwayAugmentationFactory f : backgroundAugmentationFactories) {
 			pathwayElement.addBackgroundAugmentation(f.create(representation));

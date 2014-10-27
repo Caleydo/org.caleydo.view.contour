@@ -35,6 +35,8 @@ import org.caleydo.core.view.opengl.layout2.renderer.GLRenderers;
 import org.caleydo.core.view.opengl.layout2.renderer.IGLRenderer;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.AEntityCollection;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.EnrichmentScoreComparator;
+import org.caleydo.view.relationshipexplorer.ui.collection.EnrichmentScores.MaxEnrichmentScoreComparator;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IIconProvider;
 import org.caleydo.view.relationshipexplorer.ui.column.item.factory.IItemFactory;
@@ -163,6 +165,28 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 							IInvertibleComparator<NestableItem> comparator = dialog.getComparator();
 							EventPublisher.trigger(new SortingEvent(comparator, dialog.getScoreProvider())
 									.to(AEntityColumn.this));
+							if (comparator instanceof CompositeComparator<?>) {
+								CompositeComparator<?> comp = (CompositeComparator<?>) comparator;
+								for (IInvertibleComparator<?> c : comp) {
+									if (c instanceof MaxEnrichmentScoreComparator) {
+										MaxEnrichmentScoreComparator enrichComp = (MaxEnrichmentScoreComparator) c;
+
+										for (NestableColumn childColumn : column.getChildren()) {
+											if (childColumn.getColumnModel().getCollection() == enrichComp
+													.getEnrichmentScore().getEnrichmentCollection()
+													|| childColumn.getColumnModel().getCollection() == enrichComp
+															.getEnrichmentScore().getTargetCollection()) {
+
+												EnrichmentScoreComparator scoreComp = new EnrichmentScoreComparator(
+														enrichComp.getEnrichmentScore());
+
+												EventPublisher.trigger(new SortingEvent(scoreComp, scoreComp)
+														.to(childColumn.getColumnModel()));
+											}
+										}
+									}
+								}
+							}
 						}
 					}
 				});

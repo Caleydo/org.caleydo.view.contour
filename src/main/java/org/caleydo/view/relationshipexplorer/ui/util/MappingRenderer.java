@@ -38,9 +38,13 @@ public class MappingRenderer extends KeyBasedGLElementContainer<SimpleBarRendere
 		add(new GLElement());
 		setMinSizeProvider(GLMinSizeProviders.createLayeredMinSizeProvider(this));
 		setVisibility(EVisibility.PICKABLE);
-		setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.1f));
-		setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.2f));
-		setElement(SELECTED_ELEMENTS_KEY, createDefaultBarRenderer(SelectionType.SELECTION.getColor(), 0.3f));
+
+		setElement(8, createDefaultBarRenderer(Color.TRANSPARENT, 0.1f));
+		setValue(8, 1);
+		setElement(ALL_ELEMENTS_KEY, createDefaultBarRenderer(Color.LIGHT_GRAY, 0.2f));
+		setElement(FILTERED_ELEMENTS_KEY, createDefaultBarRenderer(Color.GRAY, 0.3f));
+
+		setElement(SELECTED_ELEMENTS_KEY, createDefaultBarRenderer(SelectionType.SELECTION.getColor(), 0.4f));
 		updateBarWidth();
 	}
 

@@ -10,6 +10,7 @@ import org.caleydo.core.event.EventPublisher;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
 import org.caleydo.view.relationshipexplorer.ui.column.AEntityColumn;
 import org.caleydo.view.relationshipexplorer.ui.column.AInvertibleComparator;
+import org.caleydo.view.relationshipexplorer.ui.column.CompositeComparator;
 import org.caleydo.view.relationshipexplorer.ui.column.IInvertibleComparator;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.list.NestableItem;
@@ -56,16 +57,44 @@ public class SearchDialog extends Dialog {
 			String label2 = collection.getText(o2.getElementData().iterator().next()).toUpperCase();
 
 			// TODO: find better string similarity measure than levenshtein and containment
-			int l1Contained = label1.contains(query) ? 1 : Integer.MAX_VALUE;
-			int l2Contained = label2.contains(query) ? 1 : Integer.MAX_VALUE;
+			// int l1Contained = label1.contains(query) ? 1 : Integer.MAX_VALUE;
+			// int l2Contained = label2.contains(query) ? 1 : Integer.MAX_VALUE;
 
-			return Math.min(l1Contained, StringUtils.getLevenshteinDistance(label1, query))
-					- Math.min(l2Contained, StringUtils.getLevenshteinDistance(label2, query));
+			return StringUtils.getLevenshteinDistance(label1, query)
+					- StringUtils.getLevenshteinDistance(label2, query);
 		}
 
 		@Override
 		public String toString() {
 			return "String Distance";
+		}
+	}
+
+	protected static class SubStringContainmentComparator extends AInvertibleComparator<NestableItem> {
+
+		protected final IEntityCollection collection;
+		protected final String query;
+
+		public SubStringContainmentComparator(String query, IEntityCollection collection) {
+			this.query = query.toUpperCase();
+			this.collection = collection;
+		}
+
+		@Override
+		public int compare(NestableItem o1, NestableItem o2) {
+			String label1 = collection.getText(o1.getElementData().iterator().next()).toUpperCase();
+			String label2 = collection.getText(o2.getElementData().iterator().next()).toUpperCase();
+
+			// TODO: find better string similarity measure than levenshtein and containment
+			int l1Contained = label1.contains(query) ? 1 : 0;
+			int l2Contained = label2.contains(query) ? 1 : 0;
+
+			return l2Contained - l1Contained;
+		}
+
+		@Override
+		public String toString() {
+			return "String containment";
 		}
 	}
 
@@ -126,7 +155,8 @@ public class SearchDialog extends Dialog {
 
 					@Override
 					public void run() {
-						column.sortBy(new StringDistanceComparator(query, column.getCollection()));
+						column.sortBy(new CompositeComparator<NestableItem>(new SubStringContainmentComparator(query,
+								column.getCollection()), new StringDistanceComparator(query, column.getCollection())));
 					}
 				}).to(column.getRelationshipExplorer()));
 			}

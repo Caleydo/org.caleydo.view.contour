@@ -63,7 +63,7 @@ public class MappingRenderer extends KeyBasedGLElementContainer<SimpleBarRendere
 		StringBuilder b = new StringBuilder();
 		b.append("Number of Items\n");
 		b.append(String.format("%s:\t%d\n", "Selected", (int) getElement(SELECTED_ELEMENTS_KEY).getValue()));
-		b.append(String.format("%s:\t%d\n", "Filtered", (int) getElement(FILTERED_ELEMENTS_KEY).getValue()));
+		b.append(String.format("%s:\t%d\n", "Visible", (int) getElement(FILTERED_ELEMENTS_KEY).getValue()));
 		b.append(String.format("%s:\t%d\n", "All", (int) getElement(ALL_ELEMENTS_KEY).getValue()));
 		return b.toString();
 	}

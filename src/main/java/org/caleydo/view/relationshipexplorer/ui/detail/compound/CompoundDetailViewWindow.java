@@ -21,16 +21,25 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IShowSelectedItemsListene
 public class CompoundDetailViewWindow extends DetailViewWindow implements IEntityRepresentation,
 		IShowSelectedItemsListener {
 
+	// public static class ReInitCompoundsEvent extends ADirectedEvent {
+	// public CompoundDetailViewWindow window;
+	// public IEntityCollection collection;
+	// }
+
 	protected boolean showSelectedItems = true;
 
 	/**
 	 * @param titleLabelProvider
 	 * @param relationshipExplorer
 	 */
-	public CompoundDetailViewWindow(IEntityCollection collection,
-			ConTourElement relationshipExplorer) {
+	public CompoundDetailViewWindow(IEntityCollection collection, ConTourElement relationshipExplorer) {
 		super(collection, relationshipExplorer);
 		collection.addEntityRepresentation(this);
+		// ReInitCompoundsEvent event = new ReInitCompoundsEvent();
+		// event.window = this;
+		// event.collection = collection;
+		// // event.to(this);
+		// EventPublisher.trigger(event);
 	}
 
 	@Override

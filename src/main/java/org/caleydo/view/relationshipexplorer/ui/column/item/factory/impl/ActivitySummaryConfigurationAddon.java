@@ -93,7 +93,7 @@ public class ActivitySummaryConfigurationAddon implements ISummaryItemFactoryCon
 				}
 
 				container.add(getBoxPlot("All", getValues(allElementIDs), Color.LIGHT_GRAY));
-				container.add(getBoxPlot("Filtered", getValues(filteredElementIDs), Color.GRAY));
+				container.add(getBoxPlot("Visible", getValues(filteredElementIDs), Color.GRAY));
 
 				// AdvancedDoubleStatistics normalizedStats = AdvancedDoubleStatistics.of(normalizedValues);
 

@@ -751,6 +751,19 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		updateDetailHeight();
 	}
 
+	// @ListenTo
+	// public void onReInitCompounds(ReInitCompoundsEvent event) {
+	// event.window.setContent(event.collection.createDetailView(event.window));
+	// updateDetailHeight();
+	// try {
+	// Thread.sleep(200);
+	// } catch (InterruptedException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// // EventPublisher.trigger(event);
+	// }
+
 	public void hideDetailView(IEntityCollection column) {
 		GLElementWindow window = detailMap.remove(column);
 		if (window != null) {
@@ -771,8 +784,8 @@ public class ConTourElement extends AnimatedGLElementContainer {
 			detailContainer.setSize(Float.NaN, Float.NaN);
 			switch (split) {
 			case BOTTOM:
-				detailContainer.setLayoutData(0.725f);
-				columnContainerRow.setLayoutData(0.275f);
+				detailContainer.setLayoutData(0.75f);
+				columnContainerRow.setLayoutData(0.25f);
 				// detailContainer.setLayoutData(0.6f);
 				// columnContainerRow.setLayoutData(0.4f);
 				moveDownButton.setVisibility(EVisibility.PICKABLE);

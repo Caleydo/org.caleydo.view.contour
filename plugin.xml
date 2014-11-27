@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="org.caleydo.view.contour.item" name="ItemFactory" schema="schema/org.caleydo.view.contour.item.exsd"/>
+   <extension-point id="org.caleydo.view.contour.summaryitem" name="SummaryItemFactory" schema="schema/org.caleydo.view.contour.summaryitem.exsd"/>
+   <extension-point id="org.caleydo.view.contour.detailview" name="DetailViewFactory" schema="schema/org.caleydo.view.contour.detailview.exsd"/>
    <extension
          point="org.eclipse.ui.views">
       <view
-            allowMultiple="true"
+            allowMultiple="false"
             category="org.caleydo.core.views"
-            class="org.caleydo.view.template.internal.RcpGLTemplateView"
+            class="org.caleydo.view.relationshipexplorer.internal.RcpGLRelationshipExplorerView"
             icon="resources/icons/icon.png"
-            id="org.caleydo.view.template"
-            name="Template">
+            id="org.caleydo.view.relationshipexplorer"
+            name="ConTour">
       </view>
    </extension>
    <extension
@@ -17,24 +20,46 @@
       <menuContribution
             locationURI="menu:org.caleydo.menu.view.visualization">
          <command
-               commandId="org.caleydo.view.template.command.open"
+               commandId="org.caleydo.view.relationshipexplorer.command.open"
                icon="resources/icons/icon.png"
                style="push">
          </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="org.caleydo.menu.file"
+               label="File">
+            <menu
+                  id="org.caleydo.menu.file.import"
+                  label="Import">
+               <command
+                     commandId="org.caleydo.view.relationshipexplorer.import_mapping"
+                     label="Import Mapping"
+                     style="push">
+               </command>
+            </menu>
+         </menu>
       </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.caleydo.view.template.internal.OpenViewHandler"
-            id="org.caleydo.view.template.command.open"
-            name="Template">
+            defaultHandler="org.caleydo.view.relationshipexplorer.internal.OpenViewHandler"
+            id="org.caleydo.view.relationshipexplorer.command.open"
+            name="ConTour">
+      </command>
+      <command
+            defaultHandler="org.caleydo.view.relationshipexplorer.ui.dialog.ImportMappingHandler"
+            id="org.caleydo.view.relationshipexplorer.import_mapping"
+            name="Import Mapping">
       </command>
    </extension>
    <extension
          point="org.caleydo.core.data.datadomain.ViewDataDomainAssociation">
       <association
-            view="org.caleydo.view.template">
+            view="org.caleydo.view.relationshipexplorer">
          <dataDomain
                type="org.caleydo.datadomain.genetic">
          </dataDomain>
@@ -42,5 +67,56 @@
                type="org.caleydo.datadomain.generic">
          </dataDomain>
       </association>
+   </extension>
+   <extension
+         point="org.caleydo.view.contour.item">
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HCSActivityConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIImageAreaConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIMutationItemConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTIVariantCallConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.HTSActivityConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.SimpleTabularDataConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.TextConfigurationAddon">
+      </factory>
+   </extension>
+   <extension
+         point="org.caleydo.view.contour.summaryitem">
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MappingSummaryConfigurationAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.MedianSummaryConfigurationAddon">
+      </factory>
+org.caleydo.view.relationshipexplorer.ui.column.item.factory.impl.ActivitySummaryConfigurationAddon   </extension>
+   <extension
+         point="org.caleydo.view.contour.detailview">
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.compound.CompoundDetailViewAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.image.HTIImageDetailViewAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.parcoords.ParCoordsDetailViewAddon">
+      </factory>
+      <factory
+            class="org.caleydo.view.relationshipexplorer.ui.detail.pathway.DefaultPathwayDetailViewAddon">
+      </factory>
    </extension>
 </plugin>

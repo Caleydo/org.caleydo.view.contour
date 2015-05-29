@@ -7,6 +7,8 @@ package org.caleydo.view.relationshipexplorer.ui.detail.compound;
 
 import java.util.Set;
 
+import org.caleydo.core.event.ADirectedEvent;
+import org.caleydo.core.event.EventPublisher;
 import org.caleydo.core.util.base.ILabeled;
 import org.caleydo.view.relationshipexplorer.ui.ConTourElement;
 import org.caleydo.view.relationshipexplorer.ui.collection.IEntityCollection;
@@ -21,10 +23,28 @@ import org.caleydo.view.relationshipexplorer.ui.detail.IShowSelectedItemsListene
 public class CompoundDetailViewWindow extends DetailViewWindow implements IEntityRepresentation,
 		IShowSelectedItemsListener {
 
-	// public static class ReInitCompoundsEvent extends ADirectedEvent {
-	// public CompoundDetailViewWindow window;
-	// public IEntityCollection collection;
+	public static class ReInitCompoundsEvent extends ADirectedEvent {
+		public CompoundDetailViewWindow window;
+		public IEntityCollection collection;
+	}
+
+	/**
+	 * Callback when a compound is selected.
+	 */
+	// protected ICallback<String> selectionCallback = new ICallback<String>() {
+	//
+	// @Override
+	// public void on(String data) {
+	//
+	// selec
+	// SelectionBasedHighlightOperation c = new SelectionBasedHighlightOperation(null, getHistoryID(),
+	// Sets., selectedElementIDs, collection.getBroadcastingIDType(), contour);
+	//
+	// c.execute();
+	//
+	// contour.getHistory().addHistoryCommand(c);
 	// }
+	// };
 
 	protected boolean showSelectedItems = true;
 
@@ -35,11 +55,11 @@ public class CompoundDetailViewWindow extends DetailViewWindow implements IEntit
 	public CompoundDetailViewWindow(IEntityCollection collection, ConTourElement relationshipExplorer) {
 		super(collection, relationshipExplorer);
 		collection.addEntityRepresentation(this);
-		// ReInitCompoundsEvent event = new ReInitCompoundsEvent();
-		// event.window = this;
-		// event.collection = collection;
-		// // event.to(this);
-		// EventPublisher.trigger(event);
+		ReInitCompoundsEvent event = new ReInitCompoundsEvent();
+		event.window = this;
+		event.collection = collection;
+		// event.to(this);
+		EventPublisher.trigger(event);
 	}
 
 	@Override

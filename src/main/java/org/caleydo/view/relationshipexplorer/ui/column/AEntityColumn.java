@@ -226,6 +226,40 @@ public abstract class AEntityColumn implements ILabeled, IColumnModel {
 		});
 
 		final GLButton findButton = addHeaderButton(FIND_ICON, "Search for Items");
+		//
+		// findButton.setCallback(new ISelectionCallback() {
+		//
+		// @Override
+		// public void onSelectionChanged(GLButton button, boolean selected) {
+		// Vec2f location = contour.getContext().getSWTLayer().run(new ISWTLayerRunnable() {
+		//
+		// @Override
+		// public void run(Display display, Composite canvas) {
+		//
+		// }
+		// })
+		//
+		// }
+		// });
+
+		if (initialized) {
+			// Remove remove column, duplicate column and spacing elements.
+			headerButtons.remove(headerButtons.size() - 1);
+			headerButtons.remove(headerButtons.size() - 1);
+			headerButtons.remove(headerButtons.size() - 1);
+
+			headerButtons.remove(itemPlots);
+			headerButtons.remove(summaryPlots);
+		}
+
+		initialized = false;
+		baseComparators.clear();
+		itemFactory = null;
+		itemFactoryCreators.clear();
+		itemFactoryCreator = null;
+		summaryItemFactory = null;
+		summaryItemFactoryCreators.clear();
+		summaryItemFactoryCreator = null;
 
 		findButton.setCallback(new ISelectionCallback() {
 

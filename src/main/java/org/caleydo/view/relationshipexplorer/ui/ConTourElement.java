@@ -63,6 +63,7 @@ import org.caleydo.view.relationshipexplorer.ui.command.HideDetailCommand;
 import org.caleydo.view.relationshipexplorer.ui.command.RemoveColumnCommand;
 import org.caleydo.view.relationshipexplorer.ui.contextmenu.ThreadSyncEvent;
 import org.caleydo.view.relationshipexplorer.ui.detail.DetailViewWindow;
+import org.caleydo.view.relationshipexplorer.ui.detail.compound.CompoundDetailViewWindow.ReInitCompoundsEvent;
 import org.caleydo.view.relationshipexplorer.ui.dialog.AddColumnDialog;
 import org.caleydo.view.relationshipexplorer.ui.filter.FilterPipeline;
 import org.caleydo.view.relationshipexplorer.ui.list.ColumnTree;
@@ -751,18 +752,18 @@ public class ConTourElement extends AnimatedGLElementContainer {
 		updateDetailHeight();
 	}
 
-	// @ListenTo
-	// public void onReInitCompounds(ReInitCompoundsEvent event) {
-	// event.window.setContent(event.collection.createDetailView(event.window));
-	// updateDetailHeight();
-	// try {
-	// Thread.sleep(200);
-	// } catch (InterruptedException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// // EventPublisher.trigger(event);
-	// }
+	@ListenTo
+	public void onReInitCompounds(ReInitCompoundsEvent event) {
+		event.window.setContent(event.collection.createDetailView(event.window));
+		updateDetailHeight();
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// EventPublisher.trigger(event);
+	}
 
 	public void hideDetailView(IEntityCollection column) {
 		GLElementWindow window = detailMap.remove(column);

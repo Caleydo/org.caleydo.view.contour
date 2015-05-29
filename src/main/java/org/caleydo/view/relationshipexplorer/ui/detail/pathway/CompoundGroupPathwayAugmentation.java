@@ -141,7 +141,7 @@ public class CompoundGroupPathwayAugmentation extends GLElementContainer impleme
 	private CompoundRepresentation compoundRepresentation;
 
 	/** If true all compounds/clusters mapped to this pathway are shown, including those that are filtered. */
-	private boolean showFilteredItems = true;
+	private boolean showFilteredItems = false;
 
 	protected class CompoundRepresentation implements IEntityRepresentation {
 

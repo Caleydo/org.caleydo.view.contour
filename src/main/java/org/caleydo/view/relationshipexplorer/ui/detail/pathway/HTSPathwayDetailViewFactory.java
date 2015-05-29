@@ -28,7 +28,7 @@ public class HTSPathwayDetailViewFactory extends DefaultPathwayDetailViewFactory
 		pathwayElement.addBackgroundAugmentation(aug);
 
 		window.clearTitleElements();
-		window.addShowFilteredItems(aug, true);
+		window.addShowFilteredItems(aug, false);
 
 		return createZoomableElement(pathwayElement);
 	}
